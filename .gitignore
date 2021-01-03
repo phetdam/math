@@ -1,0 +1,5 @@
+# ignore pdflatex generated files and don't version control pdf
+**/*.aux
+**/*.log
+**/*.out
+**/*.pdf
