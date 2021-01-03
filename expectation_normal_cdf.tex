@@ -1,0 +1,101 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsfonts}
+% change equation numbering to section.eq_num
+\numberwithin{equation}{section}
+% set paragraph indent
+\setlength\parindent{0pt}
+% makes clickable links to sections
+\usepackage{hyperref}
+% make the link colors blue, as well as cite colors
+\hypersetup{
+    colorlinks, linkcolor = blue, citecolor = blue, urlcolor = magenta
+}
+
+\title{A normal cdf expectation}
+\author{Derek Huang}
+\date{January 2, 2021\thanks{Original published June 2019.}}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+A couple years ago, I had a problem that involved the computation of the
+expectation of a function of a normal random variable, where the function in
+question was the cumulative distribution function of a different, independent
+normal random variable. At the time, I wrote a 3-page article that mostly
+consisted of me rewriting normal random variables as affine transformations of
+other normal random variables, which consisted of much rote derivation and
+frankly was not too interesting.
+
+\medskip
+
+This article is a much shorter version of the original. The problem has also
+been trivially modified to be more general by dropping the assumption that the
+normal random variables $ X, Y $ are independent.
+
+\section{A solution}
+
+Suppose we have $ X \sim \mathcal{N}(\mu, \sigma^2) $,
+$ Y \sim \mathcal{N}(\nu, \tau^2) $, with correlation
+$ \rho_{X, Y} \in [-1, 1] $. We want to compute the quantity
+$ \mathbb{E}[F_X(Y)] $, where $ F_X $ is the cdf of $ X $, i.e. for
+$ x \in \mathbb{R} $,
+
+\begin{equation*}
+    F_X(x) = \Phi\left(\frac{x - \mu}{\sigma}\right)
+\end{equation*}
+
+Here $ \Phi $ is the standard normal cdf. By the definition of expectation for a
+continous random variable and by the law of total probability, we can
+conveniently rewrite $ \mathbb{E}[F_X(Y)] $ as
+
+\begin{equation*}
+    \mathbb{E}[F_X(Y)] = \int_\mathbb{R}F_X(y)\phi_Y(y)\,dy =
+    \int_\mathbb{R}\mathbb{P}\{X \le Y \mid Y = y\}\phi_Y(y)\,dy =
+    \mathbb{P}\{X \le Y\}
+\end{equation*}
+
+Since $ \mathbb{P}\{X \le Y\} = \mathbb{P}\{X - Y \le 0\} $, we just need the
+distribution of $ X - Y $ and we can compute $ \mathbb{E}[F_X(Y)] $. Since
+$ X, Y $ are both normal random variables, we know
+$ \mathbb{E}[X - Y] = \gamma \triangleq \mu - \nu $. However, since $ X, Y $ are
+not necessarily independent, using properties of
+variance\footnotemark\footnotetext{
+    We can verify the first equality manually at the cost of some uninteresting
+    work. Using the definition of variance,
+    \begin{equation*}
+        \begin{split}
+            \mathrm{Var}(X - Y) & = \mathbb{E}\big[(X - Y - \gamma)^2\big] =
+            \mathbb{E}\big[(X - Y)^2 - 2\gamma(X - Y) + \gamma^2\big] =
+            \mathbb{E}\big[(X - Y)^2\big] - \gamma^2 \\
+            & = \mathbb{E}\big[X^2 - 2XY + Y^2\big] - \mu^2 + 2\mu\nu - \nu^2 =
+            \mathbb{E}\big[X^2] - \mu^2 + \mathbb{E}\big[Y^2\big] - \nu^2 -
+            2(\mathbb{E}[XY] - \mu\nu) \\
+            & = \mathrm{Var}(X) + \mathrm{Var}(Y) - 2\mathrm{cov}(X, Y)
+        \end{split}
+    \end{equation*}
+},
+
+\begin{equation*}
+    \mathrm{Var}(X - Y) = \mathrm{Var}(X) + \mathrm{Var}(Y) -
+        2\mathrm{cov}(X, Y) =
+    \sigma^2 + \tau^2 - 2\rho_{X, Y}\sigma\tau
+\end{equation*}
+
+We can then rewrite $ F_{X - Y} $, the cdf of $ X - Y $, using the standard
+normal cdf. Therefore,
+
+\begin{equation} \label{solution}
+    \mathbb{E}[F_X(Y)] = F_{X - Y}(0) =
+    \Phi\left(-\frac{\mu - \nu}{
+        \sqrt{\sigma^2 + \tau^2 - 2\rho_{X, Y}\sigma\tau}
+    }\right)
+\end{equation}
+
+In the typical scenario, $ Y $ is usually independent of $ X $, so the
+correlation term in (\ref{solution}) may be omitted.
+
+\end{document}
