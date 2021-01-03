@@ -7,13 +7,11 @@ math
    :alt: ./banner.png
    :align: center
 
-need text here?
+Some of the better bits of mathematical work that I have done on my own for fun.
 
    Note:
 
    I might be updating the banner soon. Keep an eye out :)
-
-Some of the better bits of mathematical work that I have done on my own for fun.
 
 Any errors are wholly my own. This repository will always be a work in progress,
 but will usually likely see few updates, as most topics are not substantial
