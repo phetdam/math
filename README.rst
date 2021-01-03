@@ -5,7 +5,6 @@ math
 
 .. image:: ./banner.png
    :alt: ./banner.png
-   :align: center
 
    Note:
 
