@@ -13,7 +13,8 @@ pdflatex is invoked on each file with -shell-escape and -out-directory options
 already preset. If an argument is passed to this script, assumed to be a .tex
 file, then only that file name will be compiled with output written to $OUT_DIR.
 
-if $OUT_DIR does not exist, it will first be created.
+if $OUT_DIR does not exist, it will first be created. output printed to stdout
+will be sent to /dev/null but output printed to stderr will still be displayed.
 
 optional arguments:
  -h, --help  show this usage
@@ -21,7 +22,7 @@ optional arguments:
              omitted, then all files in the current directory are compiled."
 # pdflatex compile command. for some reason, -output-directory is ignored.
 # therefore, i used -jobname to modify the output directory, which works for me.
-TEX_COMPILE="pdflatex -halt-on-error -shell-escape"
+PDF_TEX="pdflatex -halt-on-error -shell-escape"
 
 # if output doesn't exist, then create it
 if [ ! -d $OUTPUT_DIR ]
@@ -33,8 +34,10 @@ if [[ $# == 0 ]]
 then
     for INFILE in ./*.tex
     do
-        # we could use bash string manipulation but i wanted to make this POSIX
-        $TEX_COMPILE -jobname="$(echo $OUT_DIR/$INFILE | sed s/.tex//g)" $INFILE
+        # note redirect to /dev/null doesn't include 2>&1 so output from stderr
+        # will still be shown. echo + sed used to replace .tex with empty string
+        $PDF_TEX -jobname="$(echo $OUT_DIR/$INFILE | sed s/.tex//g)" $INFILE \
+            > /dev/null
     done
 # else if 1 argument
 elif [[ $# == 1 ]]
@@ -46,7 +49,7 @@ then
         echo "$USAGE"
     # else treat as .tex file and send to pdflatex
     else
-        $TEX_COMPILE -jobname="$(echo ./$OUT_DIR/$1 | sed s/.tex//g)" $1
+        $PDF_TEX -jobname="$(echo $OUT_DIR/$1 | sed s/.tex//g)" $1 > /dev/null
     fi
 # else too many arguments
 else
