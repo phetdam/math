@@ -35,10 +35,14 @@ appropriately, for example with ``chmod 777 compile.sh``, and execute in your
 
    ./compile.sh
 
-You may ``source`` the script if you like, but since there are variables being
-defined in the script, it's better to adjust the permissions and just ``./`` it.
 ``compile.sh`` will then compile all ``.tex`` files and write its output to the
-directory specfied by ``$OUT_DIR`` variable defined within it.
+directory specfied by ``$OUT_DIR`` variable defined within it. If the directory
+does not exist, ``compile.sh`` will create a new empty directory before writing
+the ``pdflatex`` output to that directory.
+
+You may also ``source`` the ``compile.sh`` script if you like, but since there
+are variables being defined in the script, it's better to adjust permissions
+with ``chmod`` and just execute ``compile.sh`` with ``./``.
 
 .. [#] The ``bash`` shell is necessary since the improved ``[[`` is used in some
    places within ``compile.sh``.
