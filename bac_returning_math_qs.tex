@@ -13,7 +13,13 @@
 }
 
 \title{Math problems for BAC returning members}
-\author{Derek Huang\thanks{NYU Stern `2021, former BAC Advanced Team Research.}}
+\author{
+    Derek Huang\thanks{
+        NYU Stern `2021, former \href{
+            https://sternbac.org/insightteam.html
+        }{BAC Advanced Team Research}.
+    }
+}
 \date{January 8, 2021}
 
 \begin{document}
@@ -31,12 +37,13 @@
     requisite background to be solved without specialized domain knowledge.
 \end{abstract}
 
-\section{Probability}
+\section{Likelihood maximization}
 
 \begin{enumerate}
+    % 1.1
     \item
     Suppose we have a data set $ \mathcal{D} \triangleq \{y_1,
-    \ldots y_{|\mathcal{D}|}\} $, wnere each $ y_k \in \mathbb{R} $,
+    \ldots y_{|\mathcal{D}|}\} $, where each $ y_k \in \mathbb{R} $,
     $ |\mathcal{D}| $ is the number of elements in the set $ \mathcal{D} $.
     Define the loss function $ J_\mathcal{D} : \mathbb{R}
     \rightarrow [0, \infty) $ such that for $ \kappa \in \mathbb{R} $,
@@ -55,6 +62,7 @@
     mean of the elements in $ \mathcal{D} $. Use the fact that $ J_\mathcal{D} $
     is strictly convex and thus has a unique minimum.
 
+    % 1.2
     \item
     Suppose we have a data set $ \mathcal{D} \triangleq \{y_1, \ldots
     y_{|\mathcal{D}|}\} $, where each $ y_k \in \{0, 1\} $ is an independent
@@ -65,7 +73,7 @@
     sampled, the joint likelihood for the data is
 
     \begin{equation*}
-        p(\mathcal{D} \mid \theta) = \prod_{k = 1}^{|\mathcal{D}|}
+        \ell_\mathcal{D}(\theta) = \prod_{k = 1}^{|\mathcal{D}|}
         \theta^{y_k}(1 - \theta)^{1 - y_k}
     \end{equation*}
 
@@ -78,14 +86,49 @@
         \hat{\theta} = \frac{N_+}{N_+ + N_-}
     \end{equation*}
 
-    \textit{Hint.} $ \max_\theta p(\mathcal{D} \mid \theta) $ has a unique
-    maximum. Use the fact that $ p(\mathcal{D} \mid \theta) =
+    \textit{Hint.} $ \ell_\mathcal{D} $ has a unique
+    maximum. Use the fact that $ \ell_\mathcal{D}(\theta) =
     \theta^{N_+}(1 - \theta)^{N_-} $.
+
+    % 1.3
+    \item
+    Suppose that the data $ \mathcal{D} $ used in the first problem are
+    independent realizations of a scalar random variable $ Y $, where
+    $ Y \sim \mathcal{N}(\mu, \sigma^2) $. That is, $ Y $ is normally
+    distributed with mean $ \mu $ and variance $ \sigma^2 $. Therefore, the
+    joint likelihood of the data, $ \ell_\mathcal{D} $, is such that for some
+    $ \theta \in \mathbb{R} $,
+
+    \begin{equation*}
+        \ell_\mathcal{D}(\theta) = \prod_{k = 1}^{|\mathcal{D}|}
+        \frac{1}{\sqrt{2\pi\sigma^2}}e^{-\frac{1}{2\sigma^2}(y_k - \theta)^2}
+    \end{equation*}
+    
+    Show that $ \hat{\theta} $, the maximum likelihood estimate for $ \mu $, is
+    equal to $ \hat{\kappa} $ from the first problem. In other words, show that
+    $ \hat{\theta} $ is the sample mean of the points in $ \mathcal{D} $.
+
+    \medskip
+
+    \textit{Hint.} $ \ell_\mathcal{D} $ obtains a unique maximum at
+    $ \hat{\theta} $, i.e. $ \hat{\theta} = \arg\max_\theta
+    \ell_\mathcal{D}(\theta) $. But since $ \hat{\theta} $ also uniquely
+    minimizes $ \log \circ \ell_\mathcal{D} $, then we may write
+    that\footnotemark\footnotetext{
+        Since both $ \ell_\mathcal{D} $ and $ \log $ are concave, concavity is
+        preserved and the composition $ \log\circ\ell_\mathcal{D} $ is concave.
+    } $ \hat{\theta} = \arg\max_\theta\ell_\mathcal{D}(\theta) =
+    \arg\max_\theta\log(\ell_\mathcal{D}(\theta)) $. Write an expression for
+    $ \log\circ\ell_\mathcal{D} $ and note that its maximization is equivalent
+    to the minimization of its negation $ L_\mathcal{D} \triangleq
+    -\log\circ\ell_\mathcal{D} $. $ L_\mathcal{D} $ will turn out to be a an
+    affine transformation of $ J_\mathcal{D} $ from the first problem.
 \end{enumerate}
 
 \section{Linear algebra}
 
 \begin{enumerate}
+    % 2.1
     \item
     Suppose we have a real matrix $ \mathbf{X} \in
     \mathbb{R}^{|\mathcal{D}| \times n} $, where each row $ k $ of the matrix
@@ -116,6 +159,7 @@
 \section{Convex functions}
 
 \begin{enumerate}
+    % 3.1
     \item
     A convex function $ f : \mathbb{R}^n \rightarrow \mathbb{R} $ satisfies
     $ \forall \alpha \in [0, 1] $, $ \forall \mathbf{x}, \mathbf{y} \in
@@ -262,11 +306,11 @@
     e^{-y_kF_{m - 1}(\mathbf{x}_k)} $. Therefore, we can write $ J_{m, \alpha} $
     as
 
-    \begin{equation*}
+    \begin{equation} \label{adaboost_functional}
         J_{m, \alpha}[f] = \sum_{k = 1}^{|\mathcal{D}|}w_{m, k}
         e^{-y_k\alpha f(\mathbf{x}_k)} =
         \sum_{k = 1}^{|\mathcal{D}|}w_{m, k}(e^\alpha)^{-y_kf(\mathbf{x}_k)}
-    \end{equation*}
+    \end{equation}
 
     $ J_{m, \alpha} $ is convex, and since $ \alpha $ only changes the
     exponentiation base, then the optimal $ f_m $ is simply the solution to
@@ -280,11 +324,13 @@
 
     \begin{equation} \label{adaboost_alpha}
         \alpha_m = \frac{1}{2}\log\left(
-            \frac{\sum_{k \in I_{f_m}}w_k}{\sum_{k \in I_{f_m}^\mathsf{c}}w_k}
+            \frac{\sum_{k \in I_{f_m}}w_{m, k}}{
+                \sum_{k \in I_{f_m}^\mathsf{c}}w_{m, k}
+            }
         \right)
     \end{equation}
 
-    Derive (\ref{adaboost_alpha}).
+    Derive (\ref{adaboost_alpha}) by starting from (\ref{adaboost_functional}).
 
     \medskip
 
@@ -293,7 +339,10 @@
     \{k \in \{1, \ldots |\mathcal{D}|\} : y_k \ne f_m(\mathbf{x}_k)\} $, and so
     $ I_{f_m} \cup I_{f_m}^\mathsf{c} = \{1, \ldots |\mathcal{D}|\} $. It is
     also important to note that $ \forall k \in \{1, \ldots |\mathcal{D}|\} $,
-    $ y_k \in \{-1, 1\} $.
+    $ y_k, f_m(\mathbf{x}_k) \in \{-1, 1\} $. Therefore,
+    $ y_kf_m(\mathbf{x}_k) = 1 $ if and only if $ y_k = f_m(\mathbf{x}_k) $ and
+    is $ -1 $ otherwise. The resulting expression must only involve the $ m $th
+    iteration weights $ w_{m, k} $.
 
 \end{enumerate}
 
