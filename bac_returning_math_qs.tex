@@ -134,16 +134,18 @@
         f(\mathbf{x}) = \mathbf{x}^\top\mathbf{Hx} + \mathbf{a}^\top\mathbf{x}
     \end{equation}
 
-    Prove that if $ \mathbf{H} $ is not positive semidefinite, then $ f $ is
-    not convex.
+    Prove that if $ f $ is convex, then $ \mathbf{H} \succeq \mathbf{0} $, i.e.
+    that $ \mathbf{H} $ is positive semidefinite.
 
     \medskip
 
-    \textit{Hint.} Prove by contradiction, choosing $ \mathbf{H} \in
-    \mathbb{R}^{2 \times 2} $. The easiest way to complete the proof is to
-    choose $ \mathbf{x} = \mathbf{a} = \mathbf{0} \in \mathbb{R}^2 $,
-    $ \mathbf{y} = \mathbf{1} \in \mathbb{R}^2 $, and define $ \mathbf{H} $ such
-    that for some $ \gamma > 1 $,
+    \textit{Hint.} Prove by \textit{modus tollens}, i.e. by proving the
+    contrapositive is true. In other words, prove that if $ \mathbf{H} $ is not
+    positive semidefinite, then $ f $ is not convex. The easiest way to complete
+    the proof is to choose $ \mathbf{H} \in \mathbb{R}^{2 \times 2} $,
+    $ \mathbf{x} = \mathbf{a} = \mathbf{0} \in \mathbb{R}^2 $, $ \mathbf{y} =
+    \mathbf{1} \in \mathbb{R}^2 $, and define the matrix $ \mathbf{H} $ such
+    that for any choice $ \gamma > 1 $,
 
     \begin{equation*}
         \mathbf{H} \triangleq \mathbf{I} -
