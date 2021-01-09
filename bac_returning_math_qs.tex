@@ -1,0 +1,298 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsfonts}
+% change equation numbering to section.eq_num
+\numberwithin{equation}{section}
+% set paragraph indent
+\setlength\parindent{0pt}
+% makes clickable links to sections
+\usepackage{hyperref}
+% make the link colors blue, as well as cite colors
+\hypersetup{
+    colorlinks, linkcolor = blue, citecolor = blue, urlcolor = magenta
+}
+
+\title{Math problems for BAC returning members}
+\author{Derek Huang\thanks{NYU Stern `2021, former BAC Advanced Team Research.}}
+\date{January 8, 2021}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+    A collection of problems from which some may be used to test returning
+    members' conceptual understanding. Topics range from probability theory,
+    linear algebra, convexity, and some model-related problems. For the more
+    difficult problems, appropriate hints are provided as guides, as none of
+    these problems are supposed to be too difficult by themselves. Rather, they
+    are supposed to test members' application of fundamental mathematics to
+    potentially novel situations, and thus each problem contains enough
+    requisite background to be solved without specialized domain knowledge.
+\end{abstract}
+
+\section{Probability}
+
+\begin{enumerate}
+    \item
+    Suppose we have a data set $ \mathcal{D} \triangleq \{y_1,
+    \ldots y_{|\mathcal{D}|}\} $, wnere each $ y_k \in \mathbb{R} $,
+    $ |\mathcal{D}| $ is the number of elements in the set $ \mathcal{D} $.
+    Define the loss function $ J_\mathcal{D} : \mathbb{R}
+    \rightarrow [0, \infty) $ such that for $ \kappa \in \mathbb{R} $,
+
+    \begin{equation*}
+        J_\mathcal{D}(\kappa) = \sum_{k = 1}^{|\mathcal{D}|}(y_k - \kappa)^2
+    \end{equation*}
+
+    Show that $ J_\mathcal{D} $ is uniquely minimized by $ \hat{\kappa} $, where
+
+    \begin{equation*}
+        \hat{\kappa} = \frac{1}{|\mathcal{D}|}\sum_{k = 1}^{|\mathcal{D}|}y_k
+    \end{equation*}
+
+    In other words, show that $ J_\mathcal{D} $ is uniquely minimized by the
+    mean of the elements in $ \mathcal{D} $. Use the fact that $ J_\mathcal{D} $
+    is strictly convex and thus has a unique minimum.
+
+    \item
+    Suppose we have a data set $ \mathcal{D} \triangleq \{y_1, \ldots
+    y_{|\mathcal{D}|}\} $, where each $ y_k \in \{0, 1\} $ is an independent
+    realization of the random variable $ Y \sim \mathrm{Bernoulli}(p) $. In
+    other words, the underlying distribution for the data is a Bernoulli
+    distribution where the probability of a sample having value $ 1 $ is $ p $.
+    Since $ Y $ is Bernoulli distributed and since each $ y_k $ is independently
+    sampled, the joint likelihood for the data is
+
+    \begin{equation*}
+        p(\mathcal{D} \mid \theta) = \prod_{k = 1}^{|\mathcal{D}|}
+        \theta^{y_k}(1 - \theta)^{1 - y_k}
+    \end{equation*}
+
+    Defining $ N_+ $ as the number of points in $ \mathcal{D} $ with label $ 1 $
+    and $ N_- $ as the number of points in $ \mathcal{D} $ with label $ 0 $,
+    where necessarily $ N_+ + N_- = |\mathcal{D}| $, show that the maximum
+    likelihood estimate of $ p $, $ \hat{\theta} $, is such that
+
+    \begin{equation*}
+        \hat{\theta} = \frac{N_+}{N_+ + N_-}
+    \end{equation*}
+
+    \textit{Hint.} $ \max_\theta p(\mathcal{D} \mid \theta) $ has a unique
+    maximum. Use the fact that $ p(\mathcal{D} \mid \theta) =
+    \theta^{N_+}(1 - \theta)^{N_-} $.
+\end{enumerate}
+
+\section{Linear algebra}
+
+\begin{enumerate}
+    \item
+    Suppose we have a real matrix $ \mathbf{X} \in
+    \mathbb{R}^{|\mathcal{D}| \times n} $, where each row $ k $ of the matrix
+    corresponds to a single transposed data example $ \mathbf{x}_k^\top $.
+    Assuming that each row $ \mathbf{x}_k^\top $ is independently sampled from
+    the same vector-valued continuous distribution, the sample mean
+    $ \bar{\mathbf{x}} \in \mathbb{R}^n $ of the data points is such that
+    
+    \begin{equation*}
+        \bar{\mathbf{x}} = \frac{1}{|\mathcal{D}|}\mathbf{X}^\top\mathbf{1}
+    \end{equation*}
+
+    Here $ \mathbf{1} \in \mathbb{R}^{|\mathcal{D}|} $, the
+    $ \mathbb{R}^{|\mathcal{D}|} $ vector of all $ 1 $s. Show that the centered
+    matrix $ \tilde{\mathbf{X}} $, where $ \tilde{\mathbf{X}} \triangleq
+    \mathbf{X} - \mathbf{1}\bar{\mathbf{x}}^\top $, may be equivalently written
+    as the product of the centering matrix and $ \mathbf{X} $, i.e. that
+
+    \begin{equation*}
+        \tilde{\mathbf{X}} = \left(\mathbf{I} - \frac{1}{|\mathcal{D}|}
+        \mathbf{11}^\top\right)\mathbf{X}
+    \end{equation*}
+
+    Here $ \mathbf{I} $ is the $ |\mathcal{D}| \times |\mathcal{D}| $ identity
+    matrix.
+\end{enumerate}
+
+\section{Convex functions}
+
+\begin{enumerate}
+    \item
+    A convex function $ f : \mathbb{R}^n \rightarrow \mathbb{R} $ satisfies
+    $ \forall \alpha \in [0, 1] $, $ \forall \mathbf{x}, \mathbf{y} \in
+    \mathbb{R}^n $, the inequality
+
+    \begin{equation} \label{convex_function_def}
+        f((1 - \alpha)\mathbf{x} + \alpha\mathbf{y}) \le
+        (1 - \alpha)f(\mathbf{x}) + \alpha f(\mathbf{y})
+    \end{equation}
+    
+    Suppose we define $ f : \mathbb{R}^n \rightarrow
+    \mathbb{R} $ to have a quadratic form, where given symmetric
+    $ \mathbf{H} \in \mathbb{R}^{n \times n} $, $ \mathbf{a} \in \mathbb{R}^n $,
+
+    \begin{equation} \label{quadratic_form}
+        f(\mathbf{x}) = \mathbf{x}^\top\mathbf{Hx} + \mathbf{a}^\top\mathbf{x}
+    \end{equation}
+
+    Prove that if $ \mathbf{H} $ is not positive semidefinite, then $ f $ is
+    not convex.
+
+    \medskip
+
+    \textit{Hint.} Prove by contradiction, choosing $ \mathbf{H} \in
+    \mathbb{R}^{2 \times 2} $. The easiest way to complete the proof is to
+    choose $ \mathbf{x} = \mathbf{a} = \mathbf{0} \in \mathbb{R}^2 $,
+    $ \mathbf{y} = \mathbf{1} \in \mathbb{R}^2 $, and define $ \mathbf{H} $ such
+    that for some $ \gamma > 1 $,
+
+    \begin{equation*}
+        \mathbf{H} \triangleq \mathbf{I} -
+        \gamma\begin{bmatrix} \ 0 & 1 \ \\ \ 1 & 0 \ \end{bmatrix}
+    \end{equation*}
+
+    Then, substitute the values for $ \mathbf{x}, \mathbf{y}, \mathbf{a},
+    \mathbf{H} $ into (\ref{quadratic_form}), compute the quantities
+    $ f((1 - \alpha)\mathbf{x}) $, $ (1 - \alpha)f(\mathbf{x}) $,
+    $ \alpha f(\mathbf{y}) $ and find a contradiction for the inequality in
+    (\ref{convex_function_def}) for some $ \alpha \in  (0, 1) $.
+\end{enumerate}
+
+\section{Model knowledge}
+
+\begin{enumerate}
+    \item
+    Suppose we have input matrix $ \mathbf{X} \in
+    \mathbb{R}^{|\mathcal{D}| \times n} $ and output vector $ \mathbf{y} \in
+    \mathbb{R}^{|\mathcal{D}|} $, where the sample mean of the inputs
+    $ \bar{\mathbf{x}} \triangleq
+    \frac{1}{|\mathcal{D}|}\mathbf{X}^\top\mathbf{1} = \mathbf{0} $ and the
+    sample mean of the outputs $ \bar{y} \triangleq \frac{1}{|\mathcal{D}|}
+    \mathbf{y}^\top\mathbf{1} = 0 $, i.e. both the input and output are
+    centered. Furthermore, suppose that the sample covariance matrix of the
+    input data $ \mathbf{C} = \mathrm{diag}\{\nu_1, \ldots \nu_n\} $,
+    $ \nu_i > 0 $. That is, $ \mathbf{C} $ is a diagonal matrix where each
+    $ i $th diagonal element is equal to $ \nu_i $, the variance of the $ i $th
+    input feature. If we wanted to fit a bias-free\footnotemark\footnotetext{
+        If the output and input data are centered, in the case of a linear
+        model, no bias is needed. Note that $ \mathbb{E}[\bar{\mathbf{x}}] =
+        \mathbb{E}[X] $, $ \mathbb{E}[\bar{y}] = \mathbb{E}[Y] $. Denoting the
+        true parameters of the linear model as $ \omega \in \mathbb{R}^n $ and
+        the true bias as $ b \in \mathbb{R} $, we see that
+        \begin{equation*}
+            \mathbb{E}[Y] = \mathbb{E}\big[\omega^\top(X - \bar{x}) + b\big] = b
+        \end{equation*}
+        Therefore, given centered inputs, the expected value of $ Y $ is $ b $.
+        Clearly an unbiased estimator for $ b = \mathbb{E}[Y] $ is $ \bar{y} $,
+        the sample mean of the outputs. So if we also center the outputs, we
+        see that $ \mathbb{E}[Y - \bar{y}] =
+        \mathbb{E}\big[\omega^\top(X - \bar{x})\big] = 0 $, i.e. that no bias
+        is needed.
+    } linear model to the data, the ordinary least squares (OLS) estimator
+    $ \hat{\mathbf{w}} \in \mathbb{R}^n $ of the true weight vector $ \omega $
+    is given by
+
+    \begin{equation*}
+        \hat{\mathbf{w}} =
+        (|\mathcal{D}|\mathbf{C})^{-1}\mathbf{X}^\top\mathbf{y} =
+        \frac{1}{|\mathcal{D}|}\mathrm{diag}\{\nu_1^{-1}, \ldots \nu_n^{-1}\}
+        \mathbf{X}^\top\mathbf{y}
+    \end{equation*}
+
+    For some $ \lambda \ge 0 $, the ridge regression estimator
+    $ \hat{\mathbf{w}}_\lambda \in \mathbb{R}^n $ of the true weight vector is
+    given by
+
+    \begin{equation*}
+        \begin{split}
+            \hat{\mathbf{w}}_\lambda =
+            (|\mathcal{D}|\mathbf{C} + \lambda\mathbf{I})^{-1}
+            \mathbf{X}^\top\mathbf{y} & =
+            \mathrm{diag}\left\{
+                \frac{1}{|\mathcal{D}|\nu_1 + \lambda}, \ldots
+                \frac{1}{|\mathcal{D}|\nu_n + \lambda}
+            \right\}\mathbf{X}^\top\mathbf{y} \\
+            & = \mathrm{diag}\left\{
+                \frac{|\mathcal{D}|\nu_1}{|\mathcal{D}|\nu_1 + \lambda},
+                \ldots \frac{|\mathcal{D}|\nu_n}{|\mathcal{D}|\nu_n + \lambda}
+            \right\}\hat{\mathbf{w}}
+        \end{split}
+    \end{equation*}
+
+    What is $ \lim_{\lambda \rightarrow \infty}\hat{\mathbf{w}}_\lambda $? For
+    a fixed value of $ \lambda $, explain how for each $ i $th input component,
+    the variance $ \nu_i $ affects how the corresponding OLS coefficient $ w_i $
+    is deflated by ridge regression.
+
+    \item
+    The AdaBoost\footnotemark\footnotetext{
+        Short for \textit{adaptive boosting}.
+    } algorithm is an example of a \textit{boosting algorithm}, which is a
+    supervised learning algorithm that fits an additive model using a greedy
+    stagewise approach. The original \textit{discrete AdaBoost} formulation fits
+    a classifier $ G : \mathbb{R}^n \rightarrow \{-1, 1\} $,
+    $ G(\mathbf{x}) = \mathrm{sgn}(F(\mathbf{x})) $, where
+    $ F : \mathbb{R}^n \rightarrow \mathbb{R} $ is of the form
+
+    \begin{equation*}
+        F(\mathbf{x}) \triangleq F_M(\mathbf{x}) =
+        \sum_{m = 1}^M\alpha_mf_m(\mathbf{x})
+    \end{equation*}
+
+    Here $ \alpha_1, \ldots \alpha_M \in \mathbb{R} $ and
+    $ f_1, \ldots f_M \in \mathcal{H} $, $ \mathcal{H} $ some function subspace.
+    Each $ f_m $ is a classifier outputting a label in $ \{-1, 1\} $. At each
+    boosting iteration $ m $, given the partially built additive model
+    $ F_{m - 1} $, discrete AdaBoost attempts to choose the optimal
+    $ \alpha_m, f_m $ such that $ F_m \triangleq F_{m - 1} + \alpha_mf_m $. It
+    does so by minimizing the $ m $-th iteration loss functional
+    $ J_{m, \alpha} $, where
+
+    \begin{equation*}
+        J_{m, \alpha}[f] = \sum_{k = 1}^{|\mathcal{D}|}
+        L(y_k, F_{m - 1}(\mathbf{x}_k) + \alpha f(\mathbf{x}_k))
+    \end{equation*}
+
+    Here $ L : \mathbb{R}^2 \rightarrow [0, \infty) $ is the exponential loss
+    function, where $ L(y, \hat{y}) = e^{-y\hat{y}} $. Expanding, one sees that
+    $ J_{m ,\alpha} $ can be rewritten as a sum of weighted exponential
+    losses $ w_{m, k}e^{-y_k\alpha f(\mathbf{x}_k)} $,
+    $ k \in \{1, \ldots |\mathcal{D}|\} $, where $ w_{m, k} \triangleq
+    e^{-y_kF_{m - 1}(\mathbf{x}_k)} $. Therefore, we can write $ J_{m, \alpha} $
+    as
+
+    \begin{equation*}
+        J_{m, \alpha}[f] = \sum_{k = 1}^{|\mathcal{D}|}w_{m, k}
+        e^{-y_k\alpha f(\mathbf{x}_k)} =
+        \sum_{k = 1}^{|\mathcal{D}|}w_{m, k}(e^\alpha)^{-y_kf(\mathbf{x}_k)}
+    \end{equation*}
+
+    $ J_{m, \alpha} $ is convex, and since $ \alpha $ only changes the
+    exponentiation base, then the optimal $ f_m $ is simply the solution to
+    $ \min_{f \in \mathcal{H}}J_{m, 1}[f] $, minimizing a sum of weighted
+    exponential losses. With $ f_m $ known, $ \alpha_m $ can be found in closed
+    form. Defining
+    $ I_{f_m} \triangleq \{k \in \{1, \ldots |\mathcal{D}|\} :
+    y_k = f_m(\mathbf{x}_k)\} $, the set of indices where
+    $ y_k = f_m(\mathbf{x}_k) $, $ k \in \{1, \ldots |\mathcal{D}|\} $, then
+    $ \alpha_m $ is such that
+
+    \begin{equation} \label{adaboost_alpha}
+        \alpha_m = \frac{1}{2}\log\left(
+            \frac{\sum_{k \in I_{f_m}}w_k}{\sum_{k \in I_{f_m}^\mathsf{c}}w_k}
+        \right)
+    \end{equation}
+
+    Derive (\ref{adaboost_alpha}).
+
+    \medskip
+
+    \textit{Hint.} Use the fact that $ J_{m, \alpha}[f_m] $ is convex in
+    $ \alpha $. Note that $ I_{f_m}^\mathsf{c} \triangleq
+    \{k \in \{1, \ldots |\mathcal{D}|\} : y_k \ne f_m(\mathbf{x}_k)\} $, and so
+    $ I_{f_m} \cup I_{f_m}^\mathsf{c} = \{1, \ldots |\mathcal{D}|\} $. It is
+    also important to note that $ \forall k \in \{1, \ldots |\mathcal{D}|\} $,
+    $ y_k \in \{-1, 1\} $.
+
+\end{enumerate}
+
+\end{document}
