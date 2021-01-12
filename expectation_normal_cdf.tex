@@ -43,7 +43,6 @@ $ Y \sim \mathcal{N}(\nu, \tau^2) $, with correlation
 $ \rho_{X, Y} \in [-1, 1] $. We want to compute the quantity
 $ \mathbb{E}[F_X(Y)] $, where $ F_X $ is the cdf of $ X $, i.e. for
 $ x \in \mathbb{R} $,
-
 \begin{equation*}
     F_X(x) = \Phi\left(\frac{x - \mu}{\sigma}\right)
 \end{equation*}
@@ -51,7 +50,6 @@ $ x \in \mathbb{R} $,
 Here $ \Phi $ is the standard normal cdf. By the definition of expectation for a
 continous random variable and by the law of total probability, we can
 conveniently rewrite $ \mathbb{E}[F_X(Y)] $ as
-
 \begin{equation*}
     \mathbb{E}[F_X(Y)] = \int_\mathbb{R}F_X(y)\phi_Y(y)\,dy =
     \int_\mathbb{R}\mathbb{P}\{X \le Y \mid Y = y\}\phi_Y(y)\,dy =
@@ -78,7 +76,6 @@ variance\footnotemark\footnotetext{
         \end{split}
     \end{equation*}
 },
-
 \begin{equation*}
     \mathrm{Var}(X - Y) = \mathrm{Var}(X) + \mathrm{Var}(Y) -
         2\mathrm{cov}(X, Y) =
@@ -87,7 +84,6 @@ variance\footnotemark\footnotetext{
 
 We can then rewrite $ F_{X - Y} $, the cdf of $ X - Y $, using the standard
 normal cdf. Therefore,
-
 \begin{equation} \label{solution}
     \mathbb{E}[F_X(Y)] = F_{X - Y}(0) =
     \Phi\left(-\frac{\mu - \nu}{
