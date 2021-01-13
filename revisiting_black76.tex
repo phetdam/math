@@ -14,9 +14,11 @@
 \usepackage{caption}
 \captionsetup{font = small}
 
-\title{Revisiting Black's model}
+\title{Revisiting Black's model\thanks{
+    Draft version. Plots have not yet been created.
+}}
 \author{Derek Huang}
-\date{January 11, 2021\thanks{
+\date{January 13, 2021\thanks{
     Previous version dated August 7, 2019. Notation has been cleaned up and the
     post-derivation analysis has been reworked.
 }}
@@ -360,46 +362,58 @@ Here we used the fact that $ D_{t, T} \triangleq e^{-r(T - t)} $, so
 $ \partial D_{t, T} / \partial T = -re^{-r(T - t)} = -rD_{t, T} $, and the fact
 that the standard normal density $ \phi $ is symmetric around the origin, i.e.
 $ \forall z \in \mathbb{R} $, $ \phi(z) = \phi(-z) $. We see that
-\begin{equation*}
+\begin{equation} \label{black_atm_call_partial_T_limits}
     \begin{array}{cc}
         \displaystyle \lim_{T \rightarrow \infty}
         \frac{\partial\hat{C}_{t, T}^F}{\partial T} = 0 \quad & \quad
         \displaystyle \lim_{T - t \rightarrow 0_+}
         \frac{\partial\hat{C}_{t, T}^F}{\partial T} = \infty
     \end{array}
-\end{equation*}
+\end{equation}
+
 To compute the above limits, we used the fact that the limit of the product of
 continuous functions exists when the individual limits of the continous
 functions exist and is equal to the product of the individual limits. The
 individual limits used in the calculations are shown below.
 \begin{equation*}
-    \begin{array}{cccc}
-        \displaystyle \lim_{T \rightarrow \infty}D_{t, T} = 0
-        \quad & \quad
-        \displaystyle \lim_{T - t \rightarrow 0_+}D_{t, T} = 1 \\
-        \displaystyle \lim_{T \rightarrow \infty}\xi(\sigma, T - t) =
-        \mathbb{I}\{\sigma > 0\}
-        \quad & \quad
-        \displaystyle \lim_{T - t \rightarrow 0_+}\xi(\sigma, T - t) = 0 \\
-        \displaystyle \lim_{T \rightarrow \infty}(T - t)^{-1 / 2} = 0
-        \quad & \quad
-        \displaystyle \lim_{T - t \rightarrow 0_+}(T - t)^{-1 / 2} = \infty \\
-        \displaystyle \lim_{T \rightarrow \infty}\phi\left(
+    \begin{split}
+        \lim_{T \rightarrow \infty}D_{t, T} & = 0 \\
+        \lim_{T \rightarrow \infty}\xi(\sigma, T - t) & =
+        \mathbb{I}\{\sigma > 0\} \\
+        \lim_{T \rightarrow \infty}(T - t)^{-1 / 2} & = 0 \\
+        \lim_{T \rightarrow \infty}\phi\left(
             \frac{1}{2}\sigma\sqrt{T - t}
-        \right) = \frac{1}{\sqrt{2\pi}}\mathbb{I}\{\sigma = 0\}
-        \quad & \quad
-        \displaystyle \lim_{T - t \rightarrow 0_+}\phi\left(
+        \right) & = \frac{1}{\sqrt{2\pi}}\mathbb{I}\{\sigma = 0\}
+    \end{split}
+    \quad \quad
+    \begin{split}
+        \lim_{T - t \rightarrow 0_+}D_{t, T} & = 1 \\
+        \lim_{T - t \rightarrow 0_+}\xi(\sigma, T - t) & = 0 \\
+        \lim_{T - t \rightarrow 0_+}(T - t)^{-1 / 2} & = \infty \\
+        \lim_{T - t \rightarrow 0_+}\phi\left(
             \frac{1}{2}\sigma\sqrt{T - t}
-        \right) = \frac{1}{\sqrt{2\pi}}
-    \end{array}
+        \right) & = \frac{1}{\sqrt{2\pi}}
+    \end{split}
 \end{equation*}
 
-% \footnotemark\footnotetext{
-%     Since $ \lim_{T - t \rightarrow 0_+}D_{t, T} = 1 $ and
-%     $ \forall \sigma \in [0, \infty) $,
-%     $ \lim_{T - t \rightarrow 0_+}\xi(\sigma, T - t) = 0 $, then
-%     $ -\lim_{T - t \rightarrow 0_+}rKD_{t, T}\xi(\sigma, T - t) = 0 $.
-% }.
+The limits for $ \partial \hat{C}_{t, T}^F / \partial T $ shown in
+(\ref{black_atm_call_partial_T_limits}) do make intuitive sense. One would
+expect that an at-the-money European call is worthless at maturity, i.e. when
+$ T - t = 0 $, as $ \hat{C}_{t, T}^F $ should converge to its payoff. On the
+other hand, as the maturity of a European call increases, the marginal value of
+increasing the time to maturity should decrease. If the option never matures,
+then there is no additional time value to add.
+
+\medskip
+
+We can visualize the strike and maturity dynamics of the at-the-money European
+call in Black's model with line plots\footnotemark\footnotetext{
+    Not yet included. Will be done in Python using \href{
+        https://matplotlib.org/
+    }{\texttt{matplotlib}}.
+}. To show how the curves may vary based on the magnitude of the diffusion
+parameter $ \sigma $, on each graph we draw four different curves, each
+corresponding to a value of $ \sigma $ in $ \{0.25, 0.5, 0.75, 1\} $.
 
 % The intuition here is that under the Black model, the value of a European call
 % option is the discounted difference between the current value of the underlying,
