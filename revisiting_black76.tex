@@ -301,7 +301,7 @@ the European call. For example\footnotemark\footnotetext{
         \lim_{T \rightarrow \infty}\frac{C_{t, T}^F}{D_{t, T}} & = F_t \\
         \lim_{\sigma \rightarrow \infty}\frac{C_{t, T}^F}{D_{t, T}} & = F_t \\
         \lim_{F_t / K \rightarrow \infty}\frac{C_{t, T}^F}{D_{t, T}} & =
-        (F_t - K) \\
+        F_t - K \\
         \lim_{F_t / K \rightarrow 0_+}C_{t, T}^F & = 0
     \end{split}
 \end{equation}
@@ -361,39 +361,45 @@ $ \partial D_{t, T} / \partial T = -re^{-r(T - t)} = -rD_{t, T} $, and the fact
 that the standard normal density $ \phi $ is symmetric around the origin, i.e.
 $ \forall z \in \mathbb{R} $, $ \phi(z) = \phi(-z) $. We see that
 \begin{equation*}
-    \lim_{T \rightarrow \infty} \partial\hat{C}_{t, T}^F / \partial T =
-    -rK\lim_{T \rightarrow \infty}D_{t, T}\xi(\sigma, T - t) +
-    \frac{1}{2}\sigma K\lim_{T \rightarrow \infty}D_{t, T}(T - t)^{-1 / 2}
-    \phi\left(\frac{1}{2}\sigma\sqrt{T - t}\right) = 0
-\end{equation*}
-also that
-\begin{equation*}
-    \lim_{T - t \rightarrow 0_+} \partial\hat{C}_{t, T}^F / \partial T =
-    -rK\lim_{T - t \rightarrow 0_+}D_{t, T}\xi(\sigma, T - t) +
-    \frac{1}{2}\sigma K\lim_{T - t \rightarrow 0_+}D_{t, T}(T - t)^{-1 / 2}
-    \phi\left(\frac{1}{2}\sigma\sqrt{T - t}\right)
+    \begin{array}{cc}
+        \displaystyle \lim_{T \rightarrow \infty}
+        \frac{\partial\hat{C}_{t, T}^F}{\partial T} = 0 \quad & \quad
+        \displaystyle \lim_{T - t \rightarrow 0_+}
+        \frac{\partial\hat{C}_{t, T}^F}{\partial T} = \infty
+    \end{array}
 \end{equation*}
 To compute the above limits, we used the fact that the limit of the product of
 continuous functions exists when the individual limits of the continous
 functions exist and is equal to the product of the individual limits. The
-individual limits used are shown below.
+individual limits used in the calculations are shown below.
 \begin{equation*}
-    \begin{split}
-        \lim_{T \rightarrow \infty}D_{t, T} & = 0 \\
-        \lim_{T - t \rightarrow 0_+}D_{t, T} & = 1 \\
-        \lim_{T \rightarrow \infty}\xi(\sigma, T - t) & =
-        \mathbb{I}\{\sigma > 0\} \\
-        \lim_{T - t \rightarrow 0_+}\xi(\sigma, T - t) & = 0 \\
-    \end{split}
+    \begin{array}{cccc}
+        \displaystyle \lim_{T \rightarrow \infty}D_{t, T} = 0
+        \quad & \quad
+        \displaystyle \lim_{T - t \rightarrow 0_+}D_{t, T} = 1 \\
+        \displaystyle \lim_{T \rightarrow \infty}\xi(\sigma, T - t) =
+        \mathbb{I}\{\sigma > 0\}
+        \quad & \quad
+        \displaystyle \lim_{T - t \rightarrow 0_+}\xi(\sigma, T - t) = 0 \\
+        \displaystyle \lim_{T \rightarrow \infty}(T - t)^{-1 / 2} = 0
+        \quad & \quad
+        \displaystyle \lim_{T - t \rightarrow 0_+}(T - t)^{-1 / 2} = \infty \\
+        \displaystyle \lim_{T \rightarrow \infty}\phi\left(
+            \frac{1}{2}\sigma\sqrt{T - t}
+        \right) = \frac{1}{\sqrt{2\pi}}\mathbb{I}\{\sigma = 0\}
+        \quad & \quad
+        \displaystyle \lim_{T - t \rightarrow 0_+}\phi\left(
+            \frac{1}{2}\sigma\sqrt{T - t}
+        \right) = \frac{1}{\sqrt{2\pi}}
+    \end{array}
 \end{equation*}
-$
- = \infty
-$\footnotemark\footnotetext{
-    Since $ \lim_{T - t \rightarrow 0_+}D_{t, T} = 1 $ and
-    $ \forall \sigma \in [0, \infty) $,
-    $ \lim_{T - t \rightarrow 0_+}\xi(\sigma, T - t) = 0 $, then
-    $ -\lim_{T - t \rightarrow 0_+}rKD_{t, T}\xi(\sigma, T - t) = 0 $.
-}.
+
+% \footnotemark\footnotetext{
+%     Since $ \lim_{T - t \rightarrow 0_+}D_{t, T} = 1 $ and
+%     $ \forall \sigma \in [0, \infty) $,
+%     $ \lim_{T - t \rightarrow 0_+}\xi(\sigma, T - t) = 0 $, then
+%     $ -\lim_{T - t \rightarrow 0_+}rKD_{t, T}\xi(\sigma, T - t) = 0 $.
+% }.
 
 % The intuition here is that under the Black model, the value of a European call
 % option is the discounted difference between the current value of the underlying,
