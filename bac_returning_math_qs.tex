@@ -47,17 +47,13 @@
     $ |\mathcal{D}| $ is the number of elements in the set $ \mathcal{D} $.
     Define the loss function $ J_\mathcal{D} : \mathbb{R}
     \rightarrow [0, \infty) $ such that for $ \kappa \in \mathbb{R} $,
-
     \begin{equation*}
         J_\mathcal{D}(\kappa) = \sum_{k = 1}^{|\mathcal{D}|}(y_k - \kappa)^2
     \end{equation*}
-
     Show that $ J_\mathcal{D} $ is uniquely minimized by $ \hat{\kappa} $, where
-
     \begin{equation*}
         \hat{\kappa} = \frac{1}{|\mathcal{D}|}\sum_{k = 1}^{|\mathcal{D}|}y_k
     \end{equation*}
-
     In other words, show that $ J_\mathcal{D} $ is uniquely minimized by the
     mean of the elements in $ \mathcal{D} $. Use the fact that $ J_\mathcal{D} $
     is strictly convex and thus has a unique minimum.
@@ -71,21 +67,17 @@
     distribution where the probability of a sample having value $ 1 $ is $ p $.
     Since $ Y $ is Bernoulli distributed and since each $ y_k $ is independently
     sampled, the joint likelihood for the data is
-
     \begin{equation*}
         \ell_\mathcal{D}(\theta) = \prod_{k = 1}^{|\mathcal{D}|}
         \theta^{y_k}(1 - \theta)^{1 - y_k}
     \end{equation*}
-
     Defining $ N_+ $ as the number of points in $ \mathcal{D} $ with label $ 1 $
     and $ N_- $ as the number of points in $ \mathcal{D} $ with label $ 0 $,
     where necessarily $ N_+ + N_- = |\mathcal{D}| $, show that the maximum
     likelihood estimate of $ p $, $ \hat{\theta} $, is such that
-
     \begin{equation*}
         \hat{\theta} = \frac{N_+}{N_+ + N_-}
     \end{equation*}
-
     \textit{Hint.} $ \ell_\mathcal{D} $ has a unique
     maximum. Use the fact that $ \ell_\mathcal{D}(\theta) =
     \theta^{N_+}(1 - \theta)^{N_-} $.
@@ -98,12 +90,10 @@
     distributed with mean $ \mu $ and variance $ \sigma^2 $. Therefore, the
     joint likelihood of the data, $ \ell_\mathcal{D} $, is such that for some
     $ \theta \in \mathbb{R} $,
-
     \begin{equation*}
         \ell_\mathcal{D}(\theta) = \prod_{k = 1}^{|\mathcal{D}|}
         \frac{1}{\sqrt{2\pi\sigma^2}}e^{-\frac{1}{2\sigma^2}(y_k - \theta)^2}
     \end{equation*}
-    
     Show that $ \hat{\theta} $, the maximum likelihood estimate for $ \mu $, is
     equal to $ \hat{\kappa} $ from the first problem. In other words, show that
     $ \hat{\theta} $ is the sample mean of the points in $ \mathcal{D} $.
@@ -137,22 +127,18 @@
     Assuming that each row $ \mathbf{x}_k^\top $ is independently sampled from
     the same vector-valued continuous distribution, the sample mean
     $ \bar{\mathbf{x}} \in \mathbb{R}^n $ of the data points is such that
-    
     \begin{equation*}
         \bar{\mathbf{x}} = \frac{1}{|\mathcal{D}|}\mathbf{X}^\top\mathbf{1}
     \end{equation*}
-
     Here $ \mathbf{1} \in \mathbb{R}^{|\mathcal{D}|} $, the
     $ \mathbb{R}^{|\mathcal{D}|} $ vector of all $ 1 $s. Show that the centered
     matrix $ \tilde{\mathbf{X}} $, where $ \tilde{\mathbf{X}} \triangleq
     \mathbf{X} - \mathbf{1}\bar{\mathbf{x}}^\top $, may be equivalently written
     as the product of the centering matrix and $ \mathbf{X} $, i.e. that
-
     \begin{equation*}
         \tilde{\mathbf{X}} = \left(\mathbf{I} - \frac{1}{|\mathcal{D}|}
         \mathbf{11}^\top\right)\mathbf{X}
     \end{equation*}
-
     Here $ \mathbf{I} $ is the $ |\mathcal{D}| \times |\mathcal{D}| $ identity
     matrix.
 \end{enumerate}
@@ -165,20 +151,16 @@
     A convex function $ f : \mathbb{R}^n \rightarrow \mathbb{R} $ satisfies
     $ \forall \alpha \in [0, 1] $, $ \forall \mathbf{x}, \mathbf{y} \in
     \mathbb{R}^n $, the inequality
-
     \begin{equation} \label{convex_function_def}
         f((1 - \alpha)\mathbf{x} + \alpha\mathbf{y}) \le
         (1 - \alpha)f(\mathbf{x}) + \alpha f(\mathbf{y})
     \end{equation}
-    
     Suppose we define $ f : \mathbb{R}^n \rightarrow
     \mathbb{R} $ to have a quadratic form, where given symmetric
     $ \mathbf{H} \in \mathbb{R}^{n \times n} $, $ \mathbf{a} \in \mathbb{R}^n $,
-
     \begin{equation} \label{quadratic_form}
         f(\mathbf{x}) = \mathbf{x}^\top\mathbf{Hx} + \mathbf{a}^\top\mathbf{x}
     \end{equation}
-
     Prove that if $ f $ is convex, then $ \mathbf{H} \succeq \mathbf{0} $, i.e.
     that $ \mathbf{H} $ is positive semidefinite.
 
@@ -191,12 +173,10 @@
     $ \mathbf{x} = \mathbf{a} = \mathbf{0} \in \mathbb{R}^2 $, $ \mathbf{y} =
     \mathbf{1} \in \mathbb{R}^2 $, and define the matrix $ \mathbf{H} $ such
     that for any choice of $ \gamma \ge 1 $,
-
     \begin{equation*}
         \mathbf{H} \triangleq \mathbf{I} -
         \gamma\begin{bmatrix} \ 0 & 1 \ \\ \ 1 & 0 \ \end{bmatrix}
     \end{equation*}
-
     Then, substitute the values for $ \mathbf{x}, \mathbf{y}, \mathbf{a},
     \mathbf{H} $ into (\ref{quadratic_form}), compute the quantities
     $ f((1 - \alpha)\mathbf{x}) $, $ (1 - \alpha)f(\mathbf{x}) $,
@@ -213,12 +193,10 @@
     \textit{Hint.} Using (\ref{convex_function_def}), compute the quantities
     $ f((1 - \alpha)\mathbf{x} + \alpha\mathbf{y}) $,
     $ (1 - \alpha)f(\mathbf{x}) $, $ \alpha f(\mathbf{y}) $ and show that
-
     \begin{equation*}
         (1 - \alpha)f(\mathbf{x}) + \alpha f(\mathbf{y}) -
         f((1 - \alpha)\mathbf{x} + \alpha\mathbf{y}) \ge 0
     \end{equation*}
-
     Use the fact that $ \mathbf{H} \succeq \mathbf{0} $ as the left-hand side
     of the inequality simplifies to a scaled quadratic form. In other words,
     the left-hand side can be written as $ \beta\mathbf{u}^\top\mathbf{Hu} $,
@@ -259,18 +237,15 @@
     } linear model to the data, the ordinary least squares (OLS) estimator
     $ \hat{\mathbf{w}} \in \mathbb{R}^n $ of the true weight vector $ \omega $
     is given by
-
     \begin{equation*}
         \hat{\mathbf{w}} =
         (|\mathcal{D}|\mathbf{C})^{-1}\mathbf{X}^\top\mathbf{y} =
         \frac{1}{|\mathcal{D}|}\mathrm{diag}\{\nu_1^{-1}, \ldots \nu_n^{-1}\}
         \mathbf{X}^\top\mathbf{y}
     \end{equation*}
-
     For some $ \lambda \ge 0 $, the ridge regression estimator
     $ \hat{\mathbf{w}}_\lambda \in \mathbb{R}^n $ of the true weight vector is
     given by
-
     \begin{equation*}
         \begin{split}
             \hat{\mathbf{w}}_\lambda =
@@ -286,7 +261,6 @@
             \right\}\hat{\mathbf{w}}
         \end{split}
     \end{equation*}
-
     What is $ \lim_{\lambda \rightarrow \infty}\hat{\mathbf{w}}_\lambda $? For
     a fixed value of $ \lambda $, explain how for each $ i $th input component,
     the variance $ \nu_i $ affects how the corresponding OLS coefficient $ w_i $
@@ -301,12 +275,10 @@
     a classifier $ G : \mathbb{R}^n \rightarrow \{-1, 1\} $,
     $ G(\mathbf{x}) = \mathrm{sgn}(F(\mathbf{x})) $, where
     $ F : \mathbb{R}^n \rightarrow \mathbb{R} $ is of the form
-
     \begin{equation*}
         F(\mathbf{x}) \triangleq F_M(\mathbf{x}) =
         \sum_{m = 1}^M\alpha_mf_m(\mathbf{x})
     \end{equation*}
-
     Here $ \alpha_1, \ldots \alpha_M \in \mathbb{R} $ and
     $ f_1, \ldots f_M \in \mathcal{H} $, $ \mathcal{H} $ some function subspace.
     Each $ f_m $ is a classifier outputting a label in $ \{-1, 1\} $. At each
@@ -315,12 +287,10 @@
     $ \alpha_m, f_m $ such that $ F_m \triangleq F_{m - 1} + \alpha_mf_m $. It
     does so by minimizing the $ m $-th iteration loss functional
     $ J_{m, \alpha} $, where
-
     \begin{equation*}
         J_{m, \alpha}[f] = \sum_{k = 1}^{|\mathcal{D}|}
         L(y_k, F_{m - 1}(\mathbf{x}_k) + \alpha f(\mathbf{x}_k))
     \end{equation*}
-
     Here $ L : \mathbb{R}^2 \rightarrow [0, \infty) $ is the exponential loss
     function, where $ L(y, \hat{y}) = e^{-y\hat{y}} $. Expanding, one sees that
     $ J_{m ,\alpha} $ can be rewritten as a sum of weighted exponential
@@ -328,13 +298,11 @@
     $ k \in \{1, \ldots |\mathcal{D}|\} $, where $ w_{m, k} \triangleq
     e^{-y_kF_{m - 1}(\mathbf{x}_k)} $. Therefore, we can write $ J_{m, \alpha} $
     as
-
     \begin{equation} \label{adaboost_functional}
         J_{m, \alpha}[f] = \sum_{k = 1}^{|\mathcal{D}|}w_{m, k}
         e^{-y_k\alpha f(\mathbf{x}_k)} =
         \sum_{k = 1}^{|\mathcal{D}|}w_{m, k}(e^\alpha)^{-y_kf(\mathbf{x}_k)}
     \end{equation}
-
     $ J_{m, \alpha} $ is convex, and since $ \alpha $ only changes the
     exponentiation base, then the optimal $ f_m $ is simply the solution to
     $ \min_{f \in \mathcal{H}}J_{m, 1}[f] $, minimizing a sum of weighted
@@ -344,7 +312,6 @@
     y_k = f_m(\mathbf{x}_k)\} $, the set of indices where
     $ y_k = f_m(\mathbf{x}_k) $, $ k \in \{1, \ldots |\mathcal{D}|\} $, then
     $ \alpha_m $ is such that
-
     \begin{equation} \label{adaboost_alpha}
         \alpha_m = \frac{1}{2}\log\left(
             \frac{\sum_{k \in I_{f_m}}w_{m, k}}{
@@ -352,7 +319,6 @@
             }
         \right)
     \end{equation}
-
     Derive (\ref{adaboost_alpha}) by starting from (\ref{adaboost_functional}).
 
     \medskip
