@@ -7,9 +7,8 @@ math
    :alt: ./banner.png
    :align: center
 
-Some mathematical work that I have done on my own for fun.
-
-These range from textbook exercises to my original analysis.
+Some mathematical work that I have done on my own for fun, ranging from
+textbook exercises to my own original analyses.
 
    Note:
 
