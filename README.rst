@@ -7,20 +7,23 @@ math
    :alt: ./banner.png
    :align: center
 
-Some mathematical work that I have done on my own for fun, ranging from
-textbook exercises to my own original analyses.
+Some mathematical work that I have done on my own for fun.
 
    Note:
 
    I might be updating the banner soon. Keep an eye out :)
 
-Any errors are wholly my own. This repository will always be a work in
-progress, but will usually likely see few updates, as most topics are not
-substantial enough to do a full article on. Article topics will most likely
-fall within the categories of financial math or statistical learning, which
-are my main recreational interests.
+See the `Compiling to PDF`_  section for instructions on how to compile the
+``.tex`` source into PDF.
 
-See below section for instructions on how to compile ``.tex`` source to PDF.
+Any mathematical errors are wholly my own.
+
+Contents
+--------
+
+
+
+
 
 Compiling to PDF
 ----------------
