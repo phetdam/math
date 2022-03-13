@@ -47,5 +47,8 @@ appropriately, for example with ``chmod 777 compile.sh``, and execute in your
 ``pdf`` directory, which if it does not exist, will be created. If you do not
 wish to adjust permissions, use ``bash compile.sh`` instead of executing.
 
+You can view help on more advanced use of ``compile.sh`` with ``compile.sh -h``
+or ``compile.sh --help``.
+
 .. [#] The ``bash`` shell is necessary since the improved ``[[`` is used once
    places within ``compile.sh``.
