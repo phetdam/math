@@ -1,0 +1,68 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsfonts, enumitem, fancyhdr, tikz}
+% get rid of paragraph indent
+\setlength{\parindent}{0 pt}
+% allow section.equation numbering
+\numberwithin{equation}{section}
+\usepackage{hyperref}
+% make the link colors blue, as well as cite colors. urls are magenta
+\hypersetup{colorlinks, linkcolor=blue, citecolor=blue, urlcolor=magenta}
+
+\title{Statistical Learning with Sparsity \\ \Large Exercise Solutions}
+\author{Derek Huang\thanks{SMBC Capital Markets, Quantitative Strategists.}}
+\date{Match 13, 2022}
+
+\begin{document}
+
+\newcommand{\newtocsubsection}[1]{%
+    \subsection*{#1} \addcontentsline{toc}{subsection}{#1}%
+}
+
+\maketitle
+
+%\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+
+During my time as an undergraduate student at NYU, there was a period where
+I found it interesting how the theory of convex optimization was applied by
+the field of supervised learning to fit models. One of the topics I was
+interested in was sparse optimization, mostly the kinds where sparsity was
+enforced by a convex norm constraint, ex. $ \ell^1 $ or nuclear norm.
+
+\medskip
+
+To satisfy my interests, I ended up purchasing Hastie, Tibshirani, and
+Wainwright's \textit{%
+    Statistical Learning with Sparsity: The Lasso and Generalizations%
+}, seeing that it was a monograph on the topic. Despite enjoying the portions
+of the book that I found time to read, I was irrationally afraid of
+attempting the exercises, mostly because of a subconscious belief that failure
+to satisfactorily complete meaningfully challenging exercises would somehow
+invalidate both my intelligence and my worth as an individual. I no longer
+feel the same way, although I still think that in general, my own intelligence
+and individual worth are nothing significant.
+
+\medskip
+
+Regardless, the exercise solutions in this document exist to be a testament
+to my own efforts towards understanding and will hopefully be a resource to
+anyone else who may be attempting these exercises.
+
+\section{The Lasso for Linear Models}
+
+\newtocsubsection{Exercise 2.1}
+
+TODO
+
+\newtocsubsection{Exercise 2.2}
+
+TODO
+
+
+\end{document}

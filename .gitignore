@@ -1,8 +1,9 @@
 # ignore pdflatex/Texmaker generated files and don't version control pdf
 **/*.aux
+**/*.gz
 **/*.log
 **/*.out
 **/*.pdf
-**/*.gz
+**/*.toc
 # ignore old README.md
 README.md
