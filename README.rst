@@ -47,4 +47,4 @@ You can view help on more advanced use of ``compile.sh`` with ``compile.sh -h``
 or ``compile.sh --help``.
 
 .. [#] The ``bash`` shell is necessary since the improved ``[[`` is used once
-   places within ``compile.sh``.
+   in ``compile.sh``.
