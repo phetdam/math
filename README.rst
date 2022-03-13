@@ -15,12 +15,6 @@ These range from textbook exercises to my original analysis.
 
    I might be updating the banner soon. Keep an eye out :)
 
-   Note:
-
-   The PDF files that are currently in the repository will be updated soon and
-   are likely to disappear in the near future. Compiling from the TeX source
-   will yield the latest document versions.
-
 Any errors are wholly my own. This repository will always be a work in
 progress, but will usually likely see few updates, as most topics are not
 substantial enough to do a full article on. Article topics will most likely
