@@ -1,57 +1,141 @@
 #!/usr/bin/bash
-# compiles all the .tex files in this directory and writes the output to
-# OUT_DIR, specified in this script. see usage for details.
+# compiles all the .tex files in this directory, including the subdirectories,
+# and writes the output to PDF_DIR, specified in this script, duplicating the
+# existing file structure of this repo's .tex files. see usage for details.
 
-# output directory
-OUT_DIR="./output"
+# directory this file resides in
+REPO_HOME=$(realpath .)
+# relative and absolute output directory, image directory
+REL_PDF_DIR="pdf"
+PDF_DIR="$REPO_HOME/$REL_PDF_DIR"
+IMAGE_DIR="$REPO_HOME/images"
 # script usage
-USAGE="usage: $0 [-h] [TEXFILE]
+USAGE="usage: $0 [-h] [TEXFILE ...]
 
-Compiles all .tex files in the directory, writing PDF output to $OUT_DIR.
+Compiles all .tex files in the repository, writing PDF output to $REL_PDF_DIR.
 
-pdflatex is invoked on each file with -shell-escape and -out-directory options
-already preset. If an argument is passed to this script, assumed to be a .tex
-file, then only that file name will be compiled with output written to $OUT_DIR.
+pdflatex is invoked on each file with -shell-escape and -out-directory
+options already preset. If an argument is passed to this script, assumed
+to be a .tex file, then only that file name will be compiled with output
+written to $REL_PDF_DIR. repo structure will be duplicated in $REL_PDF_DIR.
 
-if $OUT_DIR does not exist, it will first be created. output printed to stdout
-will be sent to /dev/null but output printed to stderr will still be displayed.
+If $REL_PDF_DIR and subdirectories do not exist, they will first be created.
+stdout output goes to /dev/null, but stderr output is displayed.
 
 optional arguments:
  -h, --help  show this usage
- TEXFILE     specified .tex file to compile, writing output to $OUT_DIR. if
-             omitted, then all files in the current directory are compiled."
-# pdflatex compile command. for some reason, -output-directory is ignored.
-# therefore, i used -jobname to modify the output directory, which works for me.
-PDF_TEX="pdflatex -halt-on-error -shell-escape"
+ TEXFILE     specified .tex file or files to compile, writing output to
+             $REL_PDF_DIR. if omitted, all .tex files in repo are compiled."
 
-# if output doesn't exist, then create it
-if [ ! -d $OUTPUT_DIR ]
-then
-    mkdir $OUTPUT_DIR
-fi
-# if no arguments, then compile all files
-if [[ $# == 0 ]]
-then
-    for INFILE in ./*.tex
+##
+# Recursively creates empty directories in PDF_DIR mirroring repo structure.
+#
+# Arguments:
+#   Name of current directory to start generate subdirectories for.
+#       Optional. If not provided, uses REPO_HOME. If given multiple directory
+#       names, will only use the first one specified.
+# Outputs:
+#   Names of any empty directories created.
+create_output_dirs() {
+    if [ $# -eq 0 ]
+    then
+        CUR_DIR=$REPO_HOME
+    elif [ $# -ge 1 ]
+    then
+        # easier to work with absolute paths
+        CUR_DIR=$(realpath $1)
+    fi
+    # only create $PDF_DIR if CUR_DIR is REPO_HOME
+    if [ $CUR_DIR = $REPO_HOME ] && [ ! -d $PDF_DIR ]
+    then
+        mkdir $PDF_DIR
+        echo "created output directory $PDF_DIR"
+    fi
+    for MAYBE_DIR in $CUR_DIR/*
     do
-        # note redirect to /dev/null doesn't include 2>&1 so output from stderr
-        # will still be shown. echo + sed used to replace .tex with empty string
-        $PDF_TEX -jobname="$(echo $OUT_DIR/$INFILE | sed s/.tex//g)" $INFILE \
-            > /dev/null
+        MAYBE_NEW_DIR="$PDF_DIR/$(realpath --relative-to=$REPO_HOME $MAYBE_DIR)"
+        # only create new dir if it's not PDF_DIR and does not have a dir of
+        # the same name in PDF_DIR relative to the repo home. PDF_DIR absolute.
+        if  [ -d $MAYBE_DIR ] && \
+            [ $MAYBE_DIR != $PDF_DIR ] && \
+            [ $MAYBE_DIR != $IMAGE_DIR ] && \
+            [ ! -d $MAYBE_NEW_DIR ]
+        then
+            mkdir $MAYBE_NEW_DIR
+            echo "created new directory $MAYBE_NEW_DIR"
+            create_output_dirs $MAYBE_DIR
+        fi
     done
-# else if 1 argument
-elif [[ $# == 1 ]]
-then
-    # if help argument, then print usage
-    if [ $1 = "-h" ] || [ $1 = "--help" ]
+}
+
+##
+# Compiles a single specified .tex file to its corresponding output dir.
+#
+# Arguments:
+#   Name of the .tex file in this repo to compile. Won't work if not in repo.
+# Outputs:
+#   Name of the resulting .pdf file if successful.
+compile_tex() {
+    # needs to be relative to repo directory
+    REL_PATH=$(realpath --relative-to=$REPO_HOME $1)
+    ACT_PATH=$(realpath $1)
+    pdflatex -halt-on-error -shell-escape \
+        -output-directory=$PDF_DIR/$(dirname $REL_PATH) $ACT_PATH > /dev/null
+    echo "compiled $(echo $ACT_PATH | sed s/.tex/.pdf/g)"
+}
+
+##
+# Recursively compile all .tex files in the repo to their locations in PDF_DIR.
+#
+# Arguments:
+#   Name of the current directory to start recursively compiling.
+#       Optional. If not provided, REPO_HOME is used. If you give it multiple
+#       directories, only the first one will be used.
+# Outputs:
+#   Names of the resulting .pdf files generated (from compile_tex).
+compile_all_tex() {
+    if [ $# -eq 0 ]
+    then
+        CUR_DIR=$REPO_HOME
+    elif [ $# -ge 1 ]
+    then
+        CUR_DIR=$(realpath $1)
+    fi
+    for FILE_OR_DIR in $CUR_DIR/*
+    do
+        if [ -d $FILE_OR_DIR ]
+        then
+            compile_all_tex $FILE_OR_DIR
+        elif [[ $FILE_OR_DIR == *.tex ]]
+        then
+            compile_tex $FILE_OR_DIR  
+        fi
+    done
+}
+
+##
+# Main function for the script.
+#
+main() {
+    # if output and other subdirectories don't exist, create them
+    create_output_dirs
+    # if no arguments, recursively compile all files in all subdirectories
+    if [ $# -eq 0 ]
+    then
+        compile_all_tex
+    # case for help output
+    elif [ $# -eq 1 ] && { [ $1 = "-h" ] || [ $1 = "--help" ]; }
     then
         # need double quote to preserve the spacing
         echo "$USAGE"
-    # else treat as .tex file and send to pdflatex
+    # otherwise, just assume they are all files to compile
     else
-        $PDF_TEX -jobname="$(echo $OUT_DIR/$1 | sed s/.tex//g)" $1 > /dev/null
+        for MAYBE_TEX in "$@"
+        do
+            compile_tex $MAYBE_TEX
+        done
     fi
-# else too many arguments
-else
-    echo "$0: too many arguments. try $0 --help for usage"
-fi
+}
+
+set -e
+main "$@"

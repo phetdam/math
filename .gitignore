@@ -5,4 +5,4 @@
 **/*.pdf
 **/*.gz
 # ignore old README.md
-/README.md
+README.md
