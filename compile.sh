@@ -5,22 +5,23 @@
 
 # directory this file resides in
 REPO_HOME=$(realpath .)
-# relative and absolute output directory, image directory
+# relative and absolute output directory
 REL_PDF_DIR="pdf"
 PDF_DIR="$REPO_HOME/$REL_PDF_DIR"
-IMAGE_DIR="$REPO_HOME/images"
 # script usage
 USAGE="usage: $0 [-h] [TEXFILE ...]
 
 Compiles all .tex files in the repository, writing PDF output to $REL_PDF_DIR.
 
-pdflatex is invoked on each file with -shell-escape and -out-directory
-options already preset. If an argument is passed to this script, assumed
-to be a .tex file, then only that file name will be compiled with output
-written to $REL_PDF_DIR. repo structure will be duplicated in $REL_PDF_DIR.
+pdflatex is invoked on each file with -halt-on-error and -shell-escape
+options already preset. If arguments are passed to this script, assumed
+to be names of .tex files, then only those files will be compiled.
 
-If $REL_PDF_DIR and subdirectories do not exist, they will first be created.
-stdout output goes to /dev/null, but stderr output is displayed.
+note that any file with path relative to the repo home, ex.
+my/path/file.tex, will be written to $REL_PDF_DIR/my/path/file.tex.
+
+If $REL_PDF_DIR and child dirs with .tex files do not exist, they will be
+created. stdout output goes to /dev/null, but stderr output is displayed.
 
 optional arguments:
  -h, --help  show this usage
@@ -54,11 +55,11 @@ create_output_dirs() {
     for MAYBE_DIR in $CUR_DIR/*
     do
         MAYBE_NEW_DIR="$PDF_DIR/$(realpath --relative-to=$REPO_HOME $MAYBE_DIR)"
-        # only create new dir if it's not PDF_DIR and does not have a dir of
-        # the same name in PDF_DIR relative to the repo home. PDF_DIR absolute.
         if  [ -d $MAYBE_DIR ] && \
+            # if there aren't any .tex files in the dir, we won't create it
+            [ $(echo $MAYBE_DIR/*.tex | wc -w) -gt 0 ] && \
             [ $MAYBE_DIR != $PDF_DIR ] && \
-            [ $MAYBE_DIR != $IMAGE_DIR ] && \
+            [ $(realpath --relative-to=$CUR_DIR $MAYBE_DIR) != "images" ] && \
             [ ! -d $MAYBE_NEW_DIR ]
         then
             mkdir $MAYBE_NEW_DIR
