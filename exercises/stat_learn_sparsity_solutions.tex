@@ -57,7 +57,7 @@ anyone else who may be attempting these exercises.
 
 \section{The Lasso for Linear Models}
 
-\newtocsubsection{Exercise 2.1}
+\newtocsubsection{Exercise 2.1} \label{sec:2.1}
 
 Let $ \mathbf{x}_j  \in \mathbb{R}^N $ denote the $ j $-th column of the
 predictor matrix $ \mathbf{X} \in \mathbb{R}^{N \times d} $, and let
@@ -83,12 +83,12 @@ Let us replace $ \lambda \in (0, \infty) $ with $ \lambda_j \in
 With $ \lambda \triangleq \lambda_j $, only $ w_j $ may be nonzero, and
 so in that case we can rewrite (\ref{eq:standard_lasso}) where
 $ \lambda \triangleq \lambda_j $ as
-\begin{equation} \label{eq:single_lasso}
+\begin{equation*}
     \min_{w_j}\frac{1}{2N}\sum_{k = 1}^N(y_k - x_{kj}w_j)^2 +
     \lambda_j|w_j|
-\end{equation}
+\end{equation*}
 
-Taking the subderivative of (\ref{eq:single_lasso}) at its minimizer
+Taking the subderivative of the above expression at its minimizer
 $ \hat{w}_j $, we have
 \begin{equation*}
     0 \in \left\{
@@ -108,13 +108,71 @@ $ j' \ne j $. Therefore, the smallest value of $ \lambda $,
 which we denote $ \tilde{\lambda} $, that unconditionally guarantees
 $ \hat{\mathbf{w}} = \mathbf{0} $, is such that
 \begin{equation*}
-    \tilde{\lambda} \triangleq \frac{1}{N}\max\big\{\big|\mathbf{x}_1^\top\mathbf{y}\big|, \ldots \big|\mathbf{x}_d^\top\mathbf{y}\big|\big\}
+    \tilde{\lambda} \triangleq
+    \frac{1}{N}\max\big\{
+        \big|\mathbf{x}_1^\top\mathbf{y}\big|, \ldots
+        \big|\mathbf{x}_d^\top\mathbf{y}\big|
+    \big\}
 \end{equation*}
 
 
 \newtocsubsection{Exercise 2.2}
 
-TODO
+The scalar soft-thresholding operator $ \mathcal{S}_\lambda $ presented in
+section 2.4.1 is defined such that for $ \lambda \in (0, \infty) $,
+\begin{equation} \label{eq:soft_threshold}
+    \mathcal{S}_\lambda(x) \triangleq
+    \operatorname{sgn}(x)\max\{0, |x| - \lambda\}
+\end{equation}
 
+For a scalar predictor, where we have an input vector $ \mathbf{x} \in
+\mathbb{R}^N $, the lasso problem (\ref{eq:standard_lasso}) simplifies to
+\begin{equation} \label{eq:single_lasso}
+    \min_w\frac{1}{2N}\sum_{k = 1}^N(y_k - x_kw)^2 + \lambda|w|
+\end{equation}
+
+We could solve for the minimizer $ \hat{w} \in \mathbb{R} $ of
+(\ref{eq:single_lasso}) by taking a subderivative, but we are explicitly
+told not to, so we instead proceed by considering the different cases of
+$ \hat{w} $. Naturally, for simplicity, we first suppose that
+$ \hat{w} \in (0, \infty) $. In that case, we can take a derivative of
+(\ref{eq:single_lasso}) at $ \hat{w} $, and thus have
+\begin{equation*}
+    0 = -\frac{1}{N}\sum_{k = 1}^Nx_k(y_k - x_k\hat{w}) + \lambda =
+    -\frac{1}{N}\mathbf{x}^\top\mathbf{y} + \hat{w} + \lambda \Leftrightarrow
+    \hat{w} = \frac{1}{N}\mathbf{x}^\top\mathbf{y} - \lambda
+\end{equation*}
+
+Here we use the fact that as in \nameref{sec:2.1}, the input vector
+$ \mathbf{x} $ is given standardized, where $ \frac{1}{N}\mathbf{1}^\top
+\mathbf{x} = 0 $, $ \frac{1}{N}\mathbf{x}^\top\mathbf{x} = 1 $, so
+$ \frac{1}{N}\sum_{k = 1}^Nx_k^2\hat{w} $ simplifies to $ \hat{w} $. Now,
+considering the case when $ \hat{w} \in (-\infty, 0) $, we have
+\begin{equation*}
+    0 = -\frac{1}{N}\mathbf{x}^\top\mathbf{y} + \hat{w} - \lambda
+    \Leftrightarrow \hat{w} = \frac{1}{N}\mathbf{x}^\top\mathbf{y} + \lambda
+\end{equation*}
+
+Noting that $ \lambda \in (0, \infty) $, we thus have $ \hat{w} \in
+(0, \infty) \Leftrightarrow \frac{1}{N}\mathbf{x}^\top\mathbf{y} > \lambda $,
+$ \hat{w} \in (-\infty, 0) \Leftrightarrow \frac{1}{N}\mathbf{x}^\top
+\mathbf{y} < -\lambda $, which may be simplified into the condition that
+$ \hat{w} \ne 0 \Leftrightarrow \left|\frac{1}{N}\mathbf{x}^\top
+\mathbf{y}\right| > \lambda $. Therefore, by \textit{modus tollens} in both
+directions, $ \hat{w} = 0 \Leftrightarrow \left|\frac{1}{N}\mathbf{x}^\top
+\mathbf{y}\right| \le \lambda $. Furthermore, we can express $ \hat{w} $ in
+terms of $ \frac{1}{N}\mathbf{x}^\top\mathbf{y} $ such that
+\begin{equation*}
+    \hat{w} =
+    \operatorname{sgn}\left(\frac{1}{N}\mathbf{x}^\top\mathbf{y}\right)
+    \max\left\{
+        \left|\frac{1}{N}\mathbf{x}^\top\mathbf{y}\right| - \lambda, 0
+    \right\} \triangleq
+    \mathcal{S}_\lambda\left(\frac{1}{N}\mathbf{x}^\top\mathbf{y}\right)
+\end{equation*}
+
+(\ref{eq:soft_threshold}) therefore yields the solution to
+(\ref{eq:single_lasso}) when applied to
+$ \frac{1}{N}\mathbf{x}^\top\mathbf{y} $.
 
 \end{document}
