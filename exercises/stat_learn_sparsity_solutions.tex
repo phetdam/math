@@ -33,7 +33,7 @@ During my time as an undergraduate student at NYU, there was a period where
 I found it interesting how the theory of convex optimization was applied by
 the field of supervised learning to fit models. One of the topics I was
 interested in was sparse optimization, mostly the kinds where sparsity was
-enforced by a convex norm constraint, ex. $ \ell^1 $ or nuclear norm.
+enforced by a convex norm constraint, ex. $ j^1 $ or nuclear norm.
 
 \medskip
 
@@ -58,7 +58,58 @@ anyone else who may be attempting these exercises.
 
 \newtocsubsection{Exercise 2.1}
 
-TODO
+Let $ \mathbf{x}_j  \in \mathbb{R}^N $ denote the $ j $-th column of the
+predictor matrix $ \mathbf{X} \in \mathbb{R}^{N \times d} $, and let
+$ \mathbf{y} \in \mathbb{R}^N $ denote the response vector as usual. Under
+the assumptions of section 2.4, we have $ \frac{1}{N}\mathbf{1}^\top
+\mathbf{y} = 0 $, $ \frac{1}{N}\mathbf{1}^\top\mathbf{x}_j = 0 $,
+$ \frac{1}{N}\mathbf{x}_j^\top\mathbf{x}_j = 1 $\footnote{
+    In words, the predictors are standardized to zero mean and unit variance,
+    while the response is standardized to zero mean.
+}.
+
+\medskip
+
+The lasso problem, as introduced in the book, can be written as
+\begin{equation} \label{eq:standard_lasso}
+    \min_\mathbf{w}\frac{1}{2N}\Vert\mathbf{y} - \mathbf{Xw}\Vert_2^2 +
+    \lambda\Vert\mathbf{w}\Vert_1
+\end{equation}
+
+Let us replace $ \lambda \in (0, \infty) $ with $ \lambda_j \in
+(0, \infty) $, where $ \forall j \in \{1, \ldots d\} $, $ \lambda_j
+\Rightarrow w_{j'} \in \{1, \ldots d\}, j' \ne j, w_{j'} = 0 $.
+With $ \lambda \triangleq \lambda_j $, only $ w_j $ may be nonzero, and
+so in that case we can rewrite (\ref{eq:standard_lasso}) where
+$ \lambda \triangleq \lambda_j $ as
+\begin{equation} \label{eq:single_lasso}
+    \min_{w_j}\frac{1}{2N}\sum_{k = 1}^N(y_k - x_{kj}w_j)^2 +
+    \lambda_j|w_j|
+\end{equation}
+
+Taking the subderivative of (\ref{eq:single_lasso}) at its minimizer
+$ \hat{w}_j $, we have
+\begin{equation*}
+    0 \in \left\{
+        -\frac{1}{N}\sum_{k = 1}^Nx_{kj}(y_k - x_{kj}\hat{w}_j)
+    \right\} +
+    \lambda_j\partial|\hat{w}_j| =
+    \left\{-\frac{1}{N}\mathbf{x}_j^\top\mathbf{y} + \hat{w}_j\right\} +
+    \lambda_j\partial|\hat{w}_j|
+\end{equation*}
+
+Note that $ \hat{w}_j = 0 \Rightarrow \partial|\hat{w}_j| = [-1, 1] $. We
+must then have $ \left|\frac{1}{N}\mathbf{x}_j^\top\mathbf{y}\right| \le
+\lambda_j \Rightarrow \left|\frac{1}{N}\mathbf{x}_j^\top\mathbf{y}\right| $
+is the smallest value of $ \lambda $ that guarantees $ \hat{w}_j = 0 $
+conditional on $ \hat{w}_{j'} = 0 $, $ \forall j' \in \{1, \ldots d\} $,
+$ j' \ne j $. Therefore, the smallest value of $ \lambda $,
+which we denote $ \tilde{\lambda} $, that unconditionally guarantees
+$ \hat{\mathbf{w}} = \mathbf{0} $, is such that
+\begin{equation*}
+    \tilde{\lambda} \triangleq \frac{1}{N}\max\big\{\big|\mathbf{x}_1^\top\mathbf{y}\big|, \ldots \big|\mathbf{x}_d^\top\mathbf{y}\big|\big\}
+\end{equation*}
+
 
 \newtocsubsection{Exercise 2.2}
 
