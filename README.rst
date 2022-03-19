@@ -11,7 +11,7 @@ Some mathematical work that I have done on my own for fun.
 
    Note:
 
-   I might be updating the banner soon. Keep an eye out :)
+   Still deciding on a new banner.
 
 See the `Compiling to PDF`_  section for instructions on how to compile the
 ``.tex`` source into PDF.
@@ -23,8 +23,6 @@ Contents
 
 
 
-
-
 Compiling to PDF
 ----------------
 
@@ -32,8 +30,7 @@ You may compile the ``.tex`` source to PDF files using the provided
 ``compile.sh`` shell script if you have the ``bash`` shell [#]_ and
 ``pdflatex``. After using ``git clone`` to clone the repository contents, ``cd``
 into the top-level repository directory, use ``chmod`` to set permissions
-appropriately, for example with ``chmod 777 compile.sh``, and execute in your
-``bash`` shell
+appropriately, for example with ``chmod 777 compile.sh``, and execute
 
 .. code:: bash
 
