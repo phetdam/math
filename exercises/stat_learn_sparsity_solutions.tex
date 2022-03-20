@@ -72,7 +72,7 @@ $ \frac{1}{N}\mathbf{x}_j^\top\mathbf{x}_j = 1 $\footnote{
 \medskip
 
 The lasso problem, as introduced in the book, can be written as
-\begin{equation} \label{eq:standard_lasso}
+\begin{equation} \label{eq:std_lasso}
     \min_\mathbf{w}\frac{1}{2N}\Vert\mathbf{y} - \mathbf{Xw}\Vert_2^2 +
     \lambda\Vert\mathbf{w}\Vert_1
 \end{equation}
@@ -81,7 +81,7 @@ Let us replace $ \lambda \in (0, \infty) $ with $ \lambda_j \in
 (0, \infty) $, where $ \forall j \in \{1, \ldots d\} $, $ \lambda_j
 \Rightarrow w_{j'} \in \{1, \ldots d\}, j' \ne j, w_{j'} = 0 $.
 With $ \lambda \triangleq \lambda_j $, only $ w_j $ may be nonzero, and
-so in that case we can rewrite (\ref{eq:standard_lasso}) where
+so in that case we can rewrite (\ref{eq:std_lasso}) where
 $ \lambda \triangleq \lambda_j $ as
 \begin{equation*}
     \min_{w_j}\frac{1}{2N}\sum_{k = 1}^N(y_k - x_{kj}w_j)^2 +
@@ -125,7 +125,7 @@ section 2.4.1 is defined such that for $ \lambda \in (0, \infty) $,
 \end{equation}
 
 For a scalar predictor, where we have an input vector $ \mathbf{x} \in
-\mathbb{R}^N $, the lasso problem (\ref{eq:standard_lasso}) simplifies to
+\mathbb{R}^N $, the lasso problem (\ref{eq:std_lasso}) simplifies to
 \begin{equation} \label{eq:single_lasso}
     \min_w\frac{1}{2N}\sum_{k = 1}^N(y_k - x_kw)^2 + \lambda|w|
 \end{equation}
@@ -184,6 +184,159 @@ TODO
 
 \newtocsubsection{Exercise 2.7}
 
-TODO
+Let us consider the [random] response vector $ \mathbf{y} $, where
+$ \mathbf{y}(\Omega) = \mathbb{R}^N $. Suppose we model $ \mathbf{y} $
+using a non-adaptive linear model with independent, finite variance
+additive errors. Then,
+\begin{equation} \label{eq:std_linear_model}
+    \mathbf{y} \triangleq \mathbf{Xw} + \varepsilon
+\end{equation}
+
+Here $ \mathbf{X} $ is the [random] input matrix, assumed
+centered\footnote{
+    We omit the intercept $ b $, since if the inputs are centered, for
+    fixed $ \mathbf{y} $, $ \mathbf{X} $, its estimate $ \hat{b} \triangleq
+    \frac{1}{N}\big(\mathbf{1}^\top\mathbf{y} -
+    \mathbf{1}^\top\mathbf{X}\hat{\mathbf{w}}\big) $.
+}, where $ \mathbf{X}(\Omega) = \mathbb{R}^{N \times d} $, $ \mathbf{w} \in
+\mathbb{R}^d $ the true parameter vector, and $ \varepsilon $ the error
+vector with i.i.d. components, where $ \forall k \in\{1, \ldots N\} $,
+$ \mathbb{E}[\varepsilon_k] = 0 $, $ \operatorname{Var}(\varepsilon_k) =
+\sigma^2 $. To fit (\ref{eq:std_linear_model}) by least squares, we want to
+solve the convex problem
+\begin{equation} \label{eq:std_linear_lsq}
+    \min_\mathbf{w}\Vert\mathbf{y} - \mathbf{Xw}\Vert_2^2
+\end{equation}
+
+Let us assume that our $ d < N $ predictors are not collinear\footnote{
+    If $ \operatorname{rank}(\mathbf{X}) \le \min\{N, d\} $, it is easy to
+    see from our solution that the model's degrees of freedom will be
+    $ \operatorname{rank}(\mathbf{X}) $.
+}, i.e. $ \operatorname{rank}(\mathbf{X}) = d $. To simplify our analysis,
+by [compact] singular value decomposition, we can write $ \mathbf{X} =
+\mathbf{U\Sigma V}^\top $, where $ \mathbf{U} $, $ \mathbf{V} $ have $ d $
+orthonormal columns and $ \mathbf{\Sigma} $ is $ d \times d $ with positive
+diagonal. Since the minimizer $ \hat{\mathbf{w}} $ of
+(\ref{eq:std_linear_lsq}) is such that $ \mathbf{X}^\top\mathbf{X}
+\hat{\mathbf{w}} = \mathbf{X}^\top\mathbf{y} $, then
+\begin{equation*}
+    \mathbf{X}^\top\mathbf{X}\hat{\mathbf{w}} =
+    \mathbf{V\Sigma}^2\mathbf{V}^\top\hat{\mathbf{w}} =
+    \mathbf{V\Sigma U}^\top\mathbf{y} \Rightarrow
+    \mathbf{V}^\top\hat{\mathbf{w}} =
+    \mathbf{\Sigma}^{-1}\mathbf{U}^\top\mathbf{y}
+\end{equation*}
+
+Since the [random] predicted values $ \hat{\mathbf{y}} $ are such that
+$ \hat{\mathbf{y}} \triangleq \mathbf{X}\hat{\mathbf{w}} $, we can use the
+above result to write $ \hat{\mathbf{y}} $ in terms of $ \varepsilon $,
+since with $ \mathbf{X} $ fixed $ \varepsilon $ becomes the only source of
+randomness. We therefore see that
+\begin{equation} \label{eq:2.7.1}
+    \hat{\mathbf{y}} =
+    \mathbf{U\Sigma}\big(\mathbf{V}^\top\hat{\mathbf{w}}\big) =
+    \mathbf{UU}^\top\big(
+        \mathbf{U\Sigma V}^\top\mathbf{w} + \varepsilon
+    \big) = \mathbf{Xw} + \mathbf{UU}^\top\varepsilon
+\end{equation}
+
+As given in the text, the degrees of freedom $ \operatorname{df}(
+\hat{\mathbf{y}}) $ of the specified linear model is such that
+\begin{equation*}
+    \operatorname{df}(\hat{\mathbf{y}}) \triangleq
+    \frac{1}{\sigma^2}\sum_{k = 1}^N
+    \operatorname{cov}(\hat{y}_k, y_k \mid \mathbf{X})
+\end{equation*}
+
+Since $ \operatorname{cov}(\hat{y}_k, y_k \mid \mathbf{X}) =
+\mathbb{E}[\hat{y}_ky_k \mid \mathbf{X}] -
+\mathbb{E}[\hat{y}_k \mid \mathbf{X}]\mathbb{E}[y_k \mid \mathbf{X}] $, by
+linearity of expectation and by (\ref{eq:2.7.1}) we have
+\begin{equation} \label{eq:2.7.2}
+    \operatorname{df}(\hat{\mathbf{y}}) =
+    \frac{1}{\sigma^2}
+    \mathbb{E}\big[\hat{\mathbf{y}}^\top\mathbf{y} \ \big| \ \mathbf{X}\big] -
+	\frac{1}{\sigma^2}\mathbb{E}[\hat{\mathbf{y}} \mid \mathbf{X}]^\top
+    \mathbb{E}[\mathbf{y} \mid \mathbf{X}]
+\end{equation}
+
+Expanding the first and second terms of (\ref{eq:2.7.2}) and noting
+$ \mathbb{E}[\varepsilon \mid \mathbf{X}] = \mathbf{0} $, we have from 
+(\ref{eq:std_linear_model}) and (\ref{eq:2.7.1})
+\begin{equation*}
+    \begin{split}
+        \mathbb{E}\big[
+            \hat{\mathbf{y}}^\top\mathbf{y} \ \big| \ \mathbf{X}
+        \big] & =
+        \mathbf{w}^\top\mathbf{X}^\top\mathbf{Xw} +
+        \mathbf{w}^\top\mathbf{X}^\top
+        \mathbb{E}[\varepsilon \mid \mathbf{X}] +
+        \mathbb{E}[\varepsilon \mid \mathbf{X}]^\top
+        \mathbf{UU}^\top\mathbf{Xw} +
+        \mathbb{E}\big[
+            \varepsilon^\top\mathbf{UU}^\top\varepsilon \ \big| \
+            \mathbf{X}
+        \big] \\ & =
+        \mathbf{w}^\top\mathbf{X}^\top\mathbf{Xw} +
+        \mathbb{E}\big[
+            \varepsilon^\top\mathbf{UU}^\top\varepsilon \ \big| \
+            \mathbf{X}
+        \big] \\
+        \mathbb{E}[\hat{\mathbf{y}} \mid \mathbf{X}]^\top
+        \mathbb{E}[\mathbf{y} \mid \mathbf{X}] & =
+        \mathbf{w}^\top\mathbf{X}^\top\mathbf{Xw}
+    \end{split}
+\end{equation*}
+
+We thus see that $ \operatorname{df}(\hat{\mathbf{y}}) = \frac{1}{\sigma^2}
+\mathbb{E}\big[\varepsilon^\top\mathbf{UU}^\top\varepsilon \ \big| \
+\mathbf{X}\big] $. Letting $ \mathbf{u}_j $ denote the $ j $th column of
+$ \mathbf{U} $, then
+\begin{equation*}
+    \operatorname{df}(\hat{\mathbf{y}}) =
+    \frac{1}{\sigma^2}\mathbb{E}\left[
+        \begin{bmatrix}
+            \ \varepsilon^\top\mathbf{u}_1 &
+            \ldots & 
+            \varepsilon^\top\mathbf{u}_d \
+        \end{bmatrix}
+        \begin{bmatrix}
+            \ \mathbf{u}_1^\top\varepsilon \ \\
+            \ \vdots \ \\
+            \ \mathbf{u}_d^\top\varepsilon \
+        \end{bmatrix}
+        \ \middle\vert \ \mathbf{X}
+    \right] =
+    \frac{1}{\sigma^2}\mathbb{E}\left[
+        \sum_{j = 1}^d\big(\mathbf{u}_j^\top\varepsilon\big)^2
+        \ \middle\vert \ \mathbf{X}
+    \right] =
+    \frac{1}{\sigma^2}\sum_{j = 1}^d\mathbb{E}\left[
+        \big(\mathbf{u}_j^\top\varepsilon\big)^2
+        \ \middle\vert \ \mathbf{X}
+    \right]
+\end{equation*}
+
+Since $ \mathbb{E}\big[\mathbf{u}_j^\top\varepsilon \ \big| \
+\mathbf{X}\big] = 0 $, then $ \mathbb{E}\left[\big(\mathbf{u}_j^\top
+\varepsilon\big)^2 \ \middle\vert \ \mathbf{X}\right] = \operatorname{Var}
+\big(\mathbf{u}_j^\top\varepsilon \ \big| \ \mathbf{X}\big) $. Recalling
+that each $ \varepsilon_1, \ldots \varepsilon_N $ is i.i.d. with
+$ \mathbb{E}[\varepsilon_k] = 0 $, $ \operatorname{Var}(\varepsilon_k) =
+\sigma^2 $, $ \varepsilon \perp \mathbf{X} $, we see that
+$ \operatorname{Var}\big(\mathbf{u}_j^\top\varepsilon \ \big| \
+\mathbf{X}\big) = \sum_{k = 1}^Nu_{jk}^2\operatorname{Var}(\varepsilon_k) =
+\sigma^2\mathbf{u}_j^\top\mathbf{u}_j = \sigma^2 $. Note that
+$ \mathbf{u}_j^\top\mathbf{u}_j = 1 $ by the definition of the orthonormal
+vector. Therefore, we see that
+\begin{equation*}
+    \operatorname{df}(\hat{\mathbf{y}}) =
+    \frac{1}{\sigma^2}\sum_{j = 1}^d\operatorname{Var}\big(
+        \mathbf{u}_j^\top\varepsilon \ \big| \ \mathbf{X}
+    \big) = d
+\end{equation*}
+
+Therefore, a linear model fit by least squares using $ d $ non-collinear
+predictors has exactly $ d $ degrees of freedom.
 
 \end{document}
