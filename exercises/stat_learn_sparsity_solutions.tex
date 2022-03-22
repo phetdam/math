@@ -176,7 +176,65 @@ $ \frac{1}{N}\mathbf{x}^\top\mathbf{y} $.
 
 \newtocsubsection{Exercise 2.3}
 
-TODO
+The subgradient, more precisely subderivative, equation for
+(\ref{eq:single_lasso}) at a minimizer $ \hat{w} \in \mathbb{R} $ is
+\begin{equation*}
+    \begin{split}
+        0 & \in
+        \left\{-\frac{1}{N}\sum_{k = 1}^Nx_k(y_k - x_k\hat{w})\right\} +
+        \lambda\partial|\hat{w}| \\
+        0 & \in
+        \left\{-\frac{1}{N}\mathbf{x}^\top\mathbf{y} + \hat{w}\right\} +
+        \lambda\partial|\hat{w}|
+    \end{split}
+\end{equation*}
+
+Here we use the fact that $ \mathbf{x} \in \mathbb{R}^N $ is standardized
+with $ \frac{1}{N}\mathbf{1}^\top\mathbf{x} = 0 $,
+$ \frac{1}{N}\mathbf{x}^\top\mathbf{x} = 1 $. By the standard theory of
+subgradients and considering the cases where $ \hat{w} \in (0, \infty) $,
+$ \hat{w} \in(-\infty, 0) $, $ \hat{w} = 0 $, we see that
+\begin{equation*}
+    \begin{split}
+            \hat{w} \in (0, \infty) & \Leftrightarrow
+            0 \in \left\{
+                -\frac{1}{N}\mathbf{x}^\top\mathbf{y} + \hat{w} + \lambda
+            \right\} \Leftrightarrow
+            \hat{w} = \frac{1}{N}\mathbf{x}^\top\mathbf{y} - \lambda
+            \Leftrightarrow \frac{1}{N}\mathbf{x}^\top\mathbf{y} > \lambda \\
+            \hat{w} \in (-\infty, 0) & \Leftrightarrow
+            0 \in \left\{
+                -\frac{1}{N}\mathbf{x}^\top\mathbf{y} + \hat{w} - \lambda
+            \right\} \Leftrightarrow
+            \hat{w} = \frac{1}{N}\mathbf{x}^\top\mathbf{y} + \lambda
+            \Leftrightarrow \frac{1}{N}\mathbf{x}^\top\mathbf{y} < -\lambda \\
+            \hat{w} = 0 & \Leftrightarrow
+            0 \in \left\{-\frac{1}{N}\mathbf{x}^\top\mathbf{y}\right\} +
+            \lambda[-1, 1] \Leftrightarrow
+            \left|-\frac{1}{N}\mathbf{x}^\top\mathbf{y}\right| \le \lambda
+    \end{split}
+\end{equation*}
+
+We can write our results more neatly in the style of the book as
+\begin{equation} \label{eq:2.3.1}
+    \hat{w} = \left\{
+        \begin{aligned}
+            & \frac{1}{N}\mathbf{x}^\top\mathbf{y} - \lambda,
+            & & \frac{1}{N}\mathbf{x}^\top\mathbf{y} > \lambda \\
+            & 0, &
+            & \frac{1}{N}\left|\mathbf{x}^\top\mathbf{y}\right| \le \lambda \\
+            & \frac{1}{N}\mathbf{x}^\top\mathbf{y} + \lambda,
+            & & \frac{1}{N}\mathbf{x}^\top\mathbf{y} < -\lambda
+        \end{aligned}
+    \right.
+\end{equation}
+
+It's thus clear from (\ref{eq:2.3.1}) that $ \hat{w} $ can be expressed more
+succinctly as
+\begin{equation*}
+    \hat{w} =
+    \mathcal{S}_\lambda\left(\frac{1}{N}\mathbf{x}^\top\mathbf{y}\right)
+\end{equation*}
 
 \newtocsubsection{Exercise 2.4}
 
@@ -261,7 +319,7 @@ linearity of expectation and by (\ref{eq:2.7.1}) we have
 \end{equation}
 
 Expanding the first and second terms of (\ref{eq:2.7.2}) and noting
-$ \mathbb{E}[\varepsilon \mid \mathbf{X}] = \mathbf{0} $, we have from 
+$ \mathbb{E}[\varepsilon \mid \mathbf{X}] = \mathbf{0} $, we have from
 (\ref{eq:std_linear_model}) and (\ref{eq:2.7.1})
 \begin{equation*}
     \begin{split}
@@ -297,7 +355,7 @@ $ \mathbf{U} $, then
     \frac{1}{\sigma^2}\mathbb{E}\left[
         \begin{bmatrix}
             \ \varepsilon^\top\mathbf{u}_1 &
-            \ldots & 
+            \ldots &
             \varepsilon^\top\mathbf{u}_d \
         \end{bmatrix}
         \begin{bmatrix}
