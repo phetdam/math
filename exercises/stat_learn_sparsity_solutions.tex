@@ -179,14 +179,12 @@ $ \frac{1}{N}\mathbf{x}^\top\mathbf{y} $.
 The subgradient, more precisely subderivative, equation for
 (\ref{eq:single_lasso}) at a minimizer $ \hat{w} \in \mathbb{R} $ is
 \begin{equation*}
-    \begin{split}
-        0 & \in
-        \left\{-\frac{1}{N}\sum_{k = 1}^Nx_k(y_k - x_k\hat{w})\right\} +
-        \lambda\partial|\hat{w}| \\
-        0 & \in
-        \left\{-\frac{1}{N}\mathbf{x}^\top\mathbf{y} + \hat{w}\right\} +
-        \lambda\partial|\hat{w}|
-    \end{split}
+    0 \in
+    \left\{-\frac{1}{N}\sum_{k = 1}^Nx_k(y_k - x_k\hat{w})\right\} +
+    \lambda\partial|\hat{w}| \Rightarrow
+    0 \in
+    \left\{-\frac{1}{N}\mathbf{x}^\top\mathbf{y} + \hat{w}\right\} +
+    \lambda\partial|\hat{w}|
 \end{equation*}
 
 Here we use the fact that $ \mathbf{x} \in \mathbb{R}^N $ is standardized
@@ -230,7 +228,7 @@ We can write our results more neatly in the style of the book as
 \end{equation}
 
 Finally, from (\ref{eq:soft_threshold}), it's clear that we can express
-(\ref{eq:2.3.1}) more succinctly as
+(\ref{eq:2.3.1}) more succinctly with $ \mathcal{S}_\lambda $ as
 \begin{equation*}
     \hat{w} =
     \mathcal{S}_\lambda\left(\frac{1}{N}\mathbf{x}^\top\mathbf{y}\right)
