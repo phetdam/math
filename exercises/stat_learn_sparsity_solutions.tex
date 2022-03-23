@@ -236,6 +236,31 @@ Finally, from (\ref{eq:soft_threshold}), it's clear that we can express
 
 \newtocsubsection{Exercise 2.4}
 
+The subgradient equation for (\ref{eq:std_lasso}) at a minimizer
+$ \mathbf{\hat{w}} \in \mathbb{R}^d $ in vector-matrix notation is
+\begin{equation*}
+    \mathbf{0} \in \left\{
+        -\frac{1}{N}\mathbf{X}^\top(
+            \mathbf{y} - \mathbf{X}\hat{\mathbf{w}}
+        )
+    \right\} +
+    \lambda\partial\Vert\hat{\mathbf{w}}\Vert_1
+\end{equation*}
+
+We can also write the subderivative equation for each predictor $ j \in
+\{1, \ldots d\} $, which is
+\begin{equation} \label{eq:2.4.1}
+    0 \in \left\{
+        -\frac{1}{N}\mathbf{x}_j^\top(\mathbf{y} - \mathbf{X}\hat{\mathbf{w}})
+    \right\} +
+    \lambda\partial|\hat{w}_j|
+\end{equation}
+
+From (\ref{eq:2.4.1}), we can derive the update applied to $ \hat{w}_j $ at
+each iteration of coordinate descent, as
+
+\medskip
+
 TODO
 
 \newtocsubsection{Exercise 2.7}
@@ -394,5 +419,91 @@ vector. Therefore, we see that
 
 Therefore, a linear model fit by least squares using $ d $ non-collinear
 predictors has exactly $ d $ degrees of freedom.
+
+\section{Generalized Linear Models}
+
+\newtocsubsection{Exercise 3.1}
+
+TODO
+
+\newtocsubsection{Exercise 3.2}
+
+Consider an input point and label pair $ (\mathbf{x}, y) \in \mathbb{R}^d
+\times \{-1, 1\} $, a linear classification function
+$ f : \mathbb{R}^d \rightarrow \mathbb{R} $ where
+$ f(\mathbf{x}) \triangleq \mathbf{w}^\top\mathbf{x} + b $, and its
+corresponding decision boundary $ \mathcal{B} \triangleq \{\mathbf{x}' \in
+\mathbb{R}^d : f(\mathbf{x}') = 0\} $. Note that $ \forall \mathbf{x}', \tilde{\mathbf{x}} \in \mathcal{B} $, $ f(\mathbf{x}') - f(\tilde{\mathbf{x}}) = \mathbf{w}^\top(\mathbf{x}' - \tilde{\mathbf{x}}) = 0 \Rightarrow \mathbf{w} \perp \mathbf{x}' - \tilde{\mathbf{x}} $, i.e. $ \mathbf{w} $, and thus $ \mathbf{w} / \Vert\mathbf{w}\Vert_2 $, are normal to $ \mathcal{B} $.
+
+\medskip
+
+Furthermore, $ \forall \tilde{\mathbf{x}} \in \mathcal{B} $,
+$ \mathbf{w}^\top(\mathbf{x} - \tilde{\mathbf{x}}) / \Vert\mathbf{w}\Vert_2 =
+\Vert\mathbf{x} - \tilde{\mathbf{x}}\Vert_2\cos\theta $, $ \theta $ the angle
+between $ \mathbf{w} / \Vert\mathbf{w}\Vert_2 $ and
+$ \mathbf{x} - \tilde{\mathbf{x}} $, so $ |\mathbf{w}^\top(\mathbf{x} -
+\tilde{\mathbf{x}})| / \Vert\mathbf{w}\Vert_2 $ gives the distance of
+$ \mathbf{x} $ from the hyperplane that is $ \mathcal{B} $. The relationship
+between $ \mathbf{w} $, $ \tilde{\mathbf{x}} $, $ \mathbf{x} $,
+$ \mathcal{B} $ can be summarized visually with the below figure, providing
+intuitive justification for our mathematics.
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[scale=1.2]
+        % the decision boundary, with label
+        \draw[gray, thick] (-3, -1) -- (3, 1);
+        \node at (3.3, 1.1) {$ \mathcal{B} $};
+        % w vector, with label (close to unit in length)
+        \draw[blue, thick, -latex] (-2, -2/3) -- (-2.32, -2/3 + 0.96);
+        \node[text=blue] at (-2.32, -2/3 + 1.29) {%
+            $ \frac{\mathbf{w}}{\Vert\mathbf{w}\Vert_2} $%
+        };
+        % location of x prime, with label
+        \filldraw[black] (0, 0) circle (2pt);
+        \node at (0.3, -0.3) {$ \mathbf{x}' $};
+        % location of x tilde, with label
+        \filldraw[black] (-2, -2/3) circle (2pt);
+        \node at (-1.7, -2/3 - 0.3) {$ \tilde{\mathbf{x}} $};
+        % difference between x prime and x tilde
+        \draw[black, thick, -latex] (-2, -2/3) -- (0, 0);
+        % location of x, with label
+        \filldraw[red] (-1, 1.2) circle (2pt);
+        \node[text=red] at (-0.8, 1.5) {$ \mathbf{x} $};
+        % difference between x and x tilde
+        \draw[black, thick, -latex] (-2, -2/3) -- (-1, 1.2);
+        % projection of x onto decision boundary, with label
+        \draw[purple, thick, dashed] (-0.57, -0.19) -- (-1, 1.2);
+        \node[text=purple] at (0, 0.8) {$ \frac{|\mathbf{w}^\top(\mathbf{x} - \tilde{\mathbf{x}})|}{\Vert\mathbf{w}\Vert_2} $};
+    \end{tikzpicture}
+    \label{fig:3.2.1}
+\end{figure}
+
+Noting that $ yf(\mathbf{x}) > 0 $ if $ f $ classifies $ \mathbf{x} $
+correctly, $ yf(\mathbf{x}) < 0 $ if $ f $ classifies $ \mathbf{x} $
+incorrectly, and that $ f(\tilde{\mathbf{x}}) = 0 $, as
+$ \tilde{\mathbf{x}} \in \mathcal{B} $, so we can manipulate the
+$ \mathbf{w}^\top(\mathbf{x} - \tilde{\mathbf{x}}) / \Vert\mathbf{w}\Vert_2 $
+expression to see that
+\begin{equation*}
+    y\frac{
+        \mathbf{w}^\top(\mathbf{x} - \tilde{\mathbf{x}})
+    }{
+        \Vert\mathbf{w}\Vert_2
+    } =
+    y\frac{
+        \mathbf{w}^\top(\mathbf{x} - \tilde{\mathbf{x}}) + b - b
+    }{
+        \Vert\mathbf{w}\Vert_2
+    } =
+    y\frac{f(\mathbf{x}) - f(\tilde{\mathbf{x}})}{\Vert\mathbf{w}\Vert_2} =
+    \frac{yf(\mathbf{x})}{\Vert\mathbf{w}\Vert_2}
+\end{equation*}
+
+We thus indeed see that as stated, $ yf(\mathbf{x}) / \Vert\mathbf{w}\Vert_2 $
+is the signed distance of $ \mathbf{x} $ from the decision boundary
+$ \mathcal{B} $ defined by $ f $, where
+$ yf(\mathbf{x}) / \Vert\mathbf{w}\Vert_2 $ is positive if $ f $ classifies
+$ \mathbf{x} $ correctly and negative if $ f $ classifies $ \mathbf{x} $
+incorrectly.
 
 \end{document}
