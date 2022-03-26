@@ -438,7 +438,133 @@ predictors has exactly $ d $ degrees of freedom.
 
 \newtocsubsection{Exercise 3.1}
 
-TODO
+\fbox{%
+    \parbox{\textwidth}{%
+        \textbf{Note:} I believe the authors made a semantic error in the
+        problem's wording, as it should be the parameter estimates that
+        are, or rather tend towards being, infinite, not the likelihood
+        estimates themselves, as those are constrained within $ (0, 1) $
+        given any $ \mathbf{w} \in \mathbb{R}^d $. Also, to be more precise,
+        the optimal value of the unregularized objective is reached only in
+        the limit, and is never achieved by any finite $ \mathbf{w} $.
+    }%
+}
+
+\medskip
+
+Consider training data pairs $ \mathcal{D} \triangleq
+\{(\mathbf{x}_1, y_1), \ldots (\mathbf{x}_N, y_N)\} $, where $ \forall k \in
+\{1, \ldots N\} $, $ \mathbf{x}_k \in \mathbb{R}^d $, $ y_k \in \{-1, 1\} $.
+We choose the symmetric labeling scheme since it results in a more elegant
+objective without loss of generality and will discuss the case where
+$ y_k \in \{0, 1\} $ afterwards. Since the two labeled classes of points are
+linearly separable, $ \exists \tilde{\mathbf{w}} \in \mathbb{R}^d $,
+$ \tilde{b} \in \mathbb{R} $, $ \tilde{f}(\mathbf{x}) \triangleq
+\tilde{\mathbf{w}}^\top\mathbf{x} + \tilde{b} $ s.t.
+$ \forall (\mathbf{x}, y) \in \mathcal{D} $, $ y\tilde{f}(\mathbf{x}) > 0
+\Rightarrow y = \operatorname{sgn} \circ \tilde{f}(\mathbf{x}) $. In words,
+the margin is always positive $ \Rightarrow \tilde{f} $ perfectly classifies
+each of the data points.
+
+\medskip
+
+Under the $ \{-1, 1\} $ labeling scheme, the [scaled] negative log-likelihood
+for two-class logistic regression is
+\begin{equation} \label{eq:logreg_binary_mle}
+    \min_{\mathbf{w}, b}\frac{1}{N}\sum_{k = 1}^N\log\left(
+        1 + e^{-y_k\left(\mathbf{w}^\top\mathbf{x}_k + b\right)}
+    \right)
+\end{equation}
+
+Consider some $ \varepsilon \in (0, \infty) $. Since
+$ \forall (\mathbf{x}, y) \in \mathcal{D} $, $ y\tilde{f}(\mathbf{x}) > 0 $,
+obviously $ \varepsilon y\tilde{f}(\mathbf{x}) > 0 \Rightarrow
+\varepsilon\tilde{\mathbf{w}}, \varepsilon\tilde{b} $ also results in perfect
+linear separability of the two classes. However, note that
+\begin{equation*}
+    \lim_{\varepsilon \rightarrow \infty}\frac{1}{N}\sum_{k = 1}^N\log\left(
+        1 + e^{-\varepsilon y_k\tilde{f}(\mathbf{x}_k)}
+    \right) =
+    \frac{1}{N}\sum_{k = 1}^N\log\left(
+        1 + \lim_{\varepsilon \rightarrow \infty}
+        e^{-\varepsilon y_k\tilde{f}(\mathbf{x}_k)}
+    \right) =
+    \log 1 = 0
+\end{equation*}
+
+Here we use the fact that continuous functions respect limits and that
+$ \forall a \in (0, \infty) $,
+$ \lim_{\varepsilon \rightarrow \infty}e^{-a\varepsilon} = 0 $. Clearly,
+(\ref{eq:logreg_binary_mle}) approaches its optimal value of zero in the
+limit as the norms of positive multiples of $ \tilde{\mathbf{w}} $,
+$ \tilde{b} $ approach infinity. Furthermore, we can show that the fitted
+probabilities $ \tilde{\mathbb{P}}_\varepsilon\{Y = 1 \mid X = \mathbf{x}\} $,
+$ \tilde{\mathbb{P}}_\varepsilon\{Y = -1 \mid X = \mathbf{x}\} $ are
+well-defined. Let $ \tilde{\mathbb{P}}_\varepsilon
+\{Y = y \mid X = \mathbf{x}\} $ be defined such that
+\begin{equation} \label{eq:3.1.1}
+    \tilde{\mathbb{P}}_\varepsilon\{Y = y \mid X = \mathbf{x}\} \triangleq
+    \frac{1}{1 + e^{-\varepsilon y\tilde{f}(\mathbf{x})}} \triangleq
+    \sigma\circ\varepsilon y\tilde{f}(\mathbf{x})
+\end{equation}
+
+Here $ \sigma : \mathbb{R} \rightarrow (0, 1) $ is the sigmoid function,
+defined such that $ \sigma(z) \triangleq \frac{1}{1 + e^{-z}} $. Note that
+(\ref{eq:3.1.1}) results from simple rearrangement of the standard linear
+model for the log of the likelihood ratio, i.e.
+\begin{equation*}
+    \log\frac{
+        \tilde{\mathbb{P}}_\varepsilon\{Y = 1 \mid X = \mathbf{x}\}
+    }{
+        \tilde{\mathbb{P}}_\varepsilon\{Y = -1 \mid X = \mathbf{x}\}
+    } =
+    \varepsilon\tilde{f}(\mathbf{x})
+\end{equation*}
+
+We note that after solving for $ \tilde{\mathbb{P}}_\varepsilon
+\{Y = 1 \mid X = \mathbf{x}\} $, we can see that
+\begin{equation*}
+    \begin{split}
+        \tilde{\mathbb{P}}_\varepsilon\{Y = 1 \mid X = \mathbf{x}\} & =
+        \frac{
+            e^{\varepsilon\tilde{f}(\mathbf{x})}
+        }{
+            1 + e^{\varepsilon\tilde{f}(\mathbf{x})}
+        } =
+        \frac{1}{1 + e^{-\varepsilon\tilde{f}(\mathbf{x})}} \triangleq
+        \sigma\circ\varepsilon\tilde{f}(\mathbf{x}) \\
+        \tilde{\mathbb{P}}_\varepsilon\{Y = -1 \mid X = \mathbf{x}\} & =
+        1 - \tilde{\mathbb{P}}_\varepsilon\{Y = 1 \mid X = \mathbf{x}\} =
+        \frac{1}{1 + e^{\varepsilon\tilde{f}(\mathbf{x})}} \triangleq
+        \sigma\circ -\varepsilon\tilde{f}(\mathbf{x})
+    \end{split}
+\end{equation*}
+
+For fixed $ y \in \{-1, 1\} $ and $ \forall \varepsilon \in (0, \infty) $,
+$ \tilde{\mathbb{P}}_\varepsilon\{Y = y \mid X = \mathbf{x}\} $ as defined
+in (\ref{eq:3.1.1}) is a well-defined function of $ \mathbf{x} $, as it is
+just a composition of a bijective\footnote{
+    $ \exists\sigma^{-1} : (0, 1) \rightarrow \mathbb{R} $ where
+    $ \sigma^{-1}(z) \triangleq -\log\left(z^{-1} - 1\right) $.
+}, strictly monotone increasing\footnote{
+    $ \exists\sigma': \mathbb{R} \rightarrow (0, 1) $ where
+    $ \sigma'(z) \triangleq \frac{e^{-z}}{(1 + e^{-z})^2} =
+    \frac{1}{1 + e^{-z}}\left(\frac{e^{-z}}{1 + e^{-z}}\right) \triangleq
+    \sigma(z)(1 - \sigma(z)) $. Note $ (-\infty, 0] \cap
+    \operatorname{im}\sigma' = \emptyset $.
+}
+function with an affine function. Clearly, $ \operatorname{dom}\varepsilon
+y\tilde{f} = \mathbb{R}^d $, $ \operatorname{im}\varepsilon
+y\tilde{f} \subseteq \mathbb{R} $, so $ \sigma\circ\varepsilon y\tilde{f} $
+is itself well-defined as a function. It is also clear that from inspecting
+(\ref{eq:3.1.1}) that $ \lim_{\varepsilon \rightarrow \infty}
+\tilde{\mathbb{P}}_\varepsilon\{Y = y \mid X = \mathbf{x}\} =
+\mathbb{I}_{(0, \infty)}\circ y\tilde{f}(\mathbf{x}) $, i.e. a step function
+of the margin.
+
+\medskip
+
+TODO: quick note on $ \{0, 1\} $ labeling case
 
 \newtocsubsection{Exercise 3.2}
 
@@ -447,7 +573,12 @@ Consider an input point and label pair $ (\mathbf{x}, y) \in \mathbb{R}^d
 $ f : \mathbb{R}^d \rightarrow \mathbb{R} $ where
 $ f(\mathbf{x}) \triangleq \mathbf{w}^\top\mathbf{x} + b $, and its
 corresponding decision boundary $ \mathcal{B} \triangleq \{\mathbf{x}' \in
-\mathbb{R}^d : f(\mathbf{x}') = 0\} $. Note that $ \forall \mathbf{x}', \tilde{\mathbf{x}} \in \mathcal{B} $, $ f(\mathbf{x}') - f(\tilde{\mathbf{x}}) = \mathbf{w}^\top(\mathbf{x}' - \tilde{\mathbf{x}}) = 0 \Rightarrow \mathbf{w} \perp \mathbf{x}' - \tilde{\mathbf{x}} $, i.e. $ \mathbf{w} $, and thus $ \mathbf{w} / \Vert\mathbf{w}\Vert_2 $, are normal to $ \mathcal{B} $.
+\mathbb{R}^d : f(\mathbf{x}') = 0\} $. Note that $ \forall \mathbf{x}',
+\tilde{\mathbf{x}} \in \mathcal{B} $, $ f(\mathbf{x}') -
+f(\tilde{\mathbf{x}}) = \mathbf{w}^\top(\mathbf{x}' - \tilde{\mathbf{x}}) =
+0 \Rightarrow \mathbf{w} \perp \mathbf{x}' - \tilde{\mathbf{x}} $, i.e.
+$ \mathbf{w} $, and thus $ \mathbf{w} / \Vert\mathbf{w}\Vert_2 $, are
+normal to $ \mathcal{B} $.
 
 \medskip
 
@@ -487,7 +618,8 @@ intuitive justification for our mathematics.
         \draw[black, thick, -latex] (-2, -2/3) -- (-1, 1.2);
         % projection of x onto decision boundary, with label
         \draw[purple, thick, dashed] (-0.57, -0.19) -- (-1, 1.2);
-        \node[text=purple] at (0, 0.8) {$ \frac{|\mathbf{w}^\top(\mathbf{x} - \tilde{\mathbf{x}})|}{\Vert\mathbf{w}\Vert_2} $};
+        \node[text=purple] at (0, 0.8) {$ \frac{|\mathbf{w}^\top(\mathbf{x} -
+        \tilde{\mathbf{x}})|}{\Vert\mathbf{w}\Vert_2} $};
     \end{tikzpicture}
     \label{fig:3.2.1}
 \end{figure}
