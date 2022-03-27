@@ -188,18 +188,17 @@ terms of $ \frac{1}{N}\mathbf{x}^\top\mathbf{y} $ such that
 (\ref{eq:single_lasso}) when applied to
 $ \frac{1}{N}\mathbf{x}^\top\mathbf{y} $.
 
-\newtocsubsection{Exercise 2.3}
+\newtocsubsection{Exercise 2.3} \label{sec:2.3}
 
 The subgradient, more precisely subderivative, equation for
 (\ref{eq:single_lasso}) at a minimizer $ \hat{w} \in \mathbb{R} $ is
-\begin{equation*}
+\begin{equation} \label{eq:2.3.1}
     0 \in
     \left\{-\frac{1}{N}\sum_{k = 1}^Nx_k(y_k - x_k\hat{w})\right\} +
-    \lambda\partial|\hat{w}| \Rightarrow
-    0 \in
+    \lambda\partial|\hat{w}| =
     \left\{-\frac{1}{N}\mathbf{x}^\top\mathbf{y} + \hat{w}\right\} +
     \lambda\partial|\hat{w}|
-\end{equation*}
+\end{equation}
 
 Here we use the fact that $ \mathbf{x} \in \mathbb{R}^N $ is standardized
 with $ \frac{1}{N}\mathbf{1}^\top\mathbf{x} = 0 $,
@@ -228,7 +227,7 @@ $ \hat{w} \in(-\infty, 0) $, $ \hat{w} = 0 $, we see that
 \end{equation*}
 
 We can write our results more neatly in the style of the book as
-\begin{equation} \label{eq:2.3.1}
+\begin{equation} \label{eq:2.3.2}
     \hat{w} = \left\{
         \begin{aligned}
             & \frac{1}{N}\mathbf{x}^\top\mathbf{y} - \lambda,
@@ -242,11 +241,11 @@ We can write our results more neatly in the style of the book as
 \end{equation}
 
 Finally, from (\ref{eq:soft_threshold}), it's clear that we can express
-(\ref{eq:2.3.1}) more succinctly with $ \mathcal{S}_\lambda $ as
-\begin{equation*}
+(\ref{eq:2.3.2}) more succinctly with $ \mathcal{S}_\lambda $ as
+\begin{equation} \label{eq:2.3.3}
     \hat{w} =
     \mathcal{S}_\lambda\left(\frac{1}{N}\mathbf{x}^\top\mathbf{y}\right)
-\end{equation*}
+\end{equation}
 
 \newtocsubsection{Exercise 2.4}
 
@@ -254,9 +253,7 @@ The subgradient equation for (\ref{eq:std_lasso}) at a minimizer
 $ \mathbf{\hat{w}} \in \mathbb{R}^d $ in vector-matrix notation is
 \begin{equation*}
     \mathbf{0} \in \left\{
-        -\frac{1}{N}\mathbf{X}^\top(
-            \mathbf{y} - \mathbf{X}\hat{\mathbf{w}}
-        )
+        -\frac{1}{N}\mathbf{X}^\top(\mathbf{y} - \mathbf{X}\hat{\mathbf{w}})
     \right\} +
     \lambda\partial\Vert\hat{\mathbf{w}}\Vert_1
 \end{equation*}
@@ -270,12 +267,56 @@ We can also write the subderivative equation for each predictor $ j \in
     \lambda\partial|\hat{w}_j|
 \end{equation}
 
-From (\ref{eq:2.4.1}), we can derive the update applied to $ \hat{w}_j $ at
-each iteration of coordinate descent, as
+From (\ref{eq:2.4.1}), we can derive the update applied to the $ j $th
+coefficient $ w_j \in \mathbb{R} $ at each iteration of coordinate descent
+by rewriting in terms of $ w_j $ and inspecting the subderivative equation
+as in \nameref{sec:2.3}. First, we note $ \mathbf{X}\mathbf{w} $ can be
+written as $ \sum_{j = 1}^dw_j\mathbf{x}_j $, and so letting
+$ \tilde{P}_j \triangleq\{1, \ldots d\} \setminus \{j\} $,
+$ \mathbf{r}_j \triangleq \mathbf{y} -
+\sum_{j' \in \tilde{P}_j}w_{j'}\mathbf{x}_{j'} $, we have
+\begin{equation} \label{eq:2.4.2}
+    0 \in \left\{
+        -\frac{1}{N}\mathbf{x}_j^\top(\mathbf{r}_j - w_j\mathbf{x}_j)
+    \right\} +
+    \lambda\partial|w_j| =
+    \left\{-\frac{1}{N}\mathbf{x}_j^\top\mathbf{r}_j + w_j\right\} +
+    \lambda\partial|w_j|
+\end{equation}
 
-\medskip
+Here we use the fact that (\ref{eq:std_lasso}) assumes $ \forall j \in
+\{1, \ldots d\} $, $ \frac{1}{N}\mathbf{x}_j^\top\mathbf{x}_j = 1 $, i.e.
+predictors have unit variance. Now, since (\ref{eq:2.4.2}) is just
+(\ref{eq:2.3.1}) with $ \hat{w} $ replaced by $ w_j $ and $ \mathbf{x} $,
+$ \mathbf{y} $ replaced with $ \mathbf{x}_j $, $ \mathbf{r}_j $, it follows
+that the solution to (\ref{eq:2.4.2}) is (\ref{eq:2.3.3}) with the same
+replacements for $ \hat{w} $, $ \mathbf{x} $, $ \mathbf{y} $. Therefore, the
+coordinate descent update for $ w_j $ is
+\begin{equation} \label{eq:2.4.3}
+    w_j \leftarrow \mathcal{S}_\lambda\left(
+        \frac{1}{N}\mathbf{x}_j^\top\mathbf{r}_j
+    \right)
+\end{equation}
 
-TODO
+We may also write (\ref{eq:2.4.3}) more explicitly in terms of the full
+residuals $ \mathbf{r} \triangleq \mathbf{y} - \mathbf{Xw} $. We see that
+\begin{equation} \label{eq:2.4.4}
+    0 \in \left\{-\frac{1}{N}\mathbf{x}_j^\top\mathbf{r}\right\} +
+    \lambda\partial|w_j| =
+    \left\{
+        -\left(w_j + \frac{1}{N}\mathbf{x}_j^\top\mathbf{r}\right) + w_j
+    \right\} +
+    \lambda\partial|w_j|
+\end{equation}
+
+The parenthetical grouping is intentional, as by comparing (\ref{eq:2.4.4})
+against (\ref{eq:2.4.2}), where the latter leads to (\ref{eq:2.4.3}), we know
+the $ w_j $ coordinate descent update can be written as
+\begin{equation*}
+    w_j \leftarrow \mathcal{S}_\lambda\left(
+        w_j + \frac{1}{N}\mathbf{x}_j^\top\mathbf{r}
+    \right)
+\end{equation*}
 
 \newtocsubsection{Exercise 2.7}
 
