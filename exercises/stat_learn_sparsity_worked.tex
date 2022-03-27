@@ -455,16 +455,15 @@ predictors has exactly $ d $ degrees of freedom.
 Consider training data pairs $ \mathcal{D} \triangleq
 \{(\mathbf{x}_1, y_1), \ldots (\mathbf{x}_N, y_N)\} $, where $ \forall k \in
 \{1, \ldots N\} $, $ \mathbf{x}_k \in \mathbb{R}^d $, $ y_k \in \{-1, 1\} $.
-We choose the symmetric labeling scheme since it results in a more elegant
-objective without loss of generality and will discuss the case where
-$ y_k \in \{0, 1\} $ afterwards. Since the two labeled classes of points are
-linearly separable, $ \exists \tilde{\mathbf{w}} \in \mathbb{R}^d $,
+We choose the symmetric labeling scheme without loss of generality for a more
+elegant analysis. Since the two labeled classes of points are linearly
+separable, $ \exists \tilde{\mathbf{w}} \in \mathbb{R}^d $,
 $ \tilde{b} \in \mathbb{R} $, $ \tilde{f}(\mathbf{x}) \triangleq
 \tilde{\mathbf{w}}^\top\mathbf{x} + \tilde{b} $ s.t.
 $ \forall (\mathbf{x}, y) \in \mathcal{D} $, $ y\tilde{f}(\mathbf{x}) > 0
 \Rightarrow y = \operatorname{sgn} \circ \tilde{f}(\mathbf{x}) $. In words,
-the margin is always positive $ \Rightarrow \tilde{f} $ perfectly classifies
-each of the data points.
+margin always positive $ \Rightarrow \tilde{f} $ perfectly classifies
+each data point.
 
 \medskip
 
@@ -561,10 +560,6 @@ is itself well-defined as a function. It is also clear that from inspecting
 \tilde{\mathbb{P}}_\varepsilon\{Y = y \mid X = \mathbf{x}\} =
 \mathbb{I}_{(0, \infty)}\circ y\tilde{f}(\mathbf{x}) $, i.e. a step function
 of the margin.
-
-\medskip
-
-TODO: quick note on $ \{0, 1\} $ labeling case
 
 \newtocsubsection{Exercise 3.2}
 
