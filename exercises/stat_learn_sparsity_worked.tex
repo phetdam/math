@@ -626,8 +626,8 @@ $ \mathbf{x} - \tilde{\mathbf{x}} $, so $ |\mathbf{w}^\top(\mathbf{x} -
 \tilde{\mathbf{x}})| / \Vert\mathbf{w}\Vert_2 $ gives the distance of
 $ \mathbf{x} $ from the hyperplane that is $ \mathcal{B} $. The relationship
 between $ \mathbf{w} $, $ \tilde{\mathbf{x}} $, $ \mathbf{x} $,
-$ \mathcal{B} $ can be summarized visually with the below figure, providing
-intuitive justification for our mathematics.
+$ \mathcal{B} $ can be summarized visually with Figure \ref{fig:3.2.1},
+providing intuitive justification for our mathematics.
 \begin{figure}[h]
     \centering
     \begin{tikzpicture}[scale=1.2]
@@ -657,8 +657,16 @@ intuitive justification for our mathematics.
         \node[text=purple] at (0, 0.8) {$ \frac{|\mathbf{w}^\top(\mathbf{x} -
         \tilde{\mathbf{x}})|}{\Vert\mathbf{w}\Vert_2} $};
     \end{tikzpicture}
+    \caption{%
+        An illustration of how $ |\mathbf{w}^\top(\mathbf{x} -
+        \tilde{\mathbf{x}})| / \Vert\mathbf{w}\Vert_2 $ gives the distance
+        of $ \mathbf{x} $ from $ \mathcal{B} $.%
+    }
     \label{fig:3.2.1}
 \end{figure}
+
+% might remove this later depending on changes in page layout
+\medskip
 
 Noting that $ yf(\mathbf{x}) > 0 $ if $ f $ classifies $ \mathbf{x} $
 correctly, $ yf(\mathbf{x}) < 0 $ if $ f $ classifies $ \mathbf{x} $
