@@ -475,6 +475,181 @@ vector. Therefore, we see that
 Therefore, a linear model fit by least squares using $ d $ non-collinear
 predictors has exactly $ d $ degrees of freedom.
 
+\newtocsubsection{Exercise 2.10}
+
+We consider a robust version of least-squares linear regression, i.e. the
+min-max constrained problem
+\begin{equation} \label{eq:robust_linear_lsq}
+    \begin{array}{rl}
+        % note: prefer \boldsymbol over \pmb for bold styling that is more
+        % consistent with the default \mathbf style
+        \displaystyle\min_\mathbf{w}\max_{\boldsymbol{\Delta}} &
+        \frac{1}{2N}\Vert\mathbf{y} -
+        (\mathbf{X} + \boldsymbol{\Delta})\mathbf{w}\Vert_2^2 \\
+        \text{s.t.} & \boldsymbol{\Delta} \in \mathcal{U}_\mathbf{c}
+    \end{array}
+\end{equation}
+
+Here $ \mathbf{y} \in \mathbb{R}^N $, $ \mathbf{X}, \boldsymbol{\Delta} \in
+\mathbb{R}^{N \times d} $, $ \mathbf{c}, \mathbf{w} \in \mathbb{R}^d $, and
+$
+    \mathcal{U}_\mathbf{c} \triangleq \left\{
+        \begin{bmatrix}
+             \ \boldsymbol{\delta}_1 & \ldots & \boldsymbol{\delta}_d \
+        \end{bmatrix} \in
+        \mathbb{R}^{N \times d} : \Vert\boldsymbol{\delta}_k\Vert_2 \le c_k,
+        \forall k \in \{1, \ldots d\}
+    \right\}
+$%
+, where $ \mathbf{c} \succeq \mathbf{0} $. Furthermore,
+$ \frac{1}{N}\mathbf{1}^\top\mathbf{X} = \mathbf{0} $,
+$ \frac{1}{N}\mathbf{1}^\top\mathbf{y} = 0 $,
+$ \frac{1}{N}\mathbf{X}^\top\mathbf{X} $ a correlation matrix. Considering
+the inner problem, we can expand and drop terms without
+$ \boldsymbol{\Delta} $ to get
+\begin{equation*}
+    \begin{array}{rl}
+        \displaystyle\max_{\boldsymbol{\Delta}} &
+        -2\mathbf{y}^\top\boldsymbol{\Delta}\mathbf{w} +
+        2\mathbf{w}^\top\mathbf{X}^\top\boldsymbol{\Delta}\mathbf{w} +
+        \mathbf{w}^\top\boldsymbol{\Delta}^\top\boldsymbol{\Delta}\mathbf{w} \\
+        \text{s.t.} & \boldsymbol{\Delta} \in \mathcal{U}_\mathbf{c}
+    \end{array}
+\end{equation*}
+
+To better organize the terms containing $ \boldsymbol{\Delta} $, we can
+rewrite the above as
+\begin{equation} \label{eq:2.10.1}
+    \begin{array}{rl}
+        \displaystyle\max_{\boldsymbol{\Delta}} &
+        \Vert\boldsymbol{\Delta}\mathbf{w}\Vert_2^2 -
+        2(\mathbf{y} - \mathbf{Xw})^\top\boldsymbol{\Delta}\mathbf{w} \\
+        \text{s.t.} & \boldsymbol{\Delta} \in \mathcal{U}_\mathbf{c}
+    \end{array}
+\end{equation}
+
+Denoting the matrix derivative of the objective in (\ref{eq:2.10.1}) as
+$ \nabla g_\mathbf{w} $, we see that
+\begin{equation} \label{eq:2.10.2}
+    \nabla g_\mathbf{w}(\boldsymbol{\Delta}) \propto
+    \boldsymbol{\Delta}\mathbf{ww}^\top -
+    (\mathbf{y} - \mathbf{Xw})\mathbf{w}^\top
+\end{equation}
+
+Since (\ref{eq:2.10.1}) has a convex objective, a maximizer
+$ \hat{\boldsymbol{\Delta}} \in \mathcal{U}_\mathbf{c} $ must also be a
+maximizer for $ \max_{\boldsymbol{\Delta} \in
+\mathcal{U}_\mathbf{c}}\nabla g_\mathbf{w}(\boldsymbol{\Delta}) $, where
+naturally $ \hat{\boldsymbol{\Delta}} $ is on the boundary of
+$ \mathcal{U}_\mathbf{c} $. Since in (\ref{eq:2.10.1}), (\ref{eq:2.10.2})
+$ \boldsymbol{\Delta} $ is always multiplied by $ \mathbf{w} $, one choice is
+to define $ \hat{\boldsymbol{\Delta}} $ as a rank-1 matrix with rows parallel
+to $ \mathbf{w} $. Written more explicitly,
+\begin{equation} \label{eq:2.10.3}
+    \hat{\boldsymbol{\Delta}} \triangleq N^{-1 / 2}\mathbf{1}_N\begin{bmatrix}
+        \ c_1\operatorname{sgn}(w_1) & \ldots & c_d\operatorname{sgn}(w_d) \
+    \end{bmatrix}
+\end{equation}
+
+We can equivalently express (\ref{eq:2.10.3}) in terms of
+$ \hat{\boldsymbol{\delta}}_k $, where $ \forall k \in \{1, \ldots d\} $,
+\begin{equation} \label{eq:2.10.4}
+    \hat{\boldsymbol{\delta}}_k \triangleq
+    \frac{c_k}{\sqrt{N}}{\operatorname{sgn}(w_k)}\mathbf{1}_N
+\end{equation}
+
+It is clear from (\ref{eq:2.10.4}) that
+$ \Vert\hat{\boldsymbol{\delta}}_k\Vert_2 \le c_k $, where the inequality is
+tight if $ \mathbf{w} $ has no zeros. Furthermore, defining a weighted
+$ \ell^1 $ norm as $ \Vert\mathbf{w}\Vert_{1, \mathbf{c}} \triangleq
+\sum_{k = 1}^dc_k|w_k| $, $ \mathbf{c} \succeq \mathbf{0} $, we see that
+\begin{equation} \label{eq:2.10.5}
+    \hat{\Delta}\mathbf{w} =
+    N^{-1 / 2}\left(\sum_{k = 1}^dc_k|w_k|\right)\mathbf{1}_N \triangleq
+    N^{-1 / 2}\Vert\mathbf{w}\Vert_{1, \mathbf{c}}\mathbf{1}_N
+\end{equation}
+
+From (\ref{eq:2.10.5}), we can therefore write (\ref{eq:robust_linear_lsq}) as
+the convex unconstrained minimization problem
+\begin{equation} \label{eq:2.10.6}
+    \begin{array}{rl}
+        \displaystyle\min_\mathbf{w} &
+        \frac{1}{2N}\left\Vert
+            \mathbf{y} - \mathbf{Xw} -
+            \frac{1}{\sqrt{N}}\Vert\mathbf{w}\Vert_{1, \mathbf{c}}\mathbf{1}_N
+        \right\Vert_2^2
+    \end{array}
+\end{equation}
+
+However, direct analysis of the above would be quite difficult. Fortunately,
+recalling the standardization assumptions made on $ \mathbf{y} $,
+$ \mathbf{X} $, we can do some simplification and thus see that
+\begin{equation*}
+    \begin{split}
+        \left\Vert
+            \mathbf{y} - \mathbf{Xw} -
+            \frac{1}{\sqrt{N}}\Vert\mathbf{w}\Vert_{1, \mathbf{c}}\mathbf{1}_N
+        \right\Vert_2^2 & =
+        \left(
+            \mathbf{y}^\top\mathbf{y} - 2\mathbf{y}^\top\mathbf{Xw} +
+            \mathbf{w}^\top\mathbf{X}^\top\mathbf{Xw}
+        \right) -
+        \frac{1}{\sqrt{N}}\Vert\mathbf{w}\Vert_{1, \mathbf{c}}
+        \mathbf{1}_N^\top(\mathbf{y} - \mathbf{Xw}) +
+        \Vert\mathbf{w}\Vert_{1, \mathbf{c}}^2 \\
+        & =
+        \Vert\mathbf{y} - \mathbf{Xw}\Vert_2^2 +
+        \Vert\mathbf{w}\Vert_{1, \mathbf{c}}^2
+    \end{split}
+\end{equation*}
+
+Therefore, instead of (\ref{eq:2.10.6}), we can consider the less threatening
+yet equivalent problem
+\begin{equation} \label{eq:2.10.7}
+    \begin{array}{rl}
+        \displaystyle\min_\mathbf{w} &
+        \Vert\mathbf{y} - \mathbf{Xw}\Vert_2^2 +
+        \Vert\mathbf{w}\Vert_{1, \mathbf{c}}^2
+    \end{array}
+\end{equation}
+
+Note that for some $ \kappa \in (0, \infty) $, (\ref{eq:2.10.7}) is equivalent
+to the Lagrangian for
+\begin{equation} \label{eq:2.10.8}
+    \begin{array}{rl}
+        \displaystyle\min_\mathbf{w} &
+        \Vert\mathbf{w}\Vert_{1, \mathbf{c}}^2 \\
+        \text{s.t} &
+        \frac{1}{2N}\Vert\mathbf{y} - \mathbf{Xw}\Vert_2^2 \le \kappa
+    \end{array}
+\end{equation}
+
+Here $ \mathbf{c} $ has been redefined with the scale factor $ \frac{1}{2N} $.
+Changes in the Lagrange multiplier used in the Lagrangian of (\ref{eq:2.10.8})
+can be reflected in the same way, i.e. if the Lagrange multiplier is increased,
+we can scale $ \mathbf{c} $ down by some $ \varepsilon \in (0, 1) $. Also, for
+any $ \hat{\mathbf{w}} $ that satisfies (\ref{eq:2.10.8}), $ \hat{\mathbf{w}} $
+necessarily satisfies
+\begin{equation} \label{eq:2.10.9}
+    \begin{array}{rl}
+        \displaystyle\min_\mathbf{w} & \Vert\mathbf{w}\Vert_{1, \mathbf{c}} \\
+        \text{s.t} &
+        \frac{1}{2N}\Vert\mathbf{y} - \mathbf{Xw}\Vert_2^2 \le \kappa
+    \end{array}
+\end{equation}
+
+Writing (\ref{eq:2.10.9}) in its Lagrangian form, where again $ \mathbf{c} $
+can be rescaled as necessary to reflect the magnitude of the Lagrange
+multiplier, we have our desired result, i.e. solving
+(\ref{eq:robust_linear_lsq}) is equivalent to solving
+\begin{equation}
+    \begin{array}{rl}
+        \displaystyle\min_\mathbf{w} &
+        \frac{1}{2N}\Vert\mathbf{y} - \mathbf{Xw}\Vert_2^2 +
+        \Vert\mathbf{w}\Vert_{1, \mathbf{c}}
+    \end{array}
+\end{equation}
+
 \section{Generalized Linear Models}
 
 \newtocsubsection{Exercise 3.1}
@@ -665,8 +840,8 @@ providing intuitive justification for our mathematics.
     \label{fig:3.2.1}
 \end{figure}
 
-% might remove this later depending on changes in page layout
-\medskip
+% may or may not be needed depending on the page layout
+%\medskip
 
 Noting that $ yf(\mathbf{x}) > 0 $ if $ f $ classifies $ \mathbf{x} $
 correctly, $ yf(\mathbf{x}) < 0 $ if $ f $ classifies $ \mathbf{x} $

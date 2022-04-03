@@ -1,5 +1,7 @@
 # ignore pdflatex/Texmaker generated files and don't version control pdf
 **/*.aux
+**/*.bbl
+**/*.blg
 **/*.gz
 **/*.log
 **/*.out
