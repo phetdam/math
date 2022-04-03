@@ -696,4 +696,90 @@ $ yf(\mathbf{x}) / \Vert\mathbf{w}\Vert_2 $ is positive if $ f $ classifies
 $ \mathbf{x} $ correctly and negative if $ f $ classifies $ \mathbf{x} $
 incorrectly.
 
+\newtocsubsection{Exercise 3.3}
+
+Under the multinomial logistic regression model for $ K $ classes with $ d $
+predictors, the softmax conditional likelihoods and therefore their logs are
+invariant to constant shifts in the coefficient vectors
+$ \mathbf{w}_1, \ldots \mathbf{w}_K \in \mathbb{R}^d $. More precisely, for
+$ \mathbf{c} \in \mathbb{R}^d $, the conditional probabilities
+$ \mathbb{P}_{\mathbf{W}, \mathbf{b}}\{Y = k \mid X = \mathbf{x}\} $ for each
+class $ k $, where $ \mathbf{W} \triangleq \begin{bmatrix} \ \mathbf{w}_1 &
+\ldots \mathbf{w}_K \ \end{bmatrix} \in \mathbb{R}^{d \times K} $ gives the
+model coefficients and $ \mathbf{b} \in \mathbb{R}^K $ gives the intercepts,
+are such that $ \mathbb{P}_{\mathbf{W}, \mathbf{b}}\{Y = k \mid
+X = \mathbf{x}\} = \mathbb{P}_{\mathbf{W} - \mathbf{c}\mathbf{1}_K^\top,
+\mathbf{b}}\{Y = k \mid X = \mathbf{x}\} $\footnote{
+    Note that $ \mathbf{W} - \mathbf{c1}_K^\top = \begin{bmatrix}
+        \ \mathbf{w}_1 - \mathbf{c} & \ldots & \mathbf{w}_K - \mathbf{c} \
+    \end{bmatrix} $, so from (\ref{eq:logreg_softmax}) we see that
+    \begin{equation*}
+        \mathbb{P}_{\mathbf{W}, \mathbf{b}}\{
+            Y = k \mid X = \mathbf{x}
+        \} =
+        \frac{e^{-\mathbf{c}^\top\mathbf{x}}}{e^{-\mathbf{c}^\top\mathbf{x}}}
+        \left(
+            \frac{
+                e^{\mathbf{w}_k^\top\mathbf{x} + b_k}
+            }{
+                \sum_{k' = 1}^Ke^{\mathbf{w}_{k'}^\top\mathbf{x} + b_{k'}}
+            }
+        \right) =
+        \frac{
+            e^{(\mathbf{w}_k - \mathbf{c})^\top\mathbf{x} + b_k}
+        }{
+            \sum_{k' = 1}^K
+            e^{(\mathbf{w}_{k'} - \mathbf{c})^\top\mathbf{x} + b_{k'}}
+        } \triangleq
+        \mathbb{P}_{\mathbf{W} - \mathbf{c1}_K^\top, \mathbf{b}}\{
+            Y = k \mid X = \mathbf{x}
+        \}
+    \end{equation*}
+}, where
+\begin{equation} \label{eq:logreg_softmax}
+    \mathbb{P}_{\mathbf{W}, \mathbf{b}}\{Y = k \mid X = \mathbf{x}\} \triangleq
+    \frac{
+        e^{\mathbf{w}_k^\top\mathbf{x} + b_k}
+    }{
+        \sum_{k' = 1}^Ke^{\mathbf{w}_{k'}^\top\mathbf{x} + b_{k'}}
+    }
+\end{equation}
+
+However, the regularized part of the objective is not invariant to shifts and
+can resolve the choice of $ \mathbf{c} $. In particular, for
+$ \alpha \in [0, 1] $, using the elastic net penalty, we consider
+\begin{equation} \label{eq:3.3.1}
+    \min_\mathbf{c}\sum_{k = 1}^K\left[
+        \frac{1}{2}(1 - \alpha)\Vert\mathbf{w}_k - \mathbf{c}\Vert_2^2 +
+        \alpha\Vert\mathbf{w}_k - \mathbf{c}\Vert_1
+    \right]
+\end{equation}
+
+Let $ \hat{\mathbf{c}}_\alpha $ solve (\ref{eq:3.3.1}) for a value of
+$ \alpha $, $ \bar{\mathbf{w}} \triangleq \frac{1}{K}\mathbf{W1}_K =
+\frac{1}{K}\sum_{k = 1}^K\mathbf{w}_k $, and let $ \tilde{\mathbf{w}} $ be the
+median of $ \mathbf{w}_1, \ldots \mathbf{w}_K $. To make our analysis simpler,
+first consider $ \hat{\mathbf{c}}_0 $, which is such that
+\begin{equation} \label{eq:3.3.2}
+    \hat{\mathbf{c}}_0 =
+    \arg\min_\mathbf{c}\sum_{k = 1}^K
+    \frac{1}{2}\Vert\mathbf{w}_k - \mathbf{c}\Vert_2^2
+\end{equation}
+
+(\ref{eq:3.3.2}) is easy to solve since it is differentiable. It is necessary
+$ \mathbf{0} = \sum_{k = 1}^K(\mathbf{w}_k - \hat{\mathbf{c}}_0) =
+\sum_{k = 1}^K\mathbf{w}_k - K\hat{\mathbf{c}}_0 $, so
+\begin{equation} \label{eq:3.3.3}
+    \hat{\mathbf{c}}_0 \triangleq
+    \frac{1}{K}\sum_{k = 1}^K\mathbf{w}_k \triangleq \bar{\mathbf{w}}
+\end{equation}
+
+TODO
+
+%Now we consider $ \hat{\mathbf{c}}_1 $, which is such that
+%\begin{equation} \label{eq:3.3.4}
+%    \hat{\mathbf{c}}_1 =
+%    \arg\min_\mathbf{c}\sum_{k = 1}^K\Vert\mathbf{w}_k - \mathbf{c}\Vert_1
+%\end{equation}
+
 \end{document}
