@@ -953,4 +953,87 @@ TODO
 %    \arg\min_\mathbf{c}\sum_{k = 1}^K\Vert\mathbf{w}_k - \mathbf{c}\Vert_1
 %\end{equation}
 
+\section{Generalizations of the Lasso Penalty}
+
+\newtocsubsection{Exercise 4.1}
+
+Since the predictors are the same, let us consider a single predictor
+$ X \triangleq X_1 = X_2 $. Therefore, the input matrix
+$ \mathbf{X} \in \mathbb{R}^{N \times 2} $ can simply be written as
+$ \mathbf{x1}^\top \in \mathbb{R}^{N \times 2} $, where
+$ \mathbf{x} \in \mathbb{R}^N $ is a vector of realizations of $ X $. The
+ridge regression in Lagrangian form for $ \lambda \in (0, \infty) $ is
+therefore
+\begin{equation} \label{eq:4.1.1}
+    \begin{array}{rl}
+        \displaystyle\min_{\mathbf{w}, b} &
+        \frac{1}{2N}\left\Vert
+            \mathbf{y} - \mathbf{x1}^\top\mathbf{w} - b\mathbf{1}
+        \right\Vert_2^2 +
+        \frac{1}{2}\lambda\Vert\mathbf{w}\Vert_2^2
+    \end{array}
+\end{equation}
+
+As usual, let us make the usual standardization assumptions on $ \mathbf{x} $,
+i.e. $ \frac{1}{N}\mathbf{1}^\top\mathbf{x} = 0 $,
+$ \frac{1}{N}\mathbf{x}^\top\mathbf{x} = 1 $, so we know that the\footnote{
+    It is easy to check that (\ref{eq:4.1.1}) is strictly convex in
+    $ \mathbf{w} $, $ b $.
+} optimal $ \hat{b} \triangleq \bar{y} $, where
+$ \bar{y} \triangleq \frac{1}{N}\mathbf{1}^\top\mathbf{y} $. Therefore, at
+the optimal $ \hat{\mathbf{w}} \in \mathbb{R}^2 $ we have
+\begin{equation*}
+    \mathbf{0} =
+    -\frac{1}{N}\mathbf{1x}^\top\big(
+        \mathbf{y} -  \mathbf{x1}^\top\hat{\mathbf{w}} - \bar{y}\mathbf{1}
+    \big) +
+    \lambda\hat{\mathbf{w}} =
+    -\frac{1}{N}\mathbf{1x}^\top\mathbf{y} +
+    \left(\mathbf{11}^\top + \lambda\mathbf{I}\right)\hat{\mathbf{w}}
+\end{equation*}
+
+It is easy to verify that $ \forall c, d \in (0, \infty) $,
+$ c\mathbf{11}^\top + d\mathbf{I} \succ \mathbf{0} $, and so we can rearrange
+the above to see that
+\begin{equation} \label{eq:4.1.2}
+    \hat{\mathbf{w}} =
+    \frac{1}{N}\left(
+        \mathbf{11}^\top + \lambda\mathbf{I}
+    \right)^{-1}
+    \mathbf{1x}^\top\mathbf{y}
+\end{equation}
+
+(\ref{eq:4.1.2}) holds in general for any $ \mathbf{X} \in \mathbb{R}^d $ that
+duplicates the same column $ d $ times, but since
+$ \hat{\mathbf{w}} \in \mathbb{R}^2 $, we can invert
+$ \mathbf{11}^\top + \lambda\mathbf{I} $ by hand to get explicit expressions
+for $ \hat{w}_1 $, $ \hat{w}_2 $. We see that
+\begin{equation} \label{eq:4.1.3}
+    \left(\mathbf{11}^\top + \lambda\mathbf{I}\right)^{-1} \triangleq
+    \begin{bmatrix}
+        \ 1 + \lambda & 1 \ \\ \ 1 & 1 + \lambda \
+    \end{bmatrix}^{-1} =
+    \frac{1}{(1 + \lambda)^2 - 1}
+    \begin{bmatrix}
+        \ 1 + \lambda & -1 \ \\ \ -1 & 1 + \lambda \
+    \end{bmatrix} =
+    \frac{1}{2\lambda + \lambda^2}
+    \begin{bmatrix}
+        \ 1 + \lambda & -1 \ \\ \ -1 & 1 + \lambda \
+    \end{bmatrix}
+\end{equation}
+
+From (\ref{eq:4.1.3}), we see that $ \left(\mathbf{11}^\top +
+\lambda\mathbf{I}\right)^{-1}\mathbf{1} = \frac{1}{2 + \lambda}\mathbf{1} $,
+so we can define $ \hat{w} \triangleq \hat{w}_1 = \hat{w}_2 $, i.e.
+$ \hat{\mathbf{w}} = \hat{w}\mathbf{1} $, where
+\begin{equation} \label{eq:4.1.4}
+    \hat{w} =
+    \frac{1}{N}\left(\frac{\mathbf{x}^\top\mathbf{y}}{2 + \lambda}\right)
+\end{equation}
+
+(\ref{eq:4.1.4}) shows that $ \hat{w}_1 $, $ \hat{w}_2 $ are identical,
+directly proportional to $ \frac{1}{N}\mathbf{x}^\top\mathbf{y} $, and
+inversely proportional to $ \lambda $.
+
 \end{document}
