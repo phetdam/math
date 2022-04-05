@@ -1036,4 +1036,59 @@ $ \hat{\mathbf{w}} = \hat{w}\mathbf{1} $, where
 directly proportional to $ \frac{1}{N}\mathbf{x}^\top\mathbf{y} $, and
 inversely proportional to $ \lambda $.
 
+\section{Optimization Methods}
+
+\newtocsubsection{Exercise 5.1}
+
+We consider the function $ f : \mathbb{R}^d \rightarrow \mathbb{R} $, where
+for $ \mathbf{b} \in \mathbb{R}^d $, $ \mathbf{Q} \succ \mathbf{0} \in
+\mathbb{R}^{d \times d} $,
+\begin{equation} \label{eq:5.1.1}
+    f(\mathbf{x}) \triangleq
+    \frac{1}{2}\mathbf{x}^\top\mathbf{Qx} - \mathbf{b}^\top\mathbf{x}
+\end{equation}
+
+\begin{enumerate}[label=\alph*.]
+    \item
+    Since $ \mathbf{Q} \succ \mathbf{0} $ and from inspection $ f $ is twice
+    differentiable, with $ \nabla^2f(\mathbf{x}) = \mathbf{Q} $,
+    $ \forall \mathbf{x} \in \mathbb{R}^d $, $ f $ is strictly convex. We can
+    verify the uniqueness of its minimizer $ \mathbf{x}^* $ as $ f $ strictly
+    convex $\Leftrightarrow \forall \mathbf{x}, \mathbf{x}' \in
+    \mathbb{R}^d $, $ \mathbf{x} \ne \mathbf{x}' $,
+    \begin{equation} \label{eq:5.1.2}
+        f(\mathbf{x}') >
+        f(\mathbf{x}) + \nabla f(\mathbf{x})^\top(\mathbf{x}' - \mathbf{x})
+    \end{equation}
+    Since necessarily $ \nabla f(\mathbf{x}^*) = \mathbf{0} $,
+    $ \forall \mathbf{x} \in \mathbb{R}^d $, $ \mathbf{x} \ne \mathbf{x}^* $,
+    from (\ref{eq:5.1.2}) we have $ f(\mathbf{x}) > f(\mathbf{x}^*) $.
+    Furthermore, since $ \nabla f(\mathbf{x}^*) = \mathbf{Qx}^* - \mathbf{b} =
+    \mathbf{0} $ and $ \mathbf{Q} \succ \mathbf{0} \Rightarrow \mathbf{Q} $
+    invertible, then
+    \begin{equation} \label{eq:5.1.3}
+        \mathbf{x}^* = \mathbf{Q}^{-1}\mathbf{b}
+    \end{equation}
+
+    \item
+    Letting $ \eta \in (0, \infty) $ be the step size, for a sequence of
+    $ \{\mathbf{x}_n\}_{n \in \mathbb{N}} $ of approximations to
+    $ \mathbf{x}^* $ yielded by gradient descent from an initial guess
+    $ \mathbf{x}_0 $, the $ n $th term $ \mathbf{x}_n $ is such that
+    \begin{equation} \label{eq:5.1.4}
+        \mathbf{x}_n =
+        \mathbf{x}_{n - 1} - \eta(\mathbf{Qx}_{n - 1} - \mathbf{b})
+    \end{equation}
+
+    \item
+    First, we write (\ref{eq:5.1.4}) more conveniently such that
+    $ \mathbf{x}_{n - 1} $ only occurs once, as
+    \begin{equation} \label{eq:5.1.5}
+        \mathbf{x}_n =
+        (\mathbf{I} - \eta\mathbf{Q})\mathbf{x}_{n - 1} + \eta\mathbf{b}
+    \end{equation}
+
+    TODO
+\end{enumerate}
+
 \end{document}
