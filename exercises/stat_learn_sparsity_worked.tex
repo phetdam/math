@@ -1073,8 +1073,8 @@ for $ \mathbf{b} \in \mathbb{R}^d $, $ \mathbf{Q} \succ \mathbf{0} \in
     \item
     Letting $ \eta \in (0, \infty) $ be the step size, for a sequence of
     $ \{\mathbf{x}_n\}_{n \in \mathbb{N}} $ of approximations to
-    $ \mathbf{x}^* $ yielded by gradient descent from an initial guess
-    $ \mathbf{x}_0 $, the $ n $th term $ \mathbf{x}_n $ is such that
+    $ \mathbf{x}^* $ yielded by gradient descent on $ f $ from an initial
+    guess $ \mathbf{x}_0 $, the $ n $th term $ \mathbf{x}_n $ is such that
     \begin{equation} \label{eq:5.1.4}
         \mathbf{x}_n =
         \mathbf{x}_{n - 1} - \eta(\mathbf{Qx}_{n - 1} - \mathbf{b})
@@ -1087,8 +1087,65 @@ for $ \mathbf{b} \in \mathbb{R}^d $, $ \mathbf{Q} \succ \mathbf{0} \in
         \mathbf{x}_n =
         (\mathbf{I} - \eta\mathbf{Q})\mathbf{x}_{n - 1} + \eta\mathbf{b}
     \end{equation}
+    From (\ref{eq:5.1.5}) we see that $ \mathbf{x}_n =
+    (\mathbf{I} - \eta\mathbf{Q})^2\mathbf{x}_{n - 2} +
+    \eta(\mathbf{I} - \eta\mathbf{Q})\mathbf{b} + \eta\mathbf{b} $, so
+    unrolling further, we have
+    \begin{equation} \label{eq:5.1.6}
+        \mathbf{x}_n =
+        (\mathbf{I} - \eta\mathbf{Q})^n\mathbf{x}_0 +
+        \eta\sum_{k = 0}^{n - 1}(\mathbf{I} - \eta\mathbf{Q})^k\mathbf{b}
+    \end{equation}
+    From (\ref{eq:5.1.6}), we have $ \mathbf{x}_n - \mathbf{x}_{n - 1} =
+    -\eta(\mathbf{I} - \eta\mathbf{Q})^{n - 1}\mathbf{Qx}_0 +
+    \eta(\mathbf{I} - \eta\mathbf{Q})^{n - 1}\mathbf{b} =
+    \eta(\mathbf{I} - \eta\mathbf{Q})^{n - 1}(\mathbf{Qx}_0 - \mathbf{b}) $,
+    so
+    \begin{equation} \label{eq:5.1.7}
+        \mathbf{x}_n - \mathbf{x}_{n - 1} =
+        -\eta(\mathbf{I} - \eta\mathbf{Q})^{n - 1}\nabla f(\mathbf{x}_0)
+    \end{equation}
+    To show that gradient descent on $ f $ converges, we must show that
+    $ \exists\lim_{n \rightarrow \infty}\Vert\mathbf{x}_n -
+    \mathbf{x}_{n - 1}\Vert_2 $ and that this limit is zero. However, simply
+    inspecting (\ref{eq:5.1.7}) does not tell us how we should proceed. But
+    if we note that since $ \mathbf{I} $, $ \mathbf{Q} $ symmetric, then
+    naturally $ \mathbf{I} - \eta\mathbf{Q} $ is symmetric, and so we can
+    write that
+    \begin{equation} \label{eq:5.1.8}
+        \mathbf{I} - \eta\mathbf{Q} = \mathbf{U\Lambda U}^\top
+    \end{equation}
+    Here $ \mathbf{U} \in \mathbb{R}^{d \times d} $ is orthogonal and
+    $ \mathbf{\Lambda} \triangleq \operatorname{diag}(\lambda_1, \ldots
+    \lambda_d) $, where $ \forall j \in \{1, \ldots d\} $, $ \lambda_j $ is
+    the $ j $th eigenvalue of $ \mathbf{I} - \eta\mathbf{Q} $. Substituting
+    (\ref{eq:5.1.8}) into (\ref{eq:5.1.7}) and taking the norm, we see that
+    \begin{equation}
+        \Vert\mathbf{x}_n - \mathbf{x}_{n - 1}\Vert_2 =
+        \eta\left\Vert\mathbf{U\Lambda}^{n - 1}\mathbf{U}^\top
+        \nabla f(\mathbf{x}_0)\right\Vert_2
+    \end{equation}
+    It is patently clear that $ \lim_{n \rightarrow \infty}
+    \Vert\mathbf{x}_n - \mathbf{x}_{n - 1}\Vert_2 $ exists and is zero
+    $ \Leftrightarrow \Vert\mathbf{\Lambda 1}\Vert_\infty < 1 $, i.e.
+    $ \forall j \in \{1, \ldots d\} $, $ |\lambda_j| < 1 $. Otherwise, either
+    $ \nexists\lim_{n \rightarrow \infty}
+    \Vert\mathbf{x}_n - \mathbf{x}_{n - 1}\Vert_2 $ or
+    $ \lim_{n \rightarrow \infty}
+    \Vert\mathbf{x}_n - \mathbf{x}_{n - 1}\Vert_2 = \infty $.
 
-    TODO
+    \medskip
+
+    Therefore, gradient descent on the strictly convex quadratic function
+    $ f $ converges for a fixed step size $ \eta \in (0, \tau] $, where
+    $ \tau \in (0, \infty) $ depends only on $ \mathbf{Q} $ and is such that
+    \begin{equation*}
+        \tau \triangleq
+        \sup\left\{
+            t \in (0, \infty) : \Vert\mathbf{\Lambda 1}\Vert_\infty < 1,
+            \mathbf{U\Lambda U}^\top = \mathbf{I} - t\mathbf{Q}
+        \right\}
+    \end{equation*}
 \end{enumerate}
 
 \end{document}
