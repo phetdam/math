@@ -1036,6 +1036,159 @@ $ \hat{\mathbf{w}} = \hat{w}\mathbf{1} $, where
 directly proportional to $ \frac{1}{N}\mathbf{x}^\top\mathbf{y} $, and
 inversely proportional to $ \lambda $.
 
+\newtocsubsection{Exercise 4.6}
+
+We consider the group lasso problem with $ G \in \mathbb{N} $ groups
+\begin{equation} \label{eq:group_lasso}
+    \begin{array}{rl}
+        \displaystyle\min_{\mathbf{w}_1, \ldots \mathbf{w}_G} &
+        \frac{1}{2}
+        \left\Vert
+            \mathbf{y} -
+            \begin{bmatrix}
+                \ \mathbf{Z}_1\mathbf{w}_1 & \ldots \mathbf{Z}_G\mathbf{w}_G \
+            \end{bmatrix}
+            \mathbf{1}
+        \right\Vert_2^2 +
+        \lambda
+        \begin{bmatrix}
+            \ \Vert\mathbf{w}_1\Vert_2 & \ldots & \Vert\mathbf{w}_G\Vert_2 \
+        \end{bmatrix}
+        \mathbf{1}
+    \end{array}
+\end{equation}
+
+Here $ \mathbf{w}_k \in \mathbb{R}^{d_k} $, $ \mathbf{Z}_k \in
+\mathbb{R}^{N \times d_k} $, $ \forall k \in \{1, \ldots G\} $, where the
+$ \mathbf{w}_k $ are group coefficient vectors and the $ \mathbf{Z}_k $ are
+the group input matrices. Clearly (\ref{eq:group_lasso}) has zero-mean
+$ \mathbf{Z}_k $ and zero-mean $ \mathbf{y} $, as no intercepts are present.
+
+\medskip
+
+Consider the special case where $ \mathbf{Z}_k^\top\mathbf{Z}_k = \mathbf{I} $,
+$ \forall k \in \{1, \ldots G\} $, i.e. $ \mathbf{Z}_k $ have orthonormal
+columns. We know that $ \forall k \in \{1, \ldots G\} $, the subgradient
+equation for the $ k $th group at the minimizer
+$ \hat{\mathbf{w}}_1, \ldots \hat{\mathbf{w}}_G $, is
+\begin{equation} \label{eq:4.6.1}
+    \mathbf{0} \in
+    % if you use big, the - gains additional spacing
+    \left\{
+        -\mathbf{Z}_k^\top
+        \big(
+            \mathbf{y} -
+            \begin{bmatrix}
+                \ \mathbf{Z}_1\hat{\mathbf{w}}_1 &
+                \ldots &
+                \mathbf{Z}_G\hat{\mathbf{w}}_G \
+            \end{bmatrix}
+            \mathbf{1}
+        \big)
+    \right\} +
+    \lambda\partial\Vert\hat{\mathbf{w}}_k\Vert_2
+\end{equation}
+
+Here $ \partial\Vert\hat{\mathbf{w}}_k\Vert_2 \triangleq
+\mathbb{I}_{\mathbb{R}^{d_k} \setminus \{\mathbf{0}\}}(\hat{\mathbf{w}}_k)
+\left\{\frac{\hat{\mathbf{w}}_k}{\Vert\hat{\mathbf{w}}_k\Vert_2}\right\} +
+\mathbb{I}_{\{\mathbf{0}\}}(\hat{\mathbf{w}}_k)
+\{\mathbf{w} \in \mathbb{R}^{d_k} : \Vert\mathbf{w}\Vert_2 \le 1\} $, as
+noted\footnote{
+    We verify this statement by working through Exercise 5.5 from the text.
+} in the text. Let residuals $ \hat{\mathbf{r}}_k \triangleq \mathbf{y} -
+\sum_{k' \in P_k}\mathbf{Z}_{k'}\hat{\mathbf{w}}_{k'} $, where
+$ P_k \triangleq \{1, \ldots G\} \setminus \{k\} $. Since
+$ \mathbf{Z}_k^\top\mathbf{Z}_k = \mathbf{I}_{d_k} $,
+$ \forall k \in \{1, \ldots G\} $, (\ref{eq:4.6.1}) becomes
+\begin{equation} \label{eq:4.6.2}
+    \mathbf{0} \in
+    \left\{
+        -\mathbf{Z}_k^\top\hat{\mathbf{r}}_k + \hat{\mathbf{w}}_k
+    \right\} +
+    \lambda\partial\Vert\hat{\mathbf{w}}_k\Vert_2
+\end{equation}
+
+From (\ref{eq:4.6.2}), $ \hat{\mathbf{w}}_k \ne \mathbf{0} \Leftrightarrow
+\mathbf{0} = -\mathbf{Z}_k^\top\hat{\mathbf{r}}_k + \hat{\mathbf{w}}_k +
+\frac{\lambda\hat{\mathbf{w}}_k}{\Vert\hat{\mathbf{w}}_k\Vert_2} $. Moving
+$ -\mathbf{Z}_k^\top\hat{\mathbf{r}}_k $ to the left hand side, we see that
+\begin{equation} \label{eq:4.6.3}
+    \mathbf{Z}_k^\top\hat{\mathbf{r}}_k =
+    \left(1 + \frac{\lambda}{\Vert\hat{\mathbf{w}}_k\Vert_2}\right)
+    \hat{\mathbf{w}}_k
+\end{equation}
+
+The result in (\ref{eq:4.6.3}) is significant, as it tells us that
+$ \mathbf{Z}_k^\top\hat{\mathbf{r}}_k $ is a nonnegative scaling of
+$ \hat{\mathbf{w}}_k $. Furthermore, we see
+\begin{equation} \label{eq:4.6.4}
+    \left\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\right\Vert_2 =
+    \left(1 + \frac{\lambda}{\Vert\hat{\mathbf{w}}_k\Vert_2}\right)
+    \Vert\hat{\mathbf{w}}_k\Vert_2 =
+    \Vert\hat{\mathbf{w}}_k\Vert_2 + \lambda
+\end{equation}
+
+Since equality implies an $ \Leftrightarrow $ relation, (\ref{eq:4.6.4})
+essentially states that $ \hat{\mathbf{w}}_k \ne \mathbf{0} \Leftrightarrow
+\left\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\right\Vert_2 > \lambda $, so
+immediately $ \left\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\right\Vert_2 \le
+\lambda \Rightarrow \hat{\mathbf{w}}_k = \mathbf{0} $. Now, using
+(\ref{eq:4.6.4}) to write $ \Vert\hat{\mathbf{w}}_k\Vert_2 $ in terms of
+$ \mathbf{Z}_k^\top\hat{\mathbf{r}}_k $, we see that
+\begin{equation*}
+    \mathbf{Z}_k^\top\hat{\mathbf{r}}_k =
+    \left(
+        1 +
+        \frac{
+            \lambda
+        }{
+            \Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\Vert_2 - \lambda
+        }
+    \right)
+    \hat{\mathbf{w}}_k =
+    \frac{
+        \Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\Vert_2
+    }{
+        \Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\Vert_2 - \lambda
+    }
+    \hat{\mathbf{w}}_k
+\end{equation*}
+
+We can then reverse the above to see that when
+$ \hat{\mathbf{w}}_k \ne \mathbf{0} $, then
+\begin{equation} \label{eq:4.6.5}
+    \hat{\mathbf{w}}_k =
+    \left(
+        1 - \frac{\lambda}{\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\Vert_2}
+    \right)
+    \mathbf{Z}_k^\top\hat{\mathbf{r}}_k
+\end{equation}
+
+Note that $ \left\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\right\Vert_2 \le
+\lambda \Rightarrow 1 - \frac{
+    \lambda
+}{
+    \Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\Vert_2
+}
+\le 0 $, so since we already know
+$ \left\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\right\Vert_2 \le \lambda
+\Rightarrow \hat{\mathbf{w}}_k = \mathbf{0} $, we can take just the positive
+part of $ 1 - \frac{\lambda}{\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\Vert_2} $
+in (\ref{eq:4.6.5}). Therefore, we can write that
+\begin{equation} \label{eq:4.6.6}
+    \hat{\mathbf{w}}_k =
+    \max\left\{
+        0, 1 - \frac{\lambda}{\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\Vert_2}
+    \right\}
+    \mathbf{Z}_k^\top\hat{\mathbf{r}}_k
+\end{equation}
+
+(\ref{eq:4.6.6}) solves the fixed point equation (\ref{eq:4.6.1}) when
+$ \forall k \in \{1, \ldots G\} $,
+$ \mathbf{Z}_k^\top\mathbf{Z}_k = \mathbf{I} $ and therefore gives the block
+coordinate descent update for the group lasso in this special case.
+
 \section{Optimization Methods}
 
 \newtocsubsection{Exercise 5.1}
