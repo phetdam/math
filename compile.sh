@@ -8,6 +8,8 @@ REPO_HOME=$(realpath .)
 # relative and absolute output directory
 REL_PDF_DIR="pdf"
 PDF_DIR="$REPO_HOME/$REL_PDF_DIR"
+# pdflatex command prefix we use
+PDF_TEX="pdflatex -interaction=nonstopmode -halt-on-error -shell-escape"
 # script usage
 USAGE="usage: $0 [-h] [TEXFILE ...]
 
@@ -32,11 +34,12 @@ optional arguments:
 # Recursively creates empty directories in PDF_DIR mirroring repo structure.
 #
 # Arguments:
-#   Name of current directory to start generate subdirectories for.
+#   Name of current directory to start generate subdirectories for
 #       Optional. If not provided, uses REPO_HOME. If given multiple directory
 #       names, will only use the first one specified.
 # Outputs:
-#   Names of any empty directories created.
+#   Names of any empty directories created
+#
 create_output_dirs() {
     if [ $# -eq 0 ]
     then
@@ -55,11 +58,13 @@ create_output_dirs() {
     for MAYBE_DIR in $CUR_DIR/*
     do
         MAYBE_NEW_DIR="$PDF_DIR/$(realpath --relative-to=$REPO_HOME $MAYBE_DIR)"
+        # echo $(realpath --relative-to=$CUR_DIR $MAYBE_DIR)
         if  [ -d $MAYBE_DIR ] && \
-            # if there aren't any .tex files in the dir, we won't create it
-            [ $(echo $MAYBE_DIR/*.tex | wc -w) -gt 0 ] && \
+            # if there aren't any .tex files in the dir, we won't create it.
+            # note we have to remove the *.tex expression that is echoed if
+            # there are no .tex files in the directory.
+            [ $(echo $1/*.tex | sed s/"$1\/\*.tex"// | wc -w) -gt 0 ] && \
             [ $MAYBE_DIR != $PDF_DIR ] && \
-            [ $(realpath --relative-to=$CUR_DIR $MAYBE_DIR) != "images" ] && \
             [ ! -d $MAYBE_NEW_DIR ]
         then
             mkdir $MAYBE_NEW_DIR
@@ -73,15 +78,16 @@ create_output_dirs() {
 # Compiles a single specified .tex file to its corresponding output dir.
 #
 # Arguments:
-#   Name of the .tex file in this repo to compile. Won't work if not in repo.
+#   Name of the .tex file in this repo to compile. Won't work if not in repo
 # Outputs:
-#   Name of the resulting .pdf file if successful.
+#   Name of the resulting .pdf file if successful
+#
 compile_tex() {
     # needs to be relative to repo directory
     REL_PATH=$(realpath --relative-to=$REPO_HOME $1)
     ACT_PATH=$(realpath $1)
-    pdflatex -halt-on-error -shell-escape \
-        -output-directory=$PDF_DIR/$(dirname $REL_PATH) $ACT_PATH > /dev/null
+    $PDF_TEX -output-directory=$PDF_DIR/$(dirname $REL_PATH) $ACT_PATH > \
+        /dev/null
     echo "compiled $(echo $ACT_PATH | sed s/.tex/.pdf/g)"
 }
 
@@ -89,11 +95,12 @@ compile_tex() {
 # Recursively compile all .tex files in the repo to their locations in PDF_DIR.
 #
 # Arguments:
-#   Name of the current directory to start recursively compiling.
+#   Name of the current directory to start recursively compiling
 #       Optional. If not provided, REPO_HOME is used. If you give it multiple
 #       directories, only the first one will be used.
 # Outputs:
-#   Names of the resulting .pdf files generated (from compile_tex).
+#   Names of the resulting .pdf files generated (from compile_tex)
+#
 compile_all_tex() {
     if [ $# -eq 0 ]
     then
@@ -116,6 +123,11 @@ compile_all_tex() {
 
 ##
 # Main function for the script.
+#
+# If no arguments are provided, all TeX files in repo are compiled to PDF.
+#
+# Arguments:
+#   -h, --help or list of individual TeX files to compile
 #
 main() {
     # if output and other subdirectories don't exist, create them
