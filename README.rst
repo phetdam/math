@@ -44,8 +44,9 @@ appropriately, for example with ``chmod 777 build_pdf.sh``, and execute
 
 ``build_pdf.sh`` will then compile all ``.tex`` files in ``tex`` and write its
 output to the ``pdf`` directory, which will mirror the directory tree of
-``tex``. Any directories that do not exist will be created. If you do not wish
-to adjust permissions, use ``bash build_pdf.sh`` instead of executing.
+``tex``. The ``pdf`` directory and its subdirectories will be created as needed.
+If you do not wish to adjust permissions, use ``bash build_pdf.sh`` instead of
+executing with ``./``.
 
 You can view help on more advanced use of ``build_pdf.sh`` with
 ``build_pdf.sh -h`` or ``build_pdf.sh --help``.
