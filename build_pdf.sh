@@ -68,7 +68,7 @@ compile_tex() {
     then
         mkdir -p $PDF_DIR/$(dirname $TEX_REL_PATH)
     fi
-    mv $PROJ_NAME.pdf $PDF_DIR/$(dirname $TEX_REL_PATH).pdf
+    mv $PROJ_NAME.pdf $PDF_DIR/$(dirname $TEX_REL_PATH)
     cd $CUR_DIR
     echo -n "compiled $(echo $REPO_REL_PATH) to "
     echo "$(echo $REL_PDF_DIR/$TEX_REL_PATH | sed s/.tex/.pdf/g)"
