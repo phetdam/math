@@ -9,3 +9,5 @@
 **/*.toc
 # ignore old README.md
 README.md
+# ignore build directory
+build
