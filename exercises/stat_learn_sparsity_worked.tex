@@ -1036,8 +1036,9 @@ $ \hat{\mathbf{w}} = \hat{w}\mathbf{1} $, where
 directly proportional to $ \frac{1}{N}\mathbf{x}^\top\mathbf{y} $, and
 inversely proportional to $ \lambda $.
 
-\newtocsubsection{Exercise 4.6}
+\newtocsubsection{Exercise 4.5}
 
+% put the group lasso description in the first group lasso problem
 We consider the group lasso problem with $ G \in \mathbb{N} $ groups
 \begin{equation} \label{eq:group_lasso}
     \begin{array}{rl}
@@ -1063,10 +1064,31 @@ Here $ \mathbf{w}_k \in \mathbb{R}^{d_k} $, $ \mathbf{Z}_k \in
 $ \mathbf{w}_k $ are group coefficient vectors and the $ \mathbf{Z}_k $ are
 the group input matrices. Clearly (\ref{eq:group_lasso}) has zero-mean
 $ \mathbf{Z}_k $ and zero-mean $ \mathbf{y} $, as no intercepts are present.
+For convenience, we also define the residuals $ \mathbf{r}_k \in
+\mathbb{R}^N $, where $ \forall k \in \{1, \ldots G\} $, $ P_k \triangleq
+\{1, \ldots G\} \setminus \{k\} $,
+\begin{equation}
+    \mathbf{r}_k \triangleq
+    \mathbf{y} - \sum_{k' \in P_k}\mathbf{Z}_{k'}\mathbf{w}_{k'}
+\end{equation}
+
+The same notation will be used for subsequent problems involving the group
+lasso.
 
 \medskip
 
-Consider the special case where $ \mathbf{Z}_k^\top\mathbf{Z}_k = \mathbf{I} $,
+The text notes that for the formulation of the group lasso in
+(\ref{eq:group_lasso}), since all groups are equally penalized by $ \lambda $,
+larger groups, i.e. $ \mathbf{Z}_k $ with more columns, are more likely to be
+selected.
+
+\medskip
+
+TODO
+
+\newtocsubsection{Exercise 4.6}
+
+We return to the intercept-free group lasso problem with $ G \in \mathbb{N} $ groups described in (\ref{eq:group_lasso}). Now, we consider the special case where $ \mathbf{Z}_k^\top\mathbf{Z}_k = \mathbf{I} $,
 $ \forall k \in \{1, \ldots G\} $, i.e. $ \mathbf{Z}_k $ have orthonormal
 columns. We know that $ \forall k \in \{1, \ldots G\} $, the subgradient
 equation for the $ k $th group at the minimizer
