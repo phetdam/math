@@ -1,26 +1,38 @@
 #!/usr/bin/bash
 # compiles all the .tex files in this directory, including the subdirectories,
-# writing the PDF output to the same location as its .tex source. see usage.
+# and writes the output to PDF_DIR, specified in this script, duplicating the
+# existing file structure of this repo's .tex files. see usage for details.
 
 # directory this file resides in
 REPO_HOME=$(realpath .)
+# relative and absolute PDF output and .tex source directories
+REL_PDF_DIR="pdf"
+PDF_DIR="$REPO_HOME/$REL_PDF_DIR"
+REL_TEX_DIR="tex"
+TEX_DIR="$REPO_HOME/$REL_TEX_DIR"
 # pdflatex command prefix we use
 PDF_TEX="pdflatex -interaction=nonstopmode -halt-on-error -shell-escape"
 # script usage
 USAGE="usage: $0 [-h] [TEXFILE ...]
 
-Compiles all .tex files in the repository to PDF.
+Compiles all .tex files in $REL_TEX_DIR, writing PDF output to $REL_PDF_DIR.
 
 pdflatex is invoked on each file with -halt-on-error and -shell-escape
 options already preset. If arguments are passed to this script, assumed
 to be names of .tex files, then only those files will be compiled.
 
-PDF files will be compiled to same location as their corresponding .tex source.
+Note that any file with relative path $REL_TEX_DIR/my/path/file.tex will be
+have its corresponding PDF written to $REL_PDF_DIR/my/path/file.pdf. Any
+directories that do not exist will be created as needed.
+
+stdout output goes to /dev/null, but stderr output is displayed.
+
+DO NOT run this script from outside the current directory.
 
 optional arguments:
  -h, --help  show this usage
- TEXFILE     specified .tex file or files to compile, writing output to the
-             directory TEXFILE is in. if omitted, all .tex files are compiled."
+ TEXFILE     specified .tex file or files to compile, writing output to
+             $REL_PDF_DIR. if omitted, all .tex files in $REL_TEX_DIR compiled."
 
 ##
 # Generate PDF file from a single specified .tex file.
@@ -33,9 +45,11 @@ optional arguments:
 compile_tex() {
     # save current directory so we can cd back
     CUR_DIR=$(pwd)
-    # actual file path of the .tex file, path relative to CUR_DIR
+    # actual path of the .tex file, paths relative to CUR_DIR, REPO_HOME
     ACT_PATH=$(realpath $1)
-    CUR_REL_PATH=$(realpath --relative-to=$CUR_DIR $1)
+    REPO_REL_PATH=$(realpath --relative-to=$REPO_HOME $1)
+    # also need path relative to TEX_DIR for copying PDF
+    TEX_REL_PATH=$(realpath --relative-to=$TEX_DIR $1)
     # project name to send to pdflatex, bibtex; easier with no extension
     PROJ_NAME=$(basename $1)
     PROJ_NAME=${PROJ_NAME%%.tex}
@@ -49,8 +63,15 @@ compile_tex() {
     bibtex $PROJ_NAME > /dev/null || true
     $PDF_TEX $PROJ_NAME > /dev/null
     $PDF_TEX $PROJ_NAME > /dev/null
+    # move the PDF to the pdf directory, creating the directory if needed
+    if [ ! -d $PDF_DIR/$(dirname $TEX_REL_PATH) ]
+    then
+        mkdir -p $PDF_DIR/$(dirname $TEX_REL_PATH)
+    fi
+    mv $PROJ_NAME.pdf $PDF_DIR/$(dirname $TEX_REL_PATH).pdf
     cd $CUR_DIR
-    echo "compiled $(echo $CUR_REL_PATH | sed s/.tex/.pdf/g)"
+    echo -n "compiled $(echo $REPO_REL_PATH) to "
+    echo "$(echo $REL_PDF_DIR/$TEX_REL_PATH | sed s/.tex/.pdf/g)"
 }
 
 ##
@@ -92,6 +113,11 @@ compile_all_tex() {
 #   -h, --help or list of individual TeX files to compile
 #
 main() {
+    # if output directory doesn't exist, create it
+    if [ ! -d $PDF_DIR ]
+    then
+        mkdir $PDF_DIR
+    fi
     # if no arguments, recursively compile all files in all subdirectories
     if [ $# -eq 0 ]
     then
