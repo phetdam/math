@@ -18,4 +18,5 @@ set(CMAKE_CXX_FLAGS_DEBUG_INIT "-Wall -g")
 set(CMAKE_CXX_FLAGS_RELEASE_INIT "-Wall -O3")
 
 add_subdirectory(src)
+add_subdirectory(examples)
 # add_subdirectory(test)
