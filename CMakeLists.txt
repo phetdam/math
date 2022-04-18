@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(
     phetdam-math
-    VERSION 0.1
+    VERSION 0.1.0
     DESCRIPTION "Accompanying code for my independent mathematical work."
     HOMEPAGE_URL "https://github.com/phetdam/math"
     LANGUAGES CXX
