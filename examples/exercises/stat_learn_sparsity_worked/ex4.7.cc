@@ -44,7 +44,7 @@ public:
     assert(lambda_ > 0);
     assert(singular_values_.size() == proj_residuals.size());
     n_predictors_ = singular_values_.size();
-    resid_const_(0.);
+    resid_const_ = T(0);
     for (int i = 0; i < n_predictors_; i++) {
       resid_const_ += pow(singular_values_[i] * proj_residuals[i], 2);
     }
@@ -74,6 +74,12 @@ private:
 
 int main(int argc, char **argv)
 {
+  std::vector<float> singular_values({0.4, 0.3, 0.1});
+  std::vector<float> proj_residuals({-0.2, 0.35, -0.01});
+  group_norm_root_functor<float> objective(
+    singular_values, proj_residuals, 0.1
+  );
+  std::cout << "f(0.2) = " << objective(0.2) << std::endl;
   std::cout << "gottem" << std::endl;
   return EXIT_SUCCESS;
 }
