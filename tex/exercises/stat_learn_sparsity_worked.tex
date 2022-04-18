@@ -1067,28 +1067,121 @@ $ \mathbf{Z}_k $ and zero-mean $ \mathbf{y} $, as no intercepts are present.
 For convenience, we also define the residuals $ \mathbf{r}_k \in
 \mathbb{R}^N $, where $ \forall k \in \{1, \ldots G\} $, $ P_k \triangleq
 \{1, \ldots G\} \setminus \{k\} $,
-\begin{equation}
+\begin{equation} \label{eq:group_lasso_resids}
     \mathbf{r}_k \triangleq
     \mathbf{y} - \sum_{k' \in P_k}\mathbf{Z}_{k'}\mathbf{w}_{k'}
 \end{equation}
 
-The same notation will be used for subsequent problems involving the group
-lasso.
+Furthermore, letting $ \hat{\mathbf{r}}_k $ be (\ref{eq:group_lasso_resids})
+with $ \hat{\mathbf{w}}_{k'} $ instead of $ \mathbf{w}_{k'} $, the hat
+indicating satisfaction of the zero subgradient equations for
+(\ref{eq:group_lasso}), we know from the text that the block coordinate
+descent update for $ \hat{\mathbf{w}}_k $ is\footnote{
+    Although the book essentially states that
+    $ \mathbb{I}_{[\lambda, \infty)} $ should be used, see \nameref{sec:4.6}
+    for why we use $ \mathbb{I}_{(\lambda, \infty)} $ instead.
+}
+\begin{equation} \label{eq:group_lasso_block_update}
+    \hat{\mathbf{w}}_k \leftarrow
+    \mathbb{I}_{(\lambda, \infty)}
+    \big(\left\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\right\Vert_2\big)
+    \left(
+        \mathbf{Z}_k^\top\mathbf{Z}_k +
+        \frac{\lambda}{\Vert\hat{\mathbf{w}}_k\Vert_2}\mathbf{I}
+    \right)^{-1}
+    \mathbf{Z}_k^\top\hat{\mathbf{r}}_k
+\end{equation}
 
-\medskip
+Now, let us consider the selection criteria
+$ \left\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\right\Vert_2 \le \lambda $,
+which when satisfied de-selects group $ k \in \{1, \ldots G\} $, as then
+$ \hat{\mathbf{w}}_k = \mathbf{0} $. Suppose components of
+$ \hat{\mathbf{r}}_k $ are i.i.d. with $ \mathbb{E}[\hat{\mathbf{r}}_k] =
+\mathbf{0} $, $ \operatorname{Var}(\hat{\mathbf{r}}_k) = \sigma^2\mathbf{I} $,
+i.e. we expect that $ \hat{\mathbf{w}}_k = \mathbf{0} $, and let
+$ \mathbf{z}_{k, j} \in \mathbb{R}^N $ represent the $ j $th column of
+$ \mathbf{Z}_k $. We see that
+\begin{equation} \label{eq:4.5.1}
+    \mathbb{E}\left[
+        \left\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\right\Vert_2^2
+    \right] =
+    \mathbb{E}\big[
+        \hat{\mathbf{r}}_k^\top\mathbf{Z}_k\mathbf{Z}_k^\top
+        \hat{\mathbf{r}}_k
+    \big] =
+    \mathbb{E}\left[
+        \begin{bmatrix}
+            \ \hat{\mathbf{r}}_k^\top\mathbf{z}_{k, 1} &
+            \ldots &
+            \hat{\mathbf{r}}_k^\top\mathbf{z}_{k, d_k} \
+        \end{bmatrix}
+        \begin{bmatrix}
+            \ \hat{\mathbf{r}}_k^\top\mathbf{z}_{k, 1} \ \\
+            \ \vdots \ \\
+            \ \hat{\mathbf{r}}_k^\top\mathbf{z}_{k, d_k} \
+        \end{bmatrix}
+    \right] =
+    \sum_{j = 1}^{d_k}
+    \mathbf{z}_{k, j}^\top
+    \mathbb{E}\big[\hat{\mathbf{r}}_k\hat{\mathbf{r}}_k^\top\big]
+    \mathbf{z}_{k, j}
+\end{equation}
 
-The text notes that for the formulation of the group lasso in
-(\ref{eq:group_lasso}), since all groups are equally penalized by $ \lambda $,
-larger groups, i.e. $ \mathbf{Z}_k $ with more columns, are more likely to be
-selected.
+Noting that $ \operatorname{Var}(\hat{\mathbf{r}}_k) =
+\mathbb{E}\big[\hat{\mathbf{r}}_k\hat{\mathbf{r}}_k^\top\big] $, it's clear
+that from (\ref{eq:4.5.1}) we have
+\begin{equation} \label{eq:4.5.2}
+    \mathbb{E}\left[
+        \left\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\right\Vert_2^2
+    \right] =
+    \sigma^2\sum_{j = 1}^{d_k}\Vert\mathbf{z}_{k, j}\Vert_2^2 =
+    \sigma^2\Vert\mathbf{Z}_k\Vert_\text{F}^2
+\end{equation}
 
-\medskip
+Therefore, if we use the criterion
+$ \left\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\right\Vert_2 \le \lambda $ to
+determine when $ \hat{\mathbf{w}}_k = \mathbf{0} $, groups with large
+$ \Vert\mathbf{Z}_k\Vert_\text{F} $ are more likely to be selected by the
+group lasso, as from (\ref{eq:4.5.2}) we see that for fixed
+$ \sigma \in (0, \infty) $, $ \Vert\mathbf{Z}_k\Vert_\text{F} $ determines
+whether $ \left\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\right\Vert_2 $ is
+above or below $ \lambda $ on expectation. Fortunately, we can easily
+eliminate the dependence of group selection on
+$ \Vert\mathbf{Z}\Vert_\text{F} $ by simply choosing
+$ \hat{\mathbf{w}}_k = \mathbf{0} $ when
+$ \left\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\right\Vert_2 \le
+\lambda\Vert\mathbf{Z}\Vert_\text{F} $ instead, which amounts to changing the
+norm penalty in (\ref{eq:group_lasso}) to the more equitable
+\begin{equation} \label{eq:group_lasso_frob_penalty}
+    \lambda\begin{bmatrix}
+        \ \Vert\mathbf{Z}_1\Vert_\text{F}\Vert\mathbf{w}_1\Vert_2 &
+        \ldots &
+        \Vert\mathbf{Z}_G\Vert_\text{F}\Vert\mathbf{w}_G\Vert_2 \
+    \end{bmatrix}
+\end{equation}
 
-TODO
+Note that when $ \mathbf{Z}_1, \ldots \mathbf{Z}_G $ have orthonormal columns,
+i.e. $ \mathbf{Z}_k^\top\mathbf{Z}_k = \mathbf{I} $,
+(\ref{eq:group_lasso_frob_penalty}) reduces to
+\begin{equation}
+    \lambda\begin{bmatrix}
+        \ \sqrt{d_1}\Vert\mathbf{w}_1\Vert_2 &
+        \ldots &
+        \sqrt{d_G}\Vert\mathbf{w}_G\Vert_2 \
+    \end{bmatrix}
+\end{equation}
 
-\newtocsubsection{Exercise 4.6}
+This follows from the fact that $ \Vert\mathbf{Z}_k\Vert_\text{F} =
+\sqrt{\operatorname{tr}\big(\mathbf{Z}_k^\top\mathbf{Z}_k\big)} $, so when
+$ \mathbf{Z}_k $ is orthonormal,
+$ \Vert\mathbf{Z}_k\Vert_\text{F} = \sqrt{d_k} $.
 
-We return to the intercept-free group lasso problem with $ G \in \mathbb{N} $ groups described in (\ref{eq:group_lasso}). Now, we consider the special case where $ \mathbf{Z}_k^\top\mathbf{Z}_k = \mathbf{I} $,
+
+\newtocsubsection{Exercise 4.6} \label{sec:4.6}
+
+We return to the intercept-free group lasso problem with $ G \in \mathbb{N} $
+groups described in (\ref{eq:group_lasso}). Now, we consider the special case
+where $ \mathbf{Z}_k^\top\mathbf{Z}_k = \mathbf{I} $,
 $ \forall k \in \{1, \ldots G\} $, i.e. $ \mathbf{Z}_k $ have orthonormal
 columns. We know that $ \forall k \in \{1, \ldots G\} $, the subgradient
 equation for the $ k $th group at the minimizer
