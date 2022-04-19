@@ -56,7 +56,7 @@ public:
    * @param nu Norm of the kth class weight vector
    * @returns `T` difference between term with `nu` and constant term
    */
-  T operator()(T const &nu)
+  T operator()(const T &nu)
   {
     T res(0.);
     for (int i = 0; i < n_predictors_; i++) {
