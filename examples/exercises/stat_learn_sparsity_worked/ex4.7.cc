@@ -37,8 +37,8 @@ public:
    * @param lambda The positive group lasso regularization parameter.
    */
   group_norm_root_functor(
-    std::vector<T> &singular_values,
-    std::vector<T> &proj_residuals,
+    std::vector<T>& singular_values,
+    std::vector<T>& proj_residuals,
     T lambda)
     : singular_values_(singular_values),
       lambda_(lambda)
@@ -58,7 +58,7 @@ public:
    * @param nu Norm of the kth class weight vector
    * @returns `T` difference between term with `nu` and constant term
    */
-  T operator()(const T &nu)
+  T operator()(const T& nu)
   {
     T res(0.);
     for (int i = 0; i < n_predictors_; i++) {
