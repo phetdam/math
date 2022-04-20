@@ -9,5 +9,6 @@
 **/*.toc
 # ignore old README.md
 README.md
-# ignore build directory
+# ignore build abnd VS Code directories
 build
+.vscode
