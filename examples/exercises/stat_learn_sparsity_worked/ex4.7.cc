@@ -11,13 +11,15 @@
 #include <iostream>
 #include <vector>
 
+#include "pdmath/optimize/functor_base.h"
+
 // #include <boost/math/tools/roots.hpp>
 
 /**
  * Functor class for using root-finding to get the group lasso update norm.
  */
 template <class T>
-class group_norm_root_functor
+class group_norm_root_functor : pdmath::optimize::functor_base<T>
 {
 public:
   /**
