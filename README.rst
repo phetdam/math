@@ -21,6 +21,17 @@ Any mathematical errors are wholly my own.
 Contents
 --------
 
+``examples``
+~~~~~~~~~~~~
+Contains C++ source and ``CMakeLists.txt`` for building CLI executables. These
+typically will compute some numerical result or demonstrate an implementation
+as instructed in an exercise or other application.
+
+``src``
+~~~~~~~
+Contains C++ source and ``CMakeLists.txt`` for CMake that contains library code
+used by the ``main``\ -defining source in ``examples``.
+
 ``tex``
 ~~~~~~~
 
