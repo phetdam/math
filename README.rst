@@ -29,8 +29,8 @@ as instructed in an exercise or other application.
 
 ``src``
 ~~~~~~~
-Contains C++ source and ``CMakeLists.txt`` for CMake that contains library code
-used by the ``main``\ -defining source in ``examples``.
+Contains C++ source and ``CMakeLists.txt`` for CMake for library code used by
+the ``main``\ -defining source in ``examples``.
 
 ``tex``
 ~~~~~~~
