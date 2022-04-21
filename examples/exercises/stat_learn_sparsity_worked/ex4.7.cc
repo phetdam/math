@@ -14,7 +14,7 @@
 
 #include "pdmath/optimize/functor_base.h"
 #include "pdmath/optimize/golden_search.h"
-#include "pdmath/optimize/root_result.hpp"
+#include "pdmath/optimize/root_result.h"
 
 // #include <boost/math/tools/roots.hpp>
 
