@@ -1,5 +1,5 @@
 /**
- * @file golden_search.hpp
+ * @file golden_search.h
  * @author Derek Huang <djh458@stern.nyu.edu>
  * @brief Boost-like golden-section search function
  * @copyright MIT License
@@ -21,7 +21,7 @@ namespace optimize {
  * 
  * @param f `F` callable to find a root of
  */
-template<class F, class T>
+template <class F, class T>
 root_result<T> golden_search(
   F f,
   T guess,

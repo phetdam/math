@@ -1,5 +1,5 @@
 /**
- * @file root_result.hpp
+ * @file root_result.h
  * @author Derek Huang <djh458@stern.nyu.edu>
  * @brief Template class implementing the SciPy RootResults
  * @copyright MIT License

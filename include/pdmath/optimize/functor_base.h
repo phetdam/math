@@ -1,5 +1,5 @@
 /**
- * @file functor_base.hpp
+ * @file functor_base.h
  * @author Derek Huang <djh458@stern.nyu.edu>
  * @brief Header file for a Boost-like functor ABC.
  * @copyright MIT License

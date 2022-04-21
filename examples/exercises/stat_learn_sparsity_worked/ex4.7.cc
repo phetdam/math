@@ -14,7 +14,7 @@
 
 #include "pdmath/optimize/functor_base.h"
 #include "pdmath/optimize/golden_search.h"
-#include "pdmath/optimize/root_result.h"
+#include "pdmath/optimize/root_result.hpp"
 
 // #include <boost/math/tools/roots.hpp>
 
@@ -22,8 +22,7 @@
  * Functor class for using root-finding to get the group lasso update norm.
  */
 template <class T = double>
-class group_norm_root_functor : public pdmath::optimize::functor_base<T>
-{
+class group_norm_root_functor : public pdmath::optimize::functor_base<T> {
 public:
   /**
    * Copy constructor for the functor.
@@ -82,10 +81,8 @@ int main(int argc, char **argv)
   std::vector<double> singular_values({0.4, 0.3, 0.1});
   std::vector<double> proj_residuals({-0.2, 0.35, -0.01});
 
-  group_norm_root_functor objective(
-    singular_values, proj_residuals, 0.1
-  );
-  // can omit the `double' type here or use auto
+  // default template type omitted
+  group_norm_root_functor objective(singular_values, proj_residuals, 0.1);
   pdmath::optimize::root_result res(
     std::move(pdmath::optimize::golden_search(objective, 1., 1., 1., 1.))
   );
