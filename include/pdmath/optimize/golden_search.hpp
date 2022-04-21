@@ -1,5 +1,5 @@
 /**
- * @file golden_search.h
+ * @file golden_search.hpp
  * @author Derek Huang <djh458@stern.nyu.edu>
  * @brief Boost-like golden-section search function
  * @copyright MIT License
