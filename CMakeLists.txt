@@ -20,7 +20,9 @@ set(CMAKE_CXX_FLAGS_RELEASE_INIT "-Wall -O3")
 # Boost is a dependency, try to locate it
 find_package(Boost 1.71 REQUIRED)
 
-include_directories(include)
+# include gets it own variable as we will need that later
+set(PDMATH_INCLUDE include)
+include_directories(${PDMATH_INCLUDE})
 
 add_subdirectory(src)
 add_subdirectory(examples)

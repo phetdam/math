@@ -9,17 +9,20 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
+#include <utility>
 #include <vector>
 
 #include "pdmath/optimize/functor_base.h"
+#include "pdmath/optimize/golden_search.h"
+#include "pdmath/optimize/root_result.h"
 
 // #include <boost/math/tools/roots.hpp>
 
 /**
  * Functor class for using root-finding to get the group lasso update norm.
  */
-template <class T>
-class group_norm_root_functor : pdmath::optimize::functor_base<T>
+template <class T = double>
+class group_norm_root_functor : public pdmath::optimize::functor_base<T>
 {
 public:
   /**
@@ -76,12 +79,19 @@ private:
 
 int main(int argc, char **argv)
 {
-  std::vector<float> singular_values({0.4, 0.3, 0.1});
-  std::vector<float> proj_residuals({-0.2, 0.35, -0.01});
-  group_norm_root_functor<float> objective(
+  std::vector<double> singular_values({0.4, 0.3, 0.1});
+  std::vector<double> proj_residuals({-0.2, 0.35, -0.01});
+
+  group_norm_root_functor objective(
     singular_values, proj_residuals, 0.1
   );
+  // can omit the `double' type here or use auto
+  pdmath::optimize::root_result res(
+    std::move(pdmath::optimize::golden_search(objective, 1., 1., 1., 1.))
+  );
+
   std::cout << "f(0.2) = " << objective(0.2) << std::endl;
-  std::cout << "gottem" << std::endl;
+  std::cout << "fake result: " << res.root() << std::endl;
+  std::cout << "fake convergence message: " << res.message() << std::endl;
   return EXIT_SUCCESS;
 }

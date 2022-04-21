@@ -11,7 +11,7 @@
 namespace pdmath {
 namespace optimize {
 
-template <class T>
+template <class T = double>
 class functor_base
 {
 public:
