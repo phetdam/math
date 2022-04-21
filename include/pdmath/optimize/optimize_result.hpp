@@ -1,5 +1,5 @@
 /**
- * @file optimize_result.h
+ * @file optimize_result.hpp
  * @author Derek Huang <djh458@stern.nyu.edu>
  * @brief Template class for a stripped version of the scipy OptimizeResult
  * @copyright MIT License
