@@ -14,7 +14,7 @@
 
 #include "pdmath/optimize/functor_base.h"
 #include "pdmath/optimize/golden_search.h"
-#include "pdmath/optimize/root_result.h"
+#include "pdmath/optimize/optimize_result.h"
 
 // #include <boost/math/tools/roots.hpp>
 
@@ -83,12 +83,12 @@ int main(int argc, char **argv)
 
   // default template type omitted
   group_norm_root_functor objective(singular_values, proj_residuals, 0.1);
-  pdmath::optimize::root_result res(
+  pdmath::optimize::scalar_optimize_result res(
     std::move(pdmath::optimize::golden_search(objective, 1., 1., 1., 1.))
   );
 
   std::cout << "f(0.2) = " << objective(0.2) << std::endl;
-  std::cout << "fake result: " << res.root() << std::endl;
+  std::cout << "fake result: " << res.res() << std::endl;
   std::cout << "fake convergence message: " << res.message() << std::endl;
   return EXIT_SUCCESS;
 }

@@ -11,7 +11,7 @@
 #include <cstdint>
 
 #include "pdmath/optimize/functor_base.h"
-#include "pdmath/optimize/root_result.h"
+#include "pdmath/optimize/optimize_result.h"
 
 namespace pdmath {
 namespace optimize {
@@ -22,7 +22,7 @@ namespace optimize {
  * @param f `F` callable to find a root of
  */
 template <class F, class T>
-root_result<T> golden_search(
+scalar_optimize_result<T> golden_search(
   F f,
   T guess,
   T lbound,
@@ -32,12 +32,12 @@ root_result<T> golden_search(
   std::uintmax_t n_iter = 0;
   std::uintmax_t n_fev = 0;
   // dummy return
-  return root_result<T>(
-    f(T(0)),
+  return scalar_optimize_result<T>(
+    T(0),
     true,
     "Definitely converged lmao",
     100,
-    100
+    f(T(0))
   );
 }
 

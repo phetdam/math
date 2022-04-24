@@ -51,18 +51,33 @@ root_result<T>::root_result(
     n_fev_(n_fev)
 {}
 
+/**
+ * Getter for `root_result` root.
+ */
 template<class T>
 const T& root_result<T>::root() const { return root_; }
 
+/**
+ * Getter for `root_result` convergence flag.
+ */
 template<class T>
 bool root_result<T>::converged() const { return converged_; }
 
+/**
+ * Getter for `root_result` convergence message.
+ */
 template<class T>
 const std::string& root_result<T>::message() const { return message_; }
 
+/**
+ * Getter for `root_result` number of root-finder iterations.
+ */
 template<class T>
 std::uintmax_t root_result<T>::n_iter() const { return n_iter_; }
 
+/**
+ * Getter for `root_result` number of function evaluation iterations.
+ */
 template<class T>
 std::uintmax_t root_result<T>::n_fev() const { return n_fev_; }
 
