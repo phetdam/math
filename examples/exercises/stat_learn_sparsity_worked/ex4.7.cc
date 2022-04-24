@@ -131,6 +131,6 @@ int main(int argc, char **argv)
   std::cout << "minimum of x^2: " << res.res() << std::endl;
   std::cout << "converged? " << (res.converged() ? "yes" : "no") << std::endl;
   std::cout << "n_iter: " << res.n_iter() << std::endl;
-  std::cout << "value at min: " << res.obj() << std::endl;
+  std::cout << "n_fev: " << res.n_fev() << std::endl;
   return EXIT_SUCCESS;
 }

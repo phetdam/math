@@ -13,9 +13,7 @@
 #include <limits>
 #include <iostream>
 
-#include <boost/math/constants/constants.hpp>
 #include <boost/math/tools/roots.hpp>
-#include <boost/multiprecision/number.hpp>
 
 #include "pdmath/optimize/functor_base.h"
 #include "pdmath/optimize/optimize_result.h"
@@ -96,8 +94,8 @@ scalar_optimize_result<T> golden_search(
     true,
     "Converged within tolerance",
     n_iter,
-    f(res)
-    // todo: add n_fev, n_gev, n_hev members to optimize_result and subclasses
+    f(res),
+    n_fev
   );
 }
 
