@@ -18,6 +18,7 @@ See the `Compiling to PDF`_  section for instructions on how to compile the
 
 Any mathematical errors are wholly my own.
 
+
 Contents
 --------
 
@@ -40,8 +41,16 @@ Contains the ``.tex`` source for my independent mathematical work. The
 etc., while the ``original`` directory is for my own original work.
 
 
-Compiling to PDF
-----------------
+Building the C++ source
+-----------------------
+
+TBA. This project depends on `Boost`_ 1.71 headers.
+
+.. _Boost: https://www.boost.org/
+
+
+Building PDFs from TeX source
+-----------------------------
 
 You may compile the ``.tex`` source to PDF files using the provided
 ``build_pdf.sh`` shell script if you have the ``bash`` shell [#]_ and
