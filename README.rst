@@ -13,10 +13,14 @@ Some mathematical work that I have done on my own for fun.
 
    Still deciding on a new banner.
 
-See the `Compiling to PDF`_  section for instructions on how to compile the
-``.tex`` source in ``tex`` into PDF.
+See the `Build PDFs from TeX source`_ section for instructions on how to
+compile the ``.tex`` source in ``tex`` into PDF and see the
+`Building the C++ source`_ section for instructions on building the
+accompanying C++ source code using `CMake`_.
 
 Any mathematical errors are wholly my own.
+
+.. _CMake: https://cmake.org/
 
 
 Contents
