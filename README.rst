@@ -47,7 +47,8 @@ etc., while the ``original`` directory is for my own original work.
 Building the C++ source
 -----------------------
 
-TBA. This project depends on `Boost`_ 1.71 headers.
+TBA. This project depends on `Boost`_ 1.71 headers and is intended to be built
+using `CMake`_ 3.16 or newer using a C++17-compliant compiler.
 
 .. _Boost: https://www.boost.org/
 
