@@ -48,9 +48,12 @@ Building the C++ source
 -----------------------
 
 TBA. This project depends on `Boost`_ 1.71 headers and is intended to be built
-using `CMake`_ 3.16 or newer using a C++17-compliant compiler.
+using `CMake`_ 3.16 or newer using a C++17-compliant compiler. Local builds
+on WSL 1 Ubuntu 20.04.3 LTS used `GCC`_` 9.3.0.
 
 .. _Boost: https://www.boost.org/
+
+.. _GCC: https://gcc.gnu.org/
 
 
 Building PDFs from TeX source
