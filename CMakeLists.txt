@@ -17,19 +17,33 @@ endif()
 set(CMAKE_CXX_FLAGS_DEBUG_INIT "-Wall -g")
 set(CMAKE_CXX_FLAGS_RELEASE_INIT "-Wall -O3")
 
-# Boost >=1.71 is a hard dependency
-find_package(Boost 1.71 REQUIRED)
+# minimum versions for dependencies
+set(BOOST_MIN_VERSION 1.71.0)
+set(GTEST_MIN_VERSION 1.10.0)
 
-# GoogleTest >=1.10 is a [soft] dependency, only enable testing if satisfied
-find_package(GTest 1.10)
-if(GTest_FOUND AND PACKAGE_VERSION_COMPATIBLE)
-    enable_testing()
-endif()
+find_package(Boost ${BOOST_MIN_VERSION} REQUIRED)
+find_package(GTest ${GTEST_MIN_VERSION})
 
-# include gets it own variable as we will need that later
-set(PDMATH_INCLUDE include)
-include_directories(${PDMATH_INCLUDE})
+# base include for this repo
+set(PDMATH_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+include_directories(
+    ${PDMATH_INCLUDE}
+    # in case Boost and GoogleTest were found using BOOST_ROOT, GTEST_ROOT
+    ${Boost_INCLUDE_DIR}
+    ${GTEST_INCLUDE_DIRS}
+)
 
 add_subdirectory(src)
 add_subdirectory(examples)
-add_subdirectory(test)
+
+# only build tests and enable testing if compatible GoogleTest is found
+if(GTest_FOUND AND GTest_VERSION VERSION_GREATER_EQUAL ${GTEST_MIN_VERSION})
+    enable_testing()
+    add_subdirectory(test)
+else()
+    message(
+        STATUS
+        "GoogleTest >=${GTEST_MIN_VERSION} not satisfied. No tests to build"
+    )
+endif()
