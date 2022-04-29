@@ -21,7 +21,7 @@ CMAKE_BUILD_ARGS=()
 collect_args() {
     # set to 1 after we see the --build-args flag
     POPULATE_BUILD_ARGS=0
-    for ARG in $1:
+    for ARG in $1
     do
         if [ "$ARG" = --build-args ]
         then
