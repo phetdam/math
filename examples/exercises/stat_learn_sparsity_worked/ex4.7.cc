@@ -49,7 +49,7 @@ public:
     assert(singular_values_.size() == proj_residuals.size());
     n_predictors_ = singular_values_.size();
     resid_const_ = T(0);
-    for (int i = 0; i < n_predictors_; i++) {
+    for (typename std::vector<T>::size_type i = 0; i < n_predictors_; i++) {
       resid_const_ += pow(singular_values_[i] * proj_residuals[i], 2);
     }
   }
@@ -63,7 +63,7 @@ public:
   T operator()(const T& nu)
   {
     T res(0.);
-    for (int i = 0; i < n_predictors_; i++) {
+    for (typename std::vector<T>::size_type i = 0; i < n_predictors_; i++) {
       res += std::pow(std::pow(singular_values_[i], 2) * nu + lambda_, 2);
     }
     return res - resid_const_;
@@ -115,7 +115,7 @@ private:
   group_norm_root_functor<T> diff_functor_;
 };
 
-int main(int argc, char **argv)
+int main()
 {
   std::vector<double> singular_values({0.4, 0.3, 0.1});
   std::vector<double> proj_residuals({-0.2, 0.35, -0.01});

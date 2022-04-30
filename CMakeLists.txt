@@ -13,9 +13,31 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif()
 
-# debug and release flags
-set(CMAKE_CXX_FLAGS_DEBUG_INIT "-Wall -g")
-set(CMAKE_CXX_FLAGS_RELEASE_INIT "-Wall -O3")
+# debug and release flags, handle MSVC case specifically
+if(MSVC)
+    add_compile_options(
+        /Wall
+        /wd4265
+        /wd4514
+        /wd4619
+        /wd4668
+        /wd4820
+        /wd5045
+        /wd5204
+    )
+    if(CMAKE_BUILD_TYPE STREQUAL Release)
+        add_compile_options(/O2)
+    else()
+        add_compile_options(/Od /DEBUG)
+    endif()
+else()
+    add_compile_options(-Wall -Wextra)
+    if(CMAKE_BUILD_TYPE STREQUAL Release)
+        add_compile_options(-O3)
+    else()
+        add_compile_options(-O0 -ggdb)
+    endif()
+endif()
 
 # minimum versions for dependencies
 set(BOOST_MIN_VERSION 1.71.0)
