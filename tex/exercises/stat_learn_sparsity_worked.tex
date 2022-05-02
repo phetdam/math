@@ -679,8 +679,8 @@ each data point.
 
 \medskip
 
-Under the $ \{-1, 1\} $ labeling scheme, the [scaled] negative log-likelihood
-for two-class logistic regression is
+Under the $ \{-1, 1\} $ labeling scheme, the two-class logistic regression
+maximum likelihood objective is
 \begin{equation} \label{eq:logreg_binary_mle}
     \min_{\mathbf{w}, b}\frac{1}{N}\sum_{k = 1}^N\log\left(
         1 + e^{-y_k\left(\mathbf{w}^\top\mathbf{x}_k + b\right)}
@@ -1414,6 +1414,130 @@ for $ \mathbf{b} \in \mathbb{R}^d $, $ \mathbf{Q} \succ \mathbf{0} \in
             \mathbf{U\Lambda U}^\top = \mathbf{I} - t\mathbf{Q}
         \right\}
     \end{equation*}
+\end{enumerate}
+
+\newtocsubsection{Exercise 5.2}
+
+We consider a constrained problem minimizing
+$ f : \mathbb{R}^d \rightarrow \mathbb{R} $ with inequality constraints
+$ \mathbf{g} : \mathbb{R}^d \rightarrow \mathbb{R}^m $, where the optimal
+problem value is $ p^* $. That is, we consider the standard form problem
+\begin{equation} \label{eq:5.2.1}
+    \begin{array}{rl}
+        \displaystyle\min_\mathbf{x} & f(\mathbf{x}) \\
+        \text{s.t.} & \mathbf{g}(\mathbf{x}) \preceq \mathbf{0}
+    \end{array}
+\end{equation}
+
+As usual, the corresponding Lagrangian
+$ \mathcal{L} : \mathbb{R}^d \times \mathbb{R}^m \rightarrow \mathbb{R} $ for
+this problem is such that
+\begin{equation} \label{eq:5.2.2}
+    \mathcal{L}(\mathbf{x}, \lambda) \triangleq
+    f(\mathbf{x}) + \lambda^\top \mathbf{g}(\mathbf{x})
+\end{equation}
+
+\begin{enumerate}[label=\alph*.]
+    \item
+    For some $ \mathbf{x} \in \mathbb{R}^d $, let us now consider the
+    inequality-constrained maximization problem
+    \begin{equation} \label{eq:5.2.3}
+        \begin{array}{rl}
+            \displaystyle\max_\lambda & \mathcal{L}(\mathbf{x}, \lambda) \\
+            \text{s.t.} & \lambda \succeq \mathbf{0}
+        \end{array}
+    \end{equation}
+    From (\ref{eq:5.2.2}) it is clear that $ \mathcal{L} $ is affine in
+    $ \lambda $, so letting $ \mathbf{a} \triangleq \mathbf{g}(\mathbf{x}) $,
+    (\ref{eq:5.2.3}) can be reduced to
+    \begin{equation} \label{eq:5.2.4}
+        \begin{array}{rl}
+            \displaystyle\max_\lambda & \mathbf{a}^\top\lambda \\
+            \text{s.t.} & \lambda \succeq \mathbf{0}
+        \end{array}
+    \end{equation}
+    Here we have a linear program with a nonnegativity constraint, so it is
+    clear that if $ \mathbf{a} \not\preceq\mathbf{0} $, i.e.
+    $ \exists j \in \{1, \ldots m\} $ s.t. $ a_j > 0 $, the optimal value of
+    (\ref{eq:5.2.4}) is infinite. On the other hand, if
+    $ \mathbf{a} \preceq {0} $, due to the $ \lambda \succeq \mathbf{0} $
+    constraint, the optimal value of (\ref{eq:5.2.4}) is zero. Therefore, we
+    can conclude that
+    \begin{equation} \label{eq:5.2.5}
+        \sup_\lambda
+        \{\mathcal{L}(\mathbf{x}, \lambda) : \lambda \succeq \mathbf{0}\} =
+        f(\mathbf{x})\left[
+            \mathbb{I}_{\mathbb{R}_{\le 0}^m} \circ \mathbf{g}(\mathbf{x})
+        \right] +
+        \infty\left[
+            \mathbb{I}_{\mathbb{R}^m \setminus \mathbb{R}_{\le 0}^m} \circ
+            \mathbf{g}(\mathbf{x})
+        \right]
+    \end{equation}
+
+    \item
+    Since (\ref{eq:5.2.1}) has an optimal value $ p^* $, (\ref{eq:5.2.1}) is
+    necessarily feasible, i.e. the problem's feasible set
+    $ \mathcal{X} \subseteq \mathbb{R}^d $ is nonempty. Furthermore,
+    $ \forall \mathbf{x} \in \mathcal{X} $, necessarily
+    $ \mathbf{g}(\mathbf{x}) \preceq \mathbf{0} $, and from (\ref{eq:5.2.5})
+    we thus know that $ \forall \mathbf{x} \in \mathcal{X} $,
+    $ \sup_\lambda\{\mathcal{L}(\mathbf{x}, \lambda) : \lambda \succeq
+    \mathbf{0}\} = f(\mathbf{x}) $ while
+    $ \mathbf{x} \in \mathbb{R}^d \setminus \mathcal{X} $,
+    $ \sup_\lambda\{\mathcal{L}(\mathbf{x}, \lambda) : \lambda \succeq
+    \mathbf{0}\} = \infty $, so it's clear that
+    \begin{equation} \label{eq:5.2.6}
+        p^* = \inf_\mathbf{x}\left\{
+            \sup_\lambda
+            \{\mathcal{L}(\mathbf{x}, \lambda) : \lambda \succeq \mathbf{0}\}
+        \right\}
+    \end{equation}
+    The result (\ref{eq:5.2.6}) can be easily understood by noting that
+    minimizing $ \sup_\lambda\{\mathcal{L}(\mathbf{x}, \lambda) :
+    \lambda \succeq \mathbf{0}\} $ as defined in (\ref{eq:5.2.5}) over
+    $ \mathbf{x} \in \mathbb{R}^d $ is the exact same problem as
+    (\ref{eq:5.2.1}), so their optimal values must coincide.
+
+    \item
+    Let $ \mathcal{X}_\lambda \triangleq
+    \arg\min_\mathbf{x}\mathcal{L}(\mathbf{x}, \lambda) $,
+    $ \lambda \succeq \mathbf{0} $\footnote{
+        We have not assumed that
+        $ \min_\mathbf{x}\mathcal{L}(\mathbf{x}, \lambda) $ has a unique
+        minimizer, so $ \arg\min_\mathbf{x}\mathcal{L}(\mathbf{x}, \lambda) $
+        is a nonempty set.
+    }, $ \mathcal{X}_\lambda \ne \emptyset $,
+    $ \mathcal{X}_\lambda \subseteq \mathbb{R}^d $, and let
+    $ \mathbf{x}^* \in \mathcal{X} $, $ \mathcal{X} $ the feasible set of
+    (\ref{eq:5.2.1}), a point s.t. $ p^* = f(\mathbf{x}^*) $. By definition
+    of $ \mathcal{X}_\lambda $, it must be that
+    $ \forall \lambda \succeq \mathbf{0} $,
+    $ \forall \mathbf{x}_\lambda \in \mathcal{X}_\lambda $, we must have
+    \begin{equation} \label{eq:5.2.7}
+        \mathcal{L}(\mathbf{x}_\lambda, \lambda) \le
+        \mathcal{L}(\mathbf{x}^*, \lambda) \le f(\mathbf{x}^*) = p^*
+    \end{equation}
+    Here the last inequality in (\ref{eq:5.2.7}) comes from the fact that
+    $ \mathbf{x}^* \in \mathcal{X} \Rightarrow
+    \mathbf{g}(\mathbf{x}^*) \preceq \mathbf{0} $. Since (\ref{eq:5.2.7}) is
+    true $ \forall \lambda \succeq \mathbf{0} $ and by definition of
+    $ \mathcal{X}_\lambda $ we know
+    $ \forall \mathbf{x}_\lambda \in \mathcal{X}_\lambda $,
+    $ \mathcal{L}(\mathbf{x}_\lambda, \lambda) =
+    \inf_\mathbf{x}\{\mathcal{L}(\mathbf{x}, \lambda)\} $,
+    we can conclude that
+    \begin{equation} \label{eq:5.2.8}
+        \sup_\lambda\left\{
+            \inf_\mathbf{x}\{\mathcal{L}(\mathbf{x}, \lambda)\} :
+            \lambda \succeq \mathbf{0}
+        \right\} \le p^*
+    \end{equation}
+    That is, the optimal (minimal) value $ p^* $ of (\ref{eq:5.2.1}) is an
+    upper bound for $ \sup_\lambda\{\inf_\mathbf{x}\{\mathcal{L}(\mathbf{x},
+    \lambda)\} : \lambda \succeq \mathbf{0}\} $. Essentially, we have just
+    shown that weak duality holds in the inequality constrained case.
+
 \end{enumerate}
 
 \end{document}
