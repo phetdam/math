@@ -15,6 +15,9 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 
+#include "pdmath/optimize/fev_mixin.h"
+#include "pdmath/optimize/gev_hev_mixin.h"
+
 namespace pdmath {
 namespace optimize {
 
@@ -22,69 +25,6 @@ template <class T>
 using bvector_t = boost::numeric::ublas::vector<T>;
 template <class T>
 using bmatrix_t = boost::numeric::ublas::matrix<T>;
-
-/**
- * Class holding function evaluation counts.
- * 
- * Used as a mixin in `optimize_result` and its subclasses.
- * 
- * @note Non-template base classes cannot have separate implementations if
- *     they are being inherited by templated classes.
- */
-class fev_mixin {
-public:
-  fev_mixin(std::uintmax_t);
-  std::uintmax_t n_fev() const;
-private:
-  std::uintmax_t n_fev_;
-};
-
-/**
- * Constructor for `fev_mixin`.
- * 
- * @param n_fev `std::uintmax_t` number of function evaluations
- */
-fev_mixin::fev_mixin(std::uintmax_t n_fev) : n_fev_(n_fev) {}
-
-/**
- * Getter for `fev_mixin` function evaluation count.
- */
-std::uintmax_t fev_mixin::n_fev() const { return n_fev_; }
-
-/**
- * Class holding gradient and Hessian evaluation counts.
- * 
- * Used as a mixin in `scalar_optimize_result` and `vector_optimize_result`.
- */
-class gev_hev_mixin {
-public:
-  gev_hev_mixin(std::uintmax_t, std::uintmax_t);
-  std::uintmax_t n_gev() const;
-  std::uintmax_t n_hev() const;
-private:
-  std::uintmax_t n_gev_;
-  std::uintmax_t n_hev_;
-};
-
-/**
- * Constructor for `gev_hev_mixin`.
- * 
- * @param n_gev `std::uintmax_t` number of gradient evaluations
- * @param n_hev `std::uintmax_t` number of Hessian evaluations
- */
-gev_hev_mixin::gev_hev_mixin(std::uintmax_t n_gev, std::uintmax_t n_hev)
-  : n_gev_(n_gev), n_hev_(n_hev)
-{}
-
-/**
- * Getter for `gev_hev_mixin` gradient evaluation count.
- */
-std::uintmax_t gev_hev_mixin::n_gev() const { return n_gev_; }
-
-/**
- * Getter for `gev_hev_mixin` Hessian evaluation count.
- */
-std::uintmax_t gev_hev_mixin::n_hev() const { return n_hev_; }
 
 /**
  * Templated ABC holding optimization results for scalar-valued objectives.

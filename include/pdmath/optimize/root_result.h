@@ -11,6 +11,8 @@
 #include <cstdint>
 #include <string>
 
+#include "pdmath/optimize/fev_mixin.h"
+
 namespace pdmath {
 namespace optimize {
 
@@ -18,14 +20,13 @@ namespace optimize {
  * Templated class holding results of univariate root finding.
  */
 template<class T = double>
-class root_result {
+class root_result : public fev_mixin {
 public:
   root_result(T, bool, std::string, std::uintmax_t, std::uintmax_t);
   const T& root() const;
   bool converged() const;
   const std::string& message() const;
   std::uintmax_t n_iter() const;
-  std::uintmax_t n_fev() const;
 private:
   T root_;
   bool converged_;
@@ -44,11 +45,11 @@ root_result<T>::root_result(
   std::string message,
   std::uintmax_t n_iter,
   std::uintmax_t n_fev)
-  : root_(root),
+  : fev_mixin(n_fev),
+    root_(root),
     converged_(converged),
     message_(message),
-    n_iter_(n_iter),
-    n_fev_(n_fev)
+    n_iter_(n_iter)
 {}
 
 /**
@@ -74,12 +75,6 @@ const std::string& root_result<T>::message() const { return message_; }
  */
 template<class T>
 std::uintmax_t root_result<T>::n_iter() const { return n_iter_; }
-
-/**
- * Getter for `root_result` number of function evaluation iterations.
- */
-template<class T>
-std::uintmax_t root_result<T>::n_fev() const { return n_fev_; }
 
 } // namespace pdmath::optimize
 } // namespace pdmath
