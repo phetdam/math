@@ -21,7 +21,7 @@ CMAKE_BUILD_ARGS=()
 collect_args() {
     # set to 1 after we see the --build-args flag
     POPULATE_BUILD_ARGS=0
-    for ARG in $1
+    for ARG in "$@"
     do
         if [ "$ARG" = --build-args ]
         then
@@ -40,9 +40,9 @@ collect_args() {
 #
 main() {
     # separate incoming args into those for cmake, cmake --build
-    collect_args $1
-    cmake -S . -B build $CMAKE_ARGS
-    cmake --build build $CMAKE_BUILD_ARGS
+    collect_args "$@"
+    cmake -S . -B build ${CMAKE_ARGS[@]}
+    cmake --build build ${CMAKE_BUILD_ARGS[@]}
 }
 
 set -e
