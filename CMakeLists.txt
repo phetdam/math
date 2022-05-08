@@ -13,6 +13,9 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif()
 
+set(CMAKE_CXX_STANDARD 17)
+set(CXX_STANDARD_REQUIRED TRUE)
+
 # debug and release flags, handle MSVC case specifically
 if(MSVC)
     add_compile_options(
