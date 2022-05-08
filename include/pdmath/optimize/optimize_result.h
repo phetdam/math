@@ -404,7 +404,7 @@ const matrix_t& vector_optimize_result<T, vector_t, matrix_t>::hess() const
   return hess_;
 }
 
-} // namespace pdmath::optimize
-} // namespace pdmath
+}  // namespace pdmath::optimize
+}  // namespace pdmath
 
-#endif // PDMATH_OPTIMIZE_OPTIMIZE_RESULT_H_
+#endif  // PDMATH_OPTIMIZE_OPTIMIZE_RESULT_H_

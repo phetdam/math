@@ -76,7 +76,7 @@ const std::string& root_result<T>::message() const { return message_; }
 template<class T>
 std::uintmax_t root_result<T>::n_iter() const { return n_iter_; }
 
-} // namespace pdmath::optimize
-} // namespace pdmath
+}  // namespace pdmath::optimize
+}  // namespace pdmath
 
-#endif // PDMATH_OPTIMIZE_ROOT_RESULT_H_
+#endif  // PDMATH_OPTIMIZE_ROOT_RESULT_H_

@@ -49,7 +49,7 @@ std::uintmax_t gev_hev_mixin::n_gev() const { return n_gev_; }
  */
 std::uintmax_t gev_hev_mixin::n_hev() const { return n_hev_; }
 
-} // namespace pdmath::optimize
-} // namespace pdmath
+}  // namespace pdmath::optimize
+}  // namespace pdmath
 
-#endif // PDMATH_OPTIMIZE_GEV_HEV_MIXIN_H_
+#endif  // PDMATH_OPTIMIZE_GEV_HEV_MIXIN_H_

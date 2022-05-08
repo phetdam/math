@@ -16,6 +16,7 @@
 #include "pdmath/optimize/golden_search.h"
 #include "pdmath/optimize/optimize_result.h"
 
+namespace {
 /**
  * Functor class for using root-finding to get the group lasso update norm.
  */
@@ -112,6 +113,8 @@ public:
 private:
   group_norm_root_functor<T> diff_functor_;
 };
+
+}  // namespace
 
 int main()
 {

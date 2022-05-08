@@ -18,7 +18,7 @@ public:
   virtual T operator()(const T&) = 0;
 };
 
-} // namespace pdmath::optimize
-} // namespace pdmath
+}  // namespace pdmath::optimize
+}  // namespace pdmath
 
-#endif // PDMATH_OPTIMIZE_FUNCTOR_BASE_H_
+#endif  // PDMATH_OPTIMIZE_FUNCTOR_BASE_H_

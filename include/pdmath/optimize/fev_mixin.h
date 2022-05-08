@@ -39,7 +39,7 @@ fev_mixin::fev_mixin(std::uintmax_t n_fev) : n_fev_(n_fev) {}
  */
 std::uintmax_t fev_mixin::n_fev() const { return n_fev_; }
 
-} // namespace pdmath::optimize
-} // namespace pdmath
+}  // namespace pdmath::optimize
+}  // namespace pdmath
 
-#endif // PDMATH_OPTIMIZE_FEV_MIXIN_H_
+#endif  // PDMATH_OPTIMIZE_FEV_MIXIN_H_

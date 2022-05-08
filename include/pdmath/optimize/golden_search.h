@@ -99,7 +99,7 @@ scalar_optimize_result<T> golden_search(
   );
 }
 
-} // namespace pdmath::optimize
-} // namespace pdmath
+}  // namespace pdmath::optimize
+}  // namespace pdmath
 
-#endif // PDMATH_OPTIMIZE_GOLDEN_SEARCH_H_
+#endif  // PDMATH_OPTIMIZE_GOLDEN_SEARCH_H_
