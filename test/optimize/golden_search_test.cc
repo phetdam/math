@@ -1,7 +1,7 @@
 /**
  * @file golden_search_test.cc
  * @author Derek huang <djh458@stern.nyu.edu>
- * @brief Test for golden_search, comparing against Boost root-finding
+ * @brief Test for golden_search, validating that it works correctly
  */
 
 #include <cmath>
