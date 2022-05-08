@@ -16,8 +16,6 @@
 #include "pdmath/optimize/golden_search.h"
 #include "pdmath/optimize/optimize_result.h"
 
-// #include <boost/math/tools/roots.hpp>
-
 /**
  * Functor class for using root-finding to get the group lasso update norm.
  */
