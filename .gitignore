@@ -13,3 +13,5 @@ README.md
 build
 build_windows
 .vscode
+# ignore Testing directory sometimes created by CMake
+Testing
