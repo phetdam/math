@@ -8,7 +8,6 @@
 #include <limits>
 #include <utility>
 
-#include <boost/math/tools/roots.hpp>
 #include <gtest/gtest.h>
 
 #include "pdmath/optimize/functor_base.h"
@@ -44,8 +43,6 @@ private:
   T c_;
 };
 
-}  // namespace
-
 // note: GoogleTest test suite/test name CANNOT contain underscores! hence the
 // sudden change to using CamelCase instead of iso_standard
 TEST(GoldenSearchTests, TestCorrectness)
@@ -66,6 +63,7 @@ TEST(GoldenSearchTests, TestCorrectness)
   EXPECT_EQ(4 + 2 * res.n_iter(), res.n_fev());
 }
 
+}  // namespace
 }  // namespace pdmath::tests::optimize
 }  // namespace pdmath::tests
 }  // namespace pdmath
