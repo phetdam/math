@@ -1,6 +1,9 @@
 \documentclass{article}
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath, amssymb, amsfonts, enumitem, fancyhdr, tikz}
+% ensure that bibliography is part of toc, is numbered, and doesn't also
+% include the table of contents as a link within itself
+\usepackage[nottoc, numbib]{tocbibind}
 % get rid of paragraph indent
 \setlength{\parindent}{0 pt}
 % allow section.equation numbering
@@ -1537,7 +1540,98 @@ this problem is such that
     upper bound for $ \sup_\lambda\{\inf_\mathbf{x}\{\mathcal{L}(\mathbf{x},
     \lambda)\} : \lambda \succeq \mathbf{0}\} $. Essentially, we have just
     shown that weak duality holds in the inequality constrained case.
-
 \end{enumerate}
+
+\newtocsubsection{Exercise 5.3}
+
+We consider convex and differentiable
+$ f : \mathbb{R}^d \rightarrow \mathbb{R} $ and a subspace constraint
+$ \mathcal{C} \triangleq \{\mathbf{x} \in \mathbb{R}^d : \mathbf{Mx} =
+\mathbf{c}\} $, where
+$ \mathbf{c} \in \mathbb{R}^m $, $ \mathbf{M} \in \mathbb{R}^{m \times d} $.
+Note that the corresponding constrained minimization problem is simply
+\begin{equation} \label{eq:5.3.1}
+    \begin{array}{rl}
+        \displaystyle\min_\mathbf{x} & f(\mathbf{x}) \\
+        \text{s.t.} & \mathbf{Mx} = \mathbf{c}
+    \end{array}
+\end{equation}
+
+In other words, $ \mathcal{C} $ simply encodes affine\footnote{
+    Clearly, $ \forall \theta \in \mathbb{R} $, $ \forall \mathbf{x},
+    \mathbf{y} \in \mathcal{C} $, $ \mathbf{M}(\theta\mathbf{x} +
+    (1 - \theta)\mathbf{y}) = \theta\mathbf{c} + (1 - \theta)\mathbf{c} =
+    \mathbf{c} \Rightarrow \theta\mathbf{x} + (1 - \theta)\mathbf{y} \in
+    \mathcal{C} $, so by definition $ \mathcal{C} $ is affine.
+} equality constraints, so (\ref{eq:5.3.1}) is convex.
+\begin{enumerate}[label=\alph*.]
+    \item
+    We are given $ \mathbf{x}^* \in \mathcal{C} $ s.t.
+    $ \forall \mathbf{x} \in \mathcal{C} $, $ \mathbf{x}^* $ satisfies the
+    inequality relation
+    \begin{equation} \label{eq:5.3.2}
+        f(\mathbf{x}) \ge
+        f(\mathbf{x}^*) +
+        \nabla f(\mathbf{x}^*)^\top(\mathbf{x} - \mathbf{x}^*) \ge
+        f(\mathbf{x}^*)
+    \end{equation}
+    Immediately, (\ref{eq:5.3.2}) tells us $ \mathbf{x}^* $ is a solution to
+    (\ref{eq:5.3.1}), so the optimal problem value
+    $ p^* \triangleq f(\mathbf{x}^*) $. We now define the Lagrangian
+    $ \mathcal{L} : \mathbb{R}^d \times \mathbb{R}^m \rightarrow \mathbb{R} $
+    of $ f $, which is such that
+    \begin{equation} \label{eq:5.3.3}
+        \mathcal{L}(\mathbf{x}, \nu) \triangleq
+        f(\mathbf{x}) + \nu^\top(\mathbf{Mx} - \mathbf{c})
+    \end{equation}
+    Let us also define the dual of $ f $, the function
+    $ u_f : \mathbb{R}^m \rightarrow \mathbb{R} $, where as usual
+    \begin{equation} \label{eq:5.3.4}
+        u_f(\nu) \triangleq
+        \inf_\mathbf{x}\{\mathcal{L}(\mathbf{x}, \nu)\}
+    \end{equation}
+    Since $ u_f $ is concave even when $ f $ is not convex
+    \cite{bv_convex_opt}, $ \exists \nu^* \in \mathbb{R}^m $ s.t.
+    $ u_f(\nu^*) = \sup_\nu\{u_f(\nu)\} $. Furthermore, from (\ref{eq:5.3.1}),
+    (\ref{eq:5.3.3}) we see that $ \forall \nu \in \mathbb{R}^m $,
+    $ \forall \mathbf{x} \in \mathcal{C} $,
+    $ \mathcal{L}(\mathbf{x}, \nu) = f(\mathbf{x}) $. Therefore, we see that
+    \begin{equation} \label{eq:5.3.5}
+        \begin{split}
+            u_f(\nu) & \triangleq
+            \inf_\mathbf{x}\{\mathcal{L}(\mathbf{x}, \nu)\} \\
+            & =
+            \min\left\{
+                \inf_\mathbf{x}\{\mathcal{L}(\mathbf{x}, \nu) :
+                \mathbf{x} \in \mathcal{C}\},
+                \inf_\mathbf{x}\{\mathcal{L}(\mathbf{x}, \nu) :
+                \mathbf{x} \notin \mathcal{C}\}
+            \right\}
+            \\
+            & =
+            \min\left\{
+                p^*,
+                \inf_\mathbf{x}\{\mathcal{L}(\mathbf{x}, \nu) :
+                \mathbf{x} \notin \mathcal{C}\}
+            \right\}
+            \\
+            & \le p^*
+        \end{split}
+    \end{equation}
+    Since $ u_f(\nu^*) = \sup_\nu\{u_f(\nu)\} $, from (\ref{eq:5.3.5}) we can
+    thus conclude that $ u_f(\nu^*) = p^* = f(\mathbf{x}^*) =
+    \mathcal{L}(\mathbf{x}^*, \nu^*) $. Furthermore, since $ \mathcal{L} $ is
+    convex in $ \mathbf{x} $, we must necessarily have
+    $ \nabla_\mathbf{x}\mathcal{L}(\mathbf{x}^*, \nu^*) = \mathbf{0} $, where
+    \begin{equation} \label{eq:5.3.6}
+        \nabla_\mathbf{x}\mathcal{L}(\mathbf{x}^*, \nu^*) = \nabla
+        f(\mathbf{x}^*) + \mathbf{M}^\top\nu^* = \mathbf{0}
+    \end{equation}
+\end{enumerate}
+
+\bibliographystyle{acm}
+% relative path may need to be updated depending on .tex file location
+\bibliography{../master_bib}
+
 
 \end{document}
