@@ -32,7 +32,7 @@ using bmatrix_t = boost::numeric::ublas::matrix<T>;
 template <class T = double>
 class optimize_result : public fev_mixin {
 public:
-  optimize_result(bool, std::string, std::uintmax_t, T, std::uintmax_t);
+  optimize_result(bool, const std::string&, std::uintmax_t, T, std::uintmax_t);
   bool converged() const;
   const std::string& message() const;
   std::uintmax_t n_iter() const;
@@ -48,7 +48,7 @@ private:
  * Constructor for the `optimize_result` base class.
  * 
  * @param converged `bool`, `true` if converged, `false` otherwise
- * @param message `std::string` message on optimization status
+ * @param message `const std::string&` message on optimization status
  * @param n_iter `std::uintmax_t` number of iterations taken
  * @param obj `T` value of the objective
  * @param n_fev `std::uintmax_t` number of function evaluations
@@ -56,7 +56,7 @@ private:
 template <class T>
 optimize_result<T>::optimize_result(
   bool converged,
-  std::string message,
+  const std::string& message,
   std::uintmax_t n_iter,
   T obj,
   std::uintmax_t n_fev)
@@ -100,7 +100,7 @@ public:
   scalar_optimize_result(
     T,
     bool,
-    std::string,
+    const std::string&,
     std::uintmax_t,
     T,
     std::uintmax_t
@@ -108,7 +108,7 @@ public:
   scalar_optimize_result(
     T,
     bool,
-    std::string,
+    const std::string&,
     std::uintmax_t,
     T,
     std::uintmax_t,
@@ -118,7 +118,7 @@ public:
   scalar_optimize_result(
     T,
     bool,
-    std::string,
+    const std::string&,
     std::uintmax_t,
     T,
     std::uintmax_t,
@@ -141,7 +141,7 @@ private:
  * 
  * @param res `T` optimization result
  * @param converged `bool`, `true` if converged, `false` otherwise
- * @param message `std::string` message on optimization status
+ * @param message `const std::string&` message on optimization status
  * @param n_iter `std::uintmax_t` number of iterations taken
  * @param obj `T` value of the objective
  * @param n_fev `std::uintmax_t` number of function evaluations
@@ -154,7 +154,7 @@ template <class T>
 scalar_optimize_result<T>::scalar_optimize_result(
   T res,
   bool converged,
-  std::string message,
+  const std::string& message,
   std::uintmax_t n_iter,
   T obj,
   std::uintmax_t n_fev,
@@ -178,7 +178,7 @@ template <class T>
 scalar_optimize_result<T>::scalar_optimize_result(
   T res,
   bool converged,
-  std::string message,
+  const std::string& message,
   std::uintmax_t n_iter,
   T obj,
   std::uintmax_t n_fev,
@@ -206,7 +206,7 @@ template <class T>
 scalar_optimize_result<T>::scalar_optimize_result(
   T res,
   bool converged,
-  std::string message,
+  const std::string& message,
   std::uintmax_t n_iter,
   T obj,
   std::uintmax_t n_fev)
@@ -254,7 +254,7 @@ public:
   vector_optimize_result(
     vector_t,
     bool,
-    std::string,
+    const std::string&,
     std::uintmax_t,
     T,
     std::uintmax_t,
@@ -266,7 +266,7 @@ public:
   vector_optimize_result(
     vector_t,
     bool,
-    std::string,
+    const std::string&,
     std::uintmax_t,
     T,
     std::uintmax_t,
@@ -276,7 +276,7 @@ public:
   vector_optimize_result(
     vector_t,
     bool,
-    std::string,
+    const std::string&,
     std::uintmax_t,
     T,
     std::uintmax_t
@@ -295,7 +295,7 @@ private:
  * 
  * @param res `vector_t` optimization result
  * @param converged `bool`, `true` if converged, `false` otherwise
- * @param message `std::string` message on optimization status
+ * @param message `const std::string&` message on optimization status
  * @param n_iter `std::uintmax_t` number of iterations taken
  * @param obj `T` value of the objective
  * @param n_fev number of function evaluations
@@ -308,7 +308,7 @@ template<class T, class vector_t, class matrix_t>
 vector_optimize_result<T, vector_t, matrix_t>::vector_optimize_result(
   vector_t res,
   bool converged,
-  std::string message,
+  const std::string& message,
   std::uintmax_t n_iter,
   T obj,
   std::uintmax_t n_fev,
@@ -332,7 +332,7 @@ template <class T, class vector_t, class matrix_t>
 vector_optimize_result<T, vector_t, matrix_t>::vector_optimize_result(
   vector_t res,
   bool converged,
-  std::string message,
+  const std::string& message,
   std::uintmax_t n_iter,
   T obj,
   std::uintmax_t n_fev,
@@ -360,7 +360,7 @@ template <class T, class vector_t, class matrix_t>
 vector_optimize_result<T, vector_t, matrix_t>::vector_optimize_result(
   vector_t res,
   bool converged,
-  std::string message,
+  const std::string& message,
   std::uintmax_t n_iter,
   T obj,
   std::uintmax_t n_fev)
