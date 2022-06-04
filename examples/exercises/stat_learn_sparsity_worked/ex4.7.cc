@@ -25,7 +25,7 @@ class group_norm_root_functor : public pdmath::optimize::functor_base<T> {
 public:
   /**
    * Constructor for the functor.
-   * 
+   *
    * Pre-computes the constant term used when calling the functor instance.
    *
    * @param singular_values Vector of positive singular values from the
@@ -55,7 +55,7 @@ public:
 
   /**
    * Evaluate for a value of the norm.
-   * 
+   *
    * @param nu Norm of the kth class weight vector
    * @returns `T` difference between term with `nu` and constant term
    */
@@ -77,7 +77,7 @@ private:
 
 /**
  * Functor class for using minimization to get the group lasso update norm.
- * 
+ *
  * @note Should be made separate from `group_norm_root_functor` later.
  */
 template <class T = double>
@@ -104,7 +104,7 @@ public:
 
   /**
    * Evaluate for a value of the norm.
-   * 
+   *
    * @param nu Norm of the kth class weight vector
    * @returns `T` difference between term with `nu` and constant term
    */
