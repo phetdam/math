@@ -12,8 +12,7 @@ namespace pdmath {
 namespace optimize {
 
 template <class T = double>
-class functor_base
-{
+class functor_base {
 public:
   virtual T operator()(const T&) = 0;
 };

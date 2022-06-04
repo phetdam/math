@@ -46,7 +46,7 @@ private:
 
 /**
  * Constructor for the `optimize_result` base class.
- * 
+ *
  * @param converged `bool`, `true` if converged, `false` otherwise
  * @param message `const std::string&` message on optimization status
  * @param n_iter `std::uintmax_t` number of iterations taken
@@ -138,7 +138,7 @@ private:
 
 /**
  * `scalar_optimize_result` full ctor for univariate optimization results.
- * 
+ *
  * @param res `T` optimization result
  * @param converged `bool`, `true` if converged, `false` otherwise
  * @param message `const std::string&` message on optimization status
@@ -171,7 +171,7 @@ scalar_optimize_result<T>::scalar_optimize_result(
 
 /**
  * `scalar_optimize_result` ctor for 2nd-derivative free methods.
- * 
+ *
  * See the full constructor for parameter documentation.
  */
 template <class T>
@@ -199,7 +199,7 @@ scalar_optimize_result<T>::scalar_optimize_result(
 
 /**
  * `scalar_optimize_result` ctor for 1st- and 2nd-derivative free methods.
- * 
+ *
  * See the full constructor for parameter documentation.
  */
 template <class T>
@@ -292,7 +292,7 @@ private:
 
 /**
  * `vector_optimize_result` constructor for multivariate optimization methods.
- * 
+ *
  * @param res `vector_t` optimization result
  * @param converged `bool`, `true` if converged, `false` otherwise
  * @param message `const std::string&` message on optimization status
@@ -325,7 +325,7 @@ vector_optimize_result<T, vector_t, matrix_t>::vector_optimize_result(
 
 /**
  * `vector_optimize_result` ctor for Hessian-free methods.
- * 
+ *
  * See the full constructor for parameter documentation.
  */
 template <class T, class vector_t, class matrix_t>
@@ -353,7 +353,7 @@ vector_optimize_result<T, vector_t, matrix_t>::vector_optimize_result(
 
 /**
  * `vector_optimize_result` ctor for gradient- and Hessian-free methods.
- * 
+ *
  * See the full constructor for parameter documentation.
  */
 template <class T, class vector_t, class matrix_t>
