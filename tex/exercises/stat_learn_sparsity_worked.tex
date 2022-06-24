@@ -1369,7 +1369,7 @@ $ \Vert\mathbf{V}_k^\top\hat{\mathbf{w}}_k\Vert_2 =
 $ \left(\mathbf{\Sigma}_k^2 +
 \frac{\lambda}{\Vert\hat{\mathbf{w}}_2\Vert}\mathbf{I}\right)^{-1} $ and take
 norms, we see that
-\begin{equation*}
+\begin{equation} \label{eq:4.7.2}
     \Vert\hat{\mathbf{w}}_k\Vert_2 =
     \left\Vert
         \left(
@@ -1378,13 +1378,13 @@ norms, we see that
         \right)^{-1}
         \mathbf{\Sigma}_k\mathbf{U}_k^\top\hat{\mathbf{r}}_k
     \right\Vert_2
-\end{equation*}
+\end{equation}
 
 Since $ \mathbf{\Sigma}_k^2 +
 \frac{\lambda}{\Vert\hat{\mathbf{w}}_2\Vert}\mathbf{I} $ is diagonal, if we
 let $ \sigma_{k, j} $ denote the $ j $th diagonal element of
 $ \mathbf{\Sigma}_k $, we see that
-\begin{equation}
+\begin{equation} \label{eq:4.7.3}
     \left(
         \mathbf{\Sigma}_k^2 +
         \frac{\lambda}{\Vert\hat{\mathbf{w}}_2\Vert}\mathbf{I}
@@ -1407,6 +1407,61 @@ $ \mathbf{\Sigma}_k $, we see that
         } \
     \end{bmatrix}
 \end{equation}
+
+Therefore, substituting the results of (\ref{eq:4.7.3}) into (\ref{eq:4.7.2})
+and dividing both sides by $ \Vert\hat{\mathbf{w}}_k\Vert_2 $, we see that
+\begin{equation} \label{eq:4.7.4}
+    1 =
+    \left\Vert
+        \operatorname{diag}
+        \left(
+            \frac{
+                \sigma_{k, 1}
+            }{
+                \sigma_{k, 1}^2\Vert\hat{\mathbf{w}}_k\Vert_2 + \lambda
+            },
+            \ldots \frac{
+                \sigma_{k, d_k}
+            }{
+                \sigma_{k, d_k}^2\Vert\hat{\mathbf{w}}_k\Vert_2 + \lambda
+            }
+        \right)
+        \mathbf{U}_k^\top\hat{\mathbf{r}}_k
+    \right\Vert_2
+\end{equation}
+
+We can write (\ref{eq:4.7.4}) in scalar form if we let
+$ \tilde{\mathbf{r}}_k \triangleq \mathbf{U}_k^\top\hat{\mathbf{r}}_k $ and
+square both sides, which yields
+\begin{equation} \label{eq:4.7.5}
+    1 =
+    \tilde{\mathbf{r}}_k^\top
+    \operatorname{diag}
+    \left(
+        \frac{
+            \sigma_{k, 1}^2
+        }{
+            (\sigma_{k, 1}^2\Vert\hat{\mathbf{w}}_k\Vert_2 + \lambda)^2
+        },
+        \ldots \frac{
+            \sigma_{k, d_k}^2
+        }{
+            (\sigma_{k, d_k}^2\Vert\hat{\mathbf{w}}_k\Vert_2 + \lambda)^2
+        }
+    \right)
+    \tilde{\mathbf{r}}_k =
+    \sum_{j = 1}^{d_k}
+    \left(
+        \frac{
+            \sigma_{k, j}\tilde{r}_{k, j}
+        }{
+            \sigma_{k, j}^2\Vert\hat{\mathbf{w}}_k\Vert_2 + \lambda
+        }
+    \right)^2
+\end{equation}
+
+Here (\ref{eq:4.7.5}) is the desired result, with the square exponent factored
+out.
 
 TODO
 
