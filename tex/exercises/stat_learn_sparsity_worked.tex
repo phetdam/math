@@ -1479,7 +1479,7 @@ convex\footnote{
 } on $ (0, \infty) $, our domain of interest, where for
 $ \nu \in (0, \infty) $, we have
 \begin{equation} \label{eq:4.7.6}
-    f_k(\nu) = (g_k(\nu) - 1)^2 \triangleq
+    f_k(\nu) \triangleq
     \left[
         \sum_{j = 1}^{d_k}
         \left(
@@ -1489,7 +1489,8 @@ $ \nu \in (0, \infty) $, we have
             \sigma_{k, j}^2\nu + \lambda
         }
         \right)^2 - 1
-    \right]^2
+    \right]^2 \triangleq
+    (g_k(\nu) - 1)^2
 \end{equation}
 
 Now that we have an objective, to use golden-section search, we still need to
