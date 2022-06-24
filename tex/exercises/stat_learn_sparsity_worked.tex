@@ -1216,12 +1216,19 @@ Here $ \partial\Vert\hat{\mathbf{w}}_k\Vert_2 \triangleq
 \{\mathbf{w} \in \mathbb{R}^{d_k} : \Vert\mathbf{w}\Vert_2 \le 1\} $, as
 noted\footnote{
     We verify this statement by working through Exercise 5.5 from the text.
-} in the text. Let residuals $ \hat{\mathbf{r}}_k \triangleq \mathbf{y} -
-\sum_{k' \in P_k}\mathbf{Z}_{k'}\hat{\mathbf{w}}_{k'} $, where
-$ P_k \triangleq \{1, \ldots G\} \setminus \{k\} $. Since
+} in the text. Now let
+\begin{equation} \label{eq:4.6.2}
+    \hat{\mathbf{r}}_k \triangleq
+    \mathbf{y} - \sum_{k' \in P_k}\mathbf{Z}_{k'}\hat{\mathbf{w}}_{k'}
+\end{equation}
+
+Here $ \hat{\mathbf{r}}_k \in \mathbb{R}^{d_k} $ are the $ k $th group
+residuals evaluated at the other block minimizers, where
+$ P_k \triangleq \{1, \ldots G\} \setminus \{k\} $, i.e. the set of group
+indices excluding $ k $. Now, since
 $ \mathbf{Z}_k^\top\mathbf{Z}_k = \mathbf{I}_{d_k} $,
 $ \forall k \in \{1, \ldots G\} $, (\ref{eq:4.6.1}) becomes
-\begin{equation} \label{eq:4.6.2}
+\begin{equation} \label{eq:4.6.3}
     \mathbf{0} \in
     \left\{
         -\mathbf{Z}_k^\top\hat{\mathbf{r}}_k + \hat{\mathbf{w}}_k
@@ -1229,32 +1236,32 @@ $ \forall k \in \{1, \ldots G\} $, (\ref{eq:4.6.1}) becomes
     \lambda\partial\Vert\hat{\mathbf{w}}_k\Vert_2
 \end{equation}
 
-From (\ref{eq:4.6.2}), $ \hat{\mathbf{w}}_k \ne \mathbf{0} \Leftrightarrow
+From (\ref{eq:4.6.3}), $ \hat{\mathbf{w}}_k \ne \mathbf{0} \Leftrightarrow
 \mathbf{0} = -\mathbf{Z}_k^\top\hat{\mathbf{r}}_k + \hat{\mathbf{w}}_k +
 \frac{\lambda\hat{\mathbf{w}}_k}{\Vert\hat{\mathbf{w}}_k\Vert_2} $. Moving
 $ -\mathbf{Z}_k^\top\hat{\mathbf{r}}_k $ to the left hand side, we see that
-\begin{equation} \label{eq:4.6.3}
+\begin{equation} \label{eq:4.6.4}
     \mathbf{Z}_k^\top\hat{\mathbf{r}}_k =
     \left(1 + \frac{\lambda}{\Vert\hat{\mathbf{w}}_k\Vert_2}\right)
     \hat{\mathbf{w}}_k
 \end{equation}
 
-The result in (\ref{eq:4.6.3}) is significant, as it tells us that
+The result in (\ref{eq:4.6.4}) is significant, as it tells us that
 $ \mathbf{Z}_k^\top\hat{\mathbf{r}}_k $ is a nonnegative scaling of
-$ \hat{\mathbf{w}}_k $. Furthermore, we see
-\begin{equation} \label{eq:4.6.4}
+$ \hat{\mathbf{w}}_k $. Furthermore,
+\begin{equation} \label{eq:4.6.5}
     \left\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\right\Vert_2 =
     \left(1 + \frac{\lambda}{\Vert\hat{\mathbf{w}}_k\Vert_2}\right)
     \Vert\hat{\mathbf{w}}_k\Vert_2 =
     \Vert\hat{\mathbf{w}}_k\Vert_2 + \lambda
 \end{equation}
 
-Since equality implies an $ \Leftrightarrow $ relation, (\ref{eq:4.6.4})
+Since equality implies an $ \Leftrightarrow $ relation, (\ref{eq:4.6.5})
 essentially states that $ \hat{\mathbf{w}}_k \ne \mathbf{0} \Leftrightarrow
 \left\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\right\Vert_2 > \lambda $, so
 immediately $ \left\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\right\Vert_2 \le
 \lambda \Rightarrow \hat{\mathbf{w}}_k = \mathbf{0} $. Now, using
-(\ref{eq:4.6.4}) to write $ \Vert\hat{\mathbf{w}}_k\Vert_2 $ in terms of
+(\ref{eq:4.6.5}) to write $ \Vert\hat{\mathbf{w}}_k\Vert_2 $ in terms of
 $ \mathbf{Z}_k^\top\hat{\mathbf{r}}_k $, we see that
 \begin{equation*}
     \mathbf{Z}_k^\top\hat{\mathbf{r}}_k =
@@ -1277,7 +1284,7 @@ $ \mathbf{Z}_k^\top\hat{\mathbf{r}}_k $, we see that
 
 We can then reverse the above to see that when
 $ \hat{\mathbf{w}}_k \ne \mathbf{0} $, then
-\begin{equation} \label{eq:4.6.5}
+\begin{equation} \label{eq:4.6.6}
     \hat{\mathbf{w}}_k =
     \left(
         1 - \frac{\lambda}{\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\Vert_2}
@@ -1295,8 +1302,8 @@ Note that $ \left\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\right\Vert_2 \le
 $ \left\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\right\Vert_2 \le \lambda
 \Rightarrow \hat{\mathbf{w}}_k = \mathbf{0} $, we can take just the positive
 part of $ 1 - \frac{\lambda}{\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\Vert_2} $
-in (\ref{eq:4.6.5}). Therefore, we can write that
-\begin{equation} \label{eq:4.6.6}
+in (\ref{eq:4.6.6}). Therefore, we can write that
+\begin{equation} \label{eq:4.6.7}
     \hat{\mathbf{w}}_k =
     \max\left\{
         0, 1 - \frac{\lambda}{\Vert\mathbf{Z}_k^\top\hat{\mathbf{r}}_k\Vert_2}
@@ -1304,10 +1311,104 @@ in (\ref{eq:4.6.5}). Therefore, we can write that
     \mathbf{Z}_k^\top\hat{\mathbf{r}}_k
 \end{equation}
 
-(\ref{eq:4.6.6}) solves the fixed point equation (\ref{eq:4.6.1}) when
+(\ref{eq:4.6.7}) solves the fixed point equation (\ref{eq:4.6.1}) when
 $ \forall k \in \{1, \ldots G\} $,
 $ \mathbf{Z}_k^\top\mathbf{Z}_k = \mathbf{I} $ and therefore gives the block
 coordinate descent update for the group lasso in this special case.
+
+\newtocsubsection{Exercise 4.7}
+
+Moving onto the general case, consider the group lasso block coordinate update
+equation
+\begin{equation} \label{eq:4.7.1}
+    \hat{\mathbf{w}}_k =
+    \left(
+        \mathbf{Z}_k^\top\mathbf{Z}_k +
+        \frac{\lambda}{\Vert\hat{\mathbf{w}}_k\Vert_2}\mathbf{I}
+    \right)^{-1}
+    \mathbf{Z}_k^\top\hat{\mathbf{r}}_k
+\end{equation}
+
+As usual, $ \hat{\mathbf{w}}_k \ne \mathbf{0} \in \mathbb{R}^{d_k} $ is the
+block subgradient equation minimizer for the $ k $th group,
+$ \hat{\mathbf{r}}_k \in \mathbb{R}^{d_k} $ are the residuals as defined in
+(\ref{eq:4.6.2}), with $ \mathbf{Z}_k \in \mathbb{R}^{N \times d_k} $ the
+$ k $th group input matrix. By the singular value decomposition, we can write
+$ \mathbf{Z}_k = \mathbf{U}_k\mathbf{\Sigma}_k\mathbf{V}_k^\top $, where
+$ \mathbf{U}_k \in \mathbb{R}^{N \times d_k} $ has orthonormal columns,
+$ \mathbf{V}_k \in \mathbb{R}^{d_k \times d_k} $ is orthogonal, as
+$ \mathbf{Z}_k $ is assumed to have full column rank, with
+$ \mathbf{\Sigma}_k \succ \mathbf{0} \in \mathbb{R}^{d_k \times d_k} $ the
+diagonal matrix of singular values. Using this result and getting rid of the
+matrix inverse by left multiplying, we see that
+\begin{equation*}
+    \left(
+        \mathbf{V}_k\mathbf{\Sigma}_k^2\mathbf{V}_k^\top +
+        \frac{\lambda}{\Vert\hat{\mathbf{w}}_k\Vert_2}\mathbf{I}
+    \right)
+    \hat{\mathbf{w}}_k =
+    \mathbf{V}_k\mathbf{\Sigma}_k\mathbf{U}_k^\top\hat{\mathbf{r}}_k
+\end{equation*}
+
+Multiplying both sides by $ \mathbf{V}_k^\top $ and factoring out
+$ \mathbf{V}_k^\top\hat{\mathbf{w}}_k $, we have
+\begin{equation*}
+    \left(
+        \mathbf{\Sigma}_k^2 + \frac{\lambda}{\Vert\hat{\mathbf{w}}_k\Vert_2}
+    \right)
+    \mathbf{V}_k^\top\hat{\mathbf{w}}_k =
+    \mathbf{\Sigma}_k\mathbf{U}_k^\top\hat{\mathbf{r}}_k
+\end{equation*}
+
+Since $ \mathbf{\Sigma}_k^2 +
+\frac{\lambda}{\Vert\hat{\mathbf{w}}_2\Vert}\mathbf{I} \succ \mathbf{0} $
+under our assumptions, its inverse exists. Therefore, if we note that since
+$ \mathbf{V}_k $ orthogonal,
+$ \Vert\mathbf{V}_k^\top\hat{\mathbf{w}}_k\Vert_2 =
+\Vert\hat{\mathbf{w}}_k\Vert_2 $, so if we left-multiply by
+$ \left(\mathbf{\Sigma}_k^2 +
+\frac{\lambda}{\Vert\hat{\mathbf{w}}_2\Vert}\mathbf{I}\right)^{-1} $ and take
+norms, we see that
+\begin{equation*}
+    \Vert\hat{\mathbf{w}}_k\Vert_2 =
+    \left\Vert
+        \left(
+            \mathbf{\Sigma}_k^2 +
+            \frac{\lambda}{\Vert\hat{\mathbf{w}}_2\Vert}\mathbf{I}
+        \right)^{-1}
+        \mathbf{\Sigma}_k\mathbf{U}_k^\top\hat{\mathbf{r}}_k
+    \right\Vert_2
+\end{equation*}
+
+Since $ \mathbf{\Sigma}_k^2 +
+\frac{\lambda}{\Vert\hat{\mathbf{w}}_2\Vert}\mathbf{I} $ is diagonal, if we
+let $ \sigma_{k, j} $ denote the $ j $th diagonal element of
+$ \mathbf{\Sigma}_k $, we see that
+\begin{equation}
+    \left(
+        \mathbf{\Sigma}_k^2 +
+        \frac{\lambda}{\Vert\hat{\mathbf{w}}_2\Vert}\mathbf{I}
+    \right)^{-1}
+    \mathbf{\Sigma}_k =
+    \begin{bmatrix}
+        \ \frac{
+            \sigma_{k, 1}\Vert\hat{\mathbf{w}}_k\Vert_2
+        }{
+            \sigma_{k, 1}^2\Vert\hat{\mathbf{w}}_k\Vert_2 + \lambda
+        }
+        & \ldots & 0
+        \ \\
+        \ \vdots & \ddots & \vdots \ \\
+        \ 0 & \ldots &
+        \frac{
+            \sigma_{k, d_k}\Vert\hat{\mathbf{w}}_k\Vert_2
+        }{
+            \sigma_{k, d_k}^2\Vert\hat{\mathbf{w}}_k\Vert_2 + \lambda
+        } \
+    \end{bmatrix}
+\end{equation}
+
+TODO
 
 \section{Optimization Methods}
 
