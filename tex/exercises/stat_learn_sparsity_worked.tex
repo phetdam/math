@@ -1318,8 +1318,8 @@ coordinate descent update for the group lasso in this special case.
 
 \newtocsubsection{Exercise 4.7}
 
-Moving onto the general case, consider the group lasso block coordinate update
-equation
+Moving onto the general case, consider the group lasso block coordinate
+descent update equation
 \begin{equation} \label{eq:4.7.1}
     \hat{\mathbf{w}}_k =
     \left(
@@ -1461,9 +1461,84 @@ square both sides, which yields
 \end{equation}
 
 Here (\ref{eq:4.7.5}) is the desired result, with the square exponent factored
-out.
+out. Since we can use (\ref{eq:4.7.5}) to solve for
+$ \Vert\hat{\mathbf{w}}_k\Vert_2 $, we can then use (\ref{eq:4.7.1}) to get
+the update for $ \hat{\mathbf{w}}_k $. One method of solution, as the problem
+text requests we demonstrate, is the application of golden-section search to a
+box-constrained univariate minimization problem with
+$ \Vert\hat{\mathbf{w}}_k\Vert_2 $ as the solution, and so we need to
+determine an appropriate objective and box constraints. Fortunately, the
+na\"{i}ve choice, which we denote as $ f_k $, a least squares objective, is
+convex\footnote{
+    The right-hand side of (\ref{eq:4.7.5}) is a nonnegative sum of univariate
+    function compositions, which are convex on $ (0, \infty) $, so the
+    right-hand side expression itself is convex on $ (0, \infty) $. We know
+    each composition is convex $ (0, \infty) $ because each is the result of a
+    convex, nondecreasing function (quadratic) composed with a convex function
+    (inverse of affine transform) \cite{bv_convex_opt}.
+} on $ (0, \infty) $, our domain of interest, where for
+$ \nu \in (0, \infty) $, we have
+\begin{equation} \label{eq:4.7.6}
+    f_k(\nu) = (g_k(\nu) - 1)^2 \triangleq
+    \left[
+        \sum_{j = 1}^{d_k}
+        \left(
+        \frac{
+            \sigma_{k, j}\tilde{r}_{k, j}
+        }{
+            \sigma_{k, j}^2\nu + \lambda
+        }
+        \right)^2 - 1
+    \right]^2
+\end{equation}
 
-TODO
+Now that we have an objective, to use golden-section search, we still need to
+determine the interval $ [\ell_k, u_k] $ that brackets
+$ \Vert\hat{\mathbf{w}}_k\Vert_2 $, i.e. so that $ g_k(\ell_k) - 1 $ and
+$ g_k(u_k) -1 $ have opposite signs. The easiest way to form a reasonably
+tight $ [\ell_k, u_k] $ interval is to simply require each term in the
+summation present in $ f_k $, $ g_k $ to be guaranteed greater than or less
+than $ 1 / d_k $, which means one possible bracketing interval is
+\begin{equation} \label{eq:4.7.7}
+    \left(
+        0,
+        \frac{
+            \max\{\sigma_{k, 1}, \ldots \sigma_{k, d_k}\}
+            \max\{\tilde{r}_{k, 1}, \ldots \tilde{r}_{k, d_k}\}\sqrt{d_k}
+        }{
+            \min\{\sigma_{k, 1}, \ldots \sigma_{k, d_k}\}^2
+        }
+    \right)
+\end{equation}
+
+Admittedly, (\ref{eq:4.7.7}) may not give the tightest possible interval, but
+it is sufficient to bracket $ \Vert\hat{\mathbf{w}}_k\Vert_2 $. Therefore, to
+solve for $ \Vert\hat{\mathbf{w}}\Vert_2 $, it is sufficient to find a
+solution to the minimization problem
+\begin{equation} \label{eq:4.7.8}
+    \begin{array}{ll}
+        \displaystyle\min_\nu & f_k(\nu) \\
+        \text{s.t.} &
+        \nu \in
+        \left(
+            0,
+            \frac{
+                \max\{\sigma_{k, 1}, \ldots \sigma_{k, d_k}\}
+                \max\{\tilde{r}_{k, 1}, \ldots \tilde{r}_{k, d_k}\}\sqrt{d_k}
+            }{
+                \min\{\sigma_{k, 1}, \ldots \sigma_{k, d_k}\}^2
+            }
+        \right)
+    \end{array}
+\end{equation}
+
+We do, however, deviate from the problem requirements by opting to implement
+the golden-section search in C++ instead of R, taking a generic programming
+approach by using a templated function.
+
+\medskip
+
+Note: We will add numeric results once they have been obtained.
 
 \section{Optimization Methods}
 
