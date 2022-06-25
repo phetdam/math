@@ -1332,7 +1332,8 @@ descent update equation
 As usual, $ \hat{\mathbf{w}}_k \ne \mathbf{0} \in \mathbb{R}^{d_k} $ is the
 block subgradient equation minimizer for the $ k $th group,
 $ \hat{\mathbf{r}}_k \in \mathbb{R}^{d_k} $ are the residuals as defined in
-(\ref{eq:4.6.2}), with $ \mathbf{Z}_k \in \mathbb{R}^{N \times d_k} $ the
+(\ref{eq:group_lasso_resids}), with
+$ \mathbf{Z}_k \in \mathbb{R}^{N \times d_k} $ the
 $ k $th group input matrix. By the singular value decomposition, we can write
 $ \mathbf{Z}_k = \mathbf{U}_k\mathbf{\Sigma}_k\mathbf{V}_k^\top $, where
 $ \mathbf{U}_k \in \mathbb{R}^{N \times d_k} $ has orthonormal columns,
@@ -1540,6 +1541,134 @@ approach by using a templated function.
 \medskip
 
 Note: We will add numeric results once they have been obtained.
+
+\newtocsubsection{Exercise 4.9}
+
+Previously, we considered block coordinate descent as a parameter update
+method for the group lasso problem as given by (\ref{eq:group_lasso}), but an
+alternative approach is to use the generalized gradient descent approach,
+computing the generalized gradient update for the group lasso, which is the
+solution to
+\begin{equation} \label{eq:4.9.1}
+    \begin{array}{ll}
+        \displaystyle\min_\mathbf{w} &
+        -(\mathbf{r}_k - \mathbf{Z}_k\mathbf{w}_k)^\top
+        \mathbf{Z}_k\mathbf{w} + \frac{1}{2\eta}\Vert\mathbf{w} -
+        \mathbf{w}_k\Vert_2^2 + \lambda\Vert\mathbf{w}\Vert_2
+    \end{array}
+\end{equation}
+
+Here $ \eta \in (0, \infty) $ is a constant step size as used in the text and
+the residuals $ \mathbf{r}_k \in \mathbb{R}^N $ are defined as in
+(\ref{eq:group_lasso_resids}) but with $ \mathbf{w}_j $ replacing
+$ \hat{\mathbf{w}}_j $, and we have dropped all terms independent of
+$ \mathbf{w} $ to reduce clutter. The solution $ \hat{\mathbf{w}}_k $ to the
+minimization problem in (\ref{eq:4.9.1}) therefore satisfies the subgradient
+equation
+\begin{equation} \label{eq:4.9.2}
+    \mathbf{0} \in
+    \left\{
+        -\mathbf{Z}_k^\top(\mathbf{r}_k - \mathbf{Z}_k\mathbf{w}_k)\ +
+        \frac{1}{\eta}(\hat{\mathbf{w}}_k - \mathbf{w}_k)
+    \right\} +
+    \lambda\partial\Vert\hat{\mathbf{w}}_k\Vert_2
+\end{equation}
+
+In the $ \hat{\mathbf{w}}_k \ne \mathbf{0} $ case, we know that
+$ \partial\Vert\hat{\mathbf{w}}_k\Vert_2 =
+\frac{\hat{\mathbf{w}}_k}{\Vert\hat{\mathbf{w}}_k\Vert_2} $, so we have that
+\begin{equation} \label{eq:4.9.3}
+    \begin{split}
+        \mathbf{0} & =
+        -\mathbf{Z}_k^\top(\mathbf{r}_k - \mathbf{Z}_k\mathbf{w}_k) +
+        \frac{1}{\eta}(\hat{\mathbf{w}}_k - \mathbf{w}_k) +
+        \lambda
+        \frac{\hat{\mathbf{w}}_k}{\Vert\hat{\mathbf{w}}_k\Vert_2} \\ & =
+        -\eta\mathbf{Z}_k^\top(\mathbf{r}_k - \mathbf{Z}_k\mathbf{w}_k) +
+        (\hat{\mathbf{w}}_k - \mathbf{w}_k) +
+        \eta\lambda
+        \frac{\hat{\mathbf{w}}_k}{\Vert\hat{\mathbf{w}}_k\Vert_2}
+    \end{split}
+\end{equation}
+
+Grouping all the $ \hat{\mathbf{w}}_k $ terms in (\ref{eq:4.9.3}) on the
+right-hand side, we thus see that
+\begin{equation} \label{eq:4.9.4}
+    \mathbf{w}_k + \eta\mathbf{Z}_k^\top(\mathbf{r}_k -
+    \mathbf{Z}_k\mathbf{w}_k) =
+    \left(
+        1 + \frac{\eta\lambda}{\Vert\hat{\mathbf{w}}_k\Vert_2}
+    \right)
+    \hat{\mathbf{w}}_k
+\end{equation}
+
+Let $ \boldsymbol{\omega}_k \triangleq \mathbf{w} +
+\eta\mathbf{Z}_k^\top(\mathbf{r}_k - \mathbf{Z}_k\mathbf{w}_k) $. From
+(\ref{eq:4.9.4}), we see that $ \hat{\mathbf{w}}_k $ is simply
+$ \boldsymbol{\omega}_k $ rescaled, which implies the equality
+$ \frac{\hat{\mathbf{w}}_k}{\Vert\hat{\mathbf{w}}_k\Vert_2} =
+\frac{\boldsymbol{\omega}_k}{\Vert\boldsymbol{\omega}_k\Vert_2} $.
+Therefore, subtracting
+$ \eta\lambda\frac{\boldsymbol{\omega}_k}{\Vert\boldsymbol{\omega}_k\Vert_2} $
+from both sides of (\ref{eq:4.9.4}), we see that
+\begin{equation} \label{eq:4.9.5}
+    \boldsymbol{\omega}_k -
+    \eta\lambda
+    \frac{\boldsymbol{\omega}_k}{\Vert\boldsymbol{\omega}_k\Vert_2} =
+    \left(
+        1 - \frac{\eta\lambda}{\Vert\boldsymbol{\omega}_k\Vert_2}
+    \right)
+    \boldsymbol{\omega}_k =
+    \hat{\mathbf{w}}_k
+\end{equation}
+
+Now, considering the $ \hat{\mathbf{w}}_k = \mathbf{0} $ case, we have
+$ \partial\Vert\hat{\mathbf{w}}_k\Vert_2 = \left\{\mathbf{u} \in
+\mathbb{R}^{d_k} : \Vert\mathbf{u}\Vert_2 \le 1\right\} $, so multiplying by
+$ \eta $, we have
+\begin{equation} \label{eq:4.9.6}
+    \mathbf{0} \in
+    \left\{
+        -\eta\mathbf{Z}_k^\top(\mathbf{r}_k - \mathbf{Z}_k\mathbf{w}_k) -
+        \mathbf{w}_k
+    \right\} +
+    \eta\lambda
+    \left\{
+        \mathbf{u} \in \mathbb{R}^{d_k} : \Vert\mathbf{u}\Vert_2 \le 1
+    \right\}
+\end{equation}
+
+Therefore, from (\ref{eq:4.9.6}) we see that
+$ \hat{\mathbf{w}}_k = \mathbf{0} \Rightarrow \left\Vert\mathbf{w}_k +
+\eta\mathbf{Z}_k^\top(\mathbf{r}_k - \mathbf{Z}_k\mathbf{w}_k)\right\Vert_2 =
+\Vert\boldsymbol{\omega}_k\Vert_2 \le \eta\lambda \Leftrightarrow
+1 - \frac{\eta\lambda}{\Vert\boldsymbol{\omega}_k\Vert_2} < 0 $. Combining
+this result with the results from (\ref{eq:4.9.4}) and (\ref{eq:4.9.5}), we
+can write the block generalized gradient update for the $ k $th group
+coefficients in the group lasso, i.e. $ \mathbf{w}_k $, which is
+\begin{equation} \label{eq:group_lasso_gen_block_update}
+    \begin{split}
+        \boldsymbol{\omega}_k &
+        \leftarrow
+        \mathbf{w}_k + \eta\mathbf{Z}_k^\top(\mathbf{r}_k -
+        \mathbf{Z}_k\mathbf{w}_k) \\
+        \mathbf{w}_k &
+        \leftarrow
+        \max\left\{
+            0,
+            1 - \frac{\eta\lambda}{\Vert\boldsymbol{\omega}_k\Vert_2}
+        \right\}
+        \boldsymbol{\omega}_k
+    \end{split}
+\end{equation}
+
+Note how the second line of (\ref{eq:group_lasso_gen_block_update})
+``corrects'' $ \boldsymbol{\omega}_k $ produced by a steepest descent update,
+with sparsity imposed on $ \mathbf{w}_k $ when
+$ 1 - \frac{\eta\lambda}{\Vert\boldsymbol{\omega}_k\Vert_2} < 0 $ by using
+$ \max $. We can also modify (\ref{eq:group_lasso_gen_block_update}) to use
+Nesterov's acceleration scheme, in which case we have, adding a time
+subscript to all the relevant terms,
 
 \section{Optimization Methods}
 
