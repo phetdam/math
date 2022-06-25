@@ -1540,7 +1540,7 @@ approach by using a templated function.
 
 \medskip
 
-Note: We will add numeric results once they have been obtained.
+Note: We will add numerical results once they have been obtained.
 
 \newtocsubsection{Exercise 4.9}
 
@@ -1669,6 +1669,37 @@ $ 1 - \frac{\eta\lambda}{\Vert\boldsymbol{\omega}_k\Vert_2} < 0 $ by using
 $ \max $. We can also modify (\ref{eq:group_lasso_gen_block_update}) to use
 Nesterov's acceleration scheme, in which case we have, adding a time
 subscript to all the relevant terms,
+\begin{equation} \label{eq:group_lasso_gen_block_nesterov_update}
+    \begin{split}
+        \boldsymbol{\omega}_{k, t + 1} &
+        \leftarrow
+        \boldsymbol{\zeta}_{k, t} + \eta\mathbf{Z}_k^\top(\mathbf{r}_{k, t} -
+        \mathbf{Z}_k\boldsymbol{\zeta}_{k, t}) \\
+        \mathbf{w}_{k, t + 1} &
+        \leftarrow
+        \max\left\{
+        0,
+        1 - \frac{\eta\lambda}{\Vert\boldsymbol{\omega}_{k, t + 1}\Vert_2}
+        \right\}
+        \boldsymbol{\omega}_{k, t + 1} \\
+        \boldsymbol{\zeta}_{k, t + 1} &
+        \leftarrow
+        \mathbf{w}_{k, t + 1} + \frac{t}{t + 3}(\mathbf{w}_{k, t + 1} -
+        \mathbf{w}_{k, t})
+    \end{split}
+\end{equation}
+
+To initialize the sequences
+$ \{\mathbf{w}_{k, t}\}_{t \in \mathbb{N} \cup \{0\}} $,
+$ \{\boldsymbol{\zeta}_{k, t}\}_{t \in \mathbb{N} \cup \{0\}} $, we first
+start with $ \mathbf{w}_{k, 0} = \boldsymbol{\zeta}_{k, 0} $. Again, we
+deviate from the problem requirements by opting to implement the block
+generalized gradient update method to solve the group lasso problem itself,
+not just for a single group, in C++ instead of R.
+
+\medskip
+
+Note: We will add numerical results once they have been obtained.
 
 \section{Optimization Methods}
 
