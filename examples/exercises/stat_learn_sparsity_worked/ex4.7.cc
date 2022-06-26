@@ -124,22 +124,29 @@ private:
 
 int main()
 {
+  // define parameters for objective
   double lam = 0.1;
   std::vector<double> singular_values({0.47, 0.3, 0.1});
   std::vector<double> proj_residuals({-0.2, 0.35, -0.01});
-  double singular_min =
-    *std::min_element(singular_values.begin(), singular_values.end());
-  double singular_max =
-    *std::max_element(singular_values.begin(), singular_values.end());
-  double residuals_max =
-    *std::max_element(proj_residuals.begin(), proj_residuals.end());
+  double singular_min = *std::min_element(
+    singular_values.begin(), singular_values.end()
+  );
+  double singular_max = *std::max_element(
+    singular_values.begin(), singular_values.end()
+  );
+  double residuals_max = *std::max_element(
+    proj_residuals.begin(), proj_residuals.end()
+  );
   group_norm_minimize_functor objective(singular_values, proj_residuals, lam);
+  // bounds that bracket the solution
   auto bounds = std::make_pair<double, double>(
     0,
     std::sqrt(singular_max * residuals_max * singular_values.size()) /
-      std::pow(singular_min, 2)
+    std::pow(singular_min, 2)
   );
+  // contains the norm of the group coefficients
   auto res = pdmath::golden_search(objective, bounds.first, bounds.second);
+  // print results
   std::cout << "lambda: " << lam << std::endl;
   std::cout << "singular values:";
   for (const auto& value : singular_values) {
