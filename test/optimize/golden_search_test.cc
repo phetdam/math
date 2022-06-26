@@ -25,7 +25,7 @@ class scalar_quadratic : public pdmath::optimize::functor_base<T> {
 public:
   /**
    * Constructor for the functor.
-   * 
+   *
    * @param a Value scaling the quadratic term
    * @param b Value scaling the linear term
    * @param c Offset
@@ -52,9 +52,7 @@ TEST(GoldenSearchTests, TestCorrectness)
   // same as default tolerance; in general a good choice on any system
   double tol = std::sqrt(std::numeric_limits<double>::epsilon());
 
-  pdmath::optimize::scalar_optimize_result res(
-    std::move(pdmath::optimize::golden_search(quad_func, 1., 3., tol))
-  );
+  auto res(std::move(pdmath::optimize::golden_search(quad_func, 1., 3., tol)));
 
   // always converges
   EXPECT_TRUE(res.converged());
