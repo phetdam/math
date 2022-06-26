@@ -10,9 +10,9 @@
 
 #include <gtest/gtest.h>
 
-#include "pdmath/optimize/functor_base.h"
-#include "pdmath/optimize/golden_search.h"
-#include "pdmath/optimize/optimize_result.h"
+#include "pdmath/functor_base.h"
+#include "pdmath/golden_search.h"
+#include "pdmath/optimize_result.h"
 
 namespace pdmath {
 namespace tests {
@@ -21,7 +21,7 @@ namespace optimize {
 namespace {
 
 template <class T = double>
-class scalar_quadratic : public pdmath::optimize::functor_base<T> {
+class scalar_quadratic : public pdmath::functor_base<T> {
 public:
   /**
    * Constructor for the functor.
@@ -52,7 +52,7 @@ TEST(GoldenSearchTests, TestCorrectness)
   // same as default tolerance; in general a good choice on any system
   double tol = std::sqrt(std::numeric_limits<double>::epsilon());
 
-  auto res(std::move(pdmath::optimize::golden_search(quad_func, 1., 3., tol)));
+  auto res(std::move(pdmath::golden_search(quad_func, 1., 3., tol)));
 
   // always converges
   EXPECT_TRUE(res.converged());

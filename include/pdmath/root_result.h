@@ -5,16 +5,15 @@
  * @copyright MIT License
  */
 
-#ifndef PDMATH_OPTIMIZE_ROOT_RESULT_H_
-#define PDMATH_OPTIMIZE_ROOT_RESULT_H_
+#ifndef PDMATH_ROOT_RESULT_H_
+#define PDMATH_ROOT_RESULT_H_
 
 #include <cstdint>
 #include <string>
 
-#include "pdmath/optimize/fev_mixin.h"
+#include "pdmath/fev_mixin.h"
 
 namespace pdmath {
-namespace optimize {
 
 /**
  * Templated class holding results of univariate root finding.
@@ -76,7 +75,6 @@ const std::string& root_result<T>::message() const { return message_; }
 template <class T>
 std::uintmax_t root_result<T>::n_iter() const { return n_iter_; }
 
-}  // namespace pdmath::optimize
 }  // namespace pdmath
 
-#endif  // PDMATH_OPTIMIZE_ROOT_RESULT_H_
+#endif  // PDMATH_ROOT_RESULT_H_

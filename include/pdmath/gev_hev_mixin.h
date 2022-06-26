@@ -5,13 +5,12 @@
  * @copyright MIT License
  */
 
-#ifndef PDMATH_OPTIMIZE_GEV_HEV_MIXIN_H_
-#define PDMATH_OPTIMIZE_GEV_HEV_MIXIN_H_
+#ifndef PDMATH_GEV_HEV_MIXIN_H_
+#define PDMATH_GEV_HEV_MIXIN_H_
 
 #include <cstdint>
 
 namespace pdmath {
-namespace optimize {
 
 /**
  * Class holding gradient and Hessian evaluation counts.
@@ -48,7 +47,6 @@ private:
   std::uintmax_t n_hev_;
 };
 
-}  // namespace pdmath::optimize
 }  // namespace pdmath
 
-#endif  // PDMATH_OPTIMIZE_GEV_HEV_MIXIN_H_
+#endif  // PDMATH_GEV_HEV_MIXIN_H_

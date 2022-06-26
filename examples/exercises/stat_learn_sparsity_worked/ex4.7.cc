@@ -12,16 +12,16 @@
 #include <utility>
 #include <vector>
 
-#include "pdmath/optimize/functor_base.h"
-#include "pdmath/optimize/golden_search.h"
-#include "pdmath/optimize/optimize_result.h"
+#include "pdmath/functor_base.h"
+#include "pdmath/golden_search.h"
+#include "pdmath/optimize_result.h"
 
 namespace {
 /**
  * Functor class for using root-finding to get the group lasso update norm.
  */
 template <class T = double>
-class group_norm_root_functor : public pdmath::optimize::functor_base<T> {
+class group_norm_root_functor : public pdmath::functor_base<T> {
 public:
   /**
    * Constructor for the functor.
@@ -81,7 +81,7 @@ private:
  * @note Should be made separate from `group_norm_root_functor` later.
  */
 template <class T = double>
-class group_norm_minimize_functor : public pdmath::optimize::functor_base<T> {
+class group_norm_minimize_functor : public pdmath::functor_base<T> {
 public:
   /**
    * Constructor for the functor.
@@ -122,9 +122,9 @@ int main()
   std::vector<double> proj_residuals({-0.2, 0.35, -0.01});
   // default template type omitted
   group_norm_minimize_functor objective(singular_values, proj_residuals, 0.1);
-  pdmath::optimize::scalar_optimize_result res(
+  pdmath::scalar_optimize_result res(
     std::move(
-      pdmath::optimize::golden_search(
+      pdmath::golden_search(
         [](double x) { return std::pow(x, 2); }, -1., 1.
       )
     )

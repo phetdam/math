@@ -5,8 +5,8 @@
  * @copyright MIT License
  */
 
-#ifndef PDMATH_OPTIMIZE_GOLDEN_SEARCH_H_
-#define PDMATH_OPTIMIZE_GOLDEN_SEARCH_H_
+#ifndef PDMATH_GOLDEN_SEARCH_H_
+#define PDMATH_GOLDEN_SEARCH_H_
 
 #include <cmath>
 #include <cstdint>
@@ -15,24 +15,23 @@
 
 #include <boost/math/tools/roots.hpp>
 
-#include "pdmath/optimize/functor_base.h"
-#include "pdmath/optimize/optimize_result.h"
+#include "pdmath/functor_base.h"
+#include "pdmath/optimize_result.h"
 
 namespace pdmath {
-namespace optimize {
 
 /**
  * Templated golden-section search for a scalar function's minimum.
- * 
+ *
  * Some aspects are borrowed from Numerical Recipes in C. Implementation is
  * mostly an interpretation of the golden-section search described in Xin Li's
  * notes for Lecture 15 of CMU's 18-660 optimization course.
- * 
+ *
  * @param f `F` callable to find a minimum of
  * @param lbound `T` lower endpoint of search interval
- * @param ubound `T` 
+ * @param ubound `T`
  */
-template <class T = double, class F = pdmath::optimize::functor_base<T>>
+template <class T = double, class F = pdmath::functor_base<T>>
 scalar_optimize_result<T> golden_search(
   F f,
   T lbound,
@@ -99,7 +98,6 @@ scalar_optimize_result<T> golden_search(
   );
 }
 
-}  // namespace pdmath::optimize
 }  // namespace pdmath
 
-#endif  // PDMATH_OPTIMIZE_GOLDEN_SEARCH_H_
+#endif  // PDMATH_GOLDEN_SEARCH_H_

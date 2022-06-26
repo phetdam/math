@@ -5,8 +5,8 @@
  * @copyright MIT License
  */
 
-#ifndef PDMATH_OPTIMIZE_OPTIMIZE_RESULT_H_
-#define PDMATH_OPTIMIZE_OPTIMIZE_RESULT_H_
+#ifndef PDMATH_OPTIMIZE_RESULT_H_
+#define PDMATH_OPTIMIZE_RESULT_H_
 
 #include <cstdint>
 #include <limits>
@@ -15,11 +15,10 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 
-#include "pdmath/optimize/fev_mixin.h"
-#include "pdmath/optimize/gev_hev_mixin.h"
+#include "pdmath/fev_mixin.h"
+#include "pdmath/gev_hev_mixin.h"
 
 namespace pdmath {
-namespace optimize {
 
 template <class T>
 using bvector_t = boost::numeric::ublas::vector<T>;
@@ -404,7 +403,6 @@ const matrix_t& vector_optimize_result<T, vector_t, matrix_t>::hess() const
   return hess_;
 }
 
-}  // namespace pdmath::optimize
 }  // namespace pdmath
 
-#endif  // PDMATH_OPTIMIZE_OPTIMIZE_RESULT_H_
+#endif  // PDMATH_OPTIMIZE_RESULT_H_
