@@ -5,6 +5,7 @@
  * @copyright MIT License
  */
 
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
@@ -17,6 +18,7 @@
 #include "pdmath/optimize_result.h"
 
 namespace {
+
 /**
  * Functor class for using root-finding to get the group lasso update norm.
  */
@@ -26,7 +28,9 @@ public:
   /**
    * Constructor for the functor.
    *
-   * Pre-computes the constant term used when calling the functor instance.
+   * Pre-computes the constant coefficients used when calling the functor
+   * instance, namely the squared Hadamard product of `singular_values` and
+   * `proj_residuals` as well as the squared values of `singular_values`.
    *
    * @param singular_values Vector of positive singular values from the
    *    predictor group matrix. Length is number of group predictors `d_k`,
@@ -41,15 +45,16 @@ public:
     std::vector<T>& singular_values,
     std::vector<T>& proj_residuals,
     T lambda)
-    : singular_values_(singular_values),
-      lambda_(lambda)
+    : lambda_(lambda)
   {
     assert(lambda_ > 0);
-    assert(singular_values_.size() == proj_residuals.size());
-    n_predictors_ = singular_values_.size();
-    resid_const_ = T(0);
+    assert(singular_values.size() == proj_residuals.size());
+    n_predictors_ = singular_values.size();
+    numerator_coefs_ = std::vector<T>(n_predictors_);
+    denominator_coefs_ = std::vector<T>(n_predictors_);
     for (typename std::vector<T>::size_type i = 0; i < n_predictors_; i++) {
-      resid_const_ += pow(singular_values_[i] * proj_residuals[i], 2);
+      numerator_coefs_[i] = std::pow(singular_values[i] * proj_residuals[i], 2);
+      denominator_coefs_[i] = std::pow(singular_values[i], 2);
     }
   }
 
@@ -63,15 +68,16 @@ public:
   {
     T res(0.);
     for (typename std::vector<T>::size_type i = 0; i < n_predictors_; i++) {
-      res += std::pow(std::pow(singular_values_[i], 2) * nu + lambda_, 2);
+      res +=
+        numerator_coefs_[i] / std::pow(denominator_coefs_[i] * nu + lambda_, 2);
     }
-    return res - resid_const_;
+    return res - T(1.);
   }
 
 private:
-  std::vector<T> singular_values_;
+  std::vector<T> numerator_coefs_;
+  std::vector<T> denominator_coefs_;
   T lambda_;
-  T resid_const_;
   typename std::vector<T>::size_type n_predictors_;
 };
 
@@ -118,20 +124,35 @@ private:
 
 int main()
 {
-  std::vector<double> singular_values({0.4, 0.3, 0.1});
+  double lam = 0.1;
+  std::vector<double> singular_values({0.47, 0.3, 0.1});
   std::vector<double> proj_residuals({-0.2, 0.35, -0.01});
-  // default template type omitted
-  group_norm_minimize_functor objective(singular_values, proj_residuals, 0.1);
-  pdmath::scalar_optimize_result res(
-    std::move(
-      pdmath::golden_search(
-        [](double x) { return std::pow(x, 2); }, -1., 1.
-      )
-    )
+  double singular_min =
+    *std::min_element(singular_values.begin(), singular_values.end());
+  double singular_max =
+    *std::max_element(singular_values.begin(), singular_values.end());
+  double residuals_max =
+    *std::max_element(proj_residuals.begin(), proj_residuals.end());
+  group_norm_minimize_functor objective(singular_values, proj_residuals, lam);
+  auto bounds = std::make_pair<double, double>(
+    0,
+    std::sqrt(singular_max * residuals_max * singular_values.size()) /
+      std::pow(singular_min, 2)
   );
-  std::cout << "minimum of x^2: " << res.res() << std::endl;
-  std::cout << "converged? " << (res.converged() ? "yes" : "no") << std::endl;
-  std::cout << "n_iter: " << res.n_iter() << std::endl;
-  std::cout << "n_fev: " << res.n_fev() << std::endl;
+  auto res = pdmath::golden_search(objective, bounds.first, bounds.second);
+  std::cout << "lambda: " << lam << std::endl;
+  std::cout << "singular values:";
+  for (const auto& value : singular_values) {
+    std::cout << " " << value;
+  }
+  std::cout << std::endl;
+  std::cout << "projected residuals:";
+  for (const auto& value : proj_residuals) {
+    std::cout << " " << value;
+  }
+  std::cout << std::endl;
+  std::cout << "bounds: (" << bounds.first << ", " << bounds.second << ")";
+  std::cout << std::endl;
+  std::cout << "target norm: " << res.res() << std::endl;
   return EXIT_SUCCESS;
 }
