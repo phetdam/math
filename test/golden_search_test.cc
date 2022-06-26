@@ -16,7 +16,6 @@
 
 namespace pdmath {
 namespace tests {
-namespace optimize {
 
 namespace {
 
@@ -62,6 +61,6 @@ TEST(GoldenSearchTests, TestCorrectness)
 }
 
 }  // namespace
-}  // namespace pdmath::tests::optimize
+
 }  // namespace pdmath::tests
 }  // namespace pdmath
