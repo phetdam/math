@@ -1536,11 +1536,17 @@ solution to the minimization problem
 
 We do, however, deviate from the problem requirements by opting to implement
 the golden-section search in C++ instead of R, taking a generic programming
-approach by using a templated function.
+approach by using a templated function. If we set
+\begin{equation*}
+    \begin{split}
+        \mathbf{\Sigma}_k & = \operatorname{diag}(0.47, 0.3, 0.1) \\
+        \mathbf{U}_k^\top\hat{\mathbf{r}}_k & = \begin{bmatrix}
+            \ -0.2 & 0.35 & 0.01 \
+        \end{bmatrix}^\top
+    \end{split}
+\end{equation*}
 
-\medskip
-
-Note: We will add numerical results once they have been obtained.
+Then we find that the bounds for (\ref{eq:4.7.8}) are $ (0, 70.2496) $, with its solution, $ \hat{\mathbf{w}}_k $, coming out to $ 0.301799 $.
 
 \newtocsubsection{Exercise 4.9}
 
