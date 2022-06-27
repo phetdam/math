@@ -10,11 +10,11 @@
 
 namespace pdmath {
 
-template <class T = double>
+template <class In_t = double, class Out_t = In_t>
 class functor_base {
 public:
   virtual ~functor_base() = default;
-  virtual T operator()(const T&) = 0;
+  virtual Out_t operator()(const In_t&) = 0;
 };
 
 }  // namespace pdmath
