@@ -15,6 +15,7 @@
 
 #include "pdmath/functor_base.h"
 #include "pdmath/golden_search.h"
+#include "pdmath/helpers.h"
 #include "pdmath/optimize_result.h"
 
 namespace {
@@ -50,11 +51,11 @@ public:
     assert(lambda_ > 0);
     assert(singular_values.size() == proj_residuals.size());
     n_predictors_ = singular_values.size();
-    numerator_coefs_ = std::vector<T>(n_predictors_);
-    denominator_coefs_ = std::vector<T>(n_predictors_);
+    numer_coefs_ = std::vector<T>(n_predictors_);
+    denom_coefs_ = std::vector<T>(n_predictors_);
     for (typename std::vector<T>::size_type i = 0; i < n_predictors_; i++) {
-      numerator_coefs_[i] = std::pow(singular_values[i] * proj_residuals[i], 2);
-      denominator_coefs_[i] = std::pow(singular_values[i], 2);
+      numer_coefs_[i] = std::pow(singular_values[i] * proj_residuals[i], 2);
+      denom_coefs_[i] = std::pow(singular_values[i], 2);
     }
   }
 
@@ -68,15 +69,14 @@ public:
   {
     T res(0.);
     for (typename std::vector<T>::size_type i = 0; i < n_predictors_; i++) {
-      res +=
-        numerator_coefs_[i] / std::pow(denominator_coefs_[i] * nu + lambda_, 2);
+      res += numer_coefs_[i] / std::pow(denom_coefs_[i] * nu + lambda_, 2);
     }
     return res - T(1.);
   }
 
 private:
-  std::vector<T> numerator_coefs_;
-  std::vector<T> denominator_coefs_;
+  std::vector<T> numer_coefs_;
+  std::vector<T> denom_coefs_;
   T lambda_;
   typename std::vector<T>::size_type n_predictors_;
 };
@@ -147,6 +147,7 @@ int main()
   // contains the norm of the group coefficients
   auto res = pdmath::golden_search(objective, bounds.first, bounds.second);
   // print results
+  pdmath::print_example_header(__FILE__);
   std::cout << "lambda: " << lam << std::endl;
   std::cout << "singular values:";
   for (const auto& value : singular_values) {
