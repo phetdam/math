@@ -1,7 +1,7 @@
 /**
  * @file golden_search.h
  * @author Derek Huang <djh458@stern.nyu.edu>
- * @brief Boost-like golden-section search function
+ * @brief Boost-like golden-section search function for standard types
  * @copyright MIT License
  */
 
@@ -12,8 +12,6 @@
 #include <cstdint>
 #include <limits>
 #include <iostream>
-
-#include <boost/math/tools/roots.hpp>
 
 #include "pdmath/functor_base.h"
 #include "pdmath/optimize_result.h"
@@ -29,7 +27,8 @@ namespace pdmath {
  *
  * @param f `F` callable to find a minimum of
  * @param lbound `T` lower endpoint of search interval
- * @param ubound `T`
+ * @param ubound `T` upper endpoint of search interval
+ * @param tol `T` termination tolerance
  */
 template <class T = double, class F = pdmath::functor_base<T>>
 scalar_optimize_result<T> golden_search(
