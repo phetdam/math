@@ -13,6 +13,7 @@ namespace pdmath {
 template <class T = double>
 class functor_base {
 public:
+  virtual ~functor_base() = default;
   virtual T operator()(const T&) = 0;
 };
 
