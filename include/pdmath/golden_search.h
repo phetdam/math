@@ -30,7 +30,7 @@ namespace pdmath {
  * @param ubound `T` upper endpoint of search interval
  * @param tol `T` termination tolerance
  */
-template <class T = double, class F = pdmath::functor_base<T>>
+template <class T = double, class F = functor_base<T>>
 scalar_optimize_result<T> golden_search(
   F f,
   T lbound,
