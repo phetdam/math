@@ -10,7 +10,7 @@
 
 namespace pdmath {
 
-template <class In_t = double, class Out_t = In_t>
+template <class In_t, class Out_t = In_t>
 class functor_base {
 public:
   virtual ~functor_base() = default;
