@@ -8,8 +8,12 @@
 #ifndef PDMATH_HELPERS_H_
 #define PDMATH_HELPERS_H_
 
+#include <cstddef>
 #include <iostream>
+#include <initializer_list>
 #include <string>
+
+#include "pdmath/types.h"
 
 namespace pdmath {
 
@@ -37,6 +41,38 @@ inline std::string print_example_header(
     std::cout << header << std::endl;
   }
   return header;
+}
+
+/**
+ * Create a new Boost vector from a `std::vector`.
+ *
+ * @tparam T `boost_vector` element type
+ *
+ * @param from `const std::vector<T>&` vector whose elements we will copy
+ */
+template <class T>
+inline boost_vector<T> new_boost_vector(const std::vector<T>& from)
+{
+  boost_vector<T> to(from.size());
+  for (std::size_t i = 0; i < from.size(); i++) {
+    to[i] = from[i];
+  }
+  return to;
+}
+
+/**
+ * Create a new Boost vector from a `std::initializer_list`.
+ *
+ * Braced list, i.e. `{ ... }` to `from`, will also work.
+ *
+ * @tparam T `boost_vector` element type
+ *
+ * @param from `const std::initializer_list<T>&` initialization list
+ */
+template <class T>
+inline boost_vector<T> new_boost_vector(const std::initializer_list<T>& from)
+{
+  return new_boost_vector(std::vector<T>(from));
 }
 
 }  // namespace pdmath

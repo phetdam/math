@@ -237,7 +237,9 @@ const T& scalar_optimize_result<T>::hess() const { return hess_; }
 /**
  * Templated class holding results of multivariate (vector) optimization.
  */
-template<class T = double, class V_t = bvector_t<T>, class M_t = bmatrix_t<T>>
+template<
+  class T = double, class V_t = boost_vector<T>, class M_t = boost_matrix<T>
+>
 class vector_optimize_result
   : public optimize_result<T>, public gev_mixin, public hev_mixin {
 public:

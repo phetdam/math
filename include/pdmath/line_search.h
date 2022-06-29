@@ -37,7 +37,7 @@ namespace pdmath {
  * @tparam T scalar type
  * @tparam V_t vector type, with `T` elements
  */
-template <class T = double, class V_t = bvector_t<T>>
+template <class T = double, class V_t = boost_vector<T>>
 class direction_search
   : public fev_reset_mixin, public gev_reset_mixin, public hev_reset_mixin {
 public:
@@ -56,7 +56,7 @@ public:
  * @tparam T scalar type
  * @tparam V_t vector type, with `T` elements
  */
-template <class T = double, class V_t = bvector_t<T>>
+template <class T = double, class V_t = boost_vector<T>>
 class direction_policy
   : public fev_reset_mixin, public gev_reset_mixin, public hev_reset_mixin {
 public:
@@ -70,7 +70,7 @@ public:
  * @tparam T scalar type
  * @tparam V_t vector type, with `T` elements
  */
-template <class T = double, class V_t = bvector_t<T>>
+template <class T = double, class V_t = boost_vector<T>>
 class min_norm_direction_policy : public direction_policy<T, V_t> {
 public:
   /**
@@ -121,7 +121,7 @@ private:
  * @tparam T scalar type
  * @tparam V_t vector type, with `T` elements
  */
-template <class T = double, class V_t = bvector_t<T>>
+template <class T = double, class V_t = boost_vector<T>>
 class step_search
   : public fev_reset_mixin, public gev_reset_mixin, public hev_reset_mixin {
 public:
@@ -149,7 +149,7 @@ public:
  */
 template <
   class T = double,
-  class V_t = bvector_t<T>,
+  class V_t = boost_vector<T>,
   class F_o = functor_base<V_t, T>,
   class F_g = functor_base<V_t>
 >
@@ -250,8 +250,8 @@ private:
  */
 template <
   class T = double,
-  class V_t = bvector_t<T>,
-  class M_t = bmatrix_t<T>,
+  class V_t = boost_vector<T>,
+  class M_t = boost_matrix<T>,
   class F_t = functor_base<V_t>
 >
 vector_optimize_result<T> line_search(

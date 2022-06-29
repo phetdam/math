@@ -12,8 +12,8 @@
 #include <boost/numeric/ublas/vector.hpp>
 
 template <class T>
-using bvector_t = boost::numeric::ublas::vector<T>;
+using boost_vector = boost::numeric::ublas::vector<T>;
 template <class T>
-using bmatrix_t = boost::numeric::ublas::matrix<T>;
+using boost_matrix = boost::numeric::ublas::matrix<T>;
 
 #endif  // PDMATH_TYPES_H_

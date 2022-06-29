@@ -20,7 +20,7 @@ namespace pdmath {
  * @tparam T scalar type
  * @tparam C_t compound type with `T` elements, ex. vector or matrix type
  */
-template <class T = double, class C_t = bvector_t<T>>
+template <class T = double, class C_t = boost_vector<T>>
 class norm {
 public:
   virtual ~norm() = default;
@@ -35,7 +35,7 @@ public:
  * @tparam T scalar type
  * @tparam V_t vector type, with `T` elements
  */
-template <class T = double, class V_t = bvector_t<T>>
+template <class T = double, class V_t = boost_vector<T>>
 class p_norm : public norm<T, V_t> {
 public:
   /**
@@ -53,12 +53,18 @@ public:
    */
   T operator()(const V_t& vector)
   {
-    // T sq_norm();
-    // for (const auto& value : vector) {
-    //   sq_norm += std::pow(value, 2);
-    // }
-    // return std::sqrt(sq_norm);
-    return boost::math::tools::lp_norm(vector.begin(), vector.end(), p_);
+    // need to handle p_ == 0 case separately, as lp_norm gives infinity. also
+    // use separate cases for other Boost norms, since they are faster.
+    if (!p_) {
+      return boost::math::tools::l0_pseudo_norm(vector);
+    }
+    else if (p_ == 1) {
+      return boost::math::tools::l1_norm(vector);
+    }
+    else if (p_ == 2) {
+      return boost::math::tools::l2_norm(vector);
+    }
+    return boost::math::tools::lp_norm(vector, p_);
   }
 
 private:
