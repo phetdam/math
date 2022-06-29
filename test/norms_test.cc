@@ -87,7 +87,7 @@ TEST_P(NormTest, PNormTest)
 INSTANTIATE_TEST_SUITE_P(
   PNorm,
   NormTest,
-  //
+  // Range(a, b) will only generate a, a + 1, ... b - 1 inclusive
   ::testing::Range(0u, 4u),
   ::testing::PrintToStringParamName()
 );
