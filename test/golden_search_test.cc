@@ -46,7 +46,7 @@ private:
 
 // note: GoogleTest test suite/test name CANNOT contain underscores! hence the
 // sudden change to using CamelCase instead of iso_standard
-TEST(GoldenSearchTests, TestCorrectness)
+TEST(GoldenSearchTest, CorrectnessTest)
 {
   // as we all know, the root of this is 2
   scalar_quadratic quad_func(1., -4., 4.);
