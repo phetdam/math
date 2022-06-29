@@ -7,7 +7,6 @@
 
 #include "pdmath/golden_search.h"
 
-#include <cmath>
 #include <limits>
 #include <utility>
 
@@ -36,7 +35,7 @@ public:
   /**
    * Evaluate for a given value.
    */
-  T operator()(const T& x) { return a_ * std::pow(x, 2) + b_ * x + c_; }
+  T operator()(const T& x) { return a_ * x * x + b_ * x + c_; }
 
 private:
   T a_;
