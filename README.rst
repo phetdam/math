@@ -31,10 +31,11 @@ Contains C++ source and ``CMakeLists.txt`` for building CLI executables. These
 typically will compute some numerical result or demonstrate an implementation
 as instructed in an exercise or other application.
 
-``src``
-~~~~~~~
-Contains C++ source and ``CMakeLists.txt`` for library code used by the CLI
-executables in ``examples``.
+``include``
+~~~~~~~~~~~
+Contains C++ headers and ``CMakeLists.txt`` for library code used by the CLI
+executables in ``examples``. There is no ``src`` directory since all the code
+currently written is either templated or implemented as ``inline``.
 
 ``test``
 ~~~~~~~~
