@@ -13,6 +13,7 @@
 
 #include <gtest/gtest.h>
 
+#include "pdmath/helpers.h"
 #include "pdmath/types.h"
 
 namespace pdmath {
@@ -72,13 +73,15 @@ TEST_F(NormTest, MaxNormTest)
 TEST_P(NormTest, PNormTest)
 {
   auto p = GetParam();
-  p_norm<double, std::vector<double>> norm(p);
+  p_norm norm(p);
+  // compute expected norm
   double exp_norm = 0;
   for (const auto& value : values_) {
     exp_norm += std::abs(std::pow(value, p));
   }
-  exp_norm = (p > 0) ? std::pow(exp_norm, 1. / p) : exp_norm;
-  ASSERT_DOUBLE_EQ(exp_norm, norm(values_));
+  exp_norm = (p) ? std::pow(exp_norm, 1. / p) : exp_norm;
+  // compare against actual
+  ASSERT_DOUBLE_EQ(exp_norm, norm(new_boost_vector(values_)));
 }
 
 INSTANTIATE_TEST_SUITE_P(
