@@ -22,14 +22,13 @@ namespace pdmath {
  *
  * Useful for identifying the program in `examples` being run by the user.
  *
- * @param file_path `const char *` path of the program with `main` in `examples`
+ * @param path `const char *` path of the program with `main` in `examples`
  * @param print `bool` where the header is printed if `true`
  * @returns `std::string` giving the header to print
  */
-inline std::string print_example_header(
-  const char *file_path, bool print = true)
+inline std::string print_example_header(const char *path, bool print = true)
 {
-  std::string abs_path(file_path);
+  std::string abs_path(path);
   std::string split_str("math/examples");
   // the +1 at the end is to not include the directory slash
   std::string rel_path = abs_path.substr(
