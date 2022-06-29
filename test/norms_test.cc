@@ -34,7 +34,7 @@ public:
   /**
    * Return max norm of `x`.
    */
-  T operator()(const C_t& x)
+  T operator()(const C_t& x) override
   {
     return std::abs(*std::max_element(x.begin(), x.end(), max_comp));
   }

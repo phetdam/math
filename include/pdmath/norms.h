@@ -51,7 +51,7 @@ public:
    * @param vector `const V_t&` vector to compute norm for. Must implement the
    *     `begin` and `end` method to get iterators.
    */
-  T operator()(const V_t& vector)
+  T operator()(const V_t& vector) override
   {
     // need to handle p_ == 0 case separately, as lp_norm gives infinity. also
     // use separate cases for other Boost norms, since they are faster.
