@@ -167,16 +167,10 @@ int main()
   // print results
   pdmath::print_example_header(__FILE__);
   std::cout << "lambda: " << lam << std::endl;
-  std::cout << "singular values:";
-  for (const auto& value : singular_values) {
-    std::cout << " " << value;
-  }
-  std::cout << std::endl;
-  std::cout << "projected residuals:";
-  for (const auto& value : proj_residuals) {
-    std::cout << " " << value;
-  }
-  std::cout << std::endl;
+  std::cout << "singular values: ";
+  pdmath::print_vector(singular_values);
+  std::cout << "projected residuals: ";
+  pdmath::print_vector(proj_residuals);
   std::cout << "bounds: (" << bounds.first << ", " << bounds.second << ")";
   std::cout << std::endl;
   std::cout << "target norm: " << res.res() << std::endl;
