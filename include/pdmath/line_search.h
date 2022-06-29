@@ -13,7 +13,6 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <functional>
 #include <numeric>
 #include <utility>
 
@@ -198,7 +197,11 @@ public:
     // get new direction we use to compute the new function value
     V_t x_c = x_p;
     std::transform(
-      x_c.begin(), x_c.end(), dir.begin(), x_c.begin(), std::plus<T>()
+      x_c.begin(),
+      x_c.end(),
+      dir.begin(),
+      x_c.begin(),
+      [&](const T& a, const T& b) { return a + eta * b; }
     );
     // update number of function + gradient evals
     n_fev_ += 1;
@@ -207,7 +210,11 @@ public:
     while (n_fev_ += 1, func_(x_c) <= f_x + c1_ * eta * ip_x) {
       eta *= rho_;
       std::transform(
-        x_p.begin(), x_p.end(), dir.begin(), x_c.begin(), std::plus<T>()
+        x_p.begin(),
+        x_p.end(),
+        dir.begin(),
+        x_c.begin(),
+        [&](const T& a, const T& b) { return a + eta * b; }
       );
     }
     return eta;
