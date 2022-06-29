@@ -85,11 +85,11 @@ public:
   {}
 
   /**
-   * Return `true` if the norm of `d` is <= minimium norm.
+   * Return `true` if the norm of `d` is <= minimum norm.
    *
    * @param dir `const V_t&` search direction vector
    */
-  bool operator()(const V_t& dir)
+  bool operator()(const V_t& dir) override
   {
     return norm_(dir) <= min_norm_ ? true : false;
   }
@@ -131,6 +131,53 @@ public:
    * @param dir `const V_t&` new search direction to update `x_p` with
    */
   virtual T operator()(const V_t& x_p, const V_t& dir) = 0;
+
+  /**
+   * Return the last computed step size.
+   */
+  virtual const T& last_step() const = 0;
+};
+
+/**
+ * Constant step length line search implementation.
+ *
+ * Use to represent a line search strategy that only uses a fixed step size.
+ *
+ * @tparam T scalar type
+ * @tparam V_t vector type, with `T` elements
+ */
+template <class T = double, class V_t = boost_vector<T>>
+class const_step_search : public step_search<T, V_t> {
+public:
+  /**
+   * `const_step_search` constructor.
+   *
+   * @param eta `T` positive step size to use
+   */
+  const_step_search(T eta)
+  {
+    assert(eta > 0);
+    eta_ = eta;
+  }
+
+  /**
+   * Return the step size, which is always `eta_`.
+   *
+   * @param x_p `const V_t&` previous solution guess
+   * @param dir `const V_t&` new search direction to update `x_p` with
+   */
+  T operator()(const V_t& /* x_p */, const V_t& /* dir */) override
+  {
+    return eta_;
+  }
+
+  /**
+   * Return the last computed step length, which is always `eta_`.
+   */
+  const T& last_step() const override { return eta_; }
+
+private:
+  T eta_;
 };
 
 /**
@@ -152,7 +199,7 @@ template <
   class F_o = functor_base<V_t, T>,
   class F_g = functor_base<V_t>
 >
-class backtrack_step_search : public step_search {
+class backtrack_step_search : public step_search<T, V_t> {
 public:
   /**
    * Constructor.
@@ -167,7 +214,7 @@ public:
    *     and Wainwright recommend `0.8` as a choice.
    */
   backtrack_step_search(F_o func, F_g grad, T eta0, T c1 = 0.5, T rho = 0.8)
-    : func_(func), grad_(grad)
+    : func_(func), grad_(grad), last_step_()
   {
     assert(eta0 > 0);
     assert(c1 > 0 && c1 < 1);
@@ -180,12 +227,12 @@ public:
   /**
    * Compute a step size from the previous guess and the new search direction.
    *
-   * Updates the number of function and gradient evaluations each time.
+   * Updates number of function + gradient evaluations and last step each time.
    *
    * @param x_p `const V_t&` previous solution guess
    * @param dir `const V_t&` new search direction to update `x_p` with
    */
-  T operator()(const V_t& x_p, const V_t& dir)
+  T operator()(const V_t& x_p, const V_t& dir) override
   {
     // set initial step size, reset function eval count
     T eta = eta0_;
@@ -217,12 +264,21 @@ public:
         [&](const T& a, const T& b) { return a + eta * b; }
       );
     }
+    last_step_ = eta;
     return eta;
   }
+
+  /**
+   * Return the last computed step length.
+   *
+   * On initialization, this returns `T()`.
+   */
+  const T& last_step() const override { return last_step_; }
 
 private:
   F_o func_;
   F_g grad_;
+  T last_step_;
   T eta0_;
   T c1_;
   T rho_;
