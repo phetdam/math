@@ -51,7 +51,7 @@ inline std::string print_example_header(
  * @param from `const std::vector<T>&` vector whose elements we will copy
  */
 template <class T>
-inline boost_vector<T> new_boost_vector(const std::vector<T>& from)
+inline boost_vector<T> boost_vector_from(const std::vector<T>& from)
 {
   boost_vector<T> to(from.size());
   for (std::size_t i = 0; i < from.size(); i++) {
@@ -70,9 +70,9 @@ inline boost_vector<T> new_boost_vector(const std::vector<T>& from)
  * @param from `const std::initializer_list<T>&` initialization list
  */
 template <class T>
-inline boost_vector<T> new_boost_vector(const std::initializer_list<T>& from)
+inline boost_vector<T> boost_vector_from(const std::initializer_list<T>& from)
 {
-  return new_boost_vector(std::vector<T>(from));
+  return boost_vector_from(std::vector<T>(from));
 }
 
 }  // namespace pdmath

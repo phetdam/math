@@ -81,7 +81,7 @@ TEST_P(NormTest, PNormTest)
   }
   exp_norm = (p) ? std::pow(exp_norm, 1. / p) : exp_norm;
   // compare against actual
-  ASSERT_DOUBLE_EQ(exp_norm, norm(new_boost_vector(values_)));
+  ASSERT_DOUBLE_EQ(exp_norm, norm(boost_vector_from(values_)));
 }
 
 INSTANTIATE_TEST_SUITE_P(
