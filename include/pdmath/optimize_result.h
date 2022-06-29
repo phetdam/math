@@ -15,8 +15,7 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 
-#include "pdmath/fev_mixin.h"
-#include "pdmath/gev_hev_mixin.h"
+#include "pdmath/mixins.h"
 
 namespace pdmath {
 
