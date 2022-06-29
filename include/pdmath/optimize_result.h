@@ -93,7 +93,8 @@ const T& optimize_result<T>::obj() const { return obj_; }
  * Templated class holding results of scalar optimization.
  */
 template <class T = double>
-class scalar_optimize_result : public optimize_result<T>, public gev_hev_mixin {
+class scalar_optimize_result
+  : public optimize_result<T>, public gev_mixin, public hev_mixin {
 public:
   scalar_optimize_result(
     T,
@@ -161,7 +162,8 @@ scalar_optimize_result<T>::scalar_optimize_result(
   T hess,
   std::uintmax_t n_hev)
   : optimize_result<T>(converged, message, n_iter, obj, n_fev),
-    gev_hev_mixin(n_gev, n_hev),
+    gev_mixin(n_gev),
+    hev_mixin(n_hev),
     res_(res),
     grad_(grad),
     hess_(hess)
@@ -242,80 +244,77 @@ const T& scalar_optimize_result<T>::hess() const { return hess_; }
 /**
  * Templated class holding results of multivariate (vector) optimization.
  */
-template<
-  class T = double,
-  class vector_t = bvector_t<T>,
-  class matrix_t = bmatrix_t<T>
->
-class vector_optimize_result : public optimize_result<T>, public gev_hev_mixin {
+template<class T = double, class V_t = bvector_t<T>, class M_t = bmatrix_t<T>>
+class vector_optimize_result
+  : public optimize_result<T>, public gev_mixin, public hev_mixin {
 public:
   vector_optimize_result(
-    vector_t,
+    V_t,
     bool,
     const std::string&,
     std::uintmax_t,
     T,
     std::uintmax_t,
-    vector_t,
+    V_t,
     std::uintmax_t,
-    matrix_t,
+    M_t,
     std::uintmax_t
   );
   vector_optimize_result(
-    vector_t,
+    V_t,
     bool,
     const std::string&,
     std::uintmax_t,
     T,
     std::uintmax_t,
-    vector_t,
+    V_t,
     std::uintmax_t
   );
-  vector_optimize_result(
-    vector_t,
+  vector_optimize_result(V_t,
     bool,
     const std::string&,
     std::uintmax_t,
     T,
     std::uintmax_t
   );
-  const vector_t& res() const;
-  const vector_t& grad() const;
-  const matrix_t& hess() const;
+  const V_t& res() const;
+  const V_t& grad() const;
+  const M_t& hess() const;
 private:
-  vector_t res_;
-  vector_t grad_;
-  matrix_t hess_;
+  V_t res_;
+  V_t grad_;
+  M_t hess_;
 };
 
 /**
  * `vector_optimize_result` constructor for multivariate optimization methods.
  *
- * @param res `vector_t` optimization result
+ * @param res `V_t` optimization result
  * @param converged `bool`, `true` if converged, `false` otherwise
  * @param message `const std::string&` message on optimization status
  * @param n_iter `std::uintmax_t` number of iterations taken
  * @param obj `T` value of the objective
  * @param n_fev number of function evaluations
- * @param grad `vector_t` value of the objective's gradient (if any)
+ * @param grad `V_t` value of the objective's gradient (if any)
  * @param n_gev number of gradient evaluations
- * @param hess `matrix_t` value of the objective's Hessian (if any)
+ * @param hess `M_t` value of the objective's Hessian (if any)
  * @param n_hev number of Hessian evaluations
  */
-template<class T, class vector_t, class matrix_t>
-vector_optimize_result<T, vector_t, matrix_t>::vector_optimize_result(
-  vector_t res,
+template<class T, class V_t, class M_t>
+vector_optimize_result<T, V_t, M_t>::vector_optimize_result(
+  V_t res,
   bool converged,
   const std::string& message,
   std::uintmax_t n_iter,
   T obj,
   std::uintmax_t n_fev,
-  vector_t grad,
+  V_t grad,
   std::uintmax_t n_gev,
-  matrix_t hess,
+  M_t hess,
   std::uintmax_t n_hev)
   : optimize_result<T>(converged, message, n_iter, obj, n_fev),
-    gev_hev_mixin(n_gev, n_hev),
+    gev_mixin(n_gev),
+    hev_mixin(n_hev),
     res_(res),
     grad_(grad),
     hess_(hess)
@@ -326,15 +325,15 @@ vector_optimize_result<T, vector_t, matrix_t>::vector_optimize_result(
  *
  * See the full constructor for parameter documentation.
  */
-template <class T, class vector_t, class matrix_t>
-vector_optimize_result<T, vector_t, matrix_t>::vector_optimize_result(
-  vector_t res,
+template <class T, class V_t, class M_t>
+vector_optimize_result<T, V_t, M_t>::vector_optimize_result(
+  V_t res,
   bool converged,
   const std::string& message,
   std::uintmax_t n_iter,
   T obj,
   std::uintmax_t n_fev,
-  vector_t grad,
+  V_t grad,
   std::uintmax_t n_gev)
   : vector_optimize_result<T>(
       res,
@@ -354,9 +353,9 @@ vector_optimize_result<T, vector_t, matrix_t>::vector_optimize_result(
  *
  * See the full constructor for parameter documentation.
  */
-template <class T, class vector_t, class matrix_t>
-vector_optimize_result<T, vector_t, matrix_t>::vector_optimize_result(
-  vector_t res,
+template <class T, class V_t, class M_t>
+vector_optimize_result<T, V_t, M_t>::vector_optimize_result(
+  V_t res,
   bool converged,
   const std::string& message,
   std::uintmax_t n_iter,
@@ -378,29 +377,20 @@ vector_optimize_result<T, vector_t, matrix_t>::vector_optimize_result(
 /**
  * Getter for the `vector_optimize_result` result.
  */
-template<class T, class vector_t, class matrix_t>
-const vector_t& vector_optimize_result<T, vector_t, matrix_t>::res() const
-{
-  return res_;
-}
+template<class T, class V_t, class M_t>
+const V_t& vector_optimize_result<T, V_t, M_t>::res() const { return res_; }
 
 /**
  * Getter for the `vector_optimize_result` gradient value.
  */
-template<class T, class vector_t, class matrix_t>
-const vector_t& vector_optimize_result<T, vector_t, matrix_t>::grad() const
-{
-  return grad_;
-}
+template<class T, class V_t, class M_t>
+const V_t& vector_optimize_result<T, V_t, M_t>::grad() const { return grad_; }
 
 /**
  * Getter for the `vector_optimize_result` Hessian value.
  */
-template<class T, class vector_t, class matrix_t>
-const matrix_t& vector_optimize_result<T, vector_t, matrix_t>::hess() const
-{
-  return hess_;
-}
+template<class T, class V_t, class M_t>
+const M_t& vector_optimize_result<T, V_t, M_t>::hess() const { return hess_; }
 
 }  // namespace pdmath
 

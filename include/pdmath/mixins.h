@@ -15,7 +15,8 @@ namespace pdmath {
 /**
  * Class holding function evaluation counts.
  *
- * Used as a mixin in `optimize_result` and its subclasses.
+ * Used as a mixin in `optimize_result` and its subclasses or any class that
+ * needs a `n_fev` getter with modifiable `n_fev_` member.
  *
  * @note Non-template base classes cannot have separate implementations if
  *     they are being inherited by templated classes.
@@ -23,53 +24,64 @@ namespace pdmath {
 class fev_mixin {
 public:
   /**
-   * `fev_mixin` construtor.
+   * `fev_mixin` constructor.
    *
    * @param n_fev `std::uintmax_t` number of function evaluations
    */
-  fev_mixin(std::uintmax_t n_fev) : n_fev_(n_fev) {}
+  fev_mixin(std::uintmax_t n_fev = 0) : n_fev_(n_fev) {}
 
   /**
    * Return the function evaluation count.
    */
   std::uintmax_t n_fev() const { return n_fev_; }
 
-private:
+protected:
   std::uintmax_t n_fev_;
 };
 
 /**
- * Class holding gradient and Hessian evaluation counts.
+ * Class holding gradient evaluation counts.
  *
- * Used as a mixin in `scalar_optimize_result` and `vector_optimize_result`.
- *
- * @note Non-template base classes cannot have separate implementations if
- *     they are being inherited by templated classes.
+ * Used similarly to `fev_mixin`, but for gradient evaluation counts.
  */
-class gev_hev_mixin {
+class gev_mixin {
 public:
   /**
-   * Constructor for `gev_hev_mixin`.
+   * `gev_mixin` constructor.
    *
    * @param n_gev `std::uintmax_t` number of gradient evaluations
-   * @param n_hev `std::uintmax_t` number of Hessian evaluations
    */
-  gev_hev_mixin(std::uintmax_t n_gev, std::uintmax_t n_hev)
-    : n_gev_(n_gev), n_hev_(n_hev)
-  {}
+  gev_mixin(std::uintmax_t n_gev = 0) : n_gev_(n_gev) {}
 
   /**
-   * Getter for `gev_hev_mixin` gradient evaluation count.
+   * Return the gradient evaluation count.
    */
   std::uintmax_t n_gev() const { return n_gev_; }
 
+protected:
+  std::uintmax_t n_gev_;
+};
+
+/**
+ * Class holding Hessian evaluation counts.
+ *
+ * Used similarly to `fev_mixin`, but for Hessian evaluation counts.
+ */
+class hev_mixin {
+public:
   /**
-   * Getter for `gev_hev_mixin` Hessian evaluation count.
+   * `hev_mixin` constructor.
+   *
+   * @param n_hev `std::uintmax_t` number of Hessian evaluations
+   */
+  hev_mixin(std::uintmax_t n_hev = 0) : n_hev_(n_hev) {}
+
+  /**
+   * Return the Hessian evaluation count.
    */
   std::uintmax_t n_hev() const { return n_hev_; }
 
-private:
-  std::uintmax_t n_gev_;
+protected:
   std::uintmax_t n_hev_;
 };
 

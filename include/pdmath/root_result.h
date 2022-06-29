@@ -31,7 +31,6 @@ private:
   bool converged_;
   std::string message_;
   std::uintmax_t n_iter_;
-  std::uintmax_t n_fev_;
 };
 
 /**
