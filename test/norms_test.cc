@@ -36,13 +36,20 @@ public:
    */
   T operator()(const C_t& x)
   {
-    return std::abs(
-      *std::max_element(
-        x.begin(),
-        x.end(),
-        [](const T& a, const T& b) { return std::abs(a) < std::abs(b); }
-      )
-    );
+    return std::abs(*std::max_element(x.begin(), x.end(), max_comp));
+  }
+
+private:
+  /**
+   * Comparison function used by `std::max_element` in `operator()`.
+   *
+   * @param a `const T&` first value
+   * @param b `const T&` second value
+   * @returns `true` if `std::abs(a) < std::abs(b)` else `false`
+   */
+  static bool max_comp(const T& a, const T& b)
+  {
+    return std::abs(a) < std::abs(b);
   }
 };
 
