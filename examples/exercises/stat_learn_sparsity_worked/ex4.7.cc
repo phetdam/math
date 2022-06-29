@@ -10,6 +10,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
+#include <numeric>
 #include <utility>
 #include <vector>
 
@@ -53,10 +54,19 @@ public:
     n_predictors_ = singular_values.size();
     numer_coefs_ = std::vector<T>(n_predictors_);
     denom_coefs_ = std::vector<T>(n_predictors_);
-    for (typename std::vector<T>::size_type i = 0; i < n_predictors_; i++) {
-      numer_coefs_[i] = std::pow(singular_values[i] * proj_residuals[i], 2);
-      denom_coefs_[i] = std::pow(singular_values[i], 2);
-    }
+    std::transform(
+      singular_values.begin(),
+      singular_values.end(),
+      proj_residuals.begin(),
+      numer_coefs_.begin(),
+      [](const T& s, const T& pr) { return std::pow(s * pr, 2); }
+    );
+    std::transform(
+      singular_values.begin(),
+      singular_values.end(),
+      denom_coefs_.begin(),
+      [](const T& s) { return std::pow(s, 2); }
+    );
   }
 
   /**
@@ -67,11 +77,19 @@ public:
    */
   T operator()(const T& nu)
   {
-    T res(0.);
-    for (typename std::vector<T>::size_type i = 0; i < n_predictors_; i++) {
-      res += numer_coefs_[i] / std::pow(denom_coefs_[i] * nu + lambda_, 2);
-    }
-    return res - T(1.);
+    return std::transform_reduce(
+      numer_coefs_.begin(),
+      numer_coefs_.end(),
+      denom_coefs_.begin(),
+      T(-1.),
+      // reduce method, just sums up the values
+      [](const T& a, const T& b) { return a + b; },
+      // transform method, computes all the summation terms
+      [&](const T& nc, const T& dc)
+      {
+        return nc / std::pow(dc * nu + lambda_, 2);
+      }
+    );
   }
 
 private:
