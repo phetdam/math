@@ -227,9 +227,10 @@ private:
  * @tparam T scalar type
  * @tparam V_t vector type, with `T` elements
  * @tparam M_t matrix type, with `T` elements
- * @tparam F_t callable for final transform of updated guess, ex. proximal
- *     operator like the soft-thresholding operator, projection operator. Must
- *     take a `const V_t&` and then return a `V_t`.
+ * @tparam F_t callable for per-iteration update of guess post-update with the
+ *     scaled search direction, ex. proximal operator such as the
+ *     soft-thresholding operator, or a  projection operator. Must take a
+ *     `const V_t&` and then return a `V_t`.
  *
  * @param func `const function_functor<V_t, T, V_t, M_t>&` functor giving
  *     the objective function, optionally with gradient and Hessian.
@@ -246,7 +247,8 @@ private:
  *     of the search direction, which when evaluated takes the `const V_t&`
  *     search direction. Returns `true` to indicate convergence.
  * @param nesterov `bool` flag, `true` to use Nesterov's momentum scheme
- * @param transform `F_t` callable for final transform of updated guess
+ * @param tail_transform `F_t` callable for per-iteration transform of updated
+ *     guess after updating previous guess with scaled search direction
  */
 template <
   class T = double,
@@ -262,7 +264,7 @@ vector_optimize_result<T> line_search(
   std::uintmax_t max_iter,
   direction_policy<T, V_t>& dir_policy,
   bool nesterov = false,
-  F_t transform = identity_functor<V_t>)
+  F_t tail_transform = identity_functor<V_t>)
 {
   bool converged = false;
   // container for the current and previous solution guesses. we only need the
@@ -293,7 +295,7 @@ vector_optimize_result<T> line_search(
     // for (std::size_t i = 0; i < x_c.size(); i++) {
     //     x_c[i] += eta * dx[i];
     // }
-    x_c = transform(x_c);
+    x_c = tail_transform(x_c);
     // need to update the "lookahead" sequence if using acceleration and also
     // update the previous guess to match the current guess
     if (nesterov) {
@@ -323,7 +325,7 @@ vector_optimize_result<T> line_search(
     1 + dir_search.n_fev() + eta_search.n_fev() + dir_policy.n_fev(),
     func.d1(x_c),
     1 + dir_search.n_fev() + eta_search.n_gev() + dir_policy.n_gev(),
-    func.d1(x_c),
+    func.d2(x_c),
     1 + dir_search.n_hev() + eta_search.n_hev() + dir_policy.n_hev()
   );
 }
