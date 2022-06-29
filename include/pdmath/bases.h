@@ -1,12 +1,12 @@
 /**
- * @file functor_base.h
+ * @file bases.h
  * @author Derek Huang <djh458@stern.nyu.edu>
- * @brief Header file for a Boost-like functor ABC.
+ * @brief C++ header for [templated] base classes
  * @copyright MIT License
  */
 
-#ifndef PDMATH_FUNCTOR_BASE_H_
-#define PDMATH_FUNCTOR_BASE_H_
+#ifndef PDMATH_BASES_H_
+#define PDMATH_BASES_H_
 
 namespace pdmath {
 
@@ -19,4 +19,4 @@ public:
 
 }  // namespace pdmath
 
-#endif  // PDMATH_FUNCTOR_BASE_H_
+#endif  // PDMATH_BASES_H_

@@ -10,7 +10,7 @@
 
 #include <gtest/gtest.h>
 
-#include "pdmath/functor_base.h"
+#include "pdmath/bases.h"
 #include "pdmath/golden_search.h"
 #include "pdmath/optimize_result.h"
 

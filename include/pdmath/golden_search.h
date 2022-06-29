@@ -13,7 +13,7 @@
 #include <limits>
 #include <iostream>
 
-#include "pdmath/functor_base.h"
+#include "pdmath/bases.h"
 #include "pdmath/optimize_result.h"
 
 namespace pdmath {
