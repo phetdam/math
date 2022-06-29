@@ -12,17 +12,10 @@
 #include <limits>
 #include <string>
 
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/vector.hpp>
-
 #include "pdmath/mixins.h"
+#include "pdmath/types.h"
 
 namespace pdmath {
-
-template <class T>
-using bvector_t = boost::numeric::ublas::vector<T>;
-template <class T>
-using bmatrix_t = boost::numeric::ublas::matrix<T>;
 
 /**
  * Templated ABC holding optimization results for scalar-valued objectives.

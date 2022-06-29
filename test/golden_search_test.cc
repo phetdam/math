@@ -2,7 +2,10 @@
  * @file golden_search_test.cc
  * @author Derek huang <djh458@stern.nyu.edu>
  * @brief Test for golden_search, validating that it works correctly
+ * @copyright MIT License
  */
+
+#include "pdmath/golden_search.h"
 
 #include <cmath>
 #include <limits>
@@ -11,7 +14,6 @@
 #include <gtest/gtest.h>
 
 #include "pdmath/bases.h"
-#include "pdmath/golden_search.h"
 #include "pdmath/optimize_result.h"
 
 namespace pdmath {
@@ -20,7 +22,7 @@ namespace tests {
 namespace {
 
 template <class T = double>
-class scalar_quadratic : public pdmath::functor_base<T> {
+class scalar_quadratic : public functor_base<T> {
 public:
   /**
    * Constructor for the functor.

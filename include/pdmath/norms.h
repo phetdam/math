@@ -10,6 +10,8 @@
 
 #include <boost/math/tools/norms.hpp>
 
+#include "pdmath/types.h"
+
 namespace pdmath {
 
 /**
