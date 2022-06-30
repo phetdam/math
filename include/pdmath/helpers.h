@@ -13,6 +13,7 @@
 #include <initializer_list>
 #include <sstream>
 #include <string>
+#include <utility>
 
 #include "pdmath/bases.h"
 #include "pdmath/types.h"
@@ -197,18 +198,23 @@ inline boost_vector<T> boost_vector_from(const std::vector<T>& from)
 }
 
 /**
- * Create a new Boost vector from a `std::initializer_list`.
+ * Create a new Boost vector with type `T` from a list of arguments.
  *
- * Braced list, i.e. `{ ... }` to `from`, will also work.
+ * Uses a `static_cast<T>` to convert the arguments.
+ *
+ * Since the template `T` argument cannot be deduced, the recommended usage is:
+ *
+ * `auto bvec = boost_vector_from<T>(arg1, ... argN)`
  *
  * @tparam T `boost_vector` element type
+ * @tparam Ts parameter pack
  *
- * @param from `const std::initializer_list<T>&` initialization list
+ * @param from `Ts...` list of arguments that can be cast to `T`
  */
-template <class T>
-inline boost_vector<T> boost_vector_from(const std::initializer_list<T>& from)
+template <class T, class... Ts>
+inline boost_vector<T> boost_vector_from(Ts... from)
 {
-  return boost_vector_from(std::vector<T>(from));
+  return boost_vector_from(std::vector<T>({static_cast<T>(from)...}));
 }
 
 }  // namespace pdmath
