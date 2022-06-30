@@ -25,24 +25,38 @@ namespace pdmath {
  *
  * Useful for identifying the program in `examples` being run by the user.
  *
- * @param path `const char *` path of the program with `main` in `examples`
+ * @param path `const std::string&` path of program with `main` in `examples`.
+ *     This should be an absolute path, i.e. with use of `__FILE__`.
+ * @param print `bool` where the header is printed with an extra `\n` if `true`
+ * @returns `std::string` giving the header to print
+ */
+inline std::string print_example_header(
+  const std::string& path, bool print = true)
+{
+  std::string split_str("math/examples");
+  // the +1 at the end is to not include the directory slash
+  std::string rpath = path.substr(path.find(split_str) + split_str.size() + 1);
+  std::string frame(rpath.size(), '-');
+  std::string header = "+" + frame + "+\n|" + rpath + "|\n+" + frame + "+";
+  if (print) {
+    std::cout << header << std::endl;
+  }
+  return header;
+}
+
+/**
+ * Print a short banner header with the file name of the example program run.
+ *
+ * Accepts a C string (null-terminated `char` array) instead of `std::string`.
+ *
+ * @param path `const char *` path of the program with `main` in `examples`.
+ *     This should be an absolute path, i.e. with use of `__FILE__`.
  * @param print `bool` where the header is printed with an extra `\n` if `true`
  * @returns `std::string` giving the header to print
  */
 inline std::string print_example_header(const char *path, bool print = true)
 {
-  std::string abs_path(path);
-  std::string split_str("math/examples");
-  // the +1 at the end is to not include the directory slash
-  std::string rel_path = abs_path.substr(
-    abs_path.find(split_str) + split_str.size() + 1
-  );
-  std::string frame(rel_path.size(), '-');
-  std::string header = "+" + frame + "+\n|" + rel_path + "|\n+" + frame + "+";
-  if (print) {
-    std::cout << header << std::endl;
-  }
-  return header;
+  return print_example_header(std::string(path), print);
 }
 
 /**
@@ -151,7 +165,7 @@ inline std::string print_vector(
   for (const auto& v : vec) {
     stream << v;
     if (v != vec.back()) {
-      stream << std::string(print_policy.padding(), ' ');
+      stream << print_policy.delim() + std::string(print_policy.padding(), ' ');
     }
   }
   stream << std::string(print_policy.post_padding(), ' ');
