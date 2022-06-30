@@ -41,10 +41,13 @@ protected:
 
 const std::string
 HelpersTest::ex_name_ = "dir1/exampleX.cc";
+
 const std::string
 HelpersTest::ex_path_ = "math/examples/" + HelpersTest::ex_name_;
+
 const std::string
 HelpersTest::ex_frame_ = std::string(HelpersTest::ex_name_.size(), '-');
+
 const std::vector<double> HelpersTest::values_ = {HELPERS_TEST_VECTOR_VALUES};
 
 /**
