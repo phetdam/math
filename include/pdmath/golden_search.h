@@ -26,7 +26,7 @@ namespace pdmath {
  * mostly an interpretation of the golden-section search described in Xin Li's
  * notes for Lecture 15 of CMU's 18-660 optimization course.
  *
- * @param f `F` callable to find a minimum of
+ * @param f `F` callable to find a minimum of, takes and returns `T`
  * @param lbound `T` lower endpoint of search interval
  * @param ubound `T` upper endpoint of search interval
  * @param tol `T` termination tolerance
