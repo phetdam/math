@@ -314,12 +314,12 @@ private:
  *     guess after updating previous guess with scaled search direction
  */
 template <
-  class T = double,
+  class T,
   class V_t = boost_vector<T>,
   class M_t = boost_matrix<T>,
   class F_t = functor_base<V_t>
 >
-vector_optimize_result<T> line_search(
+optimize_result<T, V_t, V_t, M_t> line_search(
   const function_functor<V_t, T, V_t, M_t>& func,
   direction_search<T, V_t>& dir_search,
   step_search<T, V_t>& eta_search,
@@ -379,7 +379,7 @@ vector_optimize_result<T> line_search(
     }
     n_iter++;
   }
-  return vector_optimize_result<T, V_t>(
+  return vector_optimize_result<T, V_t, V_t, M_t>(
     x_c,
     converged,
     (converged) ? "Converged by direction policy" : "Iteration limit reached",

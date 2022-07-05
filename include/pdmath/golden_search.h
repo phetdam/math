@@ -32,7 +32,7 @@ namespace pdmath {
  * @param tol `T` termination tolerance
  */
 template <class T, class F>
-scalar_optimize_result<T> golden_search(
+optimize_result<T> golden_search(
   F f,
   T lbound,
   T ubound,
@@ -88,13 +88,14 @@ scalar_optimize_result<T> golden_search(
   // choose midpoint of lbound, ubound as result. note we multiply individually
   // to prevent overflow or rounding error from subtraction.
   T res(0.5 * lbound + 0.5 * ubound);
-  return scalar_optimize_result<T>(
+  return optimize_result<T>(
     res,
     true,
     "Converged within tolerance",
     n_iter,
     f(res),
-    n_fev
+    // +1 to n_fev since we evaluate f again at res above
+    1 + n_fev
   );
 }
 

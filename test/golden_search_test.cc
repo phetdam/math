@@ -55,8 +55,8 @@ TEST(GoldenSearchTest, CorrectnessTest)
   // always converges
   EXPECT_TRUE(res.converged());
   EXPECT_NEAR(2., res.res(), tol);
-  // n_fev should be 4 + 2 * n_iter
-  EXPECT_EQ(4 + 2 * res.n_iter(), res.n_fev());
+  // n_fev should be 4 + 2 * n_iter + 1, since we evaluate f at res again
+  EXPECT_EQ(4 + 2 * res.n_iter() + 1, res.n_fev());
 }
 
 }  // namespace
