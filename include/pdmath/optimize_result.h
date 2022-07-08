@@ -19,6 +19,11 @@ namespace pdmath {
 
 /**
  * Templated class holding optimization results for scalar-valued objectives.
+ *
+ * @tparam T objective function return type
+ * @tparam X_t optimization variable type
+ * @tparam G_t optimization gradient/first derivative type
+ * @tparam H_t optimization Hessian/second derivative type
  */
 template <class T, class X_t = T, class G_t = X_t, class H_t = X_t>
 class optimize_result : public fev_mixin, public gev_mixin, public hev_mixin {
