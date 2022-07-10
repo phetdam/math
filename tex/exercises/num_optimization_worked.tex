@@ -87,10 +87,68 @@ $ \mathbf{x}, \mathbf{p} \in \mathbb{R}^d $ s.t.
 
 Here $ \mathbf{p} \in \mathbb{R}^d $ is implicitly assumed to be a descent
 direction, i.e. $ \mathbf{p}^\top\nabla f(\mathbf{x}) < 0 $, which is a fact
-that will prove later to be quite important.
+that will prove quite useful later. Regardless, we are interested in solving
+the problem
+\begin{equation} \label{eq:3.3.3}
+    \begin{array}{ll}
+        \displaystyle\min_\alpha & f_{\mathbf{x}, \mathbf{p}}(\alpha) \\
+        \text{s.t.} & \alpha \in (0, \infty)
+    \end{array}
+\end{equation}
 
-\medskip
+We see that (\ref{eq:3.3.3}) is the problem solved at every iteration when
+using the exact line search, given that a descent direction $ \mathbf{p} $ has
+already been computed. Expanding $ f_{\mathbf{x}, \mathbf{p}} $ as defined in
+(\ref{eq:3.3.2}),
+\begin{equation} \label{eq:3.3.4}
+    \begin{split}
+        f_{\mathbf{x}, \mathbf{p}}(\alpha) & =
+        \frac{1}{2}(\mathbf{x} +
+        \alpha\mathbf{p})^\top\mathbf{Q}(\mathbf{x} + \alpha\mathbf{p}) -
+        \mathbf{b}^\top(\mathbf{x} + \alpha\mathbf{p}) \\
+        & =
+        \left(
+            \frac{1}{2}\mathbf{x}^\top\mathbf{Q}\mathbf{x} -
+            \mathbf{b}^\top\mathbf{x}
+        \right) +
+        \frac{1}{2}\alpha^2\mathbf{p}^\top\mathbf{Qp} +
+        \alpha\mathbf{p}^\top(\mathbf{Qx} - \mathbf{b}) \\
+        & =
+        f(\mathbf{x}) + \frac{1}{2}\alpha^2\mathbf{p}^\top\mathbf{Qp} +
+        \alpha\mathbf{p}^\top\nabla f(\mathbf{x})
+    \end{split}
+\end{equation}
 
-TODO
+From (\ref{eq:3.3.4}), since $ f(\mathbf{x}) $ is independent of $ \alpha $,
+we see that instead of solving (\ref{eq:3.3.3}) we can solve
+\begin{equation} \label{eq:3.3.5}
+    \begin{array}{ll}
+        \displaystyle\min_\alpha &
+        \frac{1}{2}\alpha^2\mathbf{p}^\top\mathbf{Qp} +
+        \alpha\mathbf{p}^\top\nabla f(\mathbf{x}) \\
+        \text{s.t.} & \alpha \in (0, \infty)
+    \end{array}
+\end{equation}
+
+Now, recall that $ \mathbf{p} $ is a descent direction, so
+$ \mathbf{p}^\top\nabla f(\mathbf{x}) < 0 $. From (\ref{eq:3.3.4}), it's
+clear that $ f'_{\mathbf{x}, \mathbf{p}}(0) =
+\mathbf{p}^\top\nabla f(\mathbf{x}) < 0 $, so any minimizer $ \alpha^* $ of
+(\ref{eq:3.3.5}) automatically satisfies the box constraint. Furthermore,
+since $ \mathbf{Q} $ is positive definite and $ \mathbf{p} $ is necessarily
+nonzero to be a descent direction, the objective of (\ref{eq:3.3.5}) is also
+strongly convex, so $ \exists \eta \in (0, \infty) $ that is the unique
+solution to (\ref{eq:3.3.5}). Taking the derivative of the objective at
+$ \eta $, we see that
+$ \eta\mathbf{p}^\top\mathbf{Qp} + \mathbf{p}^\top\nabla f(\mathbf{x}) = 0 $,
+and so we can rearrange to get our desired result, which states that
+\begin{equation} \label{eq:3.3.6}
+    \eta =
+    -\frac{\mathbf{p}^\top\nabla f(\mathbf{x})}{\mathbf{p}^\top\mathbf{Qp}}
+\end{equation}
+
+%\newtocsubsection{Exercise 3.5}
+%
+%TODO
 
 \end{document}
