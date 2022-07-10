@@ -147,8 +147,37 @@ and so we can rearrange to get our desired result, which states that
     -\frac{\mathbf{p}^\top\nabla f(\mathbf{x})}{\mathbf{p}^\top\mathbf{Qp}}
 \end{equation}
 
-%\newtocsubsection{Exercise 3.5}
-%
-%TODO
+\newtocsubsection{Exercise 3.4}
+
+Recalling the function $ f $ defined in (\ref{eq:3.3.1}) and the exact line
+search result $ \eta $ defined in (\ref{eq:3.3.6}), we can show that $ \eta $
+satisfies the Goldstein conditions. From (\ref{eq:3.3.4}) and
+(\ref{eq:3.3.6}), noting that $ f_{\mathbf{x}, \mathbf{p}}(\eta) \triangleq
+f(\mathbf{x} + \eta\mathbf{p}) $, we see that
+\begin{equation} \label{eq:3.4.1}
+    \begin{split}
+        f(\mathbf{x} + \eta\mathbf{p}) & =
+        f(\mathbf{x}) + \frac{1}{2}\eta^2\mathbf{p}^\top\mathbf{Qp} +
+        \eta\mathbf{p}^\top\nabla f(\mathbf{x}) \\
+        & =
+        f(\mathbf{x}) + \frac{1}{2}\eta\mathbf{p}^\top\nabla f(\mathbf{x})
+    \end{split}
+\end{equation}
+
+Here we use the fact that by (\ref{eq:3.3.6}),
+$ \eta^2\mathbf{p}^\top\mathbf{Qp} =
+-\eta\mathbf{p}^\top\nabla f(\mathbf{x}) $. Therefore, since
+$ \mathbf{p}^\top\nabla f(\mathbf{x}) < 0 $,
+$ \forall c \in \left(0, \frac{1}{2}\right) $,
+\begin{equation} \label{eq:3.4.2}
+    f(\mathbf{x}) + (1 - c)\eta\mathbf{p}^\top\nabla f(\mathbf{x}) \le
+    f(\mathbf{x} + \eta\mathbf{p}) \le
+    f(\mathbf{x}) + c\eta\mathbf{p}^\top\nabla f(\mathbf{x})
+\end{equation}
+
+We thus have our desired result in (\ref{eq:3.4.2}), which shows us that
+$ \eta $ satisfies the Goldstein conditions. Furthermore, due to the result
+in (\ref{eq:3.4.1}), it is also clear why we have
+$ c \in \left(0, \frac{1}{2}\right) $.
 
 \end{document}
