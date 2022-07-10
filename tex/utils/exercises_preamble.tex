@@ -1,0 +1,22 @@
+% Standard \documentclass{article} preamble setup used for worked exercises.
+%
+% This should be specified with \input right after the \documentclass{article}
+% command is issued to all the necessary configuration as follows:
+%
+%   % standard article setup for worked exercises
+%   \input{../utils/exercises_preamble}
+%
+% The path used might change depending on directory structure refactoring.
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsfonts, enumitem, fancyhdr, tikz}
+% ensure that bibliography is part of toc, is numbered, and doesn't also
+% include the table of contents as a link within itself
+\usepackage[nottoc, numbib]{tocbibind}
+% get rid of paragraph indent
+\setlength{\parindent}{0 pt}
+% allow section.equation numbering
+\numberwithin{equation}{section}
+\usepackage{hyperref}
+% make the link colors blue, as well as cite colors. urls are magenta
+\hypersetup{colorlinks, linkcolor=blue, citecolor=blue, urlcolor=magenta}
