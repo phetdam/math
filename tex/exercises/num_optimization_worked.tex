@@ -1,0 +1,96 @@
+\documentclass{article}
+
+% standard article setup for worked exercises
+\input{../utils/exercises_preamble}
+
+\title{Numerical Optimization \\ \Large Worked Exercises}
+\author{%
+    Derek Huang\thanks{TD Securities, Quantitative Modeling and Analytics.}
+}
+\date{July 9, 2022}
+
+\begin{document}
+
+% define the \newtocsubection command
+\input{../utils/newtocsubsection}
+
+\maketitle
+
+%\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+
+After developing an interest in optimization, I started looking for good
+textbooks I could feed my interest with and learn from. One of which was
+Nocedal and Wright's \textit{Numerical Optimization}, which I accidentally
+stumbled upon while reading the
+\href{%
+    https://docs.scipy.org/doc/scipy/reference/generated/%
+    scipy.optimize.minimize.html%
+}{documentation for \texttt{scipy.optimize.minimize}}, as I noticed that
+several\footnote{%
+    As of this writing, eight: BFGS, Newton-CG, dogleg, trust-ncg,
+    trust-krylov, trust-exact.%
+}
+of the implemented minimization algorithms were from Nocedal and Wright's
+book. That prompted my interest and led me to believe that Nocedal and
+Wright's book would be very helpful for learning about and implementing the
+algorithms that people use in production settings. I already had Boyd and
+Vandenberghe's \textit{Convex Optimization} at the time, and although it is
+excellent for understanding the theory, it was also only focused on convex
+problems and most importantly, had very little discussion of real-life
+algorithms. Therefore, getting the book was a no-brainer for me, given my
+interests.
+
+\medskip
+
+% standardized closing transition
+\input{../utils/intro_close}
+
+\section{Line Search Methods}
+
+\newtocsubsection{Exercise 3.1}
+
+Although not required by the problem, we use a generic line search function
+implemented via templates in C++. The type of line search method used is
+simply specified via a direction search functor, which returns the search
+direction from the current guess, and a step search functor, which returns the
+step size from the current guess. For this exercise, we use a backtracking
+line search implementing step search functor.
+
+\medskip
+
+TODO
+
+\newtocsubsection{Exercise 3.3}
+
+Let us define $ f : \mathbb{R}^d \rightarrow \mathbb{R} $ s.t. for
+$ \mathbf{Q} \succeq m\mathbf{I} \in \mathbb{R}^{d \times d} $,
+$ m \in (0, \infty) $, $ \mathbf{b} \in \mathbb{R}^d $,
+\begin{equation} \label{eq:3.3.1}
+    f(\mathbf{x}) \triangleq
+    \frac{1}{2}\mathbf{x}^\top\mathbf{Qx} - \mathbf{b}^\top\mathbf{x}
+\end{equation}
+
+Note that $ \mathbf{Q} \succeq m\mathbf{I} \Rightarrow f $ is strongly convex.
+Let us also define
+$ f_{\mathbf{x}, \mathbf{p}} : \mathbb{R} \rightarrow \mathbb{R} $ for
+$ \mathbf{x}, \mathbf{p} \in \mathbb{R}^d $ s.t.
+\begin{equation} \label{eq:3.3.2}
+    f_{\mathbf{x}, \mathbf{p}}(\alpha) \triangleq
+    f(\mathbf{x} + \alpha\mathbf{p})
+\end{equation}
+
+Here $ \mathbf{p} \in \mathbb{R}^d $ is implicitly assumed to be a descent
+direction, i.e. $ \mathbf{p}^\top\nabla f(\mathbf{x}) < 0 $, which is a fact
+that will prove later to be quite important.
+
+\medskip
+
+TODO
+
+\end{document}
