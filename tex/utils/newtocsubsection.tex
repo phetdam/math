@@ -1,0 +1,19 @@
+% Adds the \newtocsubsection command.
+%
+% Useful for making sure that subsections are also including the table of
+% contents produced by LaTeX using the \tableofcontents command.
+%
+% Standard usage in some LaTeX file is as follows:
+%
+%   % define the \newtocsubection command
+%   \input{../utils/newtocsubsection}
+
+%%
+% Start unnumbered subsection, also adding it to the table ofcontents.
+%
+% Arguments:
+%   #1  subsection title
+%
+\newcommand{\newtocsubsection}[1]{%
+    \subsection*{#1} \addcontentsline{toc}{subsection}{#1}%
+}
