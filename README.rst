@@ -54,7 +54,7 @@ Contains the ``.tex`` source for my independent mathematical work. The
 ``exercises`` directory is for worked exercises from textbooks, monographs,
 etc., while the ``original`` directory is for my own original work. The
 ``utils`` directory is for LaTeX setup or command definitions, which may be
-used in other ``.tex`` files, typically through the ``\input`` command.
+used in other ``.tex`` files, typically by using ``\input``.
 
 
 Building the C++ source
