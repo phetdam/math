@@ -99,7 +99,7 @@ compile_all_tex() {
             compile_all_tex $FILE_OR_DIR
         elif [[ $FILE_OR_DIR == *.tex ]]
         then
-            compile_tex $FILE_OR_DIR  
+            compile_tex $FILE_OR_DIR
         fi
     done
 }
