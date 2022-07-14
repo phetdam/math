@@ -23,10 +23,18 @@ if(MSVC)
         /wd4265
         /wd4514
         /wd4619
+        /wd4625
+        /wd4626
         /wd4668
         /wd4820
+        /wd5026
+        /wd5027
         /wd5045
         /wd5204
+    )
+    # silences Boost C++17 iterator deprecation warning
+    add_compile_definitions(
+        _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING=1
     )
     if(CMAKE_BUILD_TYPE STREQUAL Release)
         add_compile_options(/O2)

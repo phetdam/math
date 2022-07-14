@@ -4,7 +4,7 @@
 :: Note: any -D<var>=<value> arguments must be double-quoted!
 
 @echo off
-setlocal
+setlocal EnableDelayedExpansion
 
 :: arguments passed to cmake command directly
 set CMAKE_ARGS=
@@ -12,7 +12,7 @@ set CMAKE_ARGS=
 set CMAKE_BUILD_ARGS=
 
 call :Main %*
-exit /b %ERRORLEVEL%
+exit /b !ERRORLEVEL!
 
 ::::
 :: Main function for the build script.
@@ -24,9 +24,9 @@ exit /b %ERRORLEVEL%
 :: separate incoming args into those for cmake, cmake --build. note that the
 :: only way to preserve literal "=" is to just accept all the args.
 call :CollectArgs %*
-cmake -G Ninja -S . -B build_windows %CMAKE_ARGS%
-cmake --build build_windows %CMAKE_BUILD_ARGS%
-exit /b 0
+cmake -G Ninja -S . -B build_windows !CMAKE_ARGS!
+cmake --build build_windows !CMAKE_BUILD_ARGS!
+exit /b !ERRORLEVEL!
 
 ::::
 :: Collect incoming arguments, separating them for cmake, cmake --build.
