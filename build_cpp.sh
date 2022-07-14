@@ -43,7 +43,6 @@ main() {
     collect_args "$@"
     cmake -S . -B build ${CMAKE_ARGS[@]}
     cmake --build build ${CMAKE_BUILD_ARGS[@]}
-    return $?
 }
 
 set -e
