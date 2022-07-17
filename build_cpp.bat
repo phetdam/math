@@ -10,22 +10,12 @@ setlocal EnableDelayedExpansion
 set CMAKE_ARGS=
 :: arguments passed to cmake --build command directly
 set CMAKE_BUILD_ARGS=
+:: program name, as any label `call`ed uses label name as %0
+set PROGNAME=%0
+:: indicate current argument parsing mode
+set PARSE_MODE=cmake_args
 
 call :Main %*
-exit /b !ERRORLEVEL!
-
-::::
-:: Main function for the build script.
-::
-:: Arguments:
-::  Array of command-line arguments
-::
-:Main
-:: separate incoming args into those for cmake, cmake --build. note that the
-:: only way to preserve literal "=" is to just accept all the args.
-call :CollectArgs %*
-cmake -G Ninja -S . -B build_windows !CMAKE_ARGS!
-cmake --build build_windows !CMAKE_BUILD_ARGS!
 exit /b !ERRORLEVEL!
 
 ::::
@@ -39,35 +29,77 @@ exit /b !ERRORLEVEL!
 ::      rest preceding will be passed to the cmake configure command.
 ::
 :CollectArgs
-:: set to 1 after we see the --build-args flag
-set POPULATE_BUILD_ARGS=0
-:: need parentheses if %1 is an array. if CMAKE_BUILD_ARGS, CMAKE_ARGS empty,
-:: set directly, else append value to the end of CMAKE_BUILD_ARGS, CMAKE_ARGS.
 :: note that using "::" as comment can cause cmd to misinterpret tokens as
 :: drive names when you have "::" inside the if statements. use rem instead.
 :: however, rem tends to be much slower.
 ::
 :: see https://stackoverflow.com/a/12407934/14227825 and other answers.
 ::
+:: we break early if the help flag is encountered and set PARSE_MODE.
+::
 for %%A in (%*) do (
-    if %%A==--build-args (
-        set POPULATE_BUILD_ARGS=1
+    if %%A==--help (
+        set PARSE_MODE=print_help
+        exit /b 0
     ) else (
-        if !POPULATE_BUILD_ARGS!==1 (
-            if not defined CMAKE_BUILD_ARGS (
-                set CMAKE_BUILD_ARGS=%%A
-            ) else (
-                set CMAKE_BUILD_ARGS=!CMAKE_BUILD_ARGS! %%A
-            )
+        if %%A==--build-args (
+            set PARSE_MODE=cmake_build_args
         ) else (
-            if not defined CMAKE_ARGS (
-                set CMAKE_ARGS=%%A
+            if !PARSE_MODE!==cmake_build_args (
+                if not defined CMAKE_BUILD_ARGS (
+                    set CMAKE_BUILD_ARGS=%%A
+                ) else (
+                    set CMAKE_BUILD_ARGS=!CMAKE_BUILD_ARGS! %%A
+                )
             ) else (
-                set CMAKE_ARGS=!CMAKE_ARGS! %%A
+                if not defined CMAKE_ARGS (
+                    set CMAKE_ARGS=%%A
+                ) else (
+                    set CMAKE_ARGS=!CMAKE_ARGS! %%A
+                )
             )
         )
     )
 )
+exit /b 0
+
+::::
+:: Main function for the build script.
+::
+:: Arguments:
+::  Array of command-line arguments
+::
+:Main
+:: print help blurb if necessary
+:: separate incoming args into those for cmake, cmake --build. note that the
+:: only way to preserve literal "=" is to just accept all the args.
+call :CollectArgs %*
+:: print help and exit if PARSE_MODE is print_help
+if !PARSE_MODE!==print_help (
+    call :PrintHelp
+    exit /b 0
+)
+cmake -G Ninja -S . -B build_windows !CMAKE_ARGS!
+cmake --build build_windows !CMAKE_BUILD_ARGS!
+exit /b !ERRORLEVEL!
+
+::::
+:: Print help output.
+::
+:: Note: ^ is used to escape some characters with special meaning, and can be
+:: also used for line continuation. ! must be double-escaped, however.
+::
+:PrintHelp
+echo Usage: %0 [ARG ...] [--build-args BUILD_ARG [BUILD_ARG ...]]
+echo.
+echo Build the C++ library and examples by using CMake.
+echo.
+echo Note that any -D^<var^>=^<value^> arguments must be double-quoted^^!
+echo.
+echo Arguments:
+echo   ARG ...                     args passed to cmake command
+echo   --build-args ARG [ARG ...]  args passed to cmake --build command
+echo   --help                      show this help message and exit
 exit /b 0
 
 endlocal

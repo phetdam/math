@@ -46,7 +46,7 @@ collect_args() {
 print_help() {
     echo "Usage: $0 [ARG ...] [--build-args ARG [ARG ...]]"
     echo
-    echo "Build the C++ code by wrapping CMake."
+    echo "Build the C++ library and examples by using CMake."
     echo
     echo "Arguments:"
     echo "  ARG ...                     args passed to cmake command"
