@@ -7,6 +7,8 @@
 CMAKE_ARGS=()
 # arguments passed to cmake --build command directly
 CMAKE_BUILD_ARGS=()
+# indicate current argument parsing mode
+PARSE_MODE=cmake_args
 
 ##
 # Collect incoming arguments, separating them for cmake, cmake --build.
@@ -19,14 +21,17 @@ CMAKE_BUILD_ARGS=()
 #       rest preceding will be passed to the cmake configure command.
 #
 collect_args() {
-    # set to 1 after we see the --build-args flag
-    POPULATE_BUILD_ARGS=0
     for ARG in "$@"
     do
-        if [ "$ARG" = --build-args ]
+        # break early if -h or --help flag is introduced
+        if [ "$ARG" = -h ] || [ "$ARG" = --help ]
         then
-            POPULATE_BUILD_ARGS=1
-        elif [ $POPULATE_BUILD_ARGS -eq 1 ]
+            PARSE_MODE=print_help
+            return 0
+        elif [ "$ARG" = --build-args ]
+        then
+            PARSE_MODE=cmake_build_args
+        elif [ $PARSE_MODE = cmake_build_args ]
         then
             CMAKE_BUILD_ARGS+=("$ARG")
         else
@@ -36,11 +41,32 @@ collect_args() {
 }
 
 ##
+# Print help output for this script.
+#
+print_help() {
+    echo "Usage: $0 [ARG ...] [--build-args ARG [ARG ...]]"
+    echo
+    echo "Build the C++ code by wrapping CMake."
+    echo
+    echo "Arguments:"
+    echo "  ARG ...                     args passed to cmake command"
+    echo "  --build-args ARG [ARG ...]  args passed to cmake --build command"
+    echo "  -h,--help                   show this help message and exit"
+    echo
+}
+
+##
 # Main function for the build script.
 #
 main() {
     # separate incoming args into those for cmake, cmake --build
     collect_args "$@"
+    # print help and exit if PARSE_MODE is print_help
+    if [ $PARSE_MODE = print_help ]
+    then
+        print_help
+        return 0
+    fi
     cmake -S . -B build ${CMAKE_ARGS[@]}
     cmake --build build ${CMAKE_BUILD_ARGS[@]}
 }
