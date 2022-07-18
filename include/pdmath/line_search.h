@@ -102,11 +102,11 @@ public:
   /**
    * Return norm functor used to compute gradient norms.
    */
-  const norm<T, V_t> norm() const { return norm_; }
+  const pdmath::norm<T, V_t> norm() const { return norm_; }
 
 private:
   T min_norm_;
-  norm<T, V_t> norm_;
+  pdmath::norm<T, V_t> norm_;
 };
 
 /**
@@ -214,7 +214,7 @@ public:
    *     and Wainwright recommend `0.8` as a choice.
    */
   backtrack_step_search(F_o func, F_g grad, T eta0, T c1 = 0.5, T rho = 0.8)
-    : func_(func), grad_(grad), last_step_()
+    : func_(func), grad_(grad), last_step_(), step_search<T, V_t>()
   {
     assert(eta0 > 0);
     assert(c1 > 0 && c1 < 1);
@@ -250,11 +250,14 @@ public:
       x_c.begin(),
       [&](const T& a, const T& b) { return a + eta * b; }
     );
-    // update number of function + gradient evals
-    n_fev_ += 1;
-    n_gev_ += 1;
+    // update number of function + gradient evals. note that since this is a
+    // template class, we have to use this, as otherwise these members will
+    // not be looked up (nondependent name). see the ISO C++ FAQ:
+    // https://isocpp.org/wiki/faq/templates#nondependent-name-lookup-members
+    this->n_fev_ += 1;
+    this->n_gev_ += 1;
     // until sufficient decrease is met, keep shrinking
-    while (n_fev_ += 1, func_(x_c) <= f_x + c1_ * eta * ip_x) {
+    while (this->n_fev_ += 1, func_(x_c) <= f_x + c1_ * eta * ip_x) {
       eta *= rho_;
       std::transform(
         x_p.begin(),
@@ -327,7 +330,7 @@ optimize_result<T, V_t, V_t, M_t> line_search(
   std::uintmax_t max_iter,
   direction_policy<T, V_t>& dir_policy,
   bool nesterov = false,
-  F_t tail_transform = identity_functor<V_t>)
+  F_t tail_transform = identity_functor<V_t>())
 {
   bool converged = false;
   // container for the current and previous solution guesses. we only need the
@@ -379,7 +382,7 @@ optimize_result<T, V_t, V_t, M_t> line_search(
     }
     n_iter++;
   }
-  return vector_optimize_result<T, V_t, V_t, M_t>(
+  return optimize_result<T, V_t, V_t, M_t>(
     x_c,
     converged,
     (converged) ? "Converged by direction policy" : "Iteration limit reached",
