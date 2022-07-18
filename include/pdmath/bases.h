@@ -16,7 +16,7 @@ namespace pdmath {
  * @tparam In_t input type
  * @tparam Out_t output type, defaults to `In_t`
  */
-template <class In_t, class Out_t = In_t>
+template <typename In_t, typename Out_t = In_t>
 class functor_base {
 public:
   virtual ~functor_base() = default;
@@ -26,7 +26,7 @@ public:
 /**
  * Template functor for identity function.
  */
-template <class T>
+template <typename T>
 class identity_functor : public functor_base<T, T&> {
   T& operator()(const T& o) { return o; }
 };
@@ -43,13 +43,13 @@ class identity_functor : public functor_base<T, T&> {
  * @tparam F_d2 second deriv, takes `const In_t&`, return `Out_d2_t`
  */
 template <
-  class In_t,
-  class Out_t = In_t,
-  class Out_d1_t = Out_t,
-  class Out_d2_t = Out_t,
-  class F_f = functor_base<In_t, Out_t>,
-  class F_d1 = functor_base<In_t, Out_d1_t>,
-  class F_d2 = functor_base<In_t, Out_d2_t>
+  typename In_t,
+  typename Out_t = In_t,
+  typename Out_d1_t = Out_t,
+  typename Out_d2_t = Out_t,
+  typename F_f = functor_base<In_t, Out_t>,
+  typename F_d1 = functor_base<In_t, Out_d1_t>,
+  typename F_d2 = functor_base<In_t, Out_d2_t>
 >
 class function_functor : public functor_base<In_t, Out_t> {
 public:

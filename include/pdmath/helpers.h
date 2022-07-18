@@ -153,7 +153,7 @@ private:
  * @param print `bool` where the vector is printed with an extra `\n` if `true`
  * @returns `std::string` giving the string to print
  */
-template <class T>
+template <typename T>
 inline std::string print_vector(
   const std::vector<T>& vec,
   const vector_print_policy& print_policy,
@@ -188,7 +188,7 @@ inline std::string print_vector(
  * @param print `bool` where the vector is printed with an extra `\n` if `true`
  * @returns `std::string` giving the string to print
  */
-template <class T>
+template <typename T>
 inline std::string print_vector(const std::vector<T>& vec, bool print = true)
 {
   return print_vector(vec, vector_print_policy(), print);
@@ -201,7 +201,7 @@ inline std::string print_vector(const std::vector<T>& vec, bool print = true)
  *
  * @param from `const std::vector<T>&` vector whose elements we will copy
  */
-template <class T>
+template <typename T>
 inline boost_vector<T> boost_vector_from(const std::vector<T>& from)
 {
   boost_vector<T> to(from.size());
@@ -225,7 +225,7 @@ inline boost_vector<T> boost_vector_from(const std::vector<T>& from)
  *
  * @param from `Ts...` list of arguments that can be cast to `T`
  */
-template <class T, class... Ts>
+template <typename T, typename... Ts>
 inline boost_vector<T> boost_vector_from(Ts... from)
 {
   return boost_vector_from(std::vector<T>({static_cast<T>(from)...}));

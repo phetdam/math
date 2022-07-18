@@ -18,15 +18,15 @@ namespace pdmath {
 
 using double_vector = std::vector<double>;
 
-template <class T>
+template <typename T>
 using boost_vector = boost::numeric::ublas::vector<T>;
-template <class T>
+template <typename T>
 using boost_matrix = boost::numeric::ublas::matrix<T>;
 
 /**
  * Return `true` if `boost_vector<T>` instances have equal element values.
  */
-template <class T>
+template <typename T>
 inline bool operator==(const boost_vector<T>& a, const boost_vector<T>& b)
 {
   if (a.size() != b.size()) {
@@ -43,7 +43,7 @@ inline bool operator==(const boost_vector<T>& a, const boost_vector<T>& b)
 /**
  * Return `false` if `boost_vector<T>` instances have equal element values.
  */
-template <class T>
+template <typename T>
 inline bool operator!=(const boost_vector<T>& a, const boost_vector<T>& b)
 {
   return !(a == b);
@@ -52,7 +52,7 @@ inline bool operator!=(const boost_vector<T>& a, const boost_vector<T>& b)
 /**
  * Return `true` if `boost_matrix<T>` instances have equal element values.
  */
-template <class T>
+template <typename T>
 inline bool operator==(const boost_matrix<T>& a, const boost_matrix<T>& b)
 {
   if (a.size1() != b.size1() || a.size2() != b.size2()) {
@@ -71,7 +71,7 @@ inline bool operator==(const boost_matrix<T>& a, const boost_matrix<T>& b)
 /**
  * Return `false` if `boost_matrix<T>` instances have equal element values.
  */
-template <class T>
+template <typename T>
 inline bool operator!=(const boost_matrix<T>& a, const boost_matrix<T>& b)
 {
   return !(a == b);
