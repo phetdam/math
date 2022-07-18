@@ -9,11 +9,14 @@
 #define PDMATH_TYPES_H_
 
 #include <utility>
+#include <vector>
 
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 
 namespace pdmath {
+
+using double_vector = std::vector<double>;
 
 template <class T>
 using boost_vector = boost::numeric::ublas::vector<T>;

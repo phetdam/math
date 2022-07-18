@@ -18,6 +18,7 @@
 #include "pdmath/golden_search.h"
 #include "pdmath/helpers.h"
 #include "pdmath/optimize_result.h"
+#include "pdmath/types.h"
 
 namespace {
 
@@ -144,8 +145,8 @@ int main()
 {
   // define parameters for objective
   double lam = 0.1;
-  std::vector<double> singular_values({0.47, 0.3, 0.1});
-  std::vector<double> proj_residuals({-0.2, 0.35, -0.01});
+  pdmath::double_vector singular_values({0.47, 0.3, 0.1});
+  pdmath::double_vector proj_residuals({-0.2, 0.35, -0.01});
   double singular_min = *std::min_element(
     singular_values.begin(), singular_values.end()
   );
