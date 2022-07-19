@@ -90,7 +90,7 @@ exit /b !ERRORLEVEL!
 :: also used for line continuation. ! must be double-escaped, however.
 ::
 :PrintHelp
-echo Usage: %0 [ARG ...] [--build-args BUILD_ARG [BUILD_ARG ...]]
+echo Usage: %PROGNAME% [ARG ...] [--build-args BUILD_ARG [BUILD_ARG ...]]
 echo.
 echo Build the C++ library and examples by using CMake.
 echo.
