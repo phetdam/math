@@ -34,6 +34,8 @@ class identity_functor : public functor_base<T, T&> {
 /**
  * Template functor to represent a function, up to twice differentiable.
  *
+ * Overloads `operator()` so the object is callable.
+ *
  * @tparam In_t input type
  * @tparam Out_t output type, defaults to `In_t`
  * @tparam Out_d1_t first deriv output type, defaults to `Out_t`
