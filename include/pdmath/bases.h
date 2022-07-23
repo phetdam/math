@@ -47,9 +47,9 @@ template <
   typename Out_d1_t = Out_t,
   typename Out_d2_t = Out_t
 >
-class function_functor : public functor_base<In_t, Out_t> {
+class func_functor : public functor_base<In_t, Out_t> {
 public:
-  virtual ~function_functor() = default;
+  virtual ~func_functor() = default;
 
   Out_t operator()(const In_t& x) { return f(); }
 

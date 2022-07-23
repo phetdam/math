@@ -298,7 +298,7 @@ private:
  *     soft-thresholding operator, or a  projection operator. Must take a
  *     `const V_t&` and then return a `V_t`.
  *
- * @param func `const function_functor<V_t, T, V_t, M_t>&` functor giving
+ * @param func `const func_functor<V_t, T, V_t, M_t>&` functor giving
  *     the objective function, optionally with gradient and Hessian.
  * @param dir_search `direction_search<T, V_t>&` search direction functor,
  *     which when evaluated takes the `const V_t&` current guess and returns
@@ -323,7 +323,7 @@ template <
   typename F_t = functor_base<V_t>
 >
 optimize_result<T, V_t, V_t, M_t> line_search(
-  const function_functor<V_t, T, V_t, M_t>& func,
+  const func_functor<V_t, T, V_t, M_t>& func,
   direction_search<T, V_t>& dir_search,
   step_search<T, V_t>& eta_search,
   const V_t& x0,
