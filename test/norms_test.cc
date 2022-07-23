@@ -13,45 +13,12 @@
 
 #include <gtest/gtest.h>
 
-#include "pdmath/helpers.h"
 #include "pdmath/types.h"
 
 namespace pdmath {
 namespace tests {
 
 namespace {
-
-
-/**
- * Max norm implementation using the `norm` template class.
- *
- * @tparam T scalar type
- * @tparam C_t compound type with `T` elements, ex. vector or matrix type
- */
-template <class T = double, class C_t = std::vector<T>>
-class max_norm : public norm<T, C_t> {
-public:
-  /**
-   * Return max norm of `x`.
-   */
-  T operator()(const C_t& x) override
-  {
-    return std::abs(*std::max_element(x.begin(), x.end(), max_comp));
-  }
-
-private:
-  /**
-   * Comparison function used by `std::max_element` in `operator()`.
-   *
-   * @param a `const T&` first value
-   * @param b `const T&` second value
-   * @returns `true` if `std::abs(a) < std::abs(b)` else `false`
-   */
-  static bool max_comp(const T& a, const T& b)
-  {
-    return std::abs(a) < std::abs(b);
-  }
-};
 
 /**
  * Test fixture for norm tests.
@@ -70,7 +37,7 @@ const std::vector<double> NormTest::values_ = {-5.7, 6, -8.1, 1.3};
  */
 TEST_F(NormTest, MaxNormTest)
 {
-  max_norm norm;
+  max_norm<double, pdmath::double_vector> norm;
   ASSERT_DOUBLE_EQ(8.1, norm(values_));
 }
 
@@ -80,7 +47,7 @@ TEST_F(NormTest, MaxNormTest)
 TEST_P(NormTest, PNormTest)
 {
   auto p = GetParam();
-  p_norm norm(p);
+  p_norm<double, pdmath::double_vector> norm(p);
   // compute expected norm
   double exp_norm = 0;
   for (const auto& value : values_) {
@@ -88,7 +55,7 @@ TEST_P(NormTest, PNormTest)
   }
   exp_norm = (p) ? std::pow(exp_norm, 1. / p) : exp_norm;
   // compare against actual
-  ASSERT_DOUBLE_EQ(exp_norm, norm(boost_vector_from(values_)));
+  ASSERT_DOUBLE_EQ(exp_norm, norm(values_));
 }
 
 INSTANTIATE_TEST_SUITE_P(

@@ -71,6 +71,37 @@ private:
   unsigned int p_;
 };
 
+/**
+ * Template class implementation for the max (infinity) norm.
+ *
+ * @tparam T scalar type
+ * @tparam C_t compound type with `T` elements, ex. vector or matrix type
+ */
+template <class T = double, class C_t = boost_vector<T>>
+class max_norm : public norm<T, C_t> {
+public:
+  /**
+   * Return max norm of `x`.
+   */
+  T operator()(const C_t& x) override
+  {
+    return std::abs(*std::max_element(x.begin(), x.end(), max_comp));
+  }
+
+private:
+  /**
+   * Comparison function used by `std::max_element` in `operator()`.
+   *
+   * @param a `const T&` first value
+   * @param b `const T&` second value
+   * @returns `true` if `std::abs(a) < std::abs(b)` else `false`
+   */
+  static bool max_comp(const T& a, const T& b)
+  {
+    return std::abs(a) < std::abs(b);
+  }
+};
+
 }  // namespace pdmath
 
 #endif  // PDMATH_NORMS_H_
