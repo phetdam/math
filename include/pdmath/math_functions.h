@@ -18,7 +18,7 @@ namespace pdmath {
  * @tparam T scalar type
  */
 template <typename T>
-T himmelblau(const T& x, const T& y)
+inline T himmelblau(const T& x, const T& y)
 {
   return
     std::pow(std::pow(x, 2) + y - 11, 2) +
@@ -31,7 +31,7 @@ T himmelblau(const T& x, const T& y)
  * @tparam T scalar type
  */
 template <typename T>
-T three_hump_camel(const T& x, const T& y)
+inline T three_hump_camel(const T& x, const T& y)
 {
   return
     2 * std::pow(x, 2) - T(1.05) * std::pow(x, 4) +
