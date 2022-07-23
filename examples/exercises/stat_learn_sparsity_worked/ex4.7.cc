@@ -9,6 +9,7 @@
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
+#include <functional>
 #include <iostream>
 #include <numeric>
 #include <utility>
@@ -84,7 +85,8 @@ public:
       denom_coefs_.begin(),
       T(-1.),
       // reduce method, just sums up the values
-      [](const T& a, const T& b) { return a + b; },
+      // [](const T& a, const T& b) { return a + b; },
+      std::plus<T>(),
       // transform method, computes all the summation terms
       [&](const T& nc, const T& dc)
       {
@@ -143,25 +145,21 @@ private:
 
 int main()
 {
-  // define parameters for objective
+  // lambda used in the objective
   double lam = 0.1;
-  pdmath::double_vector singular_values({0.47, 0.3, 0.1});
-  pdmath::double_vector proj_residuals({-0.2, 0.35, -0.01});
-  double singular_min = *std::min_element(
-    singular_values.begin(), singular_values.end()
-  );
-  double singular_max = *std::max_element(
-    singular_values.begin(), singular_values.end()
-  );
-  double residuals_max = *std::max_element(
-    proj_residuals.begin(), proj_residuals.end()
-  );
-  group_norm_minimize_functor objective(singular_values, proj_residuals, lam);
+  // singular values and projected residuals + their max and min values
+  pdmath::double_vector svs = {0.47, 0.3, 0.1};
+  pdmath::double_vector prs = {-0.2, 0.35, -0.01};
+  double smin = *std::min_element(svs.begin(), svs.end());
+  double smax = *std::max_element(svs.begin(), svs.end());
+  double rmax = *std::max_element(prs.begin(), prs.end());
+  // objective functor initialized with singular values, proj residuals, lambda
+  group_norm_minimize_functor objective(svs, prs, lam);
   // bounds that bracket the solution
   auto bounds = std::make_pair<double, double>(
     0,
-    std::sqrt(singular_max * residuals_max * singular_values.size()) /
-    std::pow(singular_min, 2)
+    std::sqrt(smax * rmax * svs.size()) /
+    std::pow(smin, 2)
   );
   // contains the norm of the group coefficients
   auto res = pdmath::golden_search(objective, bounds.first, bounds.second);
@@ -169,9 +167,9 @@ int main()
   pdmath::print_example_header(__FILE__);
   std::cout << "lambda: " << lam << std::endl;
   std::cout << "singular values: ";
-  pdmath::print_vector(singular_values);
+  pdmath::print_vector(svs);
   std::cout << "projected residuals: ";
-  pdmath::print_vector(proj_residuals);
+  pdmath::print_vector(prs);
   std::cout << "bounds: (" << bounds.first << ", " << bounds.second << ")";
   std::cout << std::endl;
   std::cout << "target norm: " << res.res() << std::endl;
