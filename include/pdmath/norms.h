@@ -20,7 +20,7 @@ namespace pdmath {
  * @tparam T scalar type
  * @tparam C_t compound type with `T` elements, ex. vector or matrix type
  */
-template <class T = double, class C_t = boost_vector<T>>
+template <typename T = double, typename C_t = boost_vector<T>>
 class norm {
 public:
   virtual ~norm() = default;
@@ -35,7 +35,7 @@ public:
  * @tparam T scalar type
  * @tparam V_t vector type, with `T` elements
  */
-template <class T = double, class V_t = boost_vector<T>>
+template <typename T = double, typename V_t = boost_vector<T>>
 class p_norm : public norm<T, V_t> {
 public:
   /**
@@ -77,7 +77,7 @@ private:
  * @tparam T scalar type
  * @tparam C_t compound type with `T` elements, ex. vector or matrix type
  */
-template <class T = double, class C_t = boost_vector<T>>
+template <typename T = double, typename C_t = boost_vector<T>>
 class max_norm : public norm<T, C_t> {
 public:
   /**
