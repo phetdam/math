@@ -85,7 +85,6 @@ public:
       denom_coefs_.begin(),
       T(-1.),
       // reduce method, just sums up the values
-      // [](const T& a, const T& b) { return a + b; },
       std::plus<T>(),
       // transform method, computes all the summation terms
       [&](const T& nc, const T& dc)
