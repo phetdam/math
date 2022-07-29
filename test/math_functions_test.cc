@@ -47,7 +47,7 @@ TYPED_TEST_SUITE(MathFunctionsTest, MathFunctionsTestTypes);
 /**
  * Test that Himmelblau function implementation zeroes properly.
  */
-TYPED_TEST(MathFunctionsTest, HimmelblauZeroesTest)
+TYPED_TEST(MathFunctionsTest, HimmelblauZerosTest)
 {
   EXPECT_DOUBLE_EQ(
     0,
@@ -55,17 +55,17 @@ TYPED_TEST(MathFunctionsTest, HimmelblauZeroesTest)
   );
   // need looser bounds for the other zeroes
   EXPECT_NEAR(
-    TypeParam(0),
+    0,
     pdmath::himmelblau(TYPED_TEST_UNPACK_STATIC_FRONT_BACK(hml_zero_2_)),
     TestFixture::near_atol_
   );
   EXPECT_NEAR(
-    TypeParam(0),
+    0,
     pdmath::himmelblau(TYPED_TEST_UNPACK_STATIC_FRONT_BACK(hml_zero_3_)),
     TestFixture::near_atol_
   );
   EXPECT_NEAR(
-    TypeParam(0),
+    0,
     pdmath::himmelblau(TYPED_TEST_UNPACK_STATIC_FRONT_BACK(hml_zero_4_)),
     TestFixture::near_atol_
   );
@@ -74,10 +74,10 @@ TYPED_TEST(MathFunctionsTest, HimmelblauZeroesTest)
 /**
  * Test that three-hump camel function implementation zeroes properly.
  */
-TYPED_TEST(MathFunctionsTest, ThreeHumpCamelZeroesTest)
+TYPED_TEST(MathFunctionsTest, ThreeHumpCamelZerosTest)
 {
   EXPECT_DOUBLE_EQ(
-    TypeParam(0),
+    0,
     pdmath::three_hump_camel(TYPED_TEST_UNPACK_STATIC_FRONT_BACK(thc_zero_))
   );
 }
