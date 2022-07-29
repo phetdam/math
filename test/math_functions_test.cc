@@ -27,7 +27,7 @@ protected:
   // point where the three-hump camel function is zero
   static constexpr pdmath::array_pair<T> thc_zero_ = {0, 0};
   // fixed tolerance for EXPECT_NEAR macros
-  static constexpr T near_atol_ = 1e-8;
+  static constexpr T near_atol_ = 1e-10;
 };
 
 // types MathFunctionsTest will be instantiated with + register types
