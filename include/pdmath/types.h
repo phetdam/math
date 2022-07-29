@@ -8,6 +8,7 @@
 #ifndef PDMATH_TYPES_H_
 #define PDMATH_TYPES_H_
 
+#include <array>
 #include <utility>
 #include <vector>
 
@@ -22,6 +23,9 @@ template <typename T>
 using boost_vector = boost::numeric::ublas::vector<T>;
 template <typename T>
 using boost_matrix = boost::numeric::ublas::matrix<T>;
+
+template <typename T>
+using array_pair = std::array<T, 2>;
 
 /**
  * Return `true` if `boost_vector<T>` instances have equal element values.
@@ -59,7 +63,7 @@ inline bool operator==(const boost_matrix<T>& a, const boost_matrix<T>& b)
     return false;
   }
   for (typename boost_matrix<T>::size_type i = 0; i < a.size1(); i++) {
-    for (typename boost_matrix<T>:: size_type j = 0; j < a.size2(); j++) {
+    for (typename boost_matrix<T>::size_type j = 0; j < a.size2(); j++) {
       if (a(i, j) != b(i, j)) {
         return false;
       }

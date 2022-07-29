@@ -101,7 +101,7 @@ TEST_F(HelpersTest, BoostVectorFromTest)
   // use custom operator== definition for boost_vector<T> in ASSERT_TRUE since
   // using ASSERT_EQ does not find overload using ADL and doesn't compile.
   // overloaded operator== is defined in pdmath/types.h in namespace pdmath.
-  EXPECT_TRUE(bvec1 == bvec2);
+  EXPECT_TRUE(bvec1 == bvec2) << "bvec1 != bvec2";
 }
 
 }  // namespace

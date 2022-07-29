@@ -16,6 +16,7 @@
 #include <numeric>
 
 #include "pdmath/bases.h"
+#include "pdmath/math_functions.h"
 
 namespace pdmath {
 
@@ -143,11 +144,42 @@ private:
 /**
  * Templated Himmelblau's function.
  */
-// template <typename T, typename V_t, typename M_t>
-// class himmelblau_functor : public func_functor<V_t, T, V_t, M_t> {
-// public:
+template <typename T, typename V_t, typename M_t>
+class himmelblau_functor : public func_functor<V_t, T, V_t, M_t> {
+public:
+  /**
+   * Return the value of the function at `x`.
+   *
+   * @param x `const V_t&` point to evaluate at
+   */
+  T f(const V_t& x) override
+  {
+    assert(x.size() == n_dims_);
+    return himmelblau(*x.begin(), *x.end());
+  }
 
-// };
+  /**
+   * Return gradient of the function at `x`.
+   *
+   * @param x `const V_t&` point to evaluate at
+   */
+  V_t d1(const V_t& x) override
+  {
+    assert(x.size() == n_dims_);
+    T x_0 = *x.begin();
+    T x_1 = *x.end();
+    // get first derivatives used in chain rule for each quadratic term
+    T dq_0 = 2 * (std::pow(x_0, 2) + x_1 - 11);
+    T dq_1 = 2 * (x_0 + std::pow(x_1, 2) - 7);
+    // use chain rule for each to get result
+    return {2 * x_0 * dq_0 + dq_1, dq_0 + 2 * x_1 * dq_1};
+  }
+
+  // d2 implementation todo
+
+private:
+  static constexpr std::size_t n_dims_ = 2;
+};
 
 }  // namespace pdmath
 

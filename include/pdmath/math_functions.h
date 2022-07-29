@@ -22,7 +22,7 @@ inline T himmelblau(const T& x, const T& y)
 {
   return
     std::pow(std::pow(x, 2) + y - 11, 2) +
-    std::pow(x + std::pow(y, 2) - 7);
+    std::pow(x + std::pow(y, 2) - 7, 2);
 }
 
 /**
@@ -34,8 +34,8 @@ template <typename T>
 inline T three_hump_camel(const T& x, const T& y)
 {
   return
-    2 * std::pow(x, 2) - T(1.05) * std::pow(x, 4) +
-    std::pow(x, 6) / T(6.) + x * y + std::pow(y, 2);
+    2 * std::pow(x, 2) - 1.05 * std::pow(x, 4) +
+    std::pow(x, 6) / 6. + x * y + std::pow(y, 2);
 }
 
 }  // namespace pdmath
