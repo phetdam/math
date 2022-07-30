@@ -142,7 +142,7 @@ private:
 };
 
 /**
- * Templated Himmelblau's function.
+ * Templated Himmelblau's function with gradient and Hessian.
  */
 template <typename T, typename V_t, typename M_t>
 class himmelblau_functor : public func_functor<V_t, T, V_t, M_t> {

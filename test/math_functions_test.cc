@@ -35,40 +35,49 @@ using MathFunctionsTestTypes = ::testing::Types<float, double>;
 TYPED_TEST_SUITE(MathFunctionsTest, MathFunctionsTestTypes);
 
 /**
- * Unpack first and last element of test fixture static sequence container.
+ * Unpack front, back of templated `::testing::Test` static sequence container.
  *
- * @param name Name of a static sequence container member of test fixture
+ * @param name Static sequence container member of templated `::testing::Test`
  */
 #define TYPED_TEST_UNPACK_STATIC_FRONT_BACK(name) \
   TestFixture::name.front(), TestFixture::name.back()
 
-#include <iostream>
+/**
+ * Check that `func` is zero at a static member of `MathFunctionsTest`.
+ *
+ * Uses Google Test `EXPECT_DOUBLE_EQ` macro to do the comparison.
+ *
+ * @param func Callable taking `const T&`, `const T&`, returning `T`
+ * @param zero `const pdmath::array_pair<T>&` `MathFunctionsTest` static member
+ */
+#define MathFunctionsTest_EXPECT_STATIC_ZERO(func, zero) \
+  EXPECT_DOUBLE_EQ(0, func(TYPED_TEST_UNPACK_STATIC_FRONT_BACK(zero)))
+
+/**
+ * Check that `func` is near zero at a static member of `MathFunctionsTest`.
+ *
+ * Uses Google Test `EXPECT_NEAR` macro and `MathFunctionsTest<T>::near_atol_`.
+ *
+ * @param func Callable taking `const T&`, `const T&`, returning `T`
+ * @param zero `const pdmath::array_pair<T>&` `MathFunctionsTest` static member
+ */
+#define MathFunctionsTest_EXPECT_STATIC_ZERO_NEAR(func, zero) \
+  EXPECT_NEAR( \
+    0, \
+    func(TYPED_TEST_UNPACK_STATIC_FRONT_BACK(zero)), \
+    TestFixture::near_atol_ \
+  )
 
 /**
  * Test that Himmelblau function implementation zeroes properly.
  */
 TYPED_TEST(MathFunctionsTest, HimmelblauZerosTest)
 {
-  EXPECT_DOUBLE_EQ(
-    0,
-    pdmath::himmelblau(TYPED_TEST_UNPACK_STATIC_FRONT_BACK(hml_zero_1_))
-  );
+  MathFunctionsTest_EXPECT_STATIC_ZERO(pdmath::himmelblau, hml_zero_1_);
   // need looser bounds for the other zeroes
-  EXPECT_NEAR(
-    0,
-    pdmath::himmelblau(TYPED_TEST_UNPACK_STATIC_FRONT_BACK(hml_zero_2_)),
-    TestFixture::near_atol_
-  );
-  EXPECT_NEAR(
-    0,
-    pdmath::himmelblau(TYPED_TEST_UNPACK_STATIC_FRONT_BACK(hml_zero_3_)),
-    TestFixture::near_atol_
-  );
-  EXPECT_NEAR(
-    0,
-    pdmath::himmelblau(TYPED_TEST_UNPACK_STATIC_FRONT_BACK(hml_zero_4_)),
-    TestFixture::near_atol_
-  );
+  MathFunctionsTest_EXPECT_STATIC_ZERO_NEAR(pdmath::himmelblau, hml_zero_1_);
+  MathFunctionsTest_EXPECT_STATIC_ZERO_NEAR(pdmath::himmelblau, hml_zero_2_);
+  MathFunctionsTest_EXPECT_STATIC_ZERO_NEAR(pdmath::himmelblau, hml_zero_3_);
 }
 
 /**
@@ -76,12 +85,11 @@ TYPED_TEST(MathFunctionsTest, HimmelblauZerosTest)
  */
 TYPED_TEST(MathFunctionsTest, ThreeHumpCamelZerosTest)
 {
-  EXPECT_DOUBLE_EQ(
-    0,
-    pdmath::three_hump_camel(TYPED_TEST_UNPACK_STATIC_FRONT_BACK(thc_zero_))
-  );
+  MathFunctionsTest_EXPECT_STATIC_ZERO(pdmath::three_hump_camel, thc_zero_);
 }
 
 #undef TYPED_TEST_UNPACK_STATIC_FRONT_BACK
+#undef MathFunctionsTest_EXPECT_STATIC_ZERO
+#undef MathFunctionsTest_EXPECT_STATIC_ZERO_NEAR
 
 }  // namespace
