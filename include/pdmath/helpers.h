@@ -205,8 +205,14 @@ template <typename T>
 inline boost_vector<T> boost_vector_from(const std::vector<T>& from)
 {
   boost_vector<T> to(from.size());
-  for (std::size_t i = 0; i < from.size(); i++) {
-    to[i] = from[i];
+  auto from_itr = from.begin();
+  auto to_itr = to.begin();
+  // note: when compiling with MSVC, using indexing causes C5045 to be emitted
+  // with /Wall specified. but with iterators, no warning issued.
+  while (from_itr != from.end() && to_itr != to.end()) {
+    *to_itr = *from_itr;
+    from_itr++;
+    to_itr++;
   }
   return to;
 }

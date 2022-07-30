@@ -36,10 +36,14 @@ inline bool operator==(const boost_vector<T>& a, const boost_vector<T>& b)
   if (a.size() != b.size()) {
     return false;
   }
-  for (typename boost_vector<T>::size_type i = 0; i < a.size(); i++) {
-    if (a[i] != b[i]) {
+  auto a_itr = a.begin();
+  auto b_itr = b.begin();
+  while (a_itr != a.end() && b_itr != b.end()) {
+    if (*a_itr != *b_itr) {
       return false;
     }
+    a_itr++;
+    b_itr++;
   }
   return true;
 }
