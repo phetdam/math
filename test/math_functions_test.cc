@@ -21,13 +21,28 @@ class MathFunctionsTest : public ::testing::Test {
 protected:
   // points where the Himmelblau function is zero
   static constexpr pdmath::array_pair<T> hml_zero_1_ = {3, 2};
+// disable truncation warning when initializing from double
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4305)
+#endif  // _MSC_VER
   static constexpr pdmath::array_pair<T> hml_zero_2_ = {-2.805118, 3.131312};
   static constexpr pdmath::array_pair<T> hml_zero_3_ = {-3.779310, -3.283186};
   static constexpr pdmath::array_pair<T> hml_zero_4_ = {3.584428, -1.848126};
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
   // point where the three-hump camel function is zero
   static constexpr pdmath::array_pair<T> thc_zero_ = {0, 0};
   // fixed tolerance for EXPECT_NEAR macros
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4305)
+#endif  // _MSC_VER
   static constexpr T near_atol_ = 1e-10;
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
 };
 
 // types MathFunctionsTest will be instantiated with + register types

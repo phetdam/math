@@ -20,9 +20,17 @@ namespace pdmath {
 template <typename T>
 inline T himmelblau(const T& x, const T& y)
 {
+// disable warning about conversion from double to T
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4244)
+#endif  // _MSC_VER
   return
     std::pow(std::pow(x, 2) + y - 11, 2) +
     std::pow(x + std::pow(y, 2) - 7, 2);
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
 }
 
 /**
@@ -33,9 +41,17 @@ inline T himmelblau(const T& x, const T& y)
 template <typename T>
 inline T three_hump_camel(const T& x, const T& y)
 {
+// disable warning about conversion from double to T
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4244)
+#endif  // _MSC_VER
   return
     2 * std::pow(x, 2) - 1.05 * std::pow(x, 4) +
     std::pow(x, 6) / 6. + x * y + std::pow(y, 2);
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
 }
 
 }  // namespace pdmath
