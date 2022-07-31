@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Run all tests registered with CMake.
+# Run all tests registered with CMake using ctest.
 
 ##
 # Main function.
