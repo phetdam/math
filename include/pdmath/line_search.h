@@ -237,13 +237,13 @@ public:
     // get inner product of gradient w/ search direction
     T f_x = func_(x_p);
     T g_x = grad_(x_p);
-    T ip_x = std::inner_product(g_x.begin(), g_x.end(), dir.begin(), 0);
+    T ip_x = std::inner_product(g_x.cbegin(), g_x.cend(), dir.cbegin(), 0);
     // get new direction we use to compute the new function value
     V_t x_c = x_p;
     std::transform(
-      x_c.begin(),
-      x_c.end(),
-      dir.begin(),
+      x_c.cbegin(),
+      x_c.cend(),
+      dir.cbegin(),
       x_c.begin(),
       [&](const T& a, const T& b) { return a + eta * b; }
     );
@@ -257,9 +257,9 @@ public:
     while (this->n_fev_ += 1, func_(x_c) <= f_x + c1_ * eta * ip_x) {
       eta *= rho_;
       std::transform(
-        x_p.begin(),
-        x_p.end(),
-        dir.begin(),
+        x_p.cbegin(),
+        x_p.cend(),
+        dir.cbegin(),
         x_c.begin(),
         [&](const T& a, const T& b) { return a + eta * b; }
       );
@@ -344,9 +344,9 @@ optimize_result<T, V_t, V_t, M_t> line_search(
     eta = eta_search((nesterov) ? z : x_c, dx);
     // update the current guess and perform final transform
     std::transform(
-      x_c.begin(),
-      x_c.end(),
-      dx.begin(),
+      x_c.cbegin(),
+      x_c.cend(),
+      dx.cbegin(),
       x_c.begin(),
       [&](T x_c_v, T dx_v) { return x_c_v + eta * dx_v; }
     );
@@ -358,9 +358,9 @@ optimize_result<T, V_t, V_t, M_t> line_search(
     // update the previous guess to match the current guess
     if (nesterov) {
       std::transform(
-        x_c.begin(),
-        x_c.end(),
-        x_p.begin(),
+        x_c.cbegin(),
+        x_c.cend(),
+        x_p.cbegin(),
         z.begin(),
         [&](T x_c_v, T x_p_v)
         {

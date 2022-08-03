@@ -86,7 +86,7 @@ public:
    */
   T operator()(const C_t& x) override
   {
-    return std::abs(*std::max_element(x.begin(), x.end(), max_comp));
+    return std::abs(*std::max_element(x.cbegin(), x.cend(), max_comp));
   }
 
 private:

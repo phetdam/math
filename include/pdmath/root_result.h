@@ -17,62 +17,45 @@ namespace pdmath {
 
 /**
  * Templated class holding results of univariate root finding.
+ *
+ * @tparam T Result type
  */
-template <class T = double>
+template <typename T>
 class root_result : public fev_mixin {
 public:
-  root_result(T, bool, std::string, std::uintmax_t, std::uintmax_t);
-  const T& root() const;
-  bool converged() const;
-  const std::string& message() const;
-  std::uintmax_t n_iter() const;
+  /**
+   * `root_result` constructor.
+   *
+   * @param root `const T&` root estimate
+   * @param converged `bool` `true` if converged, `false` otherwise
+   * @param message `const std::string&` convergence message
+   * @param n_iter `std::uintmax_t` number of iterations
+   * @param n_fev `std::uintmax_t` number of function evaluations
+   */
+  root_result<T>::root_result(
+    const T& root,
+    bool converged,
+    const std::string& message,
+    std::uintmax_t n_iter,
+    std::uintmax_t n_fev)
+    : fev_mixin(n_fev),
+      root_(root),
+      converged_(converged),
+      message_(message),
+      n_iter_(n_iter)
+  {}
+
+  const T& root() const { return root_; }
+  bool converged() const { return converged_; }
+  const std::string& message() const { return message_; }
+  std::uintmax_t n_iter() const { return n_iter_; }
+
 private:
   T root_;
   bool converged_;
   std::string message_;
   std::uintmax_t n_iter_;
 };
-
-/**
- * Constructor for the `root_result`.
- */
-template <class T>
-root_result<T>::root_result(
-  T root,
-  bool converged,
-  std::string message,
-  std::uintmax_t n_iter,
-  std::uintmax_t n_fev)
-  : fev_mixin(n_fev),
-    root_(root),
-    converged_(converged),
-    message_(message),
-    n_iter_(n_iter)
-{}
-
-/**
- * Getter for `root_result` root.
- */
-template <class T>
-const T& root_result<T>::root() const { return root_; }
-
-/**
- * Getter for `root_result` convergence flag.
- */
-template <class T>
-bool root_result<T>::converged() const { return converged_; }
-
-/**
- * Getter for `root_result` convergence message.
- */
-template <class T>
-const std::string& root_result<T>::message() const { return message_; }
-
-/**
- * Getter for `root_result` number of root-finder iterations.
- */
-template <class T>
-std::uintmax_t root_result<T>::n_iter() const { return n_iter_; }
 
 }  // namespace pdmath
 
