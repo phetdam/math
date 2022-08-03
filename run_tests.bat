@@ -27,7 +27,6 @@ exit /b 0
 :: use half the number of processors. only final -j<n_procs> takes effect.
 set /a N_PROCS=%NUMBER_OF_PROCESSORS% / 2
 ctest --test-dir build_windows -j%N_PROCS% %*
-copy a b
 exit /b %ERRORLEVEL%
 
 endlocal
