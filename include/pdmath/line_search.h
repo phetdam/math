@@ -69,7 +69,7 @@ public:
  * @tparam T scalar type
  * @tparam V_t vector type, with `T` elements
  */
-template <typename T = double, typename V_t = boost_vector<T>>
+template <typename T, typename V_t>
 class min_norm_direction_policy : public direction_policy<T, V_t> {
 public:
   /**
@@ -146,7 +146,7 @@ public:
  * @tparam T scalar type
  * @tparam V_t vector type, with `T` elements
  */
-template <typename T = double, typename V_t = boost_vector<T>>
+template <typename T, typename V_t = boost_vector<T>>
 class const_step_search : public step_search<T, V_t> {
 public:
   /**
@@ -189,15 +189,12 @@ private:
  * monograph *Statistical Learning with Sparsity*, page 102.
  *
  * @tparam T scalar type
- * @tparam V_t vector type, with `T` elements
  * @tparam F_o objective, must take a `const V_t&` and return `T`
  * @tparam F_g gradient, must take a `const V_t&` and return `V_t`
+ * @tparam V_t vector type, with `T` elements
  */
 template <
-  typename T = double,
-  typename V_t = boost_vector<T>,
-  typename F_o = functor_base<V_t, T>,
-  typename F_g = functor_base<V_t>
+  typename T, typename F_o, typename F_g, typename V_t = boost_vector<T>
 >
 class backtrack_step_search : public step_search<T, V_t> {
 public:
@@ -316,12 +313,7 @@ private:
  * @param tail_transform `F_t` callable for per-iteration transform of updated
  *     guess after updating previous guess with scaled search direction
  */
-template <
-  typename T,
-  typename V_t = boost_vector<T>,
-  typename M_t = boost_matrix<T>,
-  typename F_t = functor_base<V_t>
->
+template <typename T, typename V_t, typename M_t, typename F_t>
 optimize_result<T, V_t, V_t, M_t> line_search(
   const func_functor<V_t, T, V_t, M_t>& func,
   direction_search<T, V_t>& dir_search,
