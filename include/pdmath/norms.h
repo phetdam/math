@@ -75,7 +75,8 @@ private:
  * Template class implementation for the max (infinity) norm.
  *
  * @tparam T scalar type
- * @tparam C_t compound type with `T` elements, ex. vector or matrix type
+ * @tparam C_t iterable compound type with `T` elements, ex. vector/matrix
+ *     types implementing `begin` and' `end` methods returning iterators.
  */
 template <typename T = double, typename C_t = boost_vector<T>>
 class max_norm : public norm<T, C_t> {

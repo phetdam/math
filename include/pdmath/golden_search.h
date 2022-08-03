@@ -11,11 +11,9 @@
 #include <cmath>
 #include <cstdint>
 #include <limits>
-#include <iostream>
 
 #include "pdmath/bases.h"
 #include "pdmath/optimize_result.h"
-#include "pdmath/types.h"
 
 namespace pdmath {
 
