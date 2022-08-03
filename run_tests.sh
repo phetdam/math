@@ -8,8 +8,8 @@
 main() {
     # GTEST_COLOR=yes allows color output from Google test mains. the nested
     # command substitution gets half the number of available threads on system.
-    # note that -j x can be overridden with a subsequent -j y.
-    GTEST_COLOR=yes ctest --test-dir build -j $(expr $(nproc --all) / 2) "$@"
+    # note that only the final -j<n_procs> option takes effect.
+    GTEST_COLOR=yes ctest --test-dir build -j$(expr $(nproc --all) / 2) "$@"
 }
 
 set -e
