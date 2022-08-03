@@ -65,8 +65,8 @@ add_subdirectory(src)
 add_subdirectory(examples)
 
 # only build tests and enable testing if compatible GoogleTest is found.
-# note: on Windows, GTest_VERSION doesn't seem to be locatable, so there is
-# a bit of hack here to ignore the version on Windows
+# note: on Windows, GTest_VERSION doesn't seem to be locatable if built static,
+# so there is a bit of hack here to ignore the version on Windows
 if(
     GTest_FOUND AND
     (WIN32 OR GTest_VERSION VERSION_GREATER_EQUAL ${GTEST_MIN_VERSION})
