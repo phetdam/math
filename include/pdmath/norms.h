@@ -75,16 +75,15 @@ private:
  * Template class implementation for the max (infinity) norm.
  *
  * @tparam T scalar type
- * @tparam C_t iterable compound type with `T` elements, ex. vector/matrix
- *     types implementing `begin` and' `end` methods returning iterators.
+ * @tparam V_t vector type, with `T` elements
  */
-template <typename T = double, typename C_t = eigen_vector<T>>
-class max_norm : public norm<T, C_t> {
+template <typename T = double, typename V_t = eigen_vector<T>>
+class max_norm : public norm<T, V_t> {
 public:
   /**
    * Return max norm of `x`.
    */
-  T operator()(const C_t& x) override
+  T operator()(const V_t& x) override
   {
     return std::abs(*std::max_element(x.cbegin(), x.cend(), max_comp));
   }
