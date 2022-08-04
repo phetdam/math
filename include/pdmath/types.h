@@ -12,6 +12,7 @@
 #include <utility>
 #include <vector>
 
+#include <Eigen/Core>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 
@@ -26,6 +27,11 @@ using boost_matrix = boost::numeric::ublas::matrix<T>;
 
 template <typename T>
 using array_pair = std::array<T, 2>;
+
+template <typename T>
+using eigen_vector = Eigen::Matrix<T, Eigen::Dynamic, 1>;
+template <typename T>
+using eigen_matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
 
 /**
  * Return `true` if `boost_vector<T>` instances have equal element values.

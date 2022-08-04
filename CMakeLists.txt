@@ -45,7 +45,24 @@ endif()
 
 # minimum versions for dependencies
 set(BOOST_MIN_VERSION 1.71.0)
+set(EIGEN_MIN_VERSION 3.4)
 set(GTEST_MIN_VERSION 1.10.0)
+
+# EIGEN3_DIR with Eigen3 includes can be set, or if not set on Linux, inferred
+if(NOT DEFINED EIGEN3_DIR)
+    if(UNIX)
+        set(EIGEN3_DIR /usr/include/eigen3)
+        message(STATUS "EIGEN3_DIR not set, using default ${EIGEN3_DIR}")
+    else()
+        set(FATAL_ERROR "EIGEN3_DIR not set, must be set manually on Windows")
+    endif()
+endif()
+
+# fix path on Windows
+if(WIN32)
+    file(TO_CMAKE_PATH $ENV{EIGEN3_DIR} EIGEN3_DIR)
+    message(STATUS "EIGEN3_DIR normalized to ${EIGEN3_DIR}")
+endif()
 
 find_package(Boost ${BOOST_MIN_VERSION} REQUIRED)
 find_package(GTest ${GTEST_MIN_VERSION})
@@ -59,6 +76,7 @@ include_directories(
     # the SYSTEM prefix tells compilers to skip warnings not in our control
     SYSTEM ${Boost_INCLUDE_DIR}
     SYSTEM ${GTEST_INCLUDE_DIRS}
+    SYSTEM ${EIGEN3_DIR}
 )
 
 add_subdirectory(src)

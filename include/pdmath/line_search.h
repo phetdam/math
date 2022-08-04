@@ -36,7 +36,7 @@ namespace pdmath {
  * @tparam T scalar type
  * @tparam V_t vector type, with `T` elements
  */
-template <typename T = double, typename V_t = boost_vector<T>>
+template <typename T = double, typename V_t = eigen_vector<T>>
 class direction_search
   : public fev_reset_mixin, public gev_reset_mixin, public hev_reset_mixin {
 public:
@@ -55,7 +55,7 @@ public:
  * @tparam T scalar type
  * @tparam V_t vector type, with `T` elements
  */
-template <typename T = double, typename V_t = boost_vector<T>>
+template <typename T = double, typename V_t = eigen_vector<T>>
 class direction_policy
   : public fev_reset_mixin, public gev_reset_mixin, public hev_reset_mixin {
 public:
@@ -120,7 +120,7 @@ private:
  * @tparam T scalar type
  * @tparam V_t vector type, with `T` elements
  */
-template <typename T = double, typename V_t = boost_vector<T>>
+template <typename T = double, typename V_t = eigen_vector<T>>
 class step_search
   : public fev_reset_mixin, public gev_reset_mixin, public hev_reset_mixin {
 public:
@@ -146,7 +146,7 @@ public:
  * @tparam T scalar type
  * @tparam V_t vector type, with `T` elements
  */
-template <typename T, typename V_t = boost_vector<T>>
+template <typename T, typename V_t = eigen_vector<T>>
 class const_step_search : public step_search<T, V_t> {
 public:
   /**
@@ -194,7 +194,7 @@ private:
  * @tparam V_t vector type, with `T` elements
  */
 template <
-  typename T, typename F_o, typename F_g, typename V_t = boost_vector<T>
+  typename T, typename F_o, typename F_g, typename V_t = eigen_vector<T>
 >
 class backtrack_step_search : public step_search<T, V_t> {
 public:
