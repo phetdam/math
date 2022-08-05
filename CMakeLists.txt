@@ -43,6 +43,11 @@ else()
     endif()
 endif()
 
+# macros to define based on release type
+if(CMAKE_BUILD_TYPE STREQUAL Release)
+    add_compile_definitions(EIGEN_NO_DEBUG)
+endif()
+
 # minimum versions for dependencies
 set(BOOST_MIN_VERSION 1.71.0)
 set(EIGEN_MIN_VERSION 3.4)
@@ -51,7 +56,7 @@ set(GTEST_MIN_VERSION 1.10.0)
 # EIGEN3_DIR with Eigen3 includes can be set, or if not set on Linux, inferred
 if(NOT DEFINED EIGEN3_DIR)
     if(UNIX)
-        set(EIGEN3_DIR /usr/include/eigen3)
+        set(EIGEN3_DIR /usr/local/include/eigen3)
         message(STATUS "EIGEN3_DIR not set, using default ${EIGEN3_DIR}")
     else()
         set(FATAL_ERROR "EIGEN3_DIR not set, must be set manually on Windows")

@@ -237,6 +237,47 @@ inline boost_vector<T> boost_vector_from(Ts... from)
   return boost_vector_from(std::vector<T>({static_cast<T>(from)...}));
 }
 
+/**
+ * Create a new Eigen dynamic vector from a `std::vector<T>`.
+ *
+ * @tparam T new vector element type
+ *
+ * @param from `const std::vector<T>&` vector whose elements we will copy
+ */
+template <typename T>
+inline eigen_vector<T> eigen_vector_from(const std::vector<T>& from)
+{
+  eigen_vector<T> to(from.size());
+  auto from_itr = from.cbegin();
+  auto to_itr = to.begin();
+  while (from_itr != from.end() && to_itr != to.end()) {
+    *to_itr = *from_itr;
+    from_itr++;
+    to_itr++;
+  }
+  return to;
+}
+
+/**
+ * Create a new Eigen dynamic vector from a `std::vector<T>`.
+ *
+ * Uses a `static_cast<T>` to convert the arguments.
+ *
+ * Since the template `T` argument cannot be deduced, the recommended usage is:
+ *
+ * `auto evec = eigen_vector_from<T>(arg1, ... argN);`
+ *
+ * @tparam T `eigen_vector` element type
+ * @tparam Ts parameter pack
+ *
+ * @param from `Ts...` list of arguments that can be cast to `T`
+ */
+template <typename T, typename... Ts>
+inline eigen_vector<T> eigen_vector_from(const Ts&... from)
+{
+  return eigen_vector_from(std::vector<T>({static_cast<T>(from)...}));
+}
+
 }  // namespace pdmath
 
 #endif  // PDMATH_HELPERS_H_

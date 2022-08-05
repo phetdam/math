@@ -15,13 +15,10 @@
 #include "pdmath/bases.h"
 #include "pdmath/optimize_result.h"
 
-namespace pdmath {
-namespace tests {
-
 namespace {
 
-template <class T = double>
-class scalar_quadratic : public functor_base<T> {
+template <typename T>
+class scalar_quadratic : public pdmath::functor_base<T> {
 public:
   /**
    * Constructor for the functor.
@@ -60,6 +57,3 @@ TEST(GoldenSearchTest, CorrectnessTest)
 }
 
 }  // namespace
-
-}  // namespace pdmath::tests
-}  // namespace pdmath

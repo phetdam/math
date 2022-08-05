@@ -8,6 +8,7 @@
 #include "pdmath/helpers.h"
 
 #include <sstream>
+#include <vector>
 
 #include <gtest/gtest.h>
 
@@ -16,12 +17,10 @@
 /**
  * Values used in the HelpersTest test fixture for populating `std::vector`.
  *
- * Used later to test the variadic template version of `boost_vector_from`.
+ * Used later to test the variadic template versions of `boost_vector_from`
+ * and `eigen_vector_from` to ensure that they work as intended.
  */
 #define HELPERS_TEST_VECTOR_VALUES 1., 34, 4.5, 9.82
-
-namespace pdmath {
-namespace tests {
 
 namespace {
 
@@ -55,8 +54,8 @@ const std::vector<double> HelpersTest::values_ = {HELPERS_TEST_VECTOR_VALUES};
  */
 TEST_F(HelpersTest, PrintExampleHeaderTest)
 {
-  auto header = print_example_header(ex_path_, false);
-  EXPECT_EQ(header, print_example_header(ex_path_.c_str(), false));
+  auto header = pdmath::print_example_header(ex_path_, false);
+  EXPECT_EQ(header, pdmath::print_example_header(ex_path_.c_str(), false));
   ASSERT_EQ(
     "+" + ex_frame_ + "+\n|" + ex_name_ + "|\n+" + ex_frame_ + "+", header
   );
@@ -68,27 +67,27 @@ TEST_F(HelpersTest, PrintExampleHeaderTest)
 TEST_F(HelpersTest, PrintVectorTest)
 {
   // formatted string printed by default
-  std::stringstream ss_default;
+  std::stringstream ss_def;
   for (const auto& v : values_) {
-    ss_default << v;
+    ss_def << v;
     if (v != values_.back()) {
-      ss_default << " ";
+      ss_def << " ";
     }
   }
   // formatted string printed using custom vector_print_policy
-  vector_print_policy print_policy(",", 2, "[", 2, "]", 2);
-  std::stringstream ss_special;
-  ss_special << "[  ";
+  pdmath::vector_print_policy print_policy(",", 2, "[", 2, "]", 2);
+  std::stringstream ss_cust;
+  ss_cust << "[  ";
   for (const auto& v : values_) {
-    ss_special << v;
+    ss_cust << v;
     if (v != values_.back()) {
-      ss_special << ",";
+      ss_cust << ",";
     }
-    ss_special << "  ";
+    ss_cust << "  ";
   }
-  ss_special << "]";
-  EXPECT_EQ(ss_default.str(), print_vector(values_, false));
-  EXPECT_EQ(ss_special.str(), print_vector(values_, print_policy, false));
+  ss_cust << "]";
+  EXPECT_EQ(ss_def.str(), pdmath::print_vector(values_, false));
+  EXPECT_EQ(ss_cust.str(), pdmath::print_vector(values_, print_policy, false));
 }
 
 /**
@@ -96,15 +95,27 @@ TEST_F(HelpersTest, PrintVectorTest)
  */
 TEST_F(HelpersTest, BoostVectorFromTest)
 {
-  auto bvec1 = boost_vector_from(values_);
-  auto bvec2 = boost_vector_from<double>(HELPERS_TEST_VECTOR_VALUES);
-  // use custom operator== definition for boost_vector<T> in ASSERT_TRUE since
-  // using ASSERT_EQ does not find overload using ADL and doesn't compile.
-  // overloaded operator== is defined in pdmath/types.h in namespace pdmath.
-  EXPECT_TRUE(bvec1 == bvec2) << "bvec1 != bvec2";
+  auto bvec1 = pdmath::boost_vector_from(values_);
+  auto bvec2 = pdmath::boost_vector_from<double>(HELPERS_TEST_VECTOR_VALUES);
+  EXPECT_EQ(bvec1.size(), bvec2.size());
+  // boost::numeric::ublas::vector does not define operator==, so legacy...
+  auto itr_1 = bvec1.cbegin();
+  auto itr_2 = bvec2.cbegin();
+  while (itr_1 != bvec1.cend() && itr_2 != bvec2.cend()) {
+    EXPECT_EQ(*itr_1, *itr_2) << *itr_1 << " != " << *itr_2;
+    itr_1++;
+    itr_2++;
+  }
+}
+
+/**
+ * Test that `eigen_vector_from` overloads work as expected.
+ */
+TEST_F(HelpersTest, EigenVectorFromTest)
+{
+  auto evec1 = pdmath::eigen_vector_from(values_);
+  auto evec2 = pdmath::eigen_vector_from<double>(HELPERS_TEST_VECTOR_VALUES);
+  EXPECT_EQ(evec1, evec2);
 }
 
 }  // namespace
-
-}  // namespace pdmath::tests
-}  // namespace pdmath
