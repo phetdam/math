@@ -9,8 +9,8 @@
 #define PDMATH_HELPERS_H_
 
 #include <cstddef>
-#include <iostream>
 #include <initializer_list>
+#include <iostream>
 #include <sstream>
 #include <string>
 #include <utility>
