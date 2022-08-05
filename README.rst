@@ -60,12 +60,15 @@ used in other ``.tex`` files, typically by using ``\input``.
 Building the C++ source
 -----------------------
 
-TBA. This project depends on `Boost`_ 1.71 headers and is intended to be built
-using `CMake`_ 3.16 or newer using a C++17-compliant compiler. Local builds
-on WSL 1 Ubuntu 20.04.3 LTS used `GCC`_ 9.3.0. Optionally, if one has
-GoogleTest_ installed, unit test runners can be built and run.
+TBA. This project depends on Boost_ 1.71 and Eigen_ 3.4 headers and is intended
+to be built using CMake_ 3.16 or newer using a C++17-compliant compiler. Local
+builds on WSL 1 Ubuntu 20.04.3 LTS used GCC_ 9.3.0 while Windows 10 builds used
+the VS 2022 x86 MSVC. Optionally, if one has GoogleTest_ installed, the unit
+tests can be built and run.
 
 .. _Boost: https://www.boost.org/
+
+.. _Eigen: https://eigen.tuxfamily.org/
 
 .. _GCC: https://gcc.gnu.org/
 
