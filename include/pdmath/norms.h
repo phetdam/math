@@ -8,6 +8,7 @@
 #ifndef PDMATH_NORMS_H_
 #define PDMATH_NORMS_H_
 
+#include <Eigen/Core>
 #include <boost/math/tools/norms.hpp>
 
 #include "pdmath/types.h"
@@ -35,7 +36,7 @@ public:
  * @tparam T scalar type
  * @tparam V_t vector type, with `T` elements
  */
-template <typename T = double, typename V_t = eigen_vector<T>>
+template <typename T = double, typename V_t = Eigen::VectorX<T>>
 class p_norm : public norm<T, V_t> {
 public:
   /**
@@ -77,7 +78,7 @@ private:
  * @tparam T scalar type
  * @tparam V_t vector type, with `T` elements
  */
-template <typename T = double, typename V_t = eigen_vector<T>>
+template <typename T = double, typename V_t = Eigen::VectorX<T>>
 class max_norm : public norm<T, V_t> {
 public:
   /**

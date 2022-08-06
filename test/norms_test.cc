@@ -11,6 +11,7 @@
 #include <cmath>
 #include <vector>
 
+#include <Eigen/Core>
 #include <gtest/gtest.h>
 
 #include "pdmath/helpers.h"
@@ -61,7 +62,7 @@ TEST_F(NormsTest, MaxNormTest)
 {
   pdmath::max_norm<double, pdmath::double_vector> std_norm;
   pdmath::max_norm<double, pdmath::boost_vector<double>> boost_norm;
-  pdmath::max_norm<double, pdmath::eigen_vector<double>> eigen_norm;
+  pdmath::max_norm<double, Eigen::VectorXd> eigen_norm;
   auto bvalues = pdmath::boost_vector_from<double>(NORMS_TEST_VECTOR_VALUES);
   auto evalues = pdmath::eigen_vector_from<double>(NORMS_TEST_VECTOR_VALUES);
   EXPECT_EQ_NORMS_TEST_VALUES_ABS_MAX(std_norm(values_));

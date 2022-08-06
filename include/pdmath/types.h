@@ -28,11 +28,6 @@ using boost_matrix = boost::numeric::ublas::matrix<T>;
 template <typename T>
 using array_pair = std::array<T, 2>;
 
-template <typename T>
-using eigen_vector = Eigen::Matrix<T, Eigen::Dynamic, 1>;
-template <typename T>
-using eigen_matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
-
 }  // namespace pdmath
 
 #endif  // PDMATH_TYPES_H_

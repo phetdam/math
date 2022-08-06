@@ -15,6 +15,8 @@
 #include <string>
 #include <utility>
 
+#include <Eigen/Core>
+
 #include "pdmath/bases.h"
 #include "pdmath/types.h"
 
@@ -245,9 +247,9 @@ inline boost_vector<T> boost_vector_from(Ts... from)
  * @param from `const std::vector<T>&` vector whose elements we will copy
  */
 template <typename T>
-inline eigen_vector<T> eigen_vector_from(const std::vector<T>& from)
+inline Eigen::VectorX<T> eigen_vector_from(const std::vector<T>& from)
 {
-  eigen_vector<T> to(from.size());
+  Eigen::VectorX<T> to(from.size());
   auto from_itr = from.cbegin();
   auto to_itr = to.begin();
   while (from_itr != from.end() && to_itr != to.end()) {
@@ -267,13 +269,13 @@ inline eigen_vector<T> eigen_vector_from(const std::vector<T>& from)
  *
  * `auto evec = eigen_vector_from<T>(arg1, ... argN);`
  *
- * @tparam T `eigen_vector` element type
+ * @tparam T `Eigen::VectorX` element type
  * @tparam Ts parameter pack
  *
  * @param from `Ts...` list of arguments that can be cast to `T`
  */
 template <typename T, typename... Ts>
-inline eigen_vector<T> eigen_vector_from(const Ts&... from)
+inline Eigen::VectorX<T> eigen_vector_from(const Ts&... from)
 {
   return eigen_vector_from(std::vector<T>({static_cast<T>(from)...}));
 }

@@ -8,7 +8,6 @@ add_executable(
     golden_search_test.cc
     helpers_test.cc
     line_search_test.cc
-    math_functors_test.cc
     math_functions_test.cc
     norms_test.cc
 )
