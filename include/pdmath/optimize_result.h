@@ -65,6 +65,8 @@ public:
       hess_(hess)
   {}
 
+  optimize_result() = delete;
+
   /**
    * `optimize_result` constructor for gradient-only methods.
    *

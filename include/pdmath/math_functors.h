@@ -54,6 +54,8 @@ public:
     n_dims_ = hess->cols();
   }
 
+  quadratic_functor() = delete;
+
   /**
    * Return the value of the function at `x`.
    *

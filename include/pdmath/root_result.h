@@ -45,6 +45,8 @@ public:
       n_iter_(n_iter)
   {}
 
+  root_result() = delete;
+
   const T& root() const { return root_; }
   bool converged() const { return converged_; }
   const std::string& message() const { return message_; }

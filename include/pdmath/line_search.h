@@ -77,13 +77,13 @@ public:
   /**
    * Constructor.
    *
-   * @param min_norm `T` minimum search direction norm that must be exceeded
+   * @param min `T` minimum search direction norm that must be exceeded
    *     during the routine's execution to prevent early convergence.
    * @param norm `const norm<T, V_t>&` norm functor to compute the norm. The
    *     default is a default-constructed `p_norm`, i.e. the 2-norm.
    */
-  min_norm_direction_policy(T min_norm, const norm<T, V_t>& norm = p_norm())
-    : min_norm_(min_norm), norm_(norm)
+  min_norm_direction_policy(T min = 1e-6, const norm<T, V_t>& norm = p_norm())
+    : min_norm_(min), norm_(norm)
   {}
 
   /**
@@ -156,7 +156,7 @@ public:
    *
    * @param eta `T` positive step size to use
    */
-  const_step_search(T eta)
+  const_step_search(T eta = 0.1)
   {
     assert(eta > 0);
     eta_ = eta;
@@ -222,6 +222,8 @@ public:
     c1_ = c1;
     rho_ = rho;
   }
+
+  backtrack_step_search() = delete;
 
   /**
    * Compute a step size from the previous guess and the new search direction.
