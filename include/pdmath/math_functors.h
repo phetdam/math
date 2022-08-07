@@ -52,14 +52,27 @@ public:
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-compare"
-#endif  // defined(__GNUC__) || defined(__clang__)
+#elif defined(_MSC_VER)
+#pragma warning (push)
+#pragma warning (disable: 4389)
+#endif  // !defined(__GNUC__) && !defined(__clang__) && !defined(_MSC_VER)
     assert(hess->cols() == aff->size());
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
-#endif  // defined(__GNUC__) || defined(__clang__)
+#elif defined(_MSC_VER)
+#pragma warning (pop)
+#endif  // !defined(__GNUC__) && !defined(__clang__) && !defined(_MSC_VER)
     hess_ = hess;
     aff_ = aff;
+    // MSVC warns about Eigen::Index (signed) to size_t conversion
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4365)
+#endif  // _MSC_VER
     n_dims_ = hess->cols();
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
   }
 
   quadratic_functor() = delete;
@@ -74,14 +87,30 @@ public:
     assert(x.size() == n_dims_);
     // compute the Hx product
     V_t hx(hess_inner(x));
+    // MSVC warns about conversion from double to T
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4244)
+#endif  // _MSC_VER
     // compute b + 0.5 * x'Hx
     T y(0.5 * std::inner_product(x.cbegin(), x.cend(), hx.cbegin(), 0.) + shf_);
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
     // if no affine terms, we can just return
     if (!aff_) {
       return y;
     }
+    // MSVC warns about converting from _Ty to T on return
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4244)
+#endif  // _MSC_VER
     // else we need to add a'x to result
     return y + std::inner_product(x.cbegin(), x.cend(), aff_->begin(), 0.);
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
   }
 
   /**
@@ -130,7 +159,15 @@ private:
     // compute the Hx product
     auto res_itr = res.begin();
     for (const auto& row : hess_->rowwise()) {
+      // MSVC warns about _Ty to float loss of data
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4244)
+#endif  // _MSC_VER
       *res_itr = std::inner_product(row.cbegin(), row.cend(), x.cbegin(), 0.);
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
       res_itr++;
     }
     // auto row_itr = hess_->begin1();

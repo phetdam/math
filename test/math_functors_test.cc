@@ -57,7 +57,15 @@ protected:
   MathFunctorsTest()
     : hess_d_(new Eigen::MatrixX<T>{EIGEN_HESS_INIT}),
       hess_f_(new Eigen::Matrix3<T>{EIGEN_HESS_INIT}),
+      // MSVC warns about double to const float truncation (T can be float)
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4305)
+#endif  // _MSC_VER
       aff_(new std::vector<T>{AFF_TERMS_INIT}),
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
       sol_(hess_f_->householderQr().solve(-pdmath::eigen_vector_from(*aff_))),
       quad_d_(hess_d_, aff_, shf_),
       quad_f_(hess_f_, aff_, shf_)
@@ -70,8 +78,16 @@ protected:
    */
   void SetUp() override
   {
+    // MSVC warns about double to const float truncation (T can be float)
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4305)
+#endif  // _MSC_VER
     // need to use Eigen vector instead of STL vector
     Eigen::Vector3<T> aff{AFF_TERMS_INIT};
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
     // shouldn't matter if we use hess_f_ or hess_d_
     ASSERT_EQ(sol_, hess_d_->householderQr().solve(-aff));
   }
@@ -91,8 +107,16 @@ protected:
   qf_t<T, Eigen::MatrixX<T>> quad_d_;
   qf_t<T, Eigen::Matrix3<T>> quad_f_;
 
+  // MSVC warns about truncating from double to const T
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4305)
+#endif  // _MSC_VER
   // offset for the quadratic functor
   static constexpr T shf_ = 0.7;
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
 };
 
 using MathFunctorsTypes = ::testing::Types<float, double>;
