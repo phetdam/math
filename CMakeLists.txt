@@ -59,7 +59,9 @@ if(NOT DEFINED EIGEN3_DIR)
         set(EIGEN3_DIR /usr/local/include/eigen3)
         message(STATUS "EIGEN3_DIR not set, using default ${EIGEN3_DIR}")
     else()
-        set(FATAL_ERROR "EIGEN3_DIR not set, must be set manually on Windows")
+        message(
+            FATAL_ERROR "EIGEN3_DIR not set, must be set manually on Windows"
+        )
     endif()
 endif()
 
