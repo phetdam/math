@@ -28,7 +28,7 @@ public:
  */
 template <typename T>
 class identity_functor : public functor_base<T, T&> {
-  T& operator()(const T& o) { return o; }
+  T& operator()(const T& o) override { return o; }
 };
 
 /**
@@ -44,7 +44,7 @@ class func_functor : public functor_base<In_t, Out_t> {
 public:
   virtual ~func_functor() = default;
 
-  Out_t operator()(const In_t& x) { return f(x); }
+  Out_t operator()(const In_t& x) override { return f(x); }
 
   /**
    * Return result of evaluating the function.

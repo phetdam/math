@@ -8,7 +8,6 @@
 #include "pdmath/golden_search.h"
 
 #include <limits>
-#include <utility>
 
 #include <gtest/gtest.h>
 
@@ -32,7 +31,7 @@ public:
   /**
    * Evaluate for a given value.
    */
-  T operator()(const T& x) { return a_ * x * x + b_ * x + c_; }
+  T operator()(const T& x) override { return a_ * x * x + b_ * x + c_; }
 
 private:
   T a_;
@@ -48,7 +47,7 @@ TEST(GoldenSearchTest, CorrectnessTest)
   scalar_quadratic quad_func(1., -4., 4.);
   // same as default tolerance; in general a good choice on any system
   double tol = std::sqrt(std::numeric_limits<double>::epsilon());
-  auto res = std::move(pdmath::golden_search(quad_func, 1., 3., tol));
+  auto res(pdmath::golden_search(quad_func, 1., 3., tol));
   // always converges
   EXPECT_TRUE(res.converged());
   EXPECT_NEAR(2., res.res(), tol);

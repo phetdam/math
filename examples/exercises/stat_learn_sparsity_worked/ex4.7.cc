@@ -77,7 +77,7 @@ public:
    * @param nu Norm of the kth class weight vector
    * @returns `T` difference between term with `nu` and constant term
    */
-  T operator()(const T& nu)
+  T operator()(const T& nu) override
   {
     return std::transform_reduce(
       numer_coefs_.cbegin(),
@@ -134,7 +134,7 @@ public:
    * @param nu Norm of the kth class weight vector
    * @returns `T` difference between term with `nu` and constant term
    */
-  T operator()(const T& nu) { return std::pow(diff_functor_(nu), 2); }
+  T operator()(const T& nu) override { return std::pow(diff_functor_(nu), 2); }
 
 private:
   group_norm_root_functor<T> diff_functor_;

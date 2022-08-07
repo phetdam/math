@@ -53,9 +53,14 @@ set(BOOST_MIN_VERSION 1.71.0)
 set(EIGEN_MIN_VERSION 3.4)
 set(GTEST_MIN_VERSION 1.10.0)
 
-# EIGEN3_DIR with Eigen3 includes can be set, or if not set on Linux, inferred
+# EIGEN3_DIR with Eigen3 includes can be set, or if not set on Linux, inferred.
+# either pass it using -D or set it as environment variable
 if(NOT DEFINED EIGEN3_DIR)
-    if(UNIX)
+    # read from environment if possible
+    if(DEFINED ENV{EIGEN3_DIR})
+        set(EIGEN3_DIR $ENV{EIGEN3_DIR})
+    # else use default on UNIX, fail on Windows
+    elseif(UNIX)
         set(EIGEN3_DIR /usr/local/include/eigen3)
         message(STATUS "EIGEN3_DIR not set, using default ${EIGEN3_DIR}")
     else()
@@ -67,7 +72,7 @@ endif()
 
 # fix path on Windows
 if(WIN32)
-    file(TO_CMAKE_PATH $ENV{EIGEN3_DIR} EIGEN3_DIR)
+    file(TO_CMAKE_PATH ${EIGEN3_DIR} EIGEN3_DIR)
     message(STATUS "EIGEN3_DIR normalized to ${EIGEN3_DIR}")
 endif()
 
