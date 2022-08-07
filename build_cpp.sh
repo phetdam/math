@@ -68,7 +68,8 @@ main() {
         return 0
     fi
     cmake -S . -B build ${CMAKE_ARGS[@]}
-    cmake --build build ${CMAKE_BUILD_ARGS[@]}
+    # the last -j specification will override
+    cmake --build build -j ${CMAKE_BUILD_ARGS[@]}
 }
 
 set -e
