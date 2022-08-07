@@ -44,17 +44,17 @@ template <typename T, typename M_t>
 using qf_t = pdmath::quadratic_functor<T, std::vector<T>, M_t>;
 
 /**
- * Templated test fixture for math functors tests.
+ * Templated test fixture for testing the `quadratic_functor` template class.
  */
 template <typename T>
-class MathFunctorsTest : public ::testing::Test {
+class QuadraticFunctorTest : public ::testing::Test {
 protected:
   /**
    * Default constructor.
    *
-   * Her we initialize the solution vector `sol_` and the functors.
+   * Here we initialize the solution vector `sol_` and the functors.
    */
-  MathFunctorsTest()
+  QuadraticFunctorTest()
     : hess_d_(new Eigen::MatrixX<T>{EIGEN_HESS_INIT}),
       hess_f_(new Eigen::Matrix3<T>{EIGEN_HESS_INIT}),
       // MSVC warns about double to const float truncation (T can be float)
@@ -72,7 +72,7 @@ protected:
   {}
 
   /**
-   * Setup method for the `MathFunctorsTest`.
+   * Setup method for the `QuadraticFunctorTest`.
    *
    * We test correctness of `sol_` here since `ASSERT_*` can't be used in ctor.
    */
@@ -120,14 +120,14 @@ protected:
 };
 
 using MathFunctorsTypes = ::testing::Types<float, double>;
-TYPED_TEST_SUITE(MathFunctorsTest, MathFunctorsTypes);
+TYPED_TEST_SUITE(QuadraticFunctorTest, MathFunctorsTypes);
 
 /**
  * Test that the `quadratic_functor` evaluates correctly.
  *
- * We first check that the functors evaluate correctly at
+ * We first check that the functors evaluate correctly at zero.
  */
-TYPED_TEST(MathFunctorsTest, QFZeroTest)
+TYPED_TEST(QuadraticFunctorTest, ZeroEvalTest)
 {
   const std::vector<TypeParam> zeros(3, 0);
   EXPECT_DOUBLE_EQ(TestFixture::shf_, this->quad_d_(zeros));
@@ -139,7 +139,7 @@ TYPED_TEST(MathFunctorsTest, QFZeroTest)
  *
  * That is, at the minimum `sol_`, it should be close to zero.
  */
-TYPED_TEST(MathFunctorsTest, QuadraticFunctorGradZeroTest)
+TYPED_TEST(QuadraticFunctorTest, GradNearZeroTest)
 {
   // sol_ is an Eigen::Vector3, so convert to std::vector
   const std::vector<TypeParam> sol(this->sol_.cbegin(), this->sol_.cend());

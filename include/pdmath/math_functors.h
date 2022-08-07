@@ -15,6 +15,8 @@
 #include <memory>
 #include <numeric>
 
+#include <Eigen/Core>
+
 #include "pdmath/bases.h"
 #include "pdmath/math_functions.h"
 
@@ -190,7 +192,11 @@ private:
 /**
  * Templated Himmelblau's function with gradient and Hessian.
  */
-template <typename T, typename V_t, typename M_t>
+template <
+  typename T = double,
+  typename V_t = Eigen::Vector2<T>,
+  typename M_t = Eigen::Matrix2<T>
+>
 class himmelblau_functor : public func_functor<V_t, T, V_t, M_t> {
 public:
   /**
@@ -201,7 +207,7 @@ public:
   T f(const V_t& x) override
   {
     assert(x.size() == n_dims_);
-    return himmelblau(*x.begin(), *x.end());
+    return himmelblau(*x.cbegin(), *x.cend()--);
   }
 
   /**
@@ -212,8 +218,8 @@ public:
   V_t d1(const V_t& x) override
   {
     assert(x.size() == n_dims_);
-    T x_0 = *x.begin();
-    T x_1 = *x.end();
+    T x_0 = *x.cbegin();
+    T x_1 = *x.cend()--;
     // get first derivatives used in chain rule for each quadratic term
     T dq_0 = 2 * (std::pow(x_0, 2) + x_1 - 11);
     T dq_1 = 2 * (x_0 + std::pow(x_1, 2) - 7);
@@ -221,7 +227,27 @@ public:
     return {2 * x_0 * dq_0 + dq_1, dq_0 + 2 * x_1 * dq_1};
   }
 
-  // d2 implementation todo
+  /**
+   * Return Hessian of the function at `x`.
+   *
+   * @param x `const V_t&` point to evaluate at
+   */
+  M_t d2(const V_t& x) override
+  {
+    assert(x.size() == n_dims_);
+    T x_0 = *x.cbegin();
+    T x_1 = *x.cend()--;
+    // redundant if M_t = Eigen::Matrix2<T>, but useful for other classes
+    M_t hess(2, 2);
+    // off-diagonal entries are the same
+    T dxdy = 4 * (x_0 + x_1);
+    // filling one by one allows interop with other matrix classes
+    hess(0, 0) = 12 * x_0 * x_0 + 4 * x_1 - 42;
+    hess(0, 1) = dxdy;
+    hess(1, 0) = dxdy;
+    hess(1, 1) = 12 * x_1 * x_1 + 4 * x_0 - 26;
+    return hess;
+  }
 
 private:
   static constexpr std::size_t n_dims_ = 2;
