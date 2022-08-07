@@ -48,7 +48,15 @@ public:
   {
     assert(hess && ((aff) ? aff->size() : true));
     assert(hess->rows() && hess->cols() && hess->rows() == hess->cols());
+    // Eigen::Index is ptrdiff_t by default
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#endif  // defined(__GNUC__) || defined(__clang__)
     assert(hess->cols() == aff->size());
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic pop
+#endif  // defined(__GNUC__) || defined(__clang__)
     hess_ = hess;
     aff_ = aff;
     n_dims_ = hess->cols();
@@ -65,15 +73,15 @@ public:
   {
     assert(x.size() == n_dims_);
     // compute the Hx product
-    V_t h_x(hess_inner(x));
+    V_t hx(hess_inner(x));
     // compute b + 0.5 * x'Hx
-    T res(0.5 * std::inner_product(x.cbegin(), x.cend(), h_x.cbegin(), shf_));
+    T y(0.5 * std::inner_product(x.cbegin(), x.cend(), hx.cbegin(), 0.) + shf_);
     // if no affine terms, we can just return
     if (!aff_) {
-      return res;
+      return y;
     }
     // else we need to add a'x to result
-    return res + std::inner_product(x.begin(), x.end(), aff_->begin(), 0.);
+    return y + std::inner_product(x.cbegin(), x.cend(), aff_->begin(), 0.);
   }
 
   /**
@@ -102,7 +110,7 @@ public:
    *
    * @param x `const V_t&` point to evaluate at
    */
-  const M_t& d2(const V_t& x) override { return *hess_; }
+  const M_t& d2(const V_t& /*x*/) override { return *hess_; }
 
   /**
    * Return dimension of the input.

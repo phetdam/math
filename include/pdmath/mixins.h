@@ -40,24 +40,6 @@ protected:
 };
 
 /**
- * Class holding function evaluation counts that can be reset.
- *
- * Useful when you might need to reset the evaluation counts.
- */
-class fev_reset_mixin : public fev_mixin {
-public:
-  /**
-   * Reset function evaluation count and return old count.
-   */
-  std::uintmax_t reset_n_fev()
-  {
-    std::uintmax_t n = n_fev_;
-    n_fev_ = 0;
-    return n;
-  }
-};
-
-/**
  * Class holding gradient evaluation counts.
  *
  * Used similarly to `fev_mixin`, but for gradient evaluation counts.
@@ -81,22 +63,6 @@ protected:
 };
 
 /**
- * Class holding gradient evaluation counts that can be reset.
- */
-class gev_reset_mixin : public gev_mixin {
-public:
-  /**
-   * Reset gradient evaluation count and return old count.
-   */
-  std::uintmax_t reset_n_gev()
-  {
-    std::uintmax_t n = n_gev_;
-    n_gev_ = 0;
-    return n;
-  }
-};
-
-/**
  * Class holding Hessian evaluation counts.
  *
  * Used similarly to `fev_mixin`, but for Hessian evaluation counts.
@@ -117,22 +83,6 @@ public:
 
 protected:
   std::uintmax_t n_hev_;
-};
-
-/**
- * Class holding Hessian evaluation counts that can be reset.
- */
-class hev_reset_mixin : public hev_mixin {
-public:
-  /**
-   * Reset Hessian evaluation count and return old count.
-   */
-  std::uintmax_t reset_n_hev()
-  {
-    std::uintmax_t n = n_hev_;
-    n_hev_ = 0;
-    return n;
-  }
 };
 
 }  // namespace pdmath

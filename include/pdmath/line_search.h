@@ -38,9 +38,8 @@ namespace pdmath {
  * @tparam T scalar type
  * @tparam V_t vector type, with `T` elements
  */
-template <typename T = double, typename V_t = Eigen::VectorX<T>>
-class direction_search
-  : public fev_reset_mixin, public gev_reset_mixin, public hev_reset_mixin {
+template <typename T, typename V_t>
+class direction_search : public fev_mixin, public gev_mixin, public hev_mixin {
 public:
   virtual ~direction_search() = default;
   virtual V_t operator()(const V_t&) = 0;
@@ -57,9 +56,8 @@ public:
  * @tparam T scalar type
  * @tparam V_t vector type, with `T` elements
  */
-template <typename T = double, typename V_t = Eigen::VectorX<T>>
-class direction_policy
-  : public fev_reset_mixin, public gev_reset_mixin, public hev_reset_mixin {
+template <typename T, typename V_t>
+class direction_policy : public fev_mixin, public gev_mixin, public hev_mixin {
 public:
   virtual ~direction_policy() = default;
   virtual bool operator()(const V_t&) = 0;
@@ -122,9 +120,9 @@ private:
  * @tparam T scalar type
  * @tparam V_t vector type, with `T` elements
  */
-template <typename T = double, typename V_t = Eigen::VectorX<T>>
+template <typename T, typename V_t>
 class step_search
-  : public fev_reset_mixin, public gev_reset_mixin, public hev_reset_mixin {
+  : public fev_mixin, public gev_mixin, public hev_mixin {
 public:
   /**
    * Compute a step size from the previous guess and the new search direction.
@@ -291,6 +289,10 @@ private:
 /**
  * Templated [accelerated] line search descent implementation for `std` types.
  *
+ * @note `func`, `dir_search`, `eta_search`, `dir_policy` are all passed
+ *     *by value*, as the base classes for these functor types all them to
+ *     implement a non-`const` `operator()`.
+ *
  * @tparam T scalar type
  * @tparam V_t vector type, with `T` elements
  * @tparam M_t matrix type, with `T` elements
@@ -299,13 +301,13 @@ private:
  *     soft-thresholding operator, or a  projection operator. Must take a
  *     `const V_t&` and then return a `V_t`.
  *
- * @param func `const func_functor<V_t, T, V_t, M_t>&` functor giving
- *     the objective function, optionally with gradient and Hessian.
- * @param dir_search `direction_search<T, V_t>&` search direction functor,
+ * @param func `func_functor<V_t, T, V_t, M_t>` functor giving the objective
+ *     function, optionally with gradient and Hessian.
+ * @param dir_search `direction_search<T, V_t>` search direction functor,
  *     which when evaluated takes the `const V_t&` current guess and returns
  *     the `V_t` search direction to update along. The returned search
  *     direction need not be a descent direction.
- * @param eta_search `step_search<T, V_t>&` step line search functor, which
+ * @param eta_search `step_search<T, V_t>` step line search functor, which
  *     when evaluated takes the `const V_t&` current guess and search direction
  *     and returns the `T` step size to use.
  * @param x0 `const V_t&` initial guess for the line search
@@ -319,12 +321,12 @@ private:
  */
 template <typename T, typename V_t, typename M_t, typename F_t>
 optimize_result<T, V_t, V_t, M_t> line_search(
-  const func_functor<V_t, T, V_t, M_t>& func,
-  direction_search<T, V_t>& dir_search,
-  step_search<T, V_t>& eta_search,
+  func_functor<V_t, T, V_t, M_t> func,
+  direction_search<T, V_t> dir_search,
+  step_search<T, V_t> eta_search,
   const V_t& x0,
   std::uintmax_t max_iter,
-  direction_policy<T, V_t>& dir_policy,
+  direction_policy<T, V_t> dir_policy,
   bool nesterov = false,
   F_t tail_transform = identity_functor<V_t>())
 {

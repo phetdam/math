@@ -80,9 +80,9 @@ public:
   T operator()(const T& nu)
   {
     return std::transform_reduce(
-      numer_coefs_.begin(),
-      numer_coefs_.end(),
-      denom_coefs_.begin(),
+      numer_coefs_.cbegin(),
+      numer_coefs_.cend(),
+      denom_coefs_.cbegin(),
       T(-1.),
       // reduce method, just sums up the values
       std::plus<T>(),

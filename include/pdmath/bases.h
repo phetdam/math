@@ -11,7 +11,7 @@
 namespace pdmath {
 
 /**
- * Template base class for a general single-argument functor.
+ * Template base class for a single-argument functor.
  *
  * @tparam In_t input type
  * @tparam Out_t output type, defaults to `In_t`
@@ -34,24 +34,17 @@ class identity_functor : public functor_base<T, T&> {
 /**
  * Template functor to represent a function, up to twice differentiable.
  *
- * Overloads `operator()` so the object is callable.
- *
  * @tparam In_t input type
- * @tparam Out_t output type, defaults to `In_t`
- * @tparam Out_d1_t first deriv output type, defaults to `Out_t`
- * @tparam Out_d2_t second deriv output type, defaults to `Out_t`
+ * @tparam Out_t output type
+ * @tparam Out_d1_t first deriv output type
+ * @tparam Out_d2_t second deriv output type
  */
-template <
-  typename In_t,
-  typename Out_t = In_t,
-  typename Out_d1_t = Out_t,
-  typename Out_d2_t = Out_t
->
+template <typename In_t, typename Out_t, typename Out_d1_t, typename Out_d2_t>
 class func_functor : public functor_base<In_t, Out_t> {
 public:
   virtual ~func_functor() = default;
 
-  Out_t operator()(const In_t& x) { return f(); }
+  Out_t operator()(const In_t& x) { return f(x); }
 
   /**
    * Return result of evaluating the function.
@@ -61,12 +54,12 @@ public:
   /**
    * Return result of evaluating the derivative.
    */
-  virtual Out_d1_t d1(const In_t& x) { return Out_d1_t(); }
+  virtual Out_d1_t d1(const In_t& x) = 0;
 
   /**
    * Return result of evaluating the Hessian.
    */
-  virtual Out_d2_t d2(const In_t& x) { return Out_d2_t(); }
+  virtual Out_d2_t d2(const In_t& x) = 0;
 };
 
 }  // namespace pdmath
