@@ -68,7 +68,8 @@ protected:
 #endif  // _MSC_VER
       sol_(hess_f_->householderQr().solve(-pdmath::eigen_vector_from(*aff_))),
       quad_d_(hess_d_, aff_, shf_),
-      quad_f_(hess_f_, aff_, shf_)
+      quad_f_(hess_f_, aff_, shf_),
+      zeros_3_(new std::vector<T>(3, 0))
   {}
 
   /**
@@ -106,6 +107,8 @@ protected:
   // the quadratic functors we are interested in (fixed and dynamic matrices)
   qf_t<T, Eigen::MatrixX<T>> quad_d_;
   qf_t<T, Eigen::Matrix3<T>> quad_f_;
+  // vector of 3 zeros that will prove useful later
+  const std::unique_ptr<std::vector<T>> zeros_3_;
 
   // MSVC warns about truncating from double to const T
 #ifdef _MSC_VER
@@ -129,9 +132,8 @@ TYPED_TEST_SUITE(QuadraticFunctorTest, MathFunctorsTypes);
  */
 TYPED_TEST(QuadraticFunctorTest, ZeroEvalTest)
 {
-  const std::vector<TypeParam> zeros(3, 0);
-  EXPECT_DOUBLE_EQ(TestFixture::shf_, this->quad_d_(zeros));
-  EXPECT_DOUBLE_EQ(TestFixture::shf_, this->quad_f_(zeros));
+  EXPECT_DOUBLE_EQ(TestFixture::shf_, this->quad_d_(*this->zeros_3_));
+  EXPECT_DOUBLE_EQ(TestFixture::shf_, this->quad_f_(*this->zeros_3_));
 }
 
 /**
@@ -154,6 +156,15 @@ TYPED_TEST(QuadraticFunctorTest, GradNearZeroTest)
   );
   EXPECT_THAT(this->quad_d_.d1(sol), all_near_zero);
   EXPECT_THAT(this->quad_f_.d1(sol), all_near_zero);
+}
+
+/**
+ * Test that both `quadratic_functor` Hessians are equal.
+ */
+TYPED_TEST(QuadraticFunctorTest, EqualHessianTest)
+{
+  // does not matter what vector we pass
+  EXPECT_EQ(this->quad_d_.d2(*this->zeros_3_), this->quad_f_.d2(*this->aff_));
 }
 
 }  // namespace
