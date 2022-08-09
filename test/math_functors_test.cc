@@ -17,8 +17,26 @@
 
 #include "pdmath/helpers.h"
 #include "pdmath/types.h"
+#include "pdmath/testing/macros.h"
 
 namespace {
+
+/**
+ * Templated base test fixture for testing math functors.
+ *
+ * Mostly just provides the float loose comparison tolerance we use a lot.
+ */
+template <typename T>
+class MathFunctorsTestBase : public ::testing::Test {
+protected:
+  // float loose comparison tolerance. since we are using single-precision
+  // floats in some cases, we make tol a bit below the square root of the
+  // std::numeric_limits<float>::epsilon() value, 1.19209e-07.
+  static constexpr double ftol_ = 1e-4;
+  // double loose comparison tolerance. for comparison, the
+  // std::numeric_limits<double>::epsilon() value is 2.22045e-16.
+  static constexpr double dtol_ = 1e-8;
+};
 
 /**
  * Comma-separated initializers for initializing `hess_d_` and `hess_f_`.
@@ -47,7 +65,7 @@ using qf_t = pdmath::quadratic_functor<T, std::vector<T>, M_t>;
  * Templated test fixture for testing the `quadratic_functor` template class.
  */
 template <typename T>
-class QuadraticFunctorTest : public ::testing::Test {
+class QuadraticFunctorTest : public MathFunctorsTestBase<T> {
 protected:
   /**
    * Default constructor.
@@ -122,6 +140,9 @@ protected:
 #endif  // _MSC_VER
 };
 
+#undef EIGEN_HESS_INIT
+#undef AFF_TERMS_INIT
+
 using MathFunctorsTypes = ::testing::Types<float, double>;
 TYPED_TEST_SUITE(QuadraticFunctorTest, MathFunctorsTypes);
 
@@ -147,12 +168,11 @@ TYPED_TEST(QuadraticFunctorTest, GradNearZeroTest)
   const std::vector<TypeParam> sol(this->sol_.cbegin(), this->sol_.cend());
   // can't use the Google Test ::testing::Each(::testing::FloatEq(0.)) here
   // since we have a templated test that could have different types. therefore,
-  // to allow boxing, we using ::testing::Ge and ::testing::Le. since we are
-  // using single-precision floats in some cases, we make tol a bit above the
-  // std::numeric_limits<float>::epsilon() value, 1.19209e-07.
-  const double ftol = 1e-6;
+  // to allow boxing, we using ::testing::Ge and ::testing::Le.
   const auto all_near_zero = ::testing::Each(
-    ::testing::AllOf(::testing::Ge(-ftol), ::testing::Le(ftol))
+    ::testing::AllOf(
+      ::testing::Ge(-TestFixture::ftol_), ::testing::Le(TestFixture::ftol_)
+    )
   );
   EXPECT_THAT(this->quad_d_.d1(sol), all_near_zero);
   EXPECT_THAT(this->quad_f_.d1(sol), all_near_zero);
@@ -166,5 +186,101 @@ TYPED_TEST(QuadraticFunctorTest, EqualHessianTest)
   // does not matter what vector we pass
   EXPECT_EQ(this->quad_d_.d2(*this->zeros_3_), this->quad_f_.d2(*this->aff_));
 }
+
+/**
+ * Templated `using` definition for `himmelblau_functor`.
+ *
+ * @tparam T scalar type
+ * @tparam M_t matrix type with scalar type `T`, ex. an Eigen matrix
+ */
+template <typename T, typename M_t>
+using hf_t = pdmath::himmelblau_functor<T, Eigen::Vector2<T>, M_t>;
+
+/**
+ * Templated test fixture for testing the `himmelblau_functor`.
+ */
+template <typename T>
+class HimmelblauFunctorTest : public MathFunctorsTestBase<T> {
+protected:
+  /**
+   * Default constructor.
+   *
+   * Here we initialize the Himmelblau function minimizers.
+   */
+  HimmelblauFunctorTest()
+    : min_1_(new Eigen::Vector2<T>{HIMMELBLAU_ZERO_1}),
+      min_2_(new Eigen::Vector2<T>{HIMMELBLAU_ZERO_2}),
+      min_3_(new Eigen::Vector2<T>{HIMMELBLAU_ZERO_3}),
+      min_4_(new Eigen::Vector2<T>{HIMMELBLAU_ZERO_1}),
+      himmel_d_(),
+      himmel_f_()
+  {}
+
+  // Himmelblau's function has 4 minimizers where the function is zero
+  const std::unique_ptr<Eigen::Vector2<T>> min_1_;
+  const std::unique_ptr<Eigen::Vector2<T>> min_2_;
+  const std::unique_ptr<Eigen::Vector2<T>> min_3_;
+  const std::unique_ptr<Eigen::Vector2<T>> min_4_;
+  // Himmelblau functors with different Eigen matrix types
+  hf_t<T, Eigen::MatrixX<T>> himmel_d_;
+  hf_t<T, Eigen::Matrix2<T>> himmel_f_;
+};
+
+TYPED_TEST_SUITE(HimmelblauFunctorTest, MathFunctorsTypes);
+
+/**
+ * Macro to reduce boilerplate of checking `himmelblau_functor` zeros.
+ *
+ * @param func Name of `hf_t<T, M_t>` member of `HimmelblauFunctorTest`
+ */
+#define HimmelBlauFunctorTest_EXPECT_NEAR_ZEROS(name) \
+  EXPECT_NEAR(0, this->name(*this->min_1_), TestFixture::dtol_); \
+  EXPECT_NEAR(0, this->name(*this->min_2_), TestFixture::dtol_); \
+  EXPECT_NEAR(0, this->name(*this->min_3_), TestFixture::dtol_); \
+  EXPECT_NEAR(0, this->name(*this->min_4_), TestFixture::dtol_)
+
+/**
+ * Test that the `himmelblau_functor` zeros correctly.
+ */
+TYPED_TEST(HimmelblauFunctorTest, ZeroEvalTest)
+{
+  HimmelBlauFunctorTest_EXPECT_NEAR_ZEROS(himmel_d_);
+  HimmelBlauFunctorTest_EXPECT_NEAR_ZEROS(himmel_f_);
+}
+
+#undef HimmelBlauFunctorTest_EXPECT_NEAR_ZEROS
+
+/**
+ * Macro to reduce boilerplate of checking `himmelblau_functor` gradient zeros.
+ *
+ * Since we use `Eigen::Vector2<T>` in `hf_t<T, M_t>`, we can use the existing
+ *`isZero` method to check if gradients are close to zero.
+ *
+ * @param func Name of `hf_t<T, M_t>` member of `HimmelblauFunctorTest`
+ */
+#define HimmelblauFunctorTest_EXPECT_GRADS_NEAR_ZERO(name) \
+  EXPECT_TRUE(this->name.d1(*this->min_1_).isZero(TestFixture::ftol_)); \
+  EXPECT_TRUE(this->name.d1(*this->min_2_).isZero(TestFixture::ftol_)); \
+  EXPECT_TRUE(this->name.d1(*this->min_3_).isZero(TestFixture::ftol_)); \
+  EXPECT_TRUE(this->name.d1(*this->min_4_).isZero(TestFixture::ftol_))
+
+/**
+ * Test that the `himmelblau_functor` gradients are near zero at the zeros.
+ */
+TYPED_TEST(HimmelblauFunctorTest, GradNearZeroTest)
+{
+  HimmelblauFunctorTest_EXPECT_GRADS_NEAR_ZERO(himmel_d_);
+  HimmelblauFunctorTest_EXPECT_GRADS_NEAR_ZERO(himmel_f_);
+}
+
+/**
+ * Test that the `himmelblau_functor` Hessians are PSD at the zeros.
+ */
+// TYPED_TEST(HimmelblauFunctorTest, PositiveSemidefiniteHessTest)
+// {
+//   // EXPECT_GE(, 0);
+// }
+
+#undef HimmelblauFunctorTest_EXPECT_GRADS_NEAR_ZERO
 
 }  // namespace
