@@ -207,7 +207,7 @@ public:
   T f(const V_t& x) override
   {
     assert(x.size() == n_dims_);
-    return himmelblau(*x.cbegin(), *x.cend()--);
+    return himmelblau(x[0], x[1]);
   }
 
   /**
@@ -218,8 +218,8 @@ public:
   V_t d1(const V_t& x) override
   {
     assert(x.size() == n_dims_);
-    T x_0 = *x.cbegin();
-    T x_1 = *x.cend()--;
+    T x_0 = x[0];
+    T x_1 = x[1];
     // get first derivatives used in chain rule for each quadratic term
     T dq_0 = 2 * (std::pow(x_0, 2) + x_1 - 11);
     T dq_1 = 2 * (x_0 + std::pow(x_1, 2) - 7);
@@ -235,8 +235,8 @@ public:
   M_t d2(const V_t& x) override
   {
     assert(x.size() == n_dims_);
-    T x_0 = *x.cbegin();
-    T x_1 = *x.cend()--;
+    T x_0 = x[0];
+    T x_1 = x[1];
     // redundant if M_t = Eigen::Matrix2<T>, but useful for other classes
     M_t hess(2, 2);
     // off-diagonal entries are the same
