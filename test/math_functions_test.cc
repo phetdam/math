@@ -10,6 +10,7 @@
 #include <gtest/gtest.h>
 
 #include "pdmath/types.h"
+#include "pdmath/testing/macros.h"
 
 namespace {
 
@@ -20,15 +21,15 @@ template <typename T>
 class MathFunctionsTest : public ::testing::Test {
 protected:
   // points where the Himmelblau function is zero
-  static constexpr pdmath::array_pair<T> hml_zero_1_ = {3, 2};
+  static constexpr pdmath::array_pair<T> hml_zero_1_ = {HIMMELBLAU_ZERO_1};
 // disable truncation warning when initializing from double
 #ifdef _MSC_VER
 #pragma warning (push)
 #pragma warning (disable: 4305)
 #endif  // _MSC_VER
-  static constexpr pdmath::array_pair<T> hml_zero_2_ = {-2.805118, 3.131312};
-  static constexpr pdmath::array_pair<T> hml_zero_3_ = {-3.779310, -3.283186};
-  static constexpr pdmath::array_pair<T> hml_zero_4_ = {3.584428, -1.848126};
+  static constexpr pdmath::array_pair<T> hml_zero_2_ = {HIMMELBLAU_ZERO_2};
+  static constexpr pdmath::array_pair<T> hml_zero_3_ = {HIMMELBLAU_ZERO_3};
+  static constexpr pdmath::array_pair<T> hml_zero_4_ = {HIMMELBLAU_ZERO_4};
 #ifdef _MSC_VER
 #pragma warning (pop)
 #endif  // _MSC_VER

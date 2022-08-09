@@ -13,7 +13,7 @@ README.md
 build
 build_windows
 .vscode
-# ignore Testing directory sometimes created by CMake
-Testing
+# ignore top-level Testing directory sometimes created by CMake
+/Testing
 # ignore fake_test.cc
 test/fake_test.cc
