@@ -11,6 +11,7 @@
 #include <vector>
 
 #include <Eigen/Core>
+#include <Eigen/LU>
 #include <Eigen/QR>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -231,7 +232,7 @@ TYPED_TEST_SUITE(HimmelblauFunctorTest, MathFunctorsTypes);
 /**
  * Macro to reduce boilerplate of checking `himmelblau_functor` zeros.
  *
- * @param func Name of `hf_t<T, M_t>` member of `HimmelblauFunctorTest`
+ * @param name Name of `hf_t<T, M_t>` member of `HimmelblauFunctorTest`
  */
 #define HimmelBlauFunctorTest_EXPECT_NEAR_ZEROS(name) \
   EXPECT_NEAR(0, this->name(*this->min_1_), TestFixture::dtol_); \
@@ -256,7 +257,7 @@ TYPED_TEST(HimmelblauFunctorTest, ZeroEvalTest)
  * Since we use `Eigen::Vector2<T>` in `hf_t<T, M_t>`, we can use the existing
  *`isZero` method to check if gradients are close to zero.
  *
- * @param func Name of `hf_t<T, M_t>` member of `HimmelblauFunctorTest`
+ * @param name Name of `hf_t<T, M_t>` member of `HimmelblauFunctorTest`
  */
 #define HimmelblauFunctorTest_EXPECT_GRADS_NEAR_ZERO(name) \
   EXPECT_TRUE(this->name.d1(*this->min_1_).isZero(TestFixture::ftol_)); \
@@ -273,14 +274,30 @@ TYPED_TEST(HimmelblauFunctorTest, GradNearZeroTest)
   HimmelblauFunctorTest_EXPECT_GRADS_NEAR_ZERO(himmel_f_);
 }
 
+#undef HimmelblauFunctorTest_EXPECT_GRADS_NEAR_ZERO
+
+/**
+ * Macro to reduce boilerplate checking if `himmelblaue_functor` Hessians PSD.
+ *
+ * A positive semidefinite matrix necessarily has nonnegative determinant.
+ *
+ * @param name Name of `hf_t<T, M_t>` member of `HimmelblauFunctorTest`
+ */
+#define HimmelblauFunctortest_EXPECT_HESSIANS_NEAR_PSD(name) \
+  EXPECT_GE(this->name.d2(*this->min_1_).determinant(), 0); \
+  EXPECT_GE(this->name.d2(*this->min_2_).determinant(), 0); \
+  EXPECT_GE(this->name.d2(*this->min_3_).determinant(), 0); \
+  EXPECT_GE(this->name.d2(*this->min_4_).determinant(), 0)
+
 /**
  * Test that the `himmelblau_functor` Hessians are PSD at the zeros.
  */
-// TYPED_TEST(HimmelblauFunctorTest, PositiveSemidefiniteHessTest)
-// {
-//   // EXPECT_GE(, 0);
-// }
+TYPED_TEST(HimmelblauFunctorTest, PositiveSemidefiniteHessTest)
+{
+  HimmelblauFunctortest_EXPECT_HESSIANS_NEAR_PSD(himmel_d_);
+  HimmelblauFunctortest_EXPECT_HESSIANS_NEAR_PSD(himmel_f_);
+}
 
-#undef HimmelblauFunctorTest_EXPECT_GRADS_NEAR_ZERO
+#undef HimmelblauFunctortest_EXPECT_HESSIANS_NEAR_PSD
 
 }  // namespace
