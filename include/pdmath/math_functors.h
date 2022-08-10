@@ -220,9 +220,17 @@ public:
     assert(x.size() == n_dims_);
     T x_0 = x[0];
     T x_1 = x[1];
+    // MSVC warns about converting from double to T
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4244)
+#endif  // _MSC_VER
     // get first derivatives used in chain rule for each quadratic term
     T dq_0 = 2 * (std::pow(x_0, 2) + x_1 - 11);
     T dq_1 = 2 * (x_0 + std::pow(x_1, 2) - 7);
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
     // use chain rule for each to get result
     return {2 * x_0 * dq_0 + dq_1, dq_0 + 2 * x_1 * dq_1};
   }

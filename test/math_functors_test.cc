@@ -30,13 +30,21 @@ namespace {
 template <typename T>
 class MathFunctorsTestBase : public ::testing::Test {
 protected:
+  // MSVC warns about truncation from double to const T
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4305)
+#endif  // _MSC_VER
   // float loose comparison tolerance. since we are using single-precision
   // floats in some cases, we make tol a bit below the square root of the
   // std::numeric_limits<float>::epsilon() value, 1.19209e-07.
-  static constexpr double ftol_ = 1e-4;
+  static constexpr T ftol_ = 1e-4;
   // double loose comparison tolerance. for comparison, the
   // std::numeric_limits<double>::epsilon() value is 2.22045e-16.
-  static constexpr double dtol_ = 1e-8;
+  static constexpr T dtol_ = 1e-8;
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
 };
 
 /**
@@ -271,7 +279,7 @@ TYPED_TEST(HimmelblauFunctorTest, ZeroEvalTest)
 TYPED_TEST(HimmelblauFunctorTest, GradNearZeroTest)
 {
   HimmelblauFunctorTest_EXPECT_GRADS_NEAR_ZERO(himmel_d_);
-  HimmelblauFunctorTest_EXPECT_GRADS_NEAR_ZERO(himmel_f_);
+  HimmelblauFunctorTest_EXPECT_GRADS_NEAR_ZERO(himmel_f_);  //sds
 }
 
 #undef HimmelblauFunctorTest_EXPECT_GRADS_NEAR_ZERO
