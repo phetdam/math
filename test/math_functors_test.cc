@@ -300,7 +300,7 @@ TYPED_TEST(HimmelblauFunctorTest, GradNearZeroTest)
 /**
  * Test that the `himmelblau_functor` Hessians are PSD at the zeros.
  */
-TYPED_TEST(HimmelblauFunctorTest, PositiveSemidefiniteHessTest)
+TYPED_TEST(HimmelblauFunctorTest, PSDHessTest)
 {
   HimmelblauFunctortest_EXPECT_HESSIANS_NEAR_PSD(himmel_d_);
   HimmelblauFunctortest_EXPECT_HESSIANS_NEAR_PSD(himmel_f_);
