@@ -13,6 +13,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <numeric>
 #include <utility>
 
@@ -43,6 +44,43 @@ class direction_search : public fev_mixin, public gev_mixin, public hev_mixin {
 public:
   virtual ~direction_search() = default;
   virtual V_t operator()(const V_t&) = 0;
+};
+
+/**
+ * Search direction computation functor that uses the negative gradient.
+ *
+ * @tparam G Gradient callable taking a `const V_t&` returning `V_t`
+ * @tparam T Scalar type
+ * @tparam V_t Iterable of `T` ideally meeting *Container* requirements
+ */
+template <typename G, typename T = double, typename V_t = Eigen::VectorX<T>>
+class steepest_direction_search : public direction_search<T, V_t> {
+public:
+  /**
+   * `steepest_direction_search` constructor.
+   *
+   * @param grad `G` gradient callable copied as a member.
+   */
+  steepest_direction_search(G grad) : grad_(std::move(grad)) {}
+
+  steepest_direction_search() = delete;
+
+  /**
+   * Compute a search direction given the previous solution guess.
+   *
+   * @param x `const V_t&` previous solution guess
+   */
+  V_t operator()(const V_t& x) override
+  {
+    V_t dir = grad_(x);
+    this->n_gev_++;
+    // allow more than just "vector" classes with operator- overloads
+    std::transform(dir.cbegin(), dir.cend(), dir.begin(), std::negate<T>());
+    return dir;
+  }
+
+private:
+  G grad_;
 };
 
 /**
