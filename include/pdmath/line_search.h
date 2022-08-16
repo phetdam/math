@@ -102,6 +102,21 @@ public:
 };
 
 /**
+ * Search direction policy that always returns `false` on invocation.
+ *
+ * Useful when one only wants the maximum number of iterations to determine
+ * when the `line_search` method or its wrappers should terminate.
+ *
+ * @tparam T scalar type
+ * @tparam V_t vector type, with `T` elements
+ */
+template <typename T, typename V_t>
+class no_direction_policy : public direction_policy<T, V_t> {
+public:
+  bool operator()(const V_t& /*dir*/) override { return false; }
+};
+
+/**
  * Search direction policy where direction below a minimum implies convergence.
  *
  * @tparam T scalar type
