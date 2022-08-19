@@ -447,6 +447,35 @@ optimize_result<T, V_t, V_t, M_t> line_search(
   );
 }
 
+/**
+ * Templated [accelerated] gradient descent implementation.
+ *
+ * @tparam T scalar type
+ * @tparam V_t vector type, with `T` elements
+ * @tparam M_t matrix type, with `T` elements
+ *
+ * See `line_search` for parameter documentation.
+ */
+template <typename T, typename V_t, typename M_t>
+optimize_result<T, V_t, V_t, M_t> steepest_descent(
+  func_functor<V_t, T, V_t, M_t> func,
+  step_search<T, V_t> eta_search,
+  const V_t& x_0,
+  std::uintmax_t max_iter,
+  direction_policy<T, V_t> dir_policy,
+  bool nesterov = false)
+{
+  return line_search(
+    std::move(func),
+    steepest_direction_search(func.d1),
+    std::move(eta_search),
+    x_0,
+    std::move(max_iter),
+    std::move(dir_policy),
+    nesterov
+  );
+}
+
 }  // namespace pdmath
 
 #endif  // PDMATH_LINE_SEARCH_H_
