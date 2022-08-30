@@ -470,7 +470,7 @@ optimize_result<T, V_t, V_t, M_t> steepest_descent(
     steepest_direction_search(func.d1),
     std::move(eta_search),
     x_0,
-    std::move(max_iter),
+    max_iter,
     std::move(dir_policy),
     nesterov
   );
