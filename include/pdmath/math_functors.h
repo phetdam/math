@@ -191,6 +191,13 @@ private:
 
 /**
  * Templated Himmelblau's function with gradient and Hessian.
+ *
+ * The 4 zeros are (3, 2), approx. (-2.805118, 3.131312), approx.
+ * (-3.779310, -3.283186), and approx. (3.584428, -1.848126).
+ *
+ * @tparam T scalar return type
+ * @tparam V_t vector input type/gradient return type, a *Container*
+ * @tparam M_t Hessian return type, ex. an `Eigen::Matrix` specialization
  */
 template <
   typename T = double,
