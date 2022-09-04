@@ -19,6 +19,7 @@
 namespace pdmath {
 
 using double_vector = std::vector<double>;
+using float_vector = std::vector<float>;
 
 template <typename T>
 using boost_vector = boost::numeric::ublas::vector<T>;

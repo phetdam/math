@@ -8,6 +8,7 @@
 #ifndef PDMATH_HELPERS_H_
 #define PDMATH_HELPERS_H_
 
+#include <algorithm>
 #include <cstddef>
 #include <initializer_list>
 #include <iostream>
@@ -156,7 +157,7 @@ private:
  * @returns `std::string` giving the string to print
  */
 template <typename T>
-inline std::string print_vector(
+std::string print_vector(
   const std::vector<T>& vec,
   const vector_print_policy& print_policy,
   bool print = true)
@@ -207,15 +208,9 @@ template <typename T>
 inline boost_vector<T> boost_vector_from(const std::vector<T>& from)
 {
   boost_vector<T> to(from.size());
-  auto from_itr = from.begin();
-  auto to_itr = to.begin();
-  // note: when compiling with MSVC, using indexing causes C5045 to be emitted
-  // with /Wall specified. but with iterators, no warning issued.
-  while (from_itr != from.end() && to_itr != to.end()) {
-    *to_itr = *from_itr;
-    from_itr++;
-    to_itr++;
-  }
+  // note: when compiling with MSVC, using indexing when copying using a for
+  // loop causes C5045 to be emitted with /Wall, but not with iterators.
+  std::copy(from.cbegin(), from.cend(), to.begin());
   return to;
 }
 
@@ -250,13 +245,7 @@ template <typename T>
 inline Eigen::VectorX<T> eigen_vector_from(const std::vector<T>& from)
 {
   Eigen::VectorX<T> to(from.size());
-  auto from_itr = from.cbegin();
-  auto to_itr = to.begin();
-  while (from_itr != from.end() && to_itr != to.end()) {
-    *to_itr = *from_itr;
-    from_itr++;
-    to_itr++;
-  }
+  std::copy(from.cbegin(), from.cend(), to.begin());
   return to;
 }
 
@@ -278,6 +267,29 @@ template <typename T, typename... Ts>
 inline Eigen::VectorX<T> eigen_vector_from(const Ts&... from)
 {
   return eigen_vector_from(std::vector<T>({static_cast<T>(from)...}));
+}
+
+/**
+ * Create a new Eigen dynamic vector from any `Eigen::MatrixBase`.
+ *
+ * 2D matrix elements will be read in column-major order.
+ *
+ * @tparam T `Eigen::VectorX` and `Eigen::MatrixBase<T>` element type
+ *
+ * @param from `const Eigen::MatrixBase<T>&` to create new vector from
+ */
+template <typename T>
+Eigen::VectorX<T> eigen_vector_from(const Eigen::MatrixBase<T>& from)
+{
+  Eigen::VectorX<T> to(from.size());
+  if (from.rows() == 1 || from.cols() == 1) {
+    std::copy(from.cbegin(), from.cend(), to.begin());
+    return to;
+  }
+  // reshape returns a view, not actually moving elements around
+  auto flat_view = from.reshaped(from.size(), 1);
+  std::copy(flat_view.cbegin(), flat_view.cend(), to.begin());
+  return to;
 }
 
 }  // namespace pdmath

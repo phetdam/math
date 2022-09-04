@@ -29,6 +29,8 @@ if(MSVC)
         /wd5027
         /wd5045
     )
+    # MSVC issues C4996 due to use of std::iterator in Boost
+    add_compile_definitions(_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
     if(CMAKE_BUILD_TYPE STREQUAL Release)
         add_compile_options(/O2)
     else()
