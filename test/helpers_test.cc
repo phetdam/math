@@ -11,6 +11,7 @@
 #include <vector>
 
 #include <Eigen/Core>
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "pdmath/types.h"
@@ -99,14 +100,8 @@ TEST_F(HelpersTest, BoostVectorFromTest)
   auto bvec1 = pdmath::boost_vector_from(values_);
   auto bvec2 = pdmath::boost_vector_from<double>(HELPERS_TEST_VECTOR_VALUES);
   EXPECT_EQ(bvec1.size(), bvec2.size());
-  // boost::numeric::ublas::vector does not define operator==, so legacy...
-  auto itr_1 = bvec1.cbegin();
-  auto itr_2 = bvec2.cbegin();
-  while (itr_1 != bvec1.cend() && itr_2 != bvec2.cend()) {
-    EXPECT_EQ(*itr_1, *itr_2) << *itr_1 << " != " << *itr_2;
-    itr_1++;
-    itr_2++;
-  }
+  // boost::numeric::ublas::vector does not define operator==, so use gmock
+  EXPECT_THAT(bvec1, ::testing::ElementsAreArray(bvec2));
 }
 
 /**
