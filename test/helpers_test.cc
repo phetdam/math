@@ -10,6 +10,7 @@
 #include <sstream>
 #include <vector>
 
+#include <Eigen/Core>
 #include <gtest/gtest.h>
 
 #include "pdmath/types.h"
@@ -116,6 +117,17 @@ TEST_F(HelpersTest, EigenVectorFromTest)
   auto evec1 = pdmath::eigen_vector_from(values_);
   auto evec2 = pdmath::eigen_vector_from<double>(HELPERS_TEST_VECTOR_VALUES);
   EXPECT_EQ(evec1, evec2);
+  // eigen_vector_from should work on a matrix
+  Eigen::Matrix2f m2;
+  m2 << HELPERS_TEST_VECTOR_VALUES;
+  // need to cast double to float since m2 has float scalar type. of course we
+  // cannot do the reverse since float is lower precision than double
+  EXPECT_EQ(evec1.cast<float>(), pdmath::eigen_vector_from(m2));
+  // should also work on a row vector or a fixed-size vector
+  Eigen::RowVector4d rv{{HELPERS_TEST_VECTOR_VALUES}};
+  EXPECT_EQ(evec1, pdmath::eigen_vector_from(rv));
+  Eigen::VectorXd v{{HELPERS_TEST_VECTOR_VALUES}};
+  EXPECT_EQ(evec1, pdmath::eigen_vector_from(v));
 }
 
 }  // namespace

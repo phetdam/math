@@ -272,22 +272,19 @@ inline Eigen::VectorX<T> eigen_vector_from(const Ts&... from)
 /**
  * Create a new Eigen dynamic vector from any `Eigen::MatrixBase`.
  *
- * 2D matrix elements will be read in column-major order.
+ * 2D matrix elements will be read in expected row-major order.
  *
- * @tparam T `Eigen::VectorX` and `Eigen::MatrixBase<T>` element type
+ * @tparam Derived The derived matrix/matrix expression type
  *
  * @param from `const Eigen::MatrixBase<T>&` to create new vector from
  */
-template <typename T>
-Eigen::VectorX<T> eigen_vector_from(const Eigen::MatrixBase<T>& from)
+template <typename Derived>
+inline Eigen::VectorX<typename Derived::Scalar> eigen_vector_from(
+  const Eigen::MatrixBase<Derived>& from)
 {
-  Eigen::VectorX<T> to(from.size());
-  if (from.rows() == 1 || from.cols() == 1) {
-    std::copy(from.cbegin(), from.cend(), to.begin());
-    return to;
-  }
+  Eigen::VectorX<typename Derived::Scalar> to(from.size());
   // reshape returns a view, not actually moving elements around
-  auto flat_view = from.reshaped(from.size(), 1);
+  auto flat_view = from.transpose().reshaped();
   std::copy(flat_view.cbegin(), flat_view.cend(), to.begin());
   return to;
 }
