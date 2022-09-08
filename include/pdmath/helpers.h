@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <initializer_list>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -261,7 +262,7 @@ inline Eigen::VectorX<T> eigen_vector_from(const std::vector<T>& from)
  * @tparam T `Eigen::VectorX` element type
  * @tparam Ts parameter pack
  *
- * @param from `Ts...` list of arguments that can be cast to `T`
+ * @param from `const Ts&...` list of arguments that can be cast to `T`
  */
 template <typename T, typename... Ts>
 inline Eigen::VectorX<T> eigen_vector_from(const Ts&... from)
@@ -286,6 +287,82 @@ inline Eigen::VectorX<typename Derived::Scalar> eigen_vector_from(
   // reshape returns a view, not actually moving elements around
   auto flat_view = from.transpose().reshaped();
   std::copy(flat_view.cbegin(), flat_view.cend(), to.begin());
+  return to;
+}
+
+/**
+ * Create a new `V_t` *Container* from a list of arguments.
+ *
+ * Since the template `V_t` argument cannot be deduced, recommended usage is:
+ *
+ * `auto evec = vector_from<V_t>(arg1, ... argN);`
+ *
+ * @tparam V_t *Container* type list-initializable by initializer list
+ * @tparam Ts parameter pack
+ *
+ * @param from `const Ts&...` list of arguments castable to `V_t::value_type`
+ */
+template <typename V_t, typename... Ts>
+inline V_t vector_from(const Ts&... from)
+{
+  return V_t{{static_cast<typename V_t::value_type>(from)...}};
+}
+
+/**
+ * Create a new `VOut_t` *Container* from another `VIn_t` *Container*.
+ *
+ * Since the template `V_t` argument cannot be deduced, recommended usage is:
+ *
+ * `auto evec = vector_from<VOut_t>(from);`
+ *
+ * @tparam VOut_t *Container* type list-initializable by initializer list
+ * @tparam VIn_t *Container* type
+ *
+ * @param from `const VIn_t&` *Container* to copy elements from
+ */
+template <typename VOut_t, typename VIn_t>
+inline VOut_t vector_from(const VIn_t& from)
+{
+  // MSVC complains about conversion from signed to unsigned
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4365)
+#endif  // _MSC_VER
+  VOut_t to(from.size());
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif // _MSC_VER
+  std::copy(from.cbegin(), from.cend(), to.begin());
+  return to;
+}
+
+/**
+ * Create a new `std::vector` from a `V_t` *Container* with same element type.
+ *
+ * @tparam V_t *Container* type
+ *
+ * @param from `const VIn_t&` *Container* to copy elements from
+ */
+template <typename V_t>
+inline std::vector<typename V_t::value_type> vector_from(const V_t& from)
+{
+  return vector_from<std::vector<typename V_t::value_type>>(from);
+}
+
+// TODO: document unique_vector_from + add generic VIn_t, VOut_t overload
+template <typename V_t, typename... Ts>
+inline std::unique_ptr<V_t> unique_vector_from(const Ts&... from)
+{
+  return std::unique_ptr<V_t>(
+    new V_t{{static_cast<typename V_t::value_type>(from)...}}
+  );
+}
+
+template <typename V_t>
+inline std::vector<typename V_t::value_type> unique_vector_from(const V_t& from)
+{
+  auto to = std::make_unique<std::vector<typename V_t::value_type>>(from.size());
+  std::copy(from.cbegin(), from.cend(), to->begin());
   return to;
 }
 

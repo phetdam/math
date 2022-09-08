@@ -19,6 +19,7 @@
 #include "pdmath/helpers.h"
 #include "pdmath/types.h"
 #include "pdmath/testing/macros.h"
+#include "pdmath/testing/utils.h"
 
 namespace {
 
@@ -30,7 +31,7 @@ namespace {
 template <typename T>
 class MathFunctorsTestBase : public ::testing::Test {
 protected:
-  // MSVC warns about truncation from double to const T
+// MSVC warns about truncation from double to const T
 #ifdef _MSC_VER
 #pragma warning (push)
 #pragma warning (disable: 4305)
@@ -45,7 +46,22 @@ protected:
 #ifdef _MSC_VER
 #pragma warning (pop)
 #endif  // _MSC_VER
+
+  /**
+   * Return comparison tolerance for doubles.
+   *
+   * @note `std::numeric_limits<double>::epsilon()` returns `2.22045e-16`.
+   */
+  static T tol() { return 1e-8; }
 };
+
+/**
+ * Return looser comparison tolerance for floats.
+ *
+ * @note `std::numeric_limits<float>::epsilon()` returns `1.19209e-07`.
+ */
+template <>
+float MathFunctorsTestBase<float>::tol() { return 1e-4f; }
 
 /**
  * Comma-separated initializers for initializing `hess_d_` and `hess_f_`.
@@ -62,82 +78,51 @@ protected:
 #define AFF_TERMS_INIT 0.4, -0.2, 1
 
 /**
- * Templated `using` definition for `quadratic_functor`.
- *
- * @tparam T scalar type
- * @tparam M_t matrix type with scalar type `T`, ex. an Eigen matrix
- */
-template <typename T, typename M_t>
-using qf_t = pdmath::quadratic_functor<T, std::vector<T>, M_t>;
-
-/**
  * Templated test fixture for testing the `quadratic_functor` template class.
+ *
+ * @tparam Tr_t `func_type_triple` specialization
  */
-template <typename T>
-class QuadraticFunctorTest : public MathFunctorsTestBase<T> {
+template <typename Tr_t>
+class QuadraticFunctorTest :
+  public MathFunctorsTestBase<typename Tr_t::scalar_t> {
 protected:
+  // using declarations for the Tr_t types
+  using T = typename Tr_t::scalar_t;
+  using V_t = typename Tr_t::vector_t;
+  using M_t = typename Tr_t::matrix_t;
+
   /**
    * Default constructor.
    *
    * Here we initialize the solution vector `sol_` and the functors.
    */
   QuadraticFunctorTest()
-    : hess_d_(new Eigen::MatrixX<T>{EIGEN_HESS_INIT}),
-      hess_f_(new Eigen::Matrix3<T>{EIGEN_HESS_INIT}),
-      // MSVC warns about double to const float truncation (T can be float)
-#ifdef _MSC_VER
-#pragma warning (push)
-#pragma warning (disable: 4305)
-#endif  // _MSC_VER
-      aff_(new std::vector<T>{AFF_TERMS_INIT}),
-#ifdef _MSC_VER
-#pragma warning (pop)
-#endif  // _MSC_VER
-      sol_(hess_f_->householderQr().solve(-pdmath::eigen_vector_from(*aff_))),
-      quad_d_(hess_d_, aff_, shf_),
-      quad_f_(hess_f_, aff_, shf_),
-      zeros_3_(new std::vector<T>(3, 0))
+    : hess_(new M_t{EIGEN_HESS_INIT}),
+      aff_(pdmath::unique_vector_from<V_t>(AFF_TERMS_INIT)),
+      sol_(
+        pdmath::vector_from<V_t>(
+          hess_->householderQr().solve(-pdmath::eigen_vector_from(*aff_)).eval())),
+      quad_(hess_, aff_, shf_),
+      // method of construction works for both `Eigen::Matrix` specializations
+      // and `std::vector`, as `{{0, 0, 0}}` is interpreted by
+      // list-initialization constructor taking a `std::initializer_list<T>`.
+      zeros_3_{{0., 0., 0.}}
   {}
 
-  /**
-   * Setup method for the `QuadraticFunctorTest`.
-   *
-   * We test correctness of `sol_` here since `ASSERT_*` can't be used in ctor.
-   */
-  void SetUp() override
-  {
-    // MSVC warns about double to const float truncation (T can be float)
-#ifdef _MSC_VER
-#pragma warning (push)
-#pragma warning (disable: 4305)
-#endif  // _MSC_VER
-    // need to use Eigen vector instead of STL vector
-    Eigen::Vector3<T> aff{AFF_TERMS_INIT};
-#ifdef _MSC_VER
-#pragma warning (pop)
-#endif  // _MSC_VER
-    // shouldn't matter if we use hess_f_ or hess_d_
-    ASSERT_EQ(sol_, hess_d_->householderQr().solve(-aff));
-  }
-
-  // try using both Eigen::Dynamic and fixed-at-compile time matrices. had some
-  // issues using std::make_shared so we opt to directly initialize
-  const std::shared_ptr<Eigen::MatrixX<T>> hess_d_;
-  const std::shared_ptr<Eigen::Matrix3<T>> hess_f_;
-  // purposely mix std::vector<T> to test how general the functors are
-  const std::shared_ptr<std::vector<T>> aff_;
+  // shared pointers to functor Hessian and affine terms
+  const std::shared_ptr<M_t> hess_;
+  const std::shared_ptr<V_t> aff_;
   // minimizer of the quadratic with hess_d_/hess_f_, aff_, shf_. this cannot
   // be computed at compile time (Eigen objects are not constexpr), so we
   // compute this in the constructor but do ASSERT_EQ check in SetUp, as we
   // are not allowed to call ASSERT_* macros in ctor/dtor of ::testing::Test.
-  const Eigen::Vector3<T> sol_;
-  // the quadratic functors we are interested in (fixed and dynamic matrices)
-  qf_t<T, Eigen::MatrixX<T>> quad_d_;
-  qf_t<T, Eigen::Matrix3<T>> quad_f_;
+  const V_t sol_;
+  // quadratic functor we are interested in
+  pdmath::quadratic_functor<T, V_t, M_t> quad_;
   // vector of 3 zeros that will prove useful later
-  const std::unique_ptr<std::vector<T>> zeros_3_;
+  const V_t zeros_3_;
 
-  // MSVC warns about truncating from double to const T
+// MSVC warns about truncating from double to const T
 #ifdef _MSC_VER
 #pragma warning (push)
 #pragma warning (disable: 4305)
@@ -152,8 +137,14 @@ protected:
 #undef EIGEN_HESS_INIT
 #undef AFF_TERMS_INIT
 
-using MathFunctorsTypes = ::testing::Types<float, double>;
-TYPED_TEST_SUITE(QuadraticFunctorTest, MathFunctorsTypes);
+// types used for QuadraticFunctorTest, mixing STL and Eigen types
+using QuadraticFunctorTypes = ::testing::Types<
+  pdmath::testing::func_type_triple<double, pdmath::double_vector, Eigen::Matrix3d>,
+  pdmath::testing::func_type_triple<float, Eigen::Vector3f, Eigen::MatrixXf>,
+  pdmath::testing::func_type_triple<double, Eigen::VectorXd, Eigen::Matrix3d>,
+  pdmath::testing::func_type_triple<float, pdmath::float_vector, Eigen::Matrix3f>
+>;
+TYPED_TEST_SUITE(QuadraticFunctorTest, QuadraticFunctorTypes);
 
 /**
  * Test that the `quadratic_functor` evaluates correctly.
@@ -162,8 +153,7 @@ TYPED_TEST_SUITE(QuadraticFunctorTest, MathFunctorsTypes);
  */
 TYPED_TEST(QuadraticFunctorTest, ZeroEvalTest)
 {
-  EXPECT_DOUBLE_EQ(TestFixture::shf_, this->quad_d_(*this->zeros_3_));
-  EXPECT_DOUBLE_EQ(TestFixture::shf_, this->quad_f_(*this->zeros_3_));
+  EXPECT_DOUBLE_EQ(TestFixture::shf_, this->quad_(this->zeros_3_));
 }
 
 /**
@@ -174,17 +164,17 @@ TYPED_TEST(QuadraticFunctorTest, ZeroEvalTest)
 TYPED_TEST(QuadraticFunctorTest, GradNearZeroTest)
 {
   // sol_ is an Eigen::Vector3, so convert to std::vector
-  const std::vector<TypeParam> sol(this->sol_.cbegin(), this->sol_.cend());
+  // const std::vector<TypeParam> sol(this->sol_.cbegin(), this->sol_.cend());
   // can't use the Google Test ::testing::Each(::testing::FloatEq(0.)) here
   // since we have a templated test that could have different types. therefore,
   // to allow boxing, we using ::testing::Ge and ::testing::Le.
   const auto all_near_zero = ::testing::Each(
     ::testing::AllOf(
-      ::testing::Ge(-TestFixture::ftol_), ::testing::Le(TestFixture::ftol_)
+      ::testing::Ge(-TestFixture::tol()), ::testing::Le(TestFixture::tol())
     )
   );
-  EXPECT_THAT(this->quad_d_.d1(sol), all_near_zero);
-  EXPECT_THAT(this->quad_f_.d1(sol), all_near_zero);
+  EXPECT_THAT(this->quad_.d1(this->sol_), all_near_zero);
+  // EXPECT_THAT(this->quad_f_.d1(sol), all_near_zero);
 }
 
 /**
@@ -192,8 +182,8 @@ TYPED_TEST(QuadraticFunctorTest, GradNearZeroTest)
  */
 TYPED_TEST(QuadraticFunctorTest, EqualHessianTest)
 {
-  // does not matter what vector we pass
-  EXPECT_EQ(this->quad_d_.d2(*this->zeros_3_), this->quad_f_.d2(*this->aff_));
+  // does not matter what vector we pass to d2
+  EXPECT_EQ(this->quad_.d2(this->zeros_3_), this->quad_.d2(*this->aff_));
 }
 
 /**
@@ -235,6 +225,8 @@ protected:
   hf_t<T, Eigen::Matrix2<T>> himmel_f_;
 };
 
+// TODO: use same types as QuadraticFunctorTypes
+using MathFunctorsTypes = ::testing::Types<float, double>;
 TYPED_TEST_SUITE(HimmelblauFunctorTest, MathFunctorsTypes);
 
 /**

@@ -50,7 +50,7 @@ public:
   {
     assert(hess && ((aff) ? aff->size() : true));
     assert(hess->rows() && hess->cols() && hess->rows() == hess->cols());
-    // Eigen::Index is ptrdiff_t by default
+// Eigen::Index is ptrdiff_t by default
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-compare"
@@ -66,7 +66,7 @@ public:
 #endif  // !defined(__GNUC__) && !defined(__clang__) && !defined(_MSC_VER)
     hess_ = hess;
     aff_ = aff;
-    // MSVC warns about Eigen::Index (signed) to size_t conversion
+// MSVC warns about Eigen::Index (signed) to size_t conversion
 #ifdef _MSC_VER
 #pragma warning (push)
 #pragma warning (disable: 4365)
@@ -86,10 +86,24 @@ public:
    */
   T f(const V_t& x) override
   {
+// g++/MSVC warns about integer signedness when using Eigen::Matrix
+// specializations, as they use a signed integer for the matrix size
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#elif defined(_MSC_VER)
+#pragma warning (push)
+#pragma warning (disable: 4389)
+#endif  // !defined(__GNUC__) && !defined(_MSC_VER)
     assert(x.size() == n_dims_);
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+#pragma warning (pop)
+#endif  // !defined(__GNUC__) && !defined(_MSC_VER)
     // compute the Hx product
     V_t hx(hess_inner(x));
-    // MSVC warns about conversion from double to T
+// MSVC warns about conversion from double to T
 #ifdef _MSC_VER
 #pragma warning (push)
 #pragma warning (disable: 4244)
@@ -103,7 +117,7 @@ public:
     if (!aff_) {
       return y;
     }
-    // MSVC warns about converting from _Ty to T on return
+// MSVC warns about converting from _Ty to T on return
 #ifdef _MSC_VER
 #pragma warning (push)
 #pragma warning (disable: 4244)
@@ -156,12 +170,26 @@ private:
    */
   V_t hess_inner(const V_t& x)
   {
+// g++/MSVC warns about integer signedness when using Eigen::Matrix
+// specializations, as they use a signed integer for the matrix size
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#elif defined(_MSC_VER)
+#pragma warning (push)
+#pragma warning (disable: 4389)
+#endif  // !defined(__GNUC__) && !defined(_MSC_VER)
     assert(x.size() == n_dims_);
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+#pragma warning (pop)
+#endif  // !defined(__GNUC__) && !defined(_MSC_VER)
     V_t res(n_dims_);
     // compute the Hx product
     auto res_itr = res.begin();
     for (const auto& row : hess_->rowwise()) {
-      // MSVC warns about _Ty to float loss of data
+// MSVC warns about _Ty to float loss of data
 #ifdef _MSC_VER
 #pragma warning (push)
 #pragma warning (disable: 4244)
@@ -227,7 +255,7 @@ public:
     assert(x.size() == n_dims_);
     T x_0 = x[0];
     T x_1 = x[1];
-    // MSVC warns about converting from double to T
+// MSVC warns about converting from double to T
 #ifdef _MSC_VER
 #pragma warning (push)
 #pragma warning (disable: 4244)

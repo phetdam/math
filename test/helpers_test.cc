@@ -114,7 +114,15 @@ TEST_F(HelpersTest, EigenVectorFromTest)
   EXPECT_EQ(evec1, evec2);
   // eigen_vector_from should work on a matrix
   Eigen::Matrix2f m2;
+// MSVC complains about truncation from double to const float
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4305)
+#endif  // _MSC_VER
   m2 << HELPERS_TEST_VECTOR_VALUES;
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
   // need to cast double to float since m2 has float scalar type. of course we
   // cannot do the reverse since float is lower precision than double
   EXPECT_EQ(evec1.cast<float>(), pdmath::eigen_vector_from(m2));
