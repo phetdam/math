@@ -8,6 +8,9 @@
 #ifndef PDMATH_TESTING_UTILS_H_
 #define PDMATH_TESTING_UTILS_H_
 
+namespace pdmath {
+namespace testing {
+
 /**
  * Templated wrapper for scalar , gradient, and Hessian types.
  *
@@ -26,5 +29,8 @@ public:
   using vector_t = V_t;
   using matrix_t = M_t;
 };
+
+}  // namespace pdmath::testing
+}  // namespace pdmath
 
 #endif  // PDMATH_TESTING_UTILS_H_
