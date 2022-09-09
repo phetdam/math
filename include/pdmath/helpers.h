@@ -199,11 +199,11 @@ inline std::string print_vector(const V_t& vec, bool print = true)
 }
 
 /**
- * Create a new Boost vector from a `std::vector`.
+ * Create a new Boost vector from a *Container*.
  *
- * @tparam T `boost_vector` element type
+ * @tparam V_t *Container* to copy elements from
  *
- * @param from `const std::vector<T>&` vector whose elements we will copy
+ * @param from `const V_t&` *Container* whose elements we will copy
  */
 template <typename V_t>
 inline boost_vector<typename V_t::value_type> boost_vector_from(const V_t& from)
@@ -251,7 +251,7 @@ inline Eigen::VectorX<T> eigen_vector_from(const std::vector<T>& from)
 }
 
 /**
- * Create a new Eigen dynamic vector from a `std::vector<T>`.
+ * Create a new Eigen dynamic vector with type `T` from a list of arguments.
  *
  * Uses a `static_cast<T>` to convert the arguments.
  *
