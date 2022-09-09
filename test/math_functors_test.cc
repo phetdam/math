@@ -163,8 +163,6 @@ TYPED_TEST(QuadraticFunctorTest, ZeroEvalTest)
  */
 TYPED_TEST(QuadraticFunctorTest, GradNearZeroTest)
 {
-  // sol_ is an Eigen::Vector3, so convert to std::vector
-  // const std::vector<TypeParam> sol(this->sol_.cbegin(), this->sol_.cend());
   // can't use the Google Test ::testing::Each(::testing::FloatEq(0.)) here
   // since we have a templated test that could have different types. therefore,
   // to allow boxing, we using ::testing::Ge and ::testing::Le.
@@ -174,7 +172,6 @@ TYPED_TEST(QuadraticFunctorTest, GradNearZeroTest)
     )
   );
   EXPECT_THAT(this->quad_.d1(this->sol_), all_near_zero);
-  // EXPECT_THAT(this->quad_f_.d1(sol), all_near_zero);
 }
 
 /**
@@ -234,7 +231,7 @@ TYPED_TEST_SUITE(HimmelblauFunctorTest, MathFunctorsTypes);
  *
  * @param name Name of `hf_t<T, M_t>` member of `HimmelblauFunctorTest`
  */
-#define HimmelBlauFunctorTest_EXPECT_NEAR_ZEROS(name) \
+#define HimmelblauFunctorTest_EXPECT_NEAR_ZEROS(name) \
   EXPECT_NEAR(0, this->name(*this->min_1_), TestFixture::dtol_); \
   EXPECT_NEAR(0, this->name(*this->min_2_), TestFixture::dtol_); \
   EXPECT_NEAR(0, this->name(*this->min_3_), TestFixture::dtol_); \
@@ -245,11 +242,11 @@ TYPED_TEST_SUITE(HimmelblauFunctorTest, MathFunctorsTypes);
  */
 TYPED_TEST(HimmelblauFunctorTest, ZeroEvalTest)
 {
-  HimmelBlauFunctorTest_EXPECT_NEAR_ZEROS(himmel_d_);
-  HimmelBlauFunctorTest_EXPECT_NEAR_ZEROS(himmel_f_);
+  HimmelblauFunctorTest_EXPECT_NEAR_ZEROS(himmel_d_);
+  HimmelblauFunctorTest_EXPECT_NEAR_ZEROS(himmel_f_);
 }
 
-#undef HimmelBlauFunctorTest_EXPECT_NEAR_ZEROS
+#undef HimmelblauFunctorTest_EXPECT_NEAR_ZEROS
 
 /**
  * Macro to reduce boilerplate of checking `himmelblau_functor` gradient zeros.
