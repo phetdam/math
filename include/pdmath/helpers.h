@@ -145,21 +145,21 @@ private:
 };
 
 /**
- * Print a `std::vector` to `std::cout`.
+ * Print elements of a *Container* to `std::cout`.
  *
  * Useful for identifying the program in `examples` being run by the user. If
- * `T` is a user-defined type, make sure `operator<<` has been overloaded.
+ * `V_t::value_type` is user-defined, it must overload `operator<<`.
  *
- * @tparam T vector element type
+ * @tparam V_t *Container* to print
  *
- * @param vec `const std::vector<T>&` vector to print out
+ * @param vec `const V_t&` *Container* to print out
  * @param print_policy `const vector_print_policy&` print policy
- * @param print `bool` where the vector is printed with an extra `\n` if `true`
+ * @param print `bool` where `vec` is printed with an extra `\n` if `true`
  * @returns `std::string` giving the string to print
  */
-template <typename T>
+template <typename V_t>
 std::string print_vector(
-  const std::vector<T>& vec,
+  const V_t& vec,
   const vector_print_policy& print_policy,
   bool print = true)
 {
@@ -167,10 +167,10 @@ std::string print_vector(
   stream << print_policy.pre_token();
   stream << std::string(print_policy.pre_padding(), ' ');
   for (const auto& v : vec) {
-    stream << v;
-    if (v != vec.back()) {
+    if (v != *vec.begin()) {
       stream << print_policy.delim() + std::string(print_policy.padding(), ' ');
     }
+    stream << v;
   }
   stream << std::string(print_policy.post_padding(), ' ');
   stream << print_policy.post_token();
@@ -182,18 +182,18 @@ std::string print_vector(
 }
 
 /**
- * Print a `std::vector` to `std::cout` with default `vector_print_policy`.
+ * Print a *Container* to `std::cout` with default `vector_print_policy`.
  *
- * If `T` is a user-defined type, make sure `operator<<` has been overloaded.
+ * If `V_t::value_type` is user-defined, it must overload `operator<<`.
  *
- * @tparam T vector element type
+ * @tparam V_t *Container* to print
  *
- * @param vec `const std::vector<T>&` vector to print out
- * @param print `bool` where the vector is printed with an extra `\n` if `true`
+ * @param vec `const V_t&` *Container* to print out
+ * @param print `bool` where `vec` is printed with an extra `\n` if `true`
  * @returns `std::string` giving the string to print
  */
-template <typename T>
-inline std::string print_vector(const std::vector<T>& vec, bool print = true)
+template <typename V_t>
+inline std::string print_vector(const V_t& vec, bool print = true)
 {
   return print_vector(vec, vector_print_policy(), print);
 }
@@ -205,10 +205,10 @@ inline std::string print_vector(const std::vector<T>& vec, bool print = true)
  *
  * @param from `const std::vector<T>&` vector whose elements we will copy
  */
-template <typename T>
-inline boost_vector<T> boost_vector_from(const std::vector<T>& from)
+template <typename V_t>
+inline boost_vector<typename V_t::value_type> boost_vector_from(const V_t& from)
 {
-  boost_vector<T> to(from.size());
+  boost_vector<typename V_t::value_type> to(from.size());
   // note: when compiling with MSVC, using indexing when copying using a for
   // loop causes C5045 to be emitted with /Wall, but not with iterators.
   std::copy(from.cbegin(), from.cend(), to.begin());
