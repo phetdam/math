@@ -24,13 +24,13 @@
 namespace {
 
 /**
- * Templated base test fixture for testing math functors.
+ * Templated mixin class providing a templated comparison tolerance function.
  *
  * Mostly just provides the float loose comparison tolerance we use a lot.
  */
 template <typename T>
-class MathFunctorsTestBase : public ::testing::Test {
-protected:
+class TolMixin {
+public:
 // MSVC warns about truncation from double to const T
 #ifdef _MSC_VER
 #pragma warning (push)
@@ -61,7 +61,7 @@ protected:
  * @note `std::numeric_limits<float>::epsilon()` returns `1.19209e-07`.
  */
 template <>
-float MathFunctorsTestBase<float>::tol() { return 1e-4f; }
+float TolMixin<float>::tol() { return 1e-4f; }
 
 /**
  * Comma-separated initializers for initializing `hess_d_` and `hess_f_`.
@@ -84,7 +84,7 @@ float MathFunctorsTestBase<float>::tol() { return 1e-4f; }
  */
 template <typename Tr_t>
 class QuadraticFunctorTest :
-  public MathFunctorsTestBase<typename Tr_t::scalar_t> {
+  public ::testing::Test, public TolMixin<typename Tr_t::scalar_t> {
 protected:
   // using declarations for the Tr_t types
   using T = typename Tr_t::scalar_t;
@@ -196,7 +196,7 @@ using hf_t = pdmath::himmelblau_functor<T, Eigen::Vector2<T>, M_t>;
  * Templated test fixture for testing the `himmelblau_functor`.
  */
 template <typename T>
-class HimmelblauFunctorTest : public MathFunctorsTestBase<T> {
+class HimmelblauFunctorTest : public ::testing::Test, public TolMixin<T> {
 protected:
   /**
    * Default constructor.
