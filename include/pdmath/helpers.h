@@ -323,7 +323,7 @@ inline V_t vector_from(const Ts&... from)
 template <typename VOut_t, typename VIn_t>
 inline VOut_t vector_from(const VIn_t& from)
 {
-  // MSVC complains about conversion from signed to unsigned
+// MSVC complains about signed to unsigned conversion if using Eigen vectors
 #ifdef _MSC_VER
 #pragma warning (push)
 #pragma warning (disable: 4365)
@@ -358,10 +358,10 @@ inline std::unique_ptr<V_t> unique_vector_from(const Ts&... from)
   );
 }
 
-template <typename V_t>
-inline std::vector<typename V_t::value_type> unique_vector_from(const V_t& from)
+template <typename VOut_t, typename VIn_t>
+inline std::unique_ptr<VOut_t> unique_vector_from(const VIn_t& from)
 {
-  auto to = std::make_unique<std::vector<typename V_t::value_type>>(from.size());
+  auto to = std::make_unique<VOut_t>(from.size());
   std::copy(from.cbegin(), from.cend(), to->begin());
   return to;
 }
