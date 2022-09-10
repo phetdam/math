@@ -273,9 +273,9 @@ inline Eigen::VectorX<T> eigen_vector_from(const std::vector<T>& from)
  * @param from `const Ts&...` list of arguments that can be cast to `T`
  */
 template <typename T, typename... Ts>
-inline Eigen::VectorX<T> eigen_vector_from(const Ts&... from)
+inline auto eigen_vector_from(const Ts&... from)
 {
-  return eigen_vector_from(std::vector<T>({static_cast<T>(from)...}));
+  return Eigen::VectorX<T>{{static_cast<T>(from)...}};
 }
 
 /**
