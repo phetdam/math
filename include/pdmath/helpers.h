@@ -208,7 +208,15 @@ inline std::string print_vector(const V_t& vec, bool print = true)
 template <typename V_t>
 inline boost_vector<typename V_t::value_type> boost_vector_from(const V_t& from)
 {
+// MSVC complains about signed to unsigned conversion if using Eigen vectors
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4365)
+#endif  // _MSC_VER
   boost_vector<typename V_t::value_type> to(from.size());
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
   // note: when compiling with MSVC, using indexing when copying using a for
   // loop causes C5045 to be emitted with /Wall, but not with iterators.
   std::copy(from.cbegin(), from.cend(), to.begin());

@@ -80,7 +80,15 @@ protected:
 
 // as noted before, using {{}} works for both std::vector and Eigen vectors
 template <typename V_t>
+// MSVC complains (again) about double to float truncation
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4305)
+#endif  // _MSC_VER
 const V_t HelpersVtOneTest<V_t>::values_{{HELPERS_TEST_VECTOR_VALUES}};
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
 
 using HelpersVtOneTestTypes = ::testing::Types<
   pdmath::double_vector,
@@ -160,7 +168,15 @@ protected:
 };
 
 template <typename M_t>
+// MSVC complains (again) about double to float truncation
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4305)
+#endif  // _MSC_VER
 const M_t EigenVectorFromMatrixTest<M_t>::values_{HELPERS_TEST_MATRIX_VALUES};
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
 
 using EigenVectorFromMatrixTestTypes = ::testing::Types<
   Eigen::Matrix2f, Eigen::Matrix2Xd, Eigen::MatrixXf
