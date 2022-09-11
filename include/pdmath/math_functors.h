@@ -14,11 +14,13 @@
 #include <functional>
 #include <memory>
 #include <numeric>
+#include <type_traits>
 
 #include <Eigen/Core>
 
 #include "pdmath/bases.h"
 #include "pdmath/math_functions.h"
+#include "pdmath/type_traits.h"
 
 namespace pdmath {
 
@@ -185,7 +187,10 @@ private:
 #elif defined(_MSC_VER)
 #pragma warning (pop)
 #endif  // !defined(__GNUC__) && !defined(_MSC_VER)
-    V_t res(n_dims_);
+    // supports std::array, which has a fixed size
+    V_t res;
+    // re-allocate vector types or Container types that have this constructor
+    if constexpr (is_vector_size_constructible_v<V_t>) { res = V_t(n_dims_); }
     // compute the Hx product
     auto res_itr = res.begin();
     for (const auto& row : hess_->rowwise()) {
@@ -267,7 +272,7 @@ public:
 #pragma warning (pop)
 #endif  // _MSC_VER
     // use chain rule for each to get result
-    return {2 * x_0 * dq_0 + dq_1, dq_0 + 2 * x_1 * dq_1};
+    return V_t{{2 * x_0 * dq_0 + dq_1, dq_0 + 2 * x_1 * dq_1}};
   }
 
   /**

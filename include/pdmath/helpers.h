@@ -15,11 +15,14 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <type_traits>
 #include <utility>
+#include <vector>
 
 #include <Eigen/Core>
 
 #include "pdmath/bases.h"
+#include "pdmath/type_traits.h"
 #include "pdmath/types.h"
 
 namespace pdmath {
@@ -323,7 +326,7 @@ inline V_t vector_from(const Ts&... from)
  *
  * `auto evec = vector_from<VOut_t>(from);`
  *
- * @tparam VOut_t *Container* type list-initializable by initializer list
+ * @tparam VOut_t *Container* type
  * @tparam VIn_t *Container* type
  *
  * @param from `const VIn_t&` *Container* to copy elements from
@@ -331,15 +334,20 @@ inline V_t vector_from(const Ts&... from)
 template <typename VOut_t, typename VIn_t>
 inline VOut_t vector_from(const VIn_t& from)
 {
+  // supports std::array, which has a fixed size
+  VOut_t to;
+  // re-allocate vector types or Container types that have this constructor
+  if constexpr (is_vector_size_constructible_v<VOut_t>) {
 // MSVC complains about signed to unsigned conversion if using Eigen vectors
 #ifdef _MSC_VER
 #pragma warning (push)
 #pragma warning (disable: 4365)
 #endif  // _MSC_VER
-  VOut_t to(from.size());
+    to = VOut_t(from.size());
 #ifdef _MSC_VER
 #pragma warning (pop)
 #endif // _MSC_VER
+  }
   std::copy(from.cbegin(), from.cend(), to.begin());
   return to;
 }
@@ -369,7 +377,11 @@ inline std::unique_ptr<V_t> unique_vector_from(const Ts&... from)
 template <typename VOut_t, typename VIn_t>
 inline std::unique_ptr<VOut_t> unique_vector_from(const VIn_t& from)
 {
-  auto to = std::make_unique<VOut_t>(from.size());
+  auto to = std::make_unique<VOut_t>();
+  // re-allocate vector types or Container types that have this constructor
+  if constexpr (is_vector_size_constructible_v<VOut_t>) {
+    to = std::make_unique<VOut_t>(from.size());
+  }
   std::copy(from.cbegin(), from.cend(), to->begin());
   return to;
 }

@@ -91,7 +91,7 @@ const V_t HelpersVtOneTest<V_t>::values_{{HELPERS_TEST_VECTOR_VALUES}};
 #endif  // _MSC_VER
 
 using HelpersVtOneTestTypes = ::testing::Types<
-  pdmath::double_vector,
+  pdmath::vector_d,
   std::vector<float>,
   Eigen::VectorXf,
   Eigen::Vector4d,
@@ -220,16 +220,17 @@ protected:
 };
 
 template <typename Tp_t>
-const typename Tp_t::first_type
-HelpersVtTwoTest<Tp_t>::values_1_{{HELPERS_TEST_VECTOR_VALUES}};
-
+const typename Tp_t::first_type HelpersVtTwoTest<Tp_t>::values_1_{
+  {HELPERS_TEST_VECTOR_VALUES}
+};
 template <typename Tp_t>
-const typename Tp_t::second_type
-HelpersVtTwoTest<Tp_t>::values_2_{{HELPERS_TEST_VECTOR_VALUES}};
+const typename Tp_t::second_type HelpersVtTwoTest<Tp_t>::values_2_{
+  {HELPERS_TEST_VECTOR_VALUES}
+};
 
 using HelpersVtTwoTestTypes = ::testing::Types<
-  std::pair<pdmath::double_vector, Eigen::VectorXd>,
-  std::pair<Eigen::VectorXf, pdmath::float_vector>
+  std::pair<pdmath::vector_d, Eigen::VectorXd>,
+  std::pair<Eigen::VectorXf, pdmath::vector_f>
 >;
 TYPED_TEST_SUITE(HelpersVtTwoTest, HelpersVtTwoTestTypes);
 

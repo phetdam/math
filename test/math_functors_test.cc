@@ -7,6 +7,7 @@
 
 #include "pdmath/math_functors.h"
 
+#include <array>
 #include <memory>
 #include <vector>
 
@@ -83,8 +84,8 @@ float TolMixin<float>::tol() { return 1e-4f; }
  * @tparam Tr_t `func_type_triple` specialization
  */
 template <typename Tr_t>
-class QuadraticFunctorTest :
-  public ::testing::Test, public TolMixin<typename Tr_t::scalar_t> {
+class QuadraticFunctorTest
+ : public ::testing::Test, public TolMixin<typename Tr_t::scalar_t> {
 protected:
   // using declarations for the Tr_t types
   using T = typename Tr_t::scalar_t;
@@ -139,10 +140,11 @@ protected:
 
 // types used for QuadraticFunctorTest, mixing STL and Eigen types
 using QuadraticFunctorTypes = ::testing::Types<
-  pdmath::testing::func_type_triple<double, pdmath::double_vector, Eigen::Matrix3d>,
+  pdmath::testing::func_type_triple<double, pdmath::vector_d, Eigen::Matrix3d>,
   pdmath::testing::func_type_triple<float, Eigen::Vector3f, Eigen::MatrixXf>,
   pdmath::testing::func_type_triple<double, Eigen::VectorXd, Eigen::Matrix3d>,
-  pdmath::testing::func_type_triple<float, pdmath::float_vector, Eigen::Matrix3f>
+  pdmath::testing::func_type_triple<float, pdmath::vector_f, Eigen::Matrix3f>
+  // pdmath::testing::func_type_triple<double, pdmath::array_triple_d, Eigen::MatrixXd>
 >;
 TYPED_TEST_SUITE(QuadraticFunctorTest, QuadraticFunctorTypes);
 
@@ -184,117 +186,125 @@ TYPED_TEST(QuadraticFunctorTest, EqualHessianTest)
 }
 
 /**
- * Templated `using` definition for `himmelblau_functor`.
- *
- * @tparam T scalar type
- * @tparam M_t matrix type with scalar type `T`, ex. an Eigen matrix
- */
-template <typename T, typename M_t>
-using hf_t = pdmath::himmelblau_functor<T, Eigen::Vector2<T>, M_t>;
-
-/**
  * Templated test fixture for testing the `himmelblau_functor`.
+ *
+ * @tparam Tr_t `func_type_triple` specialization
  */
-template <typename T>
-class HimmelblauFunctorTest : public ::testing::Test, public TolMixin<T> {
+template <typename Tr_t>
+class HimmelblauFunctorTest
+  : public ::testing::Test, public TolMixin<typename Tr_t::scalar_t> {
 protected:
-  /**
-   * Default constructor.
-   *
-   * Here we initialize the Himmelblau function minimizers.
-   */
-  HimmelblauFunctorTest()
-    : min_1_(new Eigen::Vector2<T>{HIMMELBLAU_ZERO_1}),
-      min_2_(new Eigen::Vector2<T>{HIMMELBLAU_ZERO_2}),
-      min_3_(new Eigen::Vector2<T>{HIMMELBLAU_ZERO_3}),
-      min_4_(new Eigen::Vector2<T>{HIMMELBLAU_ZERO_1}),
-      himmel_d_(),
-      himmel_f_()
-  {}
+  using T = typename Tr_t::scalar_t;
+  using V_t = typename Tr_t::vector_t;
+  using M_t = typename Tr_t::matrix_t;
 
+  HimmelblauFunctorTest() : himmel_() {}
+
+  // Himmelblau functor we are interested in
+  pdmath::himmelblau_functor<T, V_t, M_t> himmel_;
   // Himmelblau's function has 4 minimizers where the function is zero
-  const std::unique_ptr<Eigen::Vector2<T>> min_1_;
-  const std::unique_ptr<Eigen::Vector2<T>> min_2_;
-  const std::unique_ptr<Eigen::Vector2<T>> min_3_;
-  const std::unique_ptr<Eigen::Vector2<T>> min_4_;
-  // Himmelblau functors with different Eigen matrix types
-  hf_t<T, Eigen::MatrixX<T>> himmel_d_;
-  hf_t<T, Eigen::Matrix2<T>> himmel_f_;
+  static const V_t min_1_;
+  static const V_t min_2_;
+  static const V_t min_3_;
+  static const V_t min_4_;
+};
+
+// initialize all four zeros of the Himmelblau function
+template <typename Tr_t>
+const typename Tr_t::vector_t HimmelblauFunctorTest<Tr_t>::min_1_{
+  {HIMMELBLAU_ZERO_1}
+};
+template <typename Tr_t>
+const typename Tr_t::vector_t HimmelblauFunctorTest<Tr_t>::min_2_{
+  {HIMMELBLAU_ZERO_2}
+};
+template <typename Tr_t>
+const typename Tr_t::vector_t HimmelblauFunctorTest<Tr_t>::min_3_{
+  {HIMMELBLAU_ZERO_3}
+};
+template <typename Tr_t>
+const typename Tr_t::vector_t HimmelblauFunctorTest<Tr_t>::min_4_{
+  {HIMMELBLAU_ZERO_4}
 };
 
 // TODO: use same types as QuadraticFunctorTypes
-using MathFunctorsTypes = ::testing::Types<float, double>;
-TYPED_TEST_SUITE(HimmelblauFunctorTest, MathFunctorsTypes);
+using HimmelblauFunctorTestTypes = ::testing::Types<
+  // pdmath::testing::func_type_triple<double, pdmath::array_pair_d, Eigen::Matrix2d>,
+  pdmath::testing::func_type_triple<float, pdmath::vector_f, Eigen::MatrixXf>,
+  pdmath::testing::func_type_triple<double, Eigen::Vector2d, Eigen::MatrixXd>,
+  pdmath::testing::func_type_triple<float, Eigen::VectorXf, Eigen::Matrix2Xf>
+>;
+TYPED_TEST_SUITE(HimmelblauFunctorTest, HimmelblauFunctorTestTypes);
 
 /**
  * Macro to reduce boilerplate of checking `himmelblau_functor` zeros.
  *
- * @param name Name of `hf_t<T, M_t>` member of `HimmelblauFunctorTest`
+ * @param zero a `Tr_t::vector_t` zero candidate
  */
-#define HimmelblauFunctorTest_EXPECT_NEAR_ZEROS(name) \
-  EXPECT_NEAR(0, this->name(*this->min_1_), TestFixture::dtol_); \
-  EXPECT_NEAR(0, this->name(*this->min_2_), TestFixture::dtol_); \
-  EXPECT_NEAR(0, this->name(*this->min_3_), TestFixture::dtol_); \
-  EXPECT_NEAR(0, this->name(*this->min_4_), TestFixture::dtol_)
+#define HimmelblauFunctorTest_EXPECT_NEAR_ZERO(zero) \
+  EXPECT_NEAR(0, this->himmel_(TestFixture::zero), TestFixture::tol())
 
 /**
  * Test that the `himmelblau_functor` zeros correctly.
  */
 TYPED_TEST(HimmelblauFunctorTest, ZeroEvalTest)
 {
-  HimmelblauFunctorTest_EXPECT_NEAR_ZEROS(himmel_d_);
-  HimmelblauFunctorTest_EXPECT_NEAR_ZEROS(himmel_f_);
+  HimmelblauFunctorTest_EXPECT_NEAR_ZERO(min_1_);
+  HimmelblauFunctorTest_EXPECT_NEAR_ZERO(min_2_);
+  HimmelblauFunctorTest_EXPECT_NEAR_ZERO(min_3_);
+  HimmelblauFunctorTest_EXPECT_NEAR_ZERO(min_4_);
 }
 
-#undef HimmelblauFunctorTest_EXPECT_NEAR_ZEROS
+#undef HimmelblauFunctorTest_EXPECT_NEAR_ZERO
 
 /**
  * Macro to reduce boilerplate of checking `himmelblau_functor` gradient zeros.
  *
- * Since we use `Eigen::Vector2<T>` in `hf_t<T, M_t>`, we can use the existing
- *`isZero` method to check if gradients are close to zero.
+ * We need to use `eigen_vector_from` to ensure that the result of `himmel_.d1`
+ * is an `Eigen::Vector` specialization to use the `isZero` method.
  *
- * @param name Name of `hf_t<T, M_t>` member of `HimmelblauFunctorTest`
+ * @param zero a `Tr_t::vector_t` zero candidate
  */
-#define HimmelblauFunctorTest_EXPECT_GRADS_NEAR_ZERO(name) \
-  EXPECT_TRUE(this->name.d1(*this->min_1_).isZero(TestFixture::ftol_)); \
-  EXPECT_TRUE(this->name.d1(*this->min_2_).isZero(TestFixture::ftol_)); \
-  EXPECT_TRUE(this->name.d1(*this->min_3_).isZero(TestFixture::ftol_)); \
-  EXPECT_TRUE(this->name.d1(*this->min_4_).isZero(TestFixture::ftol_))
+#define HimmelblauFunctorTest_EXPECT_GRAD_NEAR_ZERO(zero) \
+  EXPECT_TRUE( \
+    pdmath::eigen_vector_from(this->himmel_.d1(TestFixture::zero)) \
+      .isZero(TestFixture::ftol_) \
+  )
 
 /**
  * Test that the `himmelblau_functor` gradients are near zero at the zeros.
  */
 TYPED_TEST(HimmelblauFunctorTest, GradNearZeroTest)
 {
-  HimmelblauFunctorTest_EXPECT_GRADS_NEAR_ZERO(himmel_d_);
-  HimmelblauFunctorTest_EXPECT_GRADS_NEAR_ZERO(himmel_f_);  //sds
+  HimmelblauFunctorTest_EXPECT_GRAD_NEAR_ZERO(min_1_);
+  HimmelblauFunctorTest_EXPECT_GRAD_NEAR_ZERO(min_2_);
+  HimmelblauFunctorTest_EXPECT_GRAD_NEAR_ZERO(min_3_);
+  HimmelblauFunctorTest_EXPECT_GRAD_NEAR_ZERO(min_4_);
 }
 
-#undef HimmelblauFunctorTest_EXPECT_GRADS_NEAR_ZERO
+#undef HimmelblauFunctorTest_EXPECT_GRAD_NEAR_ZERO
 
 /**
- * Macro to reduce boilerplate checking if `himmelblaue_functor` Hessians PSD.
+ * Macro to reduce boilerplate checking if `himmelblau_functor` Hessians PSD.
  *
  * A positive semidefinite matrix necessarily has nonnegative determinant.
  *
- * @param name Name of `hf_t<T, M_t>` member of `HimmelblauFunctorTest`
+ * @param zero a `Tr_t::vector_t` zero candidate
  */
-#define HimmelblauFunctortest_EXPECT_HESSIANS_NEAR_PSD(name) \
-  EXPECT_GE(this->name.d2(*this->min_1_).determinant(), 0); \
-  EXPECT_GE(this->name.d2(*this->min_2_).determinant(), 0); \
-  EXPECT_GE(this->name.d2(*this->min_3_).determinant(), 0); \
-  EXPECT_GE(this->name.d2(*this->min_4_).determinant(), 0)
+#define HimmelblauFunctortest_EXPECT_HESSIAN_NEAR_PSD(zero) \
+  EXPECT_GE(this->himmel_.d2(TestFixture::zero).determinant(), 0)
 
 /**
  * Test that the `himmelblau_functor` Hessians are PSD at the zeros.
  */
 TYPED_TEST(HimmelblauFunctorTest, PSDHessTest)
 {
-  HimmelblauFunctortest_EXPECT_HESSIANS_NEAR_PSD(himmel_d_);
-  HimmelblauFunctortest_EXPECT_HESSIANS_NEAR_PSD(himmel_f_);
+  HimmelblauFunctortest_EXPECT_HESSIAN_NEAR_PSD(min_1_);
+  HimmelblauFunctortest_EXPECT_HESSIAN_NEAR_PSD(min_2_);
+  HimmelblauFunctortest_EXPECT_HESSIAN_NEAR_PSD(min_3_);
+  HimmelblauFunctortest_EXPECT_HESSIAN_NEAR_PSD(min_4_);
 }
 
-#undef HimmelblauFunctortest_EXPECT_HESSIANS_NEAR_PSD
+#undef HimmelblauFunctortest_EXPECT_HESSIAN_NEAR_PSD
 
 }  // namespace
