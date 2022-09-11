@@ -18,16 +18,28 @@
 
 namespace pdmath {
 
-using double_vector = std::vector<double>;
-using float_vector = std::vector<float>;
+using double_vector [[deprecated("use vector_d instead")]] = std::vector<double>;
+using vector_d = std::vector<double>;
+using float_vector [[deprecated("use vector_f instead")]] = std::vector<float>;
+using vector_f = std::vector<float>;
 
 template <typename T>
 using boost_vector = boost::numeric::ublas::vector<T>;
+using boost_vector_d = boost_vector<double>;
+using boost_vector_f = boost_vector<float>;
 template <typename T>
 using boost_matrix = boost::numeric::ublas::matrix<T>;
+using boost_matrix_d = boost_matrix<double>;
+using boost_matrix_f = boost_matrix<float>;
 
 template <typename T>
 using array_pair = std::array<T, 2>;
+using array_pair_d = array_pair<double>;
+using array_pair_f = array_pair<float>;
+template <typename T>
+using array_triple = std::array<T, 3>;
+using array_triple_d = array_triple<double>;
+using array_triple_f = array_triple<float>;
 
 }  // namespace pdmath
 
