@@ -9,6 +9,7 @@
 #define PDMATH_HELPERS_H_
 
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <initializer_list>
 #include <iostream>
@@ -247,21 +248,6 @@ inline boost_vector<T> boost_vector_from(Ts... from)
 }
 
 /**
- * Create a new Eigen dynamic vector from a `std::vector<T>`.
- *
- * @tparam T new vector element type
- *
- * @param from `const std::vector<T>&` vector whose elements we will copy
- */
-template <typename T>
-inline Eigen::VectorX<T> eigen_vector_from(const std::vector<T>& from)
-{
-  Eigen::VectorX<T> to(from.size());
-  std::copy(from.cbegin(), from.cend(), to.begin());
-  return to;
-}
-
-/**
  * Create a new Eigen dynamic vector with type `T` from a list of arguments.
  *
  * Uses a `static_cast<T>` to convert the arguments.
@@ -298,6 +284,38 @@ inline Eigen::VectorX<typename Derived::Scalar> eigen_vector_from(
   // reshape returns a view, not actually moving elements around
   auto flat_view = from.transpose().reshaped();
   std::copy(flat_view.cbegin(), flat_view.cend(), to.begin());
+  return to;
+}
+
+/**
+ * Create a new Eigen dynamic vector from a `std::vector<T>`.
+ *
+ * @tparam T element type
+ *
+ * @param from `const std::vector<T>&` vector whose elements we will copy
+ */
+template <typename T>
+inline Eigen::VectorX<T> eigen_vector_from(const std::vector<T>& from)
+{
+  Eigen::VectorX<T> to(from.size());
+  std::copy(from.cbegin(), from.cend(), to.begin());
+  return to;
+}
+
+/**
+ * Create a new Eigen dynamic vector from a `std::array<T, N>`.
+ *
+ * @tparam T element type
+ * @tparam N `std::size_t` giving array size
+ *
+ * @param from `const std::array<T, N>&` array whose elements we will copy
+ */
+template <typename T, std::size_t N>
+inline Eigen::VectorX<T> eigen_vector_from(const std::array<T, N>& from)
+{
+  // implicit conversion from unsigned to signed
+  Eigen::VectorX<T> to(from.size());
+  std::copy(from.cbegin(), from.cend(), to.begin());
   return to;
 }
 
@@ -352,20 +370,7 @@ inline VOut_t vector_from(const VIn_t& from)
   return to;
 }
 
-/**
- * Create a new `std::vector` from a `V_t` *Container* with same element type.
- *
- * @tparam V_t *Container* type
- *
- * @param from `const VIn_t&` *Container* to copy elements from
- */
-template <typename V_t>
-inline std::vector<typename V_t::value_type> vector_from(const V_t& from)
-{
-  return vector_from<std::vector<typename V_t::value_type>>(from);
-}
-
-// TODO: document unique_vector_from + add generic VIn_t, VOut_t overload
+// TODO: document unique_vector_from
 template <typename V_t, typename... Ts>
 inline std::unique_ptr<V_t> unique_vector_from(const Ts&... from)
 {

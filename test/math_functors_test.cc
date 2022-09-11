@@ -143,8 +143,8 @@ using QuadraticFunctorTypes = ::testing::Types<
   pdmath::testing::func_type_triple<double, pdmath::vector_d, Eigen::Matrix3d>,
   pdmath::testing::func_type_triple<float, Eigen::Vector3f, Eigen::MatrixXf>,
   pdmath::testing::func_type_triple<double, Eigen::VectorXd, Eigen::Matrix3d>,
-  pdmath::testing::func_type_triple<float, pdmath::vector_f, Eigen::Matrix3f>
-  // pdmath::testing::func_type_triple<double, pdmath::array_triple_d, Eigen::MatrixXd>
+  pdmath::testing::func_type_triple<float, pdmath::vector_f, Eigen::Matrix3f>,
+  pdmath::testing::func_type_triple<double, pdmath::array_triple_d, Eigen::MatrixXd>
 >;
 TYPED_TEST_SUITE(QuadraticFunctorTest, QuadraticFunctorTypes);
 
@@ -215,21 +215,42 @@ const typename Tr_t::vector_t HimmelblauFunctorTest<Tr_t>::min_1_{
   {HIMMELBLAU_ZERO_1}
 };
 template <typename Tr_t>
+// MSVC warns about truncation from double to const T
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4305)
+#endif  // _MSC_VER
 const typename Tr_t::vector_t HimmelblauFunctorTest<Tr_t>::min_2_{
   {HIMMELBLAU_ZERO_2}
 };
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
 template <typename Tr_t>
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4305)
+#endif  // _MSC_VER
 const typename Tr_t::vector_t HimmelblauFunctorTest<Tr_t>::min_3_{
   {HIMMELBLAU_ZERO_3}
 };
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
 template <typename Tr_t>
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4305)
+#endif  // _MSC_VER
 const typename Tr_t::vector_t HimmelblauFunctorTest<Tr_t>::min_4_{
   {HIMMELBLAU_ZERO_4}
 };
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
 
-// TODO: use same types as QuadraticFunctorTypes
 using HimmelblauFunctorTestTypes = ::testing::Types<
-  // pdmath::testing::func_type_triple<double, pdmath::array_pair_d, Eigen::Matrix2d>,
+  pdmath::testing::func_type_triple<double, pdmath::array_pair_d, Eigen::Matrix2d>,
   pdmath::testing::func_type_triple<float, pdmath::vector_f, Eigen::MatrixXf>,
   pdmath::testing::func_type_triple<double, Eigen::Vector2d, Eigen::MatrixXd>,
   pdmath::testing::func_type_triple<float, Eigen::VectorXf, Eigen::Matrix2Xf>
@@ -260,15 +281,17 @@ TYPED_TEST(HimmelblauFunctorTest, ZeroEvalTest)
 /**
  * Macro to reduce boilerplate of checking `himmelblau_functor` gradient zeros.
  *
- * We need to use `eigen_vector_from` to ensure that the result of `himmel_.d1`
- * is an `Eigen::Vector` specialization to use the `isZero` method.
+ * We need to use `vector_from<Eigen::VectorX<typename TypeParam::scalar_t>>`
+ * to ensure that the result of `himmel_.d1` is a `Eigen::VectorX`
+ * specialization so we can use the `isZero` method.
  *
  * @param zero a `Tr_t::vector_t` zero candidate
  */
 #define HimmelblauFunctorTest_EXPECT_GRAD_NEAR_ZERO(zero) \
   EXPECT_TRUE( \
-    pdmath::eigen_vector_from(this->himmel_.d1(TestFixture::zero)) \
-      .isZero(TestFixture::ftol_) \
+    pdmath::vector_from<Eigen::VectorX<typename TypeParam::scalar_t>>( \
+      this->himmel_.d1(TestFixture::zero)) \
+        .isZero(TestFixture::ftol_) \
   )
 
 /**
