@@ -147,8 +147,8 @@ int main()
   // lambda used in the objective
   double lam = 0.1;
   // singular values and projected residuals + their max and min values
-  pdmath::double_vector svs = {0.47, 0.3, 0.1};
-  pdmath::double_vector prs = {-0.2, 0.35, -0.01};
+  pdmath::vector_d svs = {0.47, 0.3, 0.1};
+  pdmath::vector_d prs = {-0.2, 0.35, -0.01};
   double smin = *std::min_element(svs.begin(), svs.end());
   double smax = *std::max_element(svs.begin(), svs.end());
   double rmax = *std::max_element(prs.begin(), prs.end());

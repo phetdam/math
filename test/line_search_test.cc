@@ -53,7 +53,7 @@ protected:
 using LineSearchTestTypes = ::testing::Types<
   func_type_triple<float, Eigen::Vector2f, Eigen::Matrix2f>,
   func_type_triple<double, Eigen::Vector2d, Eigen::Matrix2d>,
-  func_type_triple<double, pdmath::double_vector, Eigen::Matrix2d>
+  func_type_triple<double, pdmath::vector_d, Eigen::Matrix2d>
 >;
 TYPED_TEST_SUITE(LineSearchTest, LineSearchTestTypes);
 
