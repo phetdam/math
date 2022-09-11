@@ -53,19 +53,19 @@ public:
     assert(hess && ((aff) ? aff->size() : true));
     assert(hess->rows() && hess->cols() && hess->rows() == hess->cols());
 // Eigen::Index is ptrdiff_t by default
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__GNUG__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #elif defined(_MSC_VER)
 #pragma warning (push)
 #pragma warning (disable: 4389)
-#endif  // !defined(__GNUC__) && !defined(__clang__) && !defined(_MSC_VER)
+#endif  // !defined(__GNUG__) && !defined(__clang__) && !defined(_MSC_VER)
     assert(hess->cols() == aff->size());
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__GNUG__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #elif defined(_MSC_VER)
 #pragma warning (pop)
-#endif  // !defined(__GNUC__) && !defined(__clang__) && !defined(_MSC_VER)
+#endif  // !defined(__GNUG__) && !defined(__clang__) && !defined(_MSC_VER)
     hess_ = hess;
     aff_ = aff;
 // MSVC warns about Eigen::Index (signed) to size_t conversion
@@ -90,19 +90,19 @@ public:
   {
 // g++/MSVC warns about integer signedness when using Eigen::Matrix
 // specializations, as they use a signed integer for the matrix size
-#if defined(__GNUC__)
+#if defined(__GNUG__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #elif defined(_MSC_VER)
 #pragma warning (push)
 #pragma warning (disable: 4389)
-#endif  // !defined(__GNUC__) && !defined(_MSC_VER)
+#endif  // !defined(__GNUG__) && !defined(_MSC_VER)
     assert(x.size() == n_dims_);
-#if defined(__GNUC__)
+#if defined(__GNUG__)
 #pragma GCC diagnostic pop
 #elif defined(_MSC_VER)
 #pragma warning (pop)
-#endif  // !defined(__GNUC__) && !defined(_MSC_VER)
+#endif  // !defined(__GNUG__) && !defined(_MSC_VER)
     // compute the Hx product
     V_t hx(hess_inner(x));
 // MSVC warns about conversion from double to T
@@ -174,19 +174,19 @@ private:
   {
 // g++/MSVC warns about integer signedness when using Eigen::Matrix
 // specializations, as they use a signed integer for the matrix size
-#if defined(__GNUC__)
+#if defined(__GNUG__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #elif defined(_MSC_VER)
 #pragma warning (push)
 #pragma warning (disable: 4389)
-#endif  // !defined(__GNUC__) && !defined(_MSC_VER)
+#endif  // !defined(__GNUG__) && !defined(_MSC_VER)
     assert(x.size() == n_dims_);
-#if defined(__GNUC__)
+#if defined(__GNUG__)
 #pragma GCC diagnostic pop
 #elif defined(_MSC_VER)
 #pragma warning (pop)
-#endif  // !defined(__GNUC__) && !defined(_MSC_VER)
+#endif  // !defined(__GNUG__) && !defined(_MSC_VER)
     // supports std::array, which has a fixed size
     V_t res;
     // re-allocate vector types or Container types that have this constructor
