@@ -23,11 +23,11 @@ struct is_vector_size_constructible : std::false_type {};
 
 template <typename T>
 struct is_vector_size_constructible<T, std::void_t<typename T::size_type>>
-  : std::true_type {};
+  : std::is_constructible<T, typename T::size_type> {};
 
 template <typename T>
 struct is_vector_size_constructible<T, std::void_t<typename T::Index>>
-  : std::true_type {};
+  : std::is_constructible<T, typename T::Index> {};
 
 /**
  * Helper for `is_vector_size_constructible` to get the truth value.
