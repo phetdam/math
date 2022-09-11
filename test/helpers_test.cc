@@ -94,7 +94,8 @@ using HelpersVtOneTestTypes = ::testing::Types<
   pdmath::vector_d,
   std::vector<float>,
   Eigen::VectorXf,
-  Eigen::Vector4d,
+  pdmath::array_d<4>,
+  Eigen::Vector4f,
   Eigen::RowVectorXd
 >;
 TYPED_TEST_SUITE(HelpersVtOneTest, HelpersVtOneTestTypes);
@@ -151,6 +152,24 @@ TYPED_TEST(HelpersVtOneTest, EigenVectorFromTest)
   auto evec1 = pdmath::eigen_vector_from<value_t>(HELPERS_TEST_VECTOR_VALUES);
   auto evec2 = pdmath::eigen_vector_from(TestFixture::values_);
   EXPECT_EQ(evec1, evec2);
+}
+
+/**
+ * Test that `vector_from` overload using parameter pack works as expected.
+ */
+TYPED_TEST(HelpersVtOneTest, VectorFromTest)
+{
+  auto vec = pdmath::vector_from<TypeParam>(HELPERS_TEST_VECTOR_VALUES);
+  EXPECT_EQ(vec, TestFixture::values_);
+}
+
+/**
+ * Test that `unique_vector_from` overload using parameter pack works.
+ */
+TYPED_TEST(HelpersVtOneTest, UniqueVectorFromTest)
+{
+  auto vec_p = pdmath::unique_vector_from<TypeParam>(HELPERS_TEST_VECTOR_VALUES);
+  EXPECT_EQ(*vec_p, TestFixture::values_);
 }
 
 /**
@@ -233,5 +252,8 @@ using HelpersVtTwoTestTypes = ::testing::Types<
   std::pair<Eigen::VectorXf, pdmath::vector_f>
 >;
 TYPED_TEST_SUITE(HelpersVtTwoTest, HelpersVtTwoTestTypes);
+
+#undef HELPERS_TEST_VECTOR_VALUES
+#undef HELPERS_TEST_MATRIX_VALUES
 
 }  // namespace

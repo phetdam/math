@@ -324,7 +324,7 @@ inline Eigen::VectorX<T> eigen_vector_from(const std::array<T, N>& from)
  *
  * Since the template `V_t` argument cannot be deduced, recommended usage is:
  *
- * `auto evec = vector_from<V_t>(arg1, ... argN);`
+ * `auto vec = vector_from<V_t>(arg1, ... argN);`
  *
  * @tparam V_t *Container* type list-initializable by initializer list
  * @tparam Ts parameter pack
@@ -340,9 +340,9 @@ inline V_t vector_from(const Ts&... from)
 /**
  * Create a new `VOut_t` *Container* from another `VIn_t` *Container*.
  *
- * Since the template `V_t` argument cannot be deduced, recommended usage is:
+ * Since the `VOut_t` argument cannot be deduced, recommended usage is:
  *
- * `auto evec = vector_from<VOut_t>(from);`
+ * `auto vec = vector_from<VOut_t>(from);`
  *
  * @tparam VOut_t *Container* type
  * @tparam VIn_t *Container* type
@@ -370,7 +370,18 @@ inline VOut_t vector_from(const VIn_t& from)
   return to;
 }
 
-// TODO: document unique_vector_from
+/**
+ * Return a `unique_ptr` to a `V_t` *Container* from a list of arguments.
+ *
+ * Since the template `V_t` argument cannot be deduced, recommended usage is:
+ *
+ * `auto vec = unique_vector_from<V_t>(arg1, ... argN);`
+ *
+ * @tparam V_t *Container* type list-initializable by initializer list
+ * @tparam Ts parameter pack
+ *
+ * @param from `const Ts&...` list of arguments castable to `V_t::value_type`
+ */
 template <typename V_t, typename... Ts>
 inline std::unique_ptr<V_t> unique_vector_from(const Ts&... from)
 {
@@ -379,6 +390,18 @@ inline std::unique_ptr<V_t> unique_vector_from(const Ts&... from)
   );
 }
 
+/**
+ * Return a `unique_ptr` to a *Container* from another `VIn_t` *Container*.
+ *
+ * Since the `VOut_t` argument cannot be deduced, recommended usage is:
+ *
+ * `auto vec = unique_vector_from<VOut_t>(from);`
+ *
+ * @tparam VOut_t *Container* type
+ * @tparam VIn_t *Container* type
+ *
+ *  @param from `const VIn_t&` *Container* to copy elements from
+ */
 template <typename VOut_t, typename VIn_t>
 inline std::unique_ptr<VOut_t> unique_vector_from(const VIn_t& from)
 {

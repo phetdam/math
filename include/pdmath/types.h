@@ -9,6 +9,7 @@
 #define PDMATH_TYPES_H_
 
 #include <array>
+#include <cstddef>
 #include <utility>
 #include <vector>
 
@@ -32,6 +33,10 @@ using boost_matrix = boost::numeric::ublas::matrix<T>;
 using boost_matrix_d = boost_matrix<double>;
 using boost_matrix_f = boost_matrix<float>;
 
+template <std::size_t N>
+using array_d = std::array<double, N>;
+template <std::size_t N>
+using array_f = std::array<float, N>;
 template <typename T>
 using array_pair = std::array<T, 2>;
 using array_pair_d = array_pair<double>;
