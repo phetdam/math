@@ -18,7 +18,6 @@
 #include "pdmath/bases.h"
 #include "pdmath/golden_search.h"
 #include "pdmath/helpers.h"
-#include "pdmath/optimize_result.h"
 #include "pdmath/types.h"
 
 namespace {
