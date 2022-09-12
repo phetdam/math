@@ -26,7 +26,7 @@ namespace {
 /**
  * Functor class for using root-finding to get the group lasso update norm.
  */
-template <class T = double>
+template <typename T>
 class group_norm_root_functor : public pdmath::functor_base<T> {
 public:
   /**
@@ -106,7 +106,7 @@ private:
  *
  * @note Should be made separate from `group_norm_root_functor` later.
  */
-template <class T = double>
+template <typename T>
 class group_norm_minimize_functor : public pdmath::functor_base<T> {
 public:
   /**
@@ -157,20 +157,18 @@ int main()
   // bounds that bracket the solution
   auto bounds = std::make_pair<double, double>(
     0,
-    std::sqrt(smax * rmax * svs.size()) /
-    std::pow(smin, 2)
+    std::sqrt(smax * rmax * svs.size()) / std::pow(smin, 2)
   );
   // contains the norm of the group coefficients
   auto res = pdmath::golden_search(objective, bounds.first, bounds.second);
   // print results
   pdmath::print_example_header(__FILE__);
-  std::cout << "lambda: " << lam << std::endl;
+  std::cout << "lambda: " << lam << "\n";
   std::cout << "singular values: ";
   pdmath::print_vector(svs);
   std::cout << "projected residuals: ";
   pdmath::print_vector(prs);
-  std::cout << "bounds: (" << bounds.first << ", " << bounds.second << ")";
-  std::cout << std::endl;
+  std::cout << "bounds: (" << bounds.first << ", " << bounds.second << ")\n";
   std::cout << "target norm: " << res.res() << std::endl;
   return EXIT_SUCCESS;
 }
