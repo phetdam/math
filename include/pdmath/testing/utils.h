@@ -12,7 +12,7 @@ namespace pdmath {
 namespace testing {
 
 /**
- * Templated wrapper for scalar , gradient, and Hessian types.
+ * Templated wrapper for scalar, gradient, and Hessian types.
  *
  * Specializations can be used with the Google Test `::testing::Types` template
  * for templated tests with `TYPED_TEST` in Google Test.
