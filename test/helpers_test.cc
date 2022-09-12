@@ -239,19 +239,76 @@ protected:
 };
 
 template <typename Tp_t>
+// MSVC complains (again) about double to float truncation
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4305)
+#endif  // _MSC_VER
 const typename Tp_t::first_type HelpersVtTwoTest<Tp_t>::values_1_{
   {HELPERS_TEST_VECTOR_VALUES}
 };
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
 template <typename Tp_t>
+// MSVC complains (again) about double to float truncation
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4305)
+#endif  // _MSC_VER
 const typename Tp_t::second_type HelpersVtTwoTest<Tp_t>::values_2_{
   {HELPERS_TEST_VECTOR_VALUES}
 };
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
 
 using HelpersVtTwoTestTypes = ::testing::Types<
   std::pair<pdmath::vector_d, Eigen::VectorXd>,
-  std::pair<Eigen::VectorXf, pdmath::vector_f>
+  std::pair<Eigen::Vector4f, pdmath::vector_f>,
+  std::pair<Eigen::RowVectorXd, Eigen::Vector4d>,
+  std::pair<pdmath::array_f<4>, Eigen::VectorXf>,
+  std::pair<pdmath::vector_d, pdmath::array_d<4>>,
+  std::pair<pdmath::array_f<4>, Eigen::RowVector4f>,
+  std::pair<Eigen::RowVector4d, pdmath::vector_d>
 >;
 TYPED_TEST_SUITE(HelpersVtTwoTest, HelpersVtTwoTestTypes);
+
+/**
+ * Macro for `using`-declarations for `HelpersVtTwoTest` `TypeParam` types.
+ *
+ * Saves us from typing `typename TypeParam::(first|second)_type` or
+ * `typename TestFixture::V[12]_t` repeatedly.
+ */
+#define HelpersVtTwoTest_TYPES_USING_DECLS \
+  using V1_t = typename TypeParam::first_type; \
+  using V2_t = typename TypeParam::second_type;
+
+/**
+ * Test that `vector_from` overload using a *Container* works as expected.
+ */
+TYPED_TEST(HelpersVtTwoTest, VectorFromTest)
+{
+  HelpersVtTwoTest_TYPES_USING_DECLS
+  auto vec1 = pdmath::vector_from<V1_t>(TestFixture::values_2_);
+  auto vec2 = pdmath::vector_from<V2_t>(TestFixture::values_1_);
+  EXPECT_EQ(vec1, TestFixture::values_1_);
+  EXPECT_EQ(vec2, TestFixture::values_2_);
+}
+
+/**
+ * Test that `unique_vector_from` overload using a *Container* works.
+ */
+TYPED_TEST(HelpersVtTwoTest, UniqueVectorFromTest)
+{
+  HelpersVtTwoTest_TYPES_USING_DECLS
+  auto vec1_p = pdmath::unique_vector_from<V1_t>(TestFixture::values_2_);
+  auto vec2_p = pdmath::unique_vector_from<V2_t>(TestFixture::values_1_);
+  EXPECT_EQ(*vec1_p, TestFixture::values_1_);
+  EXPECT_EQ(*vec2_p, TestFixture::values_2_);
+}
+
+#undef HelpersVtTwoTest_TYPES_USING_DECLS
 
 #undef HELPERS_TEST_VECTOR_VALUES
 #undef HELPERS_TEST_MATRIX_VALUES
