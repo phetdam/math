@@ -32,22 +32,6 @@ namespace {
 template <typename T>
 class TolMixin {
 public:
-// MSVC warns about truncation from double to const T
-#ifdef _MSC_VER
-#pragma warning (push)
-#pragma warning (disable: 4305)
-#endif  // _MSC_VER
-  // float loose comparison tolerance. since we are using single-precision
-  // floats in some cases, we make tol a bit below the square root of the
-  // std::numeric_limits<float>::epsilon() value, 1.19209e-07.
-  static constexpr T ftol_ = 1e-4;
-  // double loose comparison tolerance. for comparison, the
-  // std::numeric_limits<double>::epsilon() value is 2.22045e-16.
-  static constexpr T dtol_ = 1e-8;
-#ifdef _MSC_VER
-#pragma warning (pop)
-#endif  // _MSC_VER
-
   /**
    * Return comparison tolerance for doubles.
    *
@@ -85,9 +69,8 @@ float TolMixin<float>::tol() { return 1e-4f; }
  */
 template <typename Tr_t>
 class QuadraticFunctorTest
- : public ::testing::Test, public TolMixin<typename Tr_t::scalar_t> {
+  : public ::testing::Test, public TolMixin<typename Tr_t::scalar_t> {
 protected:
-  // using declarations for the Tr_t types
   using T = typename Tr_t::scalar_t;
   using V_t = typename Tr_t::vector_t;
   using M_t = typename Tr_t::matrix_t;
@@ -285,13 +268,16 @@ TYPED_TEST(HimmelblauFunctorTest, ZeroEvalTest)
  * to ensure that the result of `himmel_.d1` is a `Eigen::VectorX`
  * specialization so we can use the `isZero` method.
  *
+ * @note Since the Himmelblau functor gradients tend to be rather coarse, we
+ *     use `TolMixin<float>::tol` explicitly to get the comparison tolerance.
+ *
  * @param zero a `Tr_t::vector_t` zero candidate
  */
 #define HimmelblauFunctorTest_EXPECT_GRAD_NEAR_ZERO(zero) \
   EXPECT_TRUE( \
     pdmath::vector_from<Eigen::VectorX<typename TypeParam::scalar_t>>( \
       this->himmel_.d1(TestFixture::zero)) \
-        .isZero(TestFixture::ftol_) \
+        .isZero(TolMixin<float>::tol()) \
   )
 
 /**
