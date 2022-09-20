@@ -20,6 +20,7 @@
 #include <Eigen/Core>
 
 #include "pdmath/bases.h"
+#include "pdmath/helpers.h"
 #include "pdmath/mixins.h"
 #include "pdmath/norms.h"
 #include "pdmath/optimize_result.h"
@@ -36,12 +37,12 @@ namespace pdmath {
  * @note For each invocation of `operator()`, the number of function, gradient,
  *     and/or Hessian evaluations should be updated as necessary.
  *
- * @tparam T scalar type
- * @tparam V_t vector type, with `T` elements
+ * @tparam V_t *Container* type representing a vector
  */
-template <typename T, typename V_t>
+template <typename V_t>
 class direction_search : public fev_mixin, public gev_mixin, public hev_mixin {
 public:
+  PDMATH_USING_CONTAINER_TYPES(V_t);
   virtual ~direction_search() = default;
   virtual V_t operator()(const V_t&) = 0;
 };
@@ -50,12 +51,14 @@ public:
  * Search direction computation functor that uses the negative gradient.
  *
  * @tparam G Gradient callable taking a `const V_t&` returning `V_t`
- * @tparam T Scalar type
- * @tparam V_t Iterable of `T` ideally meeting *Container* requirements
+ * @tparam V_t *Container* type representing a vector
  */
-template <typename G, typename T = double, typename V_t = Eigen::VectorX<T>>
-class steepest_direction_search : public direction_search<T, V_t> {
+template <typename G, typename V_t = Eigen::VectorXd>
+class steepest_direction_search : public direction_search<V_t> {
 public:
+  using gradient_type = G;
+  PDMATH_USING_CONTAINER_TYPES(V_t);
+
   /**
    * `steepest_direction_search` constructor.
    *
@@ -75,7 +78,9 @@ public:
     V_t dir = grad_(x);
     this->n_gev_++;
     // allow more than just "vector" classes with operator- overloads
-    std::transform(dir.cbegin(), dir.cend(), dir.begin(), std::negate<T>());
+    std::transform(
+      dir.cbegin(), dir.cend(), dir.begin(), std::negate<element_type>()
+    );
     return dir;
   }
 
@@ -91,12 +96,12 @@ private:
  * @note For each invocation of `operator()`, the number of function, gradient,
  *     and/or Hessian evaluations should be updated as necessary.
  *
- * @tparam T scalar type
- * @tparam V_t vector type, with `T` elements
+ * @tparam V_t *Container* type representing a vector
  */
-template <typename T, typename V_t>
+template <typename V_t>
 class direction_policy : public fev_mixin, public gev_mixin, public hev_mixin {
 public:
+  PDMATH_USING_CONTAINER_TYPES(V_t);
   virtual ~direction_policy() = default;
   virtual bool operator()(const V_t&) = 0;
 };
@@ -107,33 +112,35 @@ public:
  * Useful when one only wants the maximum number of iterations to determine
  * when the `line_search` method or its wrappers should terminate.
  *
- * @tparam T scalar type
- * @tparam V_t vector type, with `T` elements
+ * @tparam V_t *Container* type representing a vector
  */
-template <typename T, typename V_t>
-class no_direction_policy : public direction_policy<T, V_t> {
+template <typename V_t>
+class no_direction_policy : public direction_policy<V_t> {
 public:
+  PDMATH_USING_CONTAINER_TYPES(V_t);
   bool operator()(const V_t& /*dir*/) override { return false; }
 };
 
 /**
  * Search direction policy where direction below a minimum implies convergence.
  *
- * @tparam T scalar type
- * @tparam V_t vector type, with `T` elements
+ * @tparam V_t *Container* type representing a vector
  */
-template <typename T, typename V_t>
-class min_norm_direction_policy : public direction_policy<T, V_t> {
+template <typename V_t>
+class min_norm_direction_policy : public direction_policy<V_t> {
 public:
+  PDMATH_USING_CONTAINER_TYPES(V_t);
+
   /**
    * Constructor.
    *
-   * @param min `T` minimum search direction norm that must be exceeded
-   *     during the routine's execution to prevent early convergence.
+   * @param min `element_type` minimum search direction norm that must be
+   *     exceeded during the routine's execution to prevent early convergence.
    * @param norm `const norm<T, V_t>&` norm functor to compute the norm. The
    *     default is a default-constructed `p_norm`, i.e. the 2-norm.
    */
-  min_norm_direction_policy(T min = 1e-6, const norm<T, V_t>& norm = p_norm())
+  min_norm_direction_policy(
+    element_type min = 1e-6, const norm<V_t>& norm = p_norm())
     : min_norm_(min), norm_(norm)
   {}
 
@@ -150,16 +157,16 @@ public:
   /**
    * Return minimum norm that must be exceeded to prevent early convergence.
    */
-  const T& min_norm() const { return min_norm_; }
+  const element_type& min_norm() const { return min_norm_; }
 
   /**
    * Return norm functor used to compute gradient norms.
    */
-  const pdmath::norm<T, V_t> norm() const { return norm_; }
+  const pdmath::norm<V_t>& norm() const { return norm_; }
 
 private:
-  T min_norm_;
-  pdmath::norm<T, V_t> norm_;
+  element_type min_norm_;
+  pdmath::norm<V_t> norm_;
 };
 
 /**
@@ -170,25 +177,25 @@ private:
  * @note For each invocation of `operator()`, the number of function, gradient,
  *     and/or Hessian evaluations should be updated as necessary.
  *
- * @tparam T scalar type
- * @tparam V_t vector type, with `T` elements
+ * @tparam V_t *Container* type representing a vector
  */
-template <typename T, typename V_t>
-class step_search
-  : public fev_mixin, public gev_mixin, public hev_mixin {
+template <typename V_t>
+class step_search : public fev_mixin, public gev_mixin, public hev_mixin {
 public:
+  PDMATH_USING_CONTAINER_TYPES(V_t);
+
   /**
    * Compute a step size from the previous guess and the new search direction.
    *
    * @param x_p `const V_t&` previous solution guess
    * @param dir `const V_t&` new search direction to update `x_p` with
    */
-  virtual T operator()(const V_t& x_p, const V_t& dir) = 0;
+  virtual element_type operator()(const V_t& x_p, const V_t& dir) = 0;
 
   /**
    * Return the last computed step size.
    */
-  virtual const T& last_step() const = 0;
+  virtual const element_type& last_step() const = 0;
 };
 
 /**
@@ -196,18 +203,19 @@ public:
  *
  * Use to represent a line search strategy that only uses a fixed step size.
  *
- * @tparam T scalar type
- * @tparam V_t vector type, with `T` elements
+ * @tparam V_t *Container* type representing a vector
  */
-template <typename T, typename V_t = Eigen::VectorX<T>>
-class const_step_search : public step_search<T, V_t> {
+template <typename V_t = Eigen::VectorXd>
+class const_step_search : public step_search<V_t> {
 public:
+  PDMATH_USING_CONTAINER_TYPES(V_t);
+
   /**
    * `const_step_search` constructor.
    *
-   * @param eta `T` positive step size to use
+   * @param eta `element_type` positive step size to use
    */
-  const_step_search(T eta = 0.1)
+  const_step_search(element_type eta = 0.1)
   {
     assert(eta > 0);
     eta_ = eta;
@@ -219,7 +227,7 @@ public:
    * @param x_p `const V_t&` previous solution guess
    * @param dir `const V_t&` new search direction to update `x_p` with
    */
-  T operator()(const V_t& /* x_p */, const V_t& /* dir */) override
+  element_type operator()(const V_t& /* x_p */, const V_t& /* dir */) override
   {
     return eta_;
   }
@@ -227,10 +235,10 @@ public:
   /**
    * Return the last computed step length, which is always `eta_`.
    */
-  const T& last_step() const override { return eta_; }
+  const element_type& last_step() const override { return eta_; }
 
 private:
-  T eta_;
+  element_type eta_;
 };
 
 /**
@@ -241,30 +249,36 @@ private:
  * step size shrinkage factor, from Hastie, Tibshirani, and Wainwright's
  * monograph *Statistical Learning with Sparsity*, page 102.
  *
- * @tparam T scalar type
- * @tparam F_o objective, must take a `const V_t&` and return `T`
- * @tparam F_g gradient, must take a `const V_t&` and return `V_t`
- * @tparam V_t vector type, with `T` elements
+ * @tparam F_o objective, must take a `const V_t&` and return `V_t::value_type`
+ * @tparam F_g gradient, must take a `const V_t&` and return `V_t::value_type`
+ * @tparam V_t *Container* type representing a vector
  */
-template <
-  typename T, typename F_o, typename F_g, typename V_t = Eigen::VectorX<T>
->
-class backtrack_step_search : public step_search<T, V_t> {
+template <typename F_o, typename F_g, typename V_t = Eigen::VectorXd>
+class backtrack_step_search : public step_search<V_t> {
 public:
+  using objective_type = F_o;
+  using gradient_type = F_g;
+  PDMATH_USING_CONTAINER_TYPES(V_t);
+
   /**
    * Constructor.
    *
-   * @param func `F_o` objective, which takes a `const V_t&` and returns a `T`
-   * @param grad `F_g` gradient, which takes a `const V_t&` and returns `V_t`
+   * @param func `F_o` objective, takes `const V_t&`, returns `element_type`
+   * @param grad `F_g` gradient, takes `const V_t&`, returns `element_type`
    * @param eta0 `T` positive starting step size to use
-   * @param c1 `T` Armijo condition damping factor in (0, 1) affecting the
-   *     sufficient decrease condition. Nocedal and Wright recommand `1e-4` as
-   *     a choice, while Hastie, Tibshirani, and Wainwright recommend `0.5`.
-   * @param rho `T` step size shrinkage factor in (0, 1). Hastie, Tibshirani,
-   *     and Wainwright recommend `0.8` as a choice.
+   * @param c1 `element_type` Armijo condition damping factor in (0, 1)
+   *     affecting the sufficient decrease condition. Nocedal and Wright
+   *     recommend `1e-4`; Hastie, Tibshirani, and Wainwright recommend `0.5`.
+   * @param rho `element_type` step size shrinkage factor in (0, 1). Hastie,
+   *     Tibshirani, and Wainwright recommend `0.8` as a choice.
    */
-  backtrack_step_search(F_o func, F_g grad, T eta0, T c1 = 0.5, T rho = 0.8)
-    : func_(func), grad_(grad), last_step_(), step_search<T, V_t>()
+  backtrack_step_search(
+    F_o func,
+    F_g grad,
+    element_type eta0,
+    element_type c1 = 0.5,
+    element_type rho = 0.8)
+    : func_(func), grad_(grad), last_step_(), step_search<V_t>()
   {
     assert(eta0 > 0);
     assert(c1 > 0 && c1 < 1);
@@ -284,15 +298,17 @@ public:
    * @param x_p `const V_t&` previous solution guess
    * @param dir `const V_t&` new search direction to update `x_p` with
    */
-  T operator()(const V_t& x_p, const V_t& dir) override
+  element_type operator()(const V_t& x_p, const V_t& dir) override
   {
     // set initial step size, reset function eval count
-    T eta = eta0_;
+    element_type eta = eta0_;
     // set initial step size, precompute current objective and gradient value,
     // get inner product of gradient w/ search direction
-    T f_x = func_(x_p);
-    T g_x = grad_(x_p);
-    T ip_x = std::inner_product(g_x.cbegin(), g_x.cend(), dir.cbegin(), 0);
+    element_type f_x = func_(x_p);
+    element_type g_x = grad_(x_p);
+    element_type ip_x = std::inner_product(
+      g_x.cbegin(), g_x.cend(), dir.cbegin(), 0
+    );
     // get new direction we use to compute the new function value
     V_t x_c = x_p;
     std::transform(
@@ -300,7 +316,7 @@ public:
       x_c.cend(),
       dir.cbegin(),
       x_c.begin(),
-      [&](const T& a, const T& b) { return a + eta * b; }
+      [&](const element_type& a, const element_type& b) { return a + eta * b; }
     );
     // update number of function + gradient evals. note that since this is a
     // template class, we have to use this, as otherwise these members will
@@ -316,7 +332,7 @@ public:
         x_p.cend(),
         dir.cbegin(),
         x_c.begin(),
-        [&](const T& a, const T& b) { return a + eta * b; }
+        [&](const element_type& a, const element_type& b) { return a + eta * b; }
       );
     }
     last_step_ = eta;
@@ -326,17 +342,17 @@ public:
   /**
    * Return the last computed step length.
    *
-   * On initialization, this returns `T()`.
+   * On initialization, this returns `element_type()`.
    */
-  const T& last_step() const override { return last_step_; }
+  const element_type& last_step() const override { return last_step_; }
 
 private:
   F_o func_;
   F_g grad_;
-  T last_step_;
-  T eta0_;
-  T c1_;
-  T rho_;
+  element_type last_step_;
+  element_type eta0_;
+  element_type c1_;
+  element_type rho_;
 };
 
 /**
@@ -346,43 +362,43 @@ private:
  *     *by value*, as the base classes for these functor types all them to
  *     implement a non-`const` `operator()`.
  *
- * @tparam T scalar type
- * @tparam V_t vector type, with `T` elements
- * @tparam M_t matrix type, with `T` elements
+ * @tparam V_t *Container* type representing a vector
+ * @tparam M_t matrix type with `typename V_t::value_type` elements
  * @tparam F_t callable for per-iteration update of guess post-update with the
  *     scaled search direction, ex. proximal operator such as the
  *     soft-thresholding operator, or a  projection operator. Must take a
  *     `const V_t&` and then return a `V_t`.
  *
- * @param func `func_functor<V_t, T, V_t, M_t>` functor giving the objective
- *     function, optionally with gradient and Hessian.
- * @param dir_search `direction_search<T, V_t>` search direction functor,
- *     which when evaluated takes the `const V_t&` current guess and returns
- *     the `V_t` search direction to update along. The returned search
- *     direction need not be a descent direction.
+ * @param func `func_functor<V_t, typename V_t::value_type, V_t, M_t>` functor
+ *     giving the objective function, optionally with gradient and Hessian.
+ * @param dir_search `direction_search<V_t>` search direction functor, which
+ *     when evaluated takes the `const V_t&` current guess and returns the
+ *     `V_t` search direction to update along. The returned search direction
+ *     need not be a descent direction in general.
  * @param eta_search `step_search<T, V_t>` step line search functor, which
  *     when evaluated takes the `const V_t&` current guess and search direction
- *     and returns the `T` step size to use.
+ *     and returns the `typename V_t::value_type` step size to use.
  * @param x0 `const V_t&` initial guess for the line search
  * @param max_iter `std::uintmax_t` max iterations allowed
- * @param dir_policy `direction_policy<T, V_t>&` convergence policy based off
- *     of the search direction, which when evaluated takes the `const V_t&`
- *     search direction. Returns `true` to indicate convergence.
+ * @param dir_policy `direction_policy<V_t>&` convergence policy based off of
+ *     the search direction, which when evaluated takes the `const V_t&` search
+ *     direction. Returns `true` to indicate convergence.
  * @param nesterov `bool` flag, `true` to use Nesterov's momentum scheme
  * @param tail_transform `F_t` callable for per-iteration transform of updated
  *     guess after updating previous guess with scaled search direction
  */
-template <typename T, typename V_t, typename M_t, typename F_t>
-optimize_result<T, V_t, V_t, M_t> line_search(
-  func_functor<V_t, T, V_t, M_t> func,
-  direction_search<T, V_t> dir_search,
-  step_search<T, V_t> eta_search,
+template <typename V_t, typename M_t, typename F_t>
+optimize_result<typename V_t::value_type, V_t, V_t, M_t> line_search(
+  func_functor<V_t, typename V_t::value_type, V_t, M_t> func,
+  direction_search<V_t> dir_search,
+  step_search<V_t> eta_search,
   const V_t& x0,
   std::uintmax_t max_iter,
-  direction_policy<T, V_t> dir_policy,
+  direction_policy<V_t> dir_policy,
   bool nesterov = false,
   F_t tail_transform = identity_functor<V_t>())
 {
+  using T = typename V_t::value_type;
   bool converged = false;
   // container for the current and previous solution guesses. we only need the
   // previous guesses in the case of Nesterov acceleration

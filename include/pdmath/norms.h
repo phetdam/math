@@ -11,6 +11,7 @@
 #include <Eigen/Core>
 #include <boost/math/tools/norms.hpp>
 
+#include "pdmath/helpers.h"
 #include "pdmath/types.h"
 
 namespace pdmath {
@@ -18,14 +19,14 @@ namespace pdmath {
 /**
  * Base template class for vector/matrix norms.
  *
- * @tparam T scalar type
- * @tparam C_t compound type with `T` elements, ex. vector or matrix type
+ * @tparam C_t *Container* type, ex. vector or matrix type
  */
-template <typename T, typename C_t>
+template <typename C_t>
 class norm {
 public:
+  PDMATH_USING_CONTAINER_TYPES(C_t);
   virtual ~norm() = default;
-  virtual T operator()(const C_t&) = 0;
+  virtual element_type operator()(const C_t&) = 0;
 };
 
 /**
@@ -33,12 +34,13 @@ public:
  *
  * When default constructed, defaults to the 2-norm, or Euclidean norm.
  *
- * @tparam T scalar type
- * @tparam V_t vector type, with `T` elements
+ * @tparam V_t *Container* type representing a vector
  */
-template <typename T = double, typename V_t = Eigen::VectorX<T>>
-class p_norm : public norm<T, V_t> {
+template <typename V_t = Eigen::VectorXd>
+class p_norm : public norm<V_t> {
 public:
+  PDMATH_USING_CONTAINER_TYPES(V_t);
+
   /**
    * Constructor.
    *
@@ -52,7 +54,7 @@ public:
    * @param vector `const V_t&` vector to compute norm for. Must implement the
    *     `begin` and `end` method to get iterators.
    */
-  T operator()(const V_t& vector) override
+  element_type operator()(const V_t& vector) override
   {
     // need to handle p_ == 0 case separately, as lp_norm gives infinity. also
     // use separate cases for other Boost norms, since they are faster.
@@ -75,16 +77,17 @@ private:
 /**
  * Template class implementation for the max (infinity) norm.
  *
- * @tparam T scalar type
- * @tparam V_t vector type, with `T` elements
+ * @tparam V_t *Container* type reprsenting a vector
  */
-template <typename T = double, typename V_t = Eigen::VectorX<T>>
-class max_norm : public norm<T, V_t> {
+template <typename V_t = Eigen::VectorXd>
+class max_norm : public norm<V_t> {
 public:
+  PDMATH_USING_CONTAINER_TYPES(V_t);
+
   /**
    * Return max norm of `x`.
    */
-  T operator()(const V_t& x) override
+  element_type operator()(const V_t& x) override
   {
     return std::abs(*std::max_element(x.cbegin(), x.cend(), max_comp));
   }
@@ -97,7 +100,7 @@ private:
    * @param b `const T&` second value
    * @returns `true` if `std::abs(a) < std::abs(b)` else `false`
    */
-  static bool max_comp(const T& a, const T& b)
+  static bool max_comp(const element_type& a, const element_type& b)
   {
     return std::abs(a) < std::abs(b);
   }

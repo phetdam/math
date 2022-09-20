@@ -60,9 +60,9 @@ const std::vector<double> NormsTest::values_ = {NORMS_TEST_VECTOR_VALUES};
  */
 TEST_F(NormsTest, MaxNormTest)
 {
-  pdmath::max_norm<double, pdmath::vector_d> std_norm;
-  pdmath::max_norm<double, pdmath::boost_vector_d> boost_norm;
-  pdmath::max_norm<double, Eigen::VectorXd> eigen_norm;
+  pdmath::max_norm<pdmath::vector_d> std_norm;
+  pdmath::max_norm<pdmath::boost_vector_d> boost_norm;
+  pdmath::max_norm<Eigen::VectorXd> eigen_norm;
   auto bvalues = pdmath::boost_vector_from<double>(NORMS_TEST_VECTOR_VALUES);
   auto evalues = pdmath::eigen_vector_from<double>(NORMS_TEST_VECTOR_VALUES);
   EXPECT_EQ_NORMS_TEST_VALUES_ABS_MAX(std_norm(values_));
@@ -76,7 +76,7 @@ TEST_F(NormsTest, MaxNormTest)
 TEST_P(NormsTest, PNormTest)
 {
   auto p = GetParam();
-  pdmath::p_norm<double, pdmath::vector_d> norm(p);
+  pdmath::p_norm<pdmath::vector_d> norm(p);
   // compute expected norm
   double exp_norm = 0;
   for (const auto& value : values_) {

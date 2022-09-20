@@ -30,8 +30,9 @@ using tr_himmelblau_functor = pdmath::himmelblau_functor<
 template <typename Tr_t>
 class LineSearchTest : public ::testing::Test {
 protected:
-  LineSearchTest() : himmel_f_() {}
-  tr_himmelblau_functor<Tr_t> himmel_f_;
+  LineSearchTest() : himmel_() {}
+  tr_himmelblau_functor<Tr_t> himmel_;
+  // pdmath::steepest_direction_search dir_search_;
 };
 
 // types LineSearchTest will be instantiated with + register types
@@ -41,5 +42,10 @@ using LineSearchTestTypes = ::testing::Types<
   pdmath::testing::func_type_triple<double, pdmath::vector_d, Eigen::Matrix2d>
 >;
 TYPED_TEST_SUITE(LineSearchTest, LineSearchTestTypes);
+
+// TYPED_TEST(LineSearchTest, HimmelblauTest)
+// {
+
+// }
 
 }  // namespace

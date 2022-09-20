@@ -13,12 +13,14 @@ namespace pdmath {
 /**
  * Template base class for a single-argument functor.
  *
- * @tparam In_t input type
- * @tparam Out_t output type, defaults to `In_t`
+ * @tparam In_t input type, exposed as `input_type`
+ * @tparam Out_t output type, defaults to `In_t`, exposed as `output_type`
  */
 template <typename In_t, typename Out_t = In_t>
 class functor_base {
 public:
+  using input_type = In_t;
+  using output_type = Out_t;
   virtual ~functor_base() = default;
   virtual Out_t operator()(const In_t&) = 0;
 };
@@ -34,14 +36,19 @@ class identity_functor : public functor_base<T, T&> {
 /**
  * Template functor to represent a function, up to twice differentiable.
  *
- * @tparam In_t input type
- * @tparam Out_t output type
- * @tparam Out_d1_t first deriv output type
- * @tparam Out_d2_t second deriv output type
+ * @tparam In_t input type, exposed as `input_type`
+ * @tparam Out_t output type, exposed as `output_type`
+ * @tparam Out_d1_t first deriv output type, exposed as `gradient_type`
+ * @tparam Out_d2_t second deriv output type, exposed as `hessian_type`
  */
 template <typename In_t, typename Out_t, typename Out_d1_t, typename Out_d2_t>
 class func_functor : public functor_base<In_t, Out_t> {
 public:
+  using input_type = In_t;
+  using output_type = Out_t;
+  using gradient_type = Out_d1_t;
+  using hessian_type = Out_d2_t;
+
   virtual ~func_functor() = default;
 
   Out_t operator()(const In_t& x) override { return f(x); }

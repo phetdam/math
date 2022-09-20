@@ -414,6 +414,32 @@ inline std::unique_ptr<VOut_t> unique_vector_from(const VIn_t& from)
   return to;
 }
 
+/**
+ * Convenience macro for type aliasing often useful in *Container* wrappers.
+ *
+ * For a *Container* type `C_t`, provides type aliases for `C_t` as
+ * `container_type` and `typename C_t::value_type` as `element_type`.
+ *
+ * Below we show an example of how to use `PDMATH_USING_CONTAINER_TYPES`.
+ *
+ * @code{.cc}
+ * template <typename V_t>
+ * class my_container_wrapper {
+ * public:
+ *   PDMATH_USING_CONTAINER_TYPES(V_t);
+ *   my_container_wrapper(const V_t& value) : value_(value) {}
+ *   const V_t& value() const { return value_; }
+ * private:
+ *   V_t value_;
+ * };
+ * @endcode
+ *
+ * @param C_t *Container* type taken by a templated wrapper class
+ */
+#define PDMATH_USING_CONTAINER_TYPES(C_t) \
+  using container_type = C_t; \
+  using element_type = typename C_t::value_type
+
 }  // namespace pdmath
 
 #endif  // PDMATH_HELPERS_H_
