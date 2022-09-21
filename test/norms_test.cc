@@ -7,9 +7,9 @@
 
 #include "pdmath/norms.h"
 
-#include <algorithm>
 #include <cmath>
-#include <vector>
+#include <numeric>
+#include <type_traits>
 
 #include <Eigen/Core>
 #include <gtest/gtest.h>
@@ -33,66 +33,86 @@ namespace {
 #define NORMS_TEST_VECTOR_VALUES -5.7, 6, -NORMS_TEST_VALUES_ABS_MAX, 1.3
 
 /**
- * Templated test fixture for norm tests.
+ * Template class rolling together a *Container* and an `unsigned int`.
  *
- * Parametrized for p-norm tests.
+ * We use this class with `TYPED_TEST` to provide access to an `unsigned int`
+ * value for `p` used in `PNormTest` since `TYPED_TEST` and `TEST_P` can't be
+ * combined, as the former uses a template class unsuitable for the latter.
+ *
+ * @tparam V_t *Container*
+ * @tparam p `unsigned int`
  */
-class NormsTest : public ::testing::TestWithParam<unsigned int> {
-protected:
-  static const std::vector<double> values_;
-  static constexpr double values_abs_max_ = NORMS_TEST_VALUES_ABS_MAX;
+template <typename V_t, unsigned int p>
+class norm_param_pair {
+public:
+  PDMATH_USING_CONTAINER_TYPES(V_t);
+  norm_param_pair() = delete;
+  static constexpr unsigned int p_ = p;
 };
 
-const std::vector<double> NormsTest::values_ = {NORMS_TEST_VECTOR_VALUES};
+/**
+ * Templated test fixture for norm tests.
+ *
+ * @tparam Tp `norm_param_pair<V_t, unsigned int>` where `V_t` is a *Container*
+ *     with `typename V_t::value_type` equal to `double`
+ */
+template <typename Tp>
+class NormsTest : public ::testing::Test {
+  using element_type = typename Tp::element_type;
+protected:
+  // to keep the tests simple, we require value_type to be double. this way we
+  // do not need to have different float/double comparison tolerances.
+  static_assert(std::is_same_v<double, element_type>);
+  static const typename Tp::container_type values_;
+  static constexpr element_type values_abs_max_ = NORMS_TEST_VALUES_ABS_MAX;
+};
+
+// use of {{}} constructor ensures use of initializer list constructor
+template <typename Tp>
+const typename Tp::container_type NormsTest<Tp>::values_{
+  {NORMS_TEST_VECTOR_VALUES}
+};
+
+using NormsTestTypes = ::testing::Types<
+  norm_param_pair<pdmath::vector_d, 0>,
+  norm_param_pair<Eigen::VectorXd, 1>,
+  norm_param_pair<pdmath::array_d<4>, 2>,
+  norm_param_pair<Eigen::Vector4d, 3>
+>;
+TYPED_TEST_SUITE(NormsTest, NormsTestTypes);
 
 /**
- * `MaxNormTest` macro checking if `x` equals` `NORMS_TEST_VALUES_ABS_MAX`.
- *
- * @param x `double` value to compare against `NORMS_TEST_VALUES_ABS_MAX`.
+ * Test that the max norm works as intended.
  */
-#define EXPECT_EQ_NORMS_TEST_VALUES_ABS_MAX(x) \
-  EXPECT_DOUBLE_EQ(NORMS_TEST_VALUES_ABS_MAX, x)
-
-/**
- * Test that a subclassed `norm` works as intended, here using max norm.
- *
- * We try STL, Boost, Eigen vector specializations.
- */
-TEST_F(NormsTest, MaxNormTest)
+TYPED_TEST(NormsTest, MaxNormTest)
 {
-  pdmath::max_norm<pdmath::vector_d> std_norm;
-  pdmath::max_norm<pdmath::boost_vector_d> boost_norm;
-  pdmath::max_norm<Eigen::VectorXd> eigen_norm;
-  auto bvalues = pdmath::boost_vector_from<double>(NORMS_TEST_VECTOR_VALUES);
-  auto evalues = pdmath::eigen_vector_from<double>(NORMS_TEST_VECTOR_VALUES);
-  EXPECT_EQ_NORMS_TEST_VALUES_ABS_MAX(std_norm(values_));
-  EXPECT_EQ_NORMS_TEST_VALUES_ABS_MAX(boost_norm(bvalues));
-  EXPECT_EQ_NORMS_TEST_VALUES_ABS_MAX(eigen_norm(evalues));
+  pdmath::max_norm<typename TypeParam::container_type> norm;
+  EXPECT_DOUBLE_EQ(NORMS_TEST_VALUES_ABS_MAX, norm(TestFixture::values_));
 }
 
 /**
- * Test that the `p_norm` functor works as intended for different `p` values.
+ * Test that the p-norm works as intended for different `p` values.
+ *
+ * When `p` is zero, this is the max norm case.
  */
-TEST_P(NormsTest, PNormTest)
+TYPED_TEST(NormsTest, PNormTest)
 {
-  auto p = GetParam();
-  pdmath::p_norm<pdmath::vector_d> norm(p);
+  using element_type = typename TypeParam::element_type;
+  pdmath::p_norm<typename TypeParam::container_type> norm(TypeParam::p_);
   // compute expected norm
-  double exp_norm = 0;
-  for (const auto& value : values_) {
-    exp_norm += std::abs(std::pow(value, p));
-  }
-  exp_norm = (p) ? std::pow(exp_norm, 1. / p) : exp_norm;
-  // compare against actual
-  ASSERT_DOUBLE_EQ(exp_norm, norm(values_));
+  element_type e_norm = std::accumulate(
+    TestFixture::values_.cbegin(),
+    TestFixture::values_.cend(),
+    0.,
+    [](const element_type& tgt, const element_type& x)
+    {
+      return tgt + std::abs(std::pow(x, TypeParam::p_));
+    }
+  );
+  // for max norm, we don't take any fractional power
+  e_norm = (TypeParam::p_) ? std::pow(e_norm, 1. / TypeParam::p_) : e_norm;
+  // compare against actual computed by norm
+  ASSERT_DOUBLE_EQ(e_norm, norm(TestFixture::values_));
 }
-
-INSTANTIATE_TEST_SUITE_P(
-  PNorm,
-  NormsTest,
-  // Range(a, b) will only generate a, a + 1, ... b - 1 inclusive
-  ::testing::Range(0u, 4u),
-  ::testing::PrintToStringParamName()
-);
 
 }  // namespace
