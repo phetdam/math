@@ -74,7 +74,7 @@ const typename Tp::container_type NormsTest<Tp>::values_{
 };
 
 using NormsTestTypes = ::testing::Types<
-// hack: MSVC incorrectly emits compile failure for line 119
+// hack: MSVC incorrectly emits compile failure for line 119 when p_ is 0
 #ifdef _MSC_VER
   norm_param_pair<pdmath::vector_d, 1>,
 #else
