@@ -24,10 +24,10 @@ namespace testing {
 template <typename T, typename V_t, typename M_t>
 class func_type_triple {
 public:
-  func_type_triple() = delete;
   using scalar_t = T;
   using vector_t = V_t;
   using matrix_t = M_t;
+  func_type_triple() = delete;
 };
 
 }  // namespace pdmath::testing
