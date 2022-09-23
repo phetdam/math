@@ -74,7 +74,12 @@ const typename Tp::container_type NormsTest<Tp>::values_{
 };
 
 using NormsTestTypes = ::testing::Types<
+// hack: MSVC incorrectly emits compile failure for line 119
+#ifdef _MSC_VER
+  norm_param_pair<pdmath::vector_d, 1>,
+#else
   norm_param_pair<pdmath::vector_d, 0>,
+#endif  // _MSC_VER
   norm_param_pair<Eigen::VectorXd, 1>,
   norm_param_pair<pdmath::array_d<4>, 2>,
   norm_param_pair<Eigen::Vector4d, 3>
@@ -110,6 +115,7 @@ TYPED_TEST(NormsTest, PNormTest)
     }
   );
   // for max norm, we don't take any fractional power
+  // compilation error in MSVC when p_ is 0 -- report? works in GCC just fine
   e_norm = (TypeParam::p_) ? std::pow(e_norm, 1. / TypeParam::p_) : e_norm;
   // compare against actual computed by norm
   ASSERT_DOUBLE_EQ(e_norm, norm(TestFixture::values_));
