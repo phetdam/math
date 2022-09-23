@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <functional>
 #include <initializer_list>
 #include <iostream>
 #include <memory>
@@ -438,7 +439,50 @@ inline std::unique_ptr<VOut_t> unique_vector_from(const VIn_t& from)
  */
 #define PDMATH_USING_CONTAINER_TYPES(C_t) \
   using container_type = C_t; \
-  using element_type = typename C_t::value_type
+  using element_type = typename C_t::value_type; \
+  using value_type = element_type
+
+/**
+ * Convenience macro for type aliasing useful in mathematical functor objects.
+ *
+ * It is most useful for functors that take *Container* types for a gradient
+ * and Hessian, with the same `value_type`. The macro also contains a
+ * `static_assert` to check that the `value_type` types are the same.
+ *
+ * Below we show an example of how to use `PDMATH_USING_FUNCTOR_TYPES`.
+ *
+ * @code{.cc}
+ * template <typename G_t, typename H_t>
+ * class my_functor {
+ * public:
+ *   PDMATH_USING_FUNCTOR_TYPES(G_t, H_t);
+ *   using gradient_function_t = std::function<G_t(const G_t&)>;
+ *   using hessian_function_t = std::function<H_t(const G_t&)>;
+ *
+ *   my_functor(const gradient_function_t& grad, const hessian_function_t& hess)
+ *     : grad_(grad), hess_(hess)
+ *   {}
+ *
+ *   scalar_type operator()(const G_t& x)
+ *   {
+ *     return std::accumulate(x.cbegin(), x.cend(), 0);
+ *   }
+ *
+ *   const gradient_function_t& grad() const { return grad_; }
+ *   const hessian_function_t& hess() const { return hess_; }
+ *
+ * private:
+ *   gradient_function_t grad_;
+ *   hessian_function_t hess_;
+ * };
+ * @endcode
+ */
+#define PDMATH_USING_FUNCTOR_TYPES(G_t, H_t) \
+  using scalar_type = typename G_t::value_type; \
+  using gradient_type = G_t; \
+  using hessian_type = H_t; \
+  using value_type = scalar_type; \
+  static_assert(std::is_same_v<scalar_type, typename H_t::value_type>)
 
 }  // namespace pdmath
 
