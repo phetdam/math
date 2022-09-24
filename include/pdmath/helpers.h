@@ -476,6 +476,9 @@ inline std::unique_ptr<VOut_t> unique_vector_from(const VIn_t& from)
  *   hessian_function_t hess_;
  * };
  * @endcode
+ *
+ * @param G_t *Container* type representing the gradient type
+ * @param H_t Hessian matrix type, ex. an `Eigen::Matrix` specialization
  */
 #define PDMATH_USING_FUNCTOR_TYPES(G_t, H_t) \
   using scalar_type = typename G_t::value_type; \
