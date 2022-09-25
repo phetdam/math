@@ -19,6 +19,7 @@
 #include <Eigen/Core>
 
 #include "pdmath/bases.h"
+#include "pdmath/helpers.h"
 #include "pdmath/math_functions.h"
 #include "pdmath/type_traits.h"
 
@@ -30,24 +31,26 @@ namespace pdmath {
  * Letting `H`, `a`, `b`, be the Hessian, affine terms, and scalar translation.
  * Calling `operator()` or `f(x)` evaluates `0.5 * x'Hx + a'x + b`.
  *
- * @tparam T scalar return type
  * @tparam V_t vector input type/gradient return type, a *Container*
  * @tparam M_t Hessian return type, ex. an `Eigen::Matrix` specialization
  */
-template <typename T, typename V_t, typename M_t>
-class quadratic_functor : public func_functor<V_t, T, V_t, const M_t&> {
+template <typename V_t, typename M_t>
+class quadratic_functor
+  : public func_functor<V_t, typename V_t::value_type, V_t, const M_t&> {
 public:
+  PDMATH_USING_FUNCTOR_TYPES(V_t, M_t);
+
   /**
    * `quadratic_functor` full constructor.
    *
    * @param hess `const std::shared_ptr<M_t>&` pointing to `M_t` Hessian
    * @param aff `const std::shared_ptr<V_t>&` pointing to `V_t` affine terms
-   * @param shf `const T&` translation term
+   * @param shf `const scalar_type&` translation term
    */
   quadratic_functor(
     const std::shared_ptr<M_t>& hess,
     const std::shared_ptr<V_t>& aff = nullptr,
-    const T& shf = 0.)
+    const scalar_type& shf = 0.)
     : shf_(shf)
   {
     assert(hess && ((aff) ? aff->size() : true));
@@ -86,7 +89,7 @@ public:
    *
    * @param x `const V_t&` point to evaluate at
    */
-  T f(const V_t& x) override
+  scalar_type f(const V_t& x) override
   {
 // g++/MSVC warns about integer signedness when using Eigen::Matrix
 // specializations, as they use a signed integer for the matrix size
@@ -111,14 +114,15 @@ public:
 #pragma warning (disable: 4244)
 #endif  // _MSC_VER
     // compute b + 0.5 * x'Hx
-    T y(0.5 * std::inner_product(x.cbegin(), x.cend(), hx.cbegin(), 0.) + shf_);
+    scalar_type y = 0.5 *
+      std::inner_product(x.cbegin(), x.cend(), hx.cbegin(), 0.) +
+      shf_;
 #ifdef _MSC_VER
 #pragma warning (pop)
 #endif  // _MSC_VER
     // if no affine terms, we can just return
-    if (!aff_) {
+    if (!aff_)
       return y;
-    }
 // MSVC warns about converting from _Ty to T on return
 #ifdef _MSC_VER
 #pragma warning (push)
@@ -145,7 +149,11 @@ public:
     }
     // else we need to add the affine terms to grad
     std::transform(
-      grad.cbegin(), grad.cend(), aff_->cbegin(), grad.begin(), std::plus<T>()
+      grad.cbegin(),
+      grad.cend(),
+      aff_->cbegin(),
+      grad.begin(),
+      std::plus<scalar_type>()
     );
     return grad;
   }
@@ -218,7 +226,7 @@ private:
 
   std::shared_ptr<V_t> aff_;
   std::shared_ptr<M_t> hess_;
-  T shf_;
+  scalar_type shf_;
   std::size_t n_dims_;
 };
 

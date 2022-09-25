@@ -9,6 +9,7 @@
 
 #include <array>
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include <Eigen/Core>
@@ -65,15 +66,20 @@ float TolMixin<float>::tol() { return 1e-4f; }
 /**
  * Templated test fixture for testing the `quadratic_functor` template class.
  *
- * @tparam Tr_t `func_type_triple` specialization
+ * @tparam Tp_t `std::pair<G, M>` where `G` is a *Container* representing the
+ *     gradient type and `M` is a matrix class representing the matrix type
  */
-template <typename Tr_t>
+template <typename Tp_t>
 class QuadraticFunctorTest
-  : public ::testing::Test, public TolMixin<typename Tr_t::scalar_t> {
+  : public ::testing::Test,
+    public TolMixin<typename Tp_t::first_type::value_type> {
+private:
+  // macro does not work well with dependent types, so V_t, M_t aliases needed
+  using V_t = typename Tp_t::first_type;
+  using M_t = typename Tp_t::second_type;
+
 protected:
-  using T = typename Tr_t::scalar_t;
-  using V_t = typename Tr_t::vector_t;
-  using M_t = typename Tr_t::matrix_t;
+  PDMATH_USING_FUNCTOR_TYPES(V_t, M_t);
 
   /**
    * Default constructor.
@@ -81,10 +87,10 @@ protected:
    * Here we initialize the solution vector `sol_` and the functors.
    */
   QuadraticFunctorTest()
-    : hess_(new M_t{EIGEN_HESS_INIT}),
-      aff_(pdmath::unique_vector_from<V_t>(AFF_TERMS_INIT)),
+    : hess_(new hessian_type{EIGEN_HESS_INIT}),
+      aff_(pdmath::unique_vector_from<gradient_type>(AFF_TERMS_INIT)),
       sol_(
-        pdmath::vector_from<V_t>(
+        pdmath::vector_from<gradient_type>(
           hess_->householderQr().solve(-pdmath::eigen_vector_from(*aff_)).eval())),
       quad_(hess_, aff_, shf_),
       // method of construction works for both `Eigen::Matrix` specializations
@@ -94,17 +100,17 @@ protected:
   {}
 
   // shared pointers to functor Hessian and affine terms
-  const std::shared_ptr<M_t> hess_;
-  const std::shared_ptr<V_t> aff_;
+  const std::shared_ptr<hessian_type> hess_;
+  const std::shared_ptr<gradient_type> aff_;
   // minimizer of the quadratic with hess_d_/hess_f_, aff_, shf_. this cannot
   // be computed at compile time (Eigen objects are not constexpr), so we
   // compute this in the constructor but do ASSERT_EQ check in SetUp, as we
   // are not allowed to call ASSERT_* macros in ctor/dtor of ::testing::Test.
-  const V_t sol_;
+  const gradient_type sol_;
   // quadratic functor we are interested in
-  pdmath::quadratic_functor<T, V_t, M_t> quad_;
+  pdmath::quadratic_functor<gradient_type, hessian_type> quad_;
   // vector of 3 zeros that will prove useful later
-  const V_t zeros_3_;
+  const gradient_type zeros_3_;
 
 // MSVC warns about truncating from double to const T
 #ifdef _MSC_VER
@@ -112,7 +118,7 @@ protected:
 #pragma warning (disable: 4305)
 #endif  // _MSC_VER
   // offset for the quadratic functor
-  static constexpr T shf_ = 0.7;
+  static constexpr scalar_type shf_ = 0.7;
 #ifdef _MSC_VER
 #pragma warning (pop)
 #endif  // _MSC_VER
@@ -123,11 +129,11 @@ protected:
 
 // types used for QuadraticFunctorTest, mixing STL and Eigen types
 using QuadraticFunctorTypes = ::testing::Types<
-  pdmath::testing::func_type_triple<double, pdmath::vector_d, Eigen::Matrix3d>,
-  pdmath::testing::func_type_triple<float, Eigen::Vector3f, Eigen::MatrixXf>,
-  pdmath::testing::func_type_triple<double, Eigen::VectorXd, Eigen::Matrix3d>,
-  pdmath::testing::func_type_triple<float, pdmath::vector_f, Eigen::Matrix3f>,
-  pdmath::testing::func_type_triple<double, pdmath::array_triple_d, Eigen::MatrixXd>
+  std::pair<pdmath::vector_d, Eigen::Matrix3d>,
+  std::pair<Eigen::Vector3f, Eigen::MatrixXf>,
+  std::pair<Eigen::VectorXd, Eigen::Matrix3d>,
+  std::pair<pdmath::vector_f, Eigen::Matrix3f>,
+  std::pair<pdmath::array_triple_d, Eigen::MatrixXd>
 >;
 TYPED_TEST_SUITE(QuadraticFunctorTest, QuadraticFunctorTypes);
 
