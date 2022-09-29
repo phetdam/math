@@ -16,6 +16,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include "pdmath/helpers.h"
 #include "pdmath/types.h"
 
 /**
@@ -46,10 +47,10 @@ protected:
   static const std::string ex_frame_;
 };
 
-const std::string HelpersMiscTest::ex_name_ = "dir1/exampleX.cc";
-const std::string HelpersMiscTest::ex_path_ = "math/examples/" +
+PDMATH_STATIC_DEFINE(HelpersMiscTest::ex_name_) = "dir1/exampleX.cc";
+PDMATH_STATIC_DEFINE(HelpersMiscTest::ex_path_) = "math/examples/" +
   HelpersMiscTest::ex_name_;
-const std::string HelpersMiscTest::ex_frame_ = std::string(
+PDMATH_STATIC_DEFINE(HelpersMiscTest::ex_frame_) = std::string(
   HelpersMiscTest::ex_name_.size(), '-'
 );
 

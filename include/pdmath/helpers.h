@@ -487,6 +487,23 @@ inline std::unique_ptr<VOut_t> unique_vector_from(const VIn_t& from)
   using value_type = scalar_type; \
   static_assert(std::is_same_v<scalar_type, typename H_t::value_type>)
 
+/**
+ * Convenience macro for defining non-templated declared class static members.
+ *
+ * Precludes duplication of the member type declaration in the definition and
+ * saves typing, especially for types with long names. See below for example.
+ *
+ * @code{.cc}
+ * struct my_class {
+ *   static ns::very_unwieldy_long_type_name default_ctable_static_member;
+ * };
+ * PDMATH_STATIC_DEFINE(my_class::default_ctable_static_member);
+ * @endcode
+ *
+ * @param member Name of a static class member
+ */
+#define PDMATH_STATIC_DEFINE(member) decltype(member) member
+
 }  // namespace pdmath
 
 #endif  // PDMATH_HELPERS_H_
