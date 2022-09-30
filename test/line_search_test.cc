@@ -10,6 +10,7 @@
 #include <Eigen/Core>
 #include <gtest/gtest.h>
 
+#include "pdmath/helpers.h"
 #include "pdmath/math_functors.h"
 #include "pdmath/testing/macros.h"
 #include "pdmath/testing/utils.h"
@@ -19,19 +20,24 @@ namespace {
 /**
  * Test fixture for our line search tests.
  *
- * @tparam Tr_t A specialization of `func_type_triple`
+ * @tparam Tp_t A specialization of `func_type_pair`
  */
-template <typename Tr_t>
+template <typename Tp_t>
 class LineSearchTest : public ::testing::Test {
 protected:
-  // LineSearchTest() : himmel_() {}
-  // pdmath::steepest_direction_search dir_search_;
+  using gradient_type = typename Tp_t::gradient_type;
+  using hessian_type = typename Tp_t::hessian_type;
+
+  LineSearchTest() : himmel_() {}
+
+  pdmath::himmelblau_functor<gradient_type, hessian_type> himmel_;
 };
 
 // types LineSearchTest will be instantiated with + register types
 using LineSearchTestTypes = ::testing::Types<
   pdmath::testing::func_type_pair<Eigen::Vector2f, Eigen::Matrix2f>,
   pdmath::testing::func_type_pair<Eigen::Vector2d, Eigen::Matrix2d>,
+  pdmath::testing::func_type_pair<pdmath::array_pair_f, Eigen::MatrixXf>,
   pdmath::testing::func_type_pair<pdmath::vector_d, Eigen::Matrix2d>
 >;
 TYPED_TEST_SUITE(LineSearchTest, LineSearchTestTypes);

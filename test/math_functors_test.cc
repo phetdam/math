@@ -118,9 +118,6 @@ protected:
 #endif  // _MSC_VER
 };
 
-#undef EIGEN_HESS_INIT
-#undef AFF_TERMS_INIT
-
 // types used for QuadraticFunctorTest, mixing STL and Eigen types
 using QuadraticFunctorTypes = ::testing::Types<
   pdmath::testing::func_type_pair<pdmath::vector_d, Eigen::Matrix3d>,
@@ -260,8 +257,6 @@ TYPED_TEST(HimmelblauFunctorTest, ZeroEvalTest)
   HimmelblauFunctorTest_EXPECT_NEAR_ZERO(min_4_);
 }
 
-#undef HimmelblauFunctorTest_EXPECT_NEAR_ZERO
-
 /**
  * Macro to reduce boilerplate of checking `himmelblau_functor` gradient zeros.
  *
@@ -292,8 +287,6 @@ TYPED_TEST(HimmelblauFunctorTest, GradNearZeroTest)
   HimmelblauFunctorTest_EXPECT_GRAD_NEAR_ZERO(min_4_);
 }
 
-#undef HimmelblauFunctorTest_EXPECT_GRAD_NEAR_ZERO
-
 /**
  * Macro to reduce boilerplate checking if `himmelblau_functor` Hessians PSD.
  *
@@ -314,7 +307,5 @@ TYPED_TEST(HimmelblauFunctorTest, PSDHessTest)
   HimmelblauFunctortest_EXPECT_HESSIAN_NEAR_PSD(min_3_);
   HimmelblauFunctortest_EXPECT_HESSIAN_NEAR_PSD(min_4_);
 }
-
-#undef HimmelblauFunctortest_EXPECT_HESSIAN_NEAR_PSD
 
 }  // namespace

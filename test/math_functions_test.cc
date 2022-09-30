@@ -104,8 +104,4 @@ TYPED_TEST(MathFunctionsTest, ThreeHumpCamelZerosTest)
   MathFunctionsTest_EXPECT_STATIC_ZERO(pdmath::three_hump_camel, thc_zero_);
 }
 
-#undef TYPED_TEST_UNPACK_STATIC_FRONT_BACK
-#undef MathFunctionsTest_EXPECT_STATIC_ZERO
-#undef MathFunctionsTest_EXPECT_STATIC_ZERO_NEAR
-
 }  // namespace

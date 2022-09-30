@@ -47,12 +47,9 @@ protected:
   static const std::string ex_frame_;
 };
 
-PDMATH_STATIC_DEFINE(HelpersMiscTest::ex_name_) = "dir1/exampleX.cc";
-PDMATH_STATIC_DEFINE(HelpersMiscTest::ex_path_) = "math/examples/" +
-  HelpersMiscTest::ex_name_;
-PDMATH_STATIC_DEFINE(HelpersMiscTest::ex_frame_) = std::string(
-  HelpersMiscTest::ex_name_.size(), '-'
-);
+PDMATH_STATIC_DEFINE(HelpersMiscTest::ex_name_)("dir1/exampleX.cc");
+PDMATH_STATIC_DEFINE(HelpersMiscTest::ex_path_)("math/examples/" + HelpersMiscTest::ex_name_);
+PDMATH_STATIC_DEFINE(HelpersMiscTest::ex_frame_)(HelpersMiscTest::ex_name_.size(), '-');
 
 /**
  * Test that `print_example_header` overloads work as expected.
@@ -308,10 +305,5 @@ TYPED_TEST(HelpersVtTwoTest, UniqueVectorFromTest)
   EXPECT_EQ(*vec1_p, TestFixture::values_1_);
   EXPECT_EQ(*vec2_p, TestFixture::values_2_);
 }
-
-#undef HelpersVtTwoTest_TYPES_USING_DECLS
-
-#undef HELPERS_TEST_VECTOR_VALUES
-#undef HELPERS_TEST_MATRIX_VALUES
 
 }  // namespace
