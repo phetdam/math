@@ -17,6 +17,12 @@
 
 namespace {
 
+// convenience typedef for the himmelblau_functor
+template <typename Tp_t>
+using himmelblau_functor_t = pdmath::himmelblau_functor<
+  typename Tp_t::gradient_type, typename Tp_t::hessian_type
+>;
+
 /**
  * Test fixture for our line search tests.
  *
@@ -24,14 +30,16 @@ namespace {
  */
 template <typename Tp_t>
 class LineSearchTest : public ::testing::Test {
-protected:
+public:
   using gradient_type = typename Tp_t::gradient_type;
   using hessian_type = typename Tp_t::hessian_type;
 
-  LineSearchTest() : himmel_() {}
-
-  pdmath::himmelblau_functor<gradient_type, hessian_type> himmel_;
+protected:
+  static himmelblau_functor_t<Tp_t> himmel_;
 };
+
+template <typename Tp_t>
+himmelblau_functor_t<Tp_t> LineSearchTest<Tp_t>::himmel_;
 
 // types LineSearchTest will be instantiated with + register types
 using LineSearchTestTypes = ::testing::Types<
@@ -42,9 +50,6 @@ using LineSearchTestTypes = ::testing::Types<
 >;
 TYPED_TEST_SUITE(LineSearchTest, LineSearchTestTypes);
 
-TYPED_TEST(LineSearchTest, DISABLED_HimmelblauTest)
-{
-
-}
+TYPED_TEST(LineSearchTest, DISABLED_HimmelblauTest) {}
 
 }  // namespace
