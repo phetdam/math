@@ -35,11 +35,8 @@ public:
   using hessian_type = typename Tp_t::hessian_type;
 
 protected:
-  static himmelblau_functor_t<Tp_t> himmel_;
+  static inline himmelblau_functor_t<Tp_t> himmel_;
 };
-
-template <typename Tp_t>
-himmelblau_functor_t<Tp_t> LineSearchTest<Tp_t>::himmel_;
 
 // types LineSearchTest will be instantiated with + register types
 using LineSearchTestTypes = ::testing::Types<

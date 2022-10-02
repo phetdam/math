@@ -74,38 +74,20 @@ protected:
   // convenience type aliases
   using gradient_type = typename Tp_t::gradient_type;
   using hessian_type = typename Tp_t::hessian_type;
-
-  /**
-   * Default constructor.
-   *
-   * Here we initialize the solution vector `sol_` and the functors.
-   */
-  QuadraticFunctorTest()
-    : hess_(new hessian_type{EIGEN_HESS_INIT}),
-      aff_(pdmath::unique_vector_from<gradient_type>(AFF_TERMS_INIT)),
-      sol_(
-        pdmath::vector_from<gradient_type>(
-          hess_->householderQr().solve(-pdmath::eigen_vector_from(*aff_)).eval())),
-      quad_(hess_, aff_, shf_),
-      // method of construction works for both `Eigen::Matrix` specializations
-      // and `std::vector`, as `{{0, 0, 0}}` is interpreted by
-      // list-initialization constructor taking a `std::initializer_list<T>`.
-      zeros_3_{{0., 0., 0.}}
-  {}
-
-  // shared pointers to functor Hessian and affine terms
-  const std::shared_ptr<hessian_type> hess_;
-  const std::shared_ptr<gradient_type> aff_;
-  // minimizer of the quadratic with hess_d_/hess_f_, aff_, shf_. this cannot
-  // be computed at compile time (Eigen objects are not constexpr), so we
-  // compute this in the constructor but do ASSERT_EQ check in SetUp, as we
-  // are not allowed to call ASSERT_* macros in ctor/dtor of ::testing::Test.
-  const gradient_type sol_;
-  // quadratic functor we are interested in
-  pdmath::quadratic_functor<gradient_type, hessian_type> quad_;
-  // vector of 3 zeros that will prove useful later
-  const gradient_type zeros_3_;
-
+  // shared pointers to functor Hessian and affine terms. for some reason,
+  // using parentheses results in a compiler error, but list-init is fine.
+  static inline const std::shared_ptr<hessian_type> hess_{
+    new hessian_type{EIGEN_HESS_INIT}
+  };
+  static inline const std::shared_ptr<gradient_type> aff_{
+    pdmath::unique_vector_from<gradient_type>(AFF_TERMS_INIT)
+  };
+  // minimizer of the quadratic with hess_d_/hess_f_, aff_, shf_
+  static inline const gradient_type sol_{
+    pdmath::vector_from<gradient_type>(
+      hess_->householderQr().solve(-pdmath::eigen_vector_from(*aff_)).eval()
+    )
+  };
 // MSVC warns about truncating from double to const T
 #ifdef _MSC_VER
 #pragma warning (push)
@@ -116,6 +98,14 @@ protected:
 #ifdef _MSC_VER
 #pragma warning (pop)
 #endif  // _MSC_VER
+  // quadratic functor we are interested in
+  static inline pdmath::quadratic_functor<gradient_type, hessian_type> quad_{
+    hess_, aff_, shf_
+  };
+  // vector of 3 zeros that will prove useful later. note that using list-init
+  // works for both Eigen::Matrix specializations and std:;vector, as
+  // {{0, 0, 0,}} is interpreted by std::vector as calling the init list ctor.
+  static inline const gradient_type zeros_3_{{0., 0., 0.}};
 };
 
 // types used for QuadraticFunctorTest, mixing STL and Eigen types
