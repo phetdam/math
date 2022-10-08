@@ -50,21 +50,20 @@ public:
 /**
  * Search direction computation functor that uses the negative gradient.
  *
- * @tparam G Gradient callable taking a `const V_t&` returning `V_t`
  * @tparam V_t *Container* type representing a vector
  */
-template <typename G, typename V_t = Eigen::VectorXd>
+template <typename V_t>
 class steepest_direction_search : public direction_search<V_t> {
 public:
-  using gradient_type = G;
   PDMATH_USING_CONTAINER_TYPES(V_t);
+  using gradient_type = std::function<V_t(const V_t&)>;
 
   /**
    * `steepest_direction_search` constructor.
    *
-   * @param grad `G` gradient callable copied as a member.
+   * @param grad `gradient_type` gradient callable copied as a member.
    */
-  steepest_direction_search(G grad) : grad_(std::move(grad)) {}
+  steepest_direction_search(gradient_type grad) : grad_(grad) {}
 
   steepest_direction_search() = delete;
 
@@ -85,7 +84,7 @@ public:
   }
 
 private:
-  G grad_;
+  gradient_type grad_;
 };
 
 /**
@@ -249,16 +248,14 @@ private:
  * step size shrinkage factor, from Hastie, Tibshirani, and Wainwright's
  * monograph *Statistical Learning with Sparsity*, page 102.
  *
- * @tparam F_o objective, must take a `const V_t&` and return `V_t::value_type`
- * @tparam F_g gradient, must take a `const V_t&` and return `V_t::value_type`
  * @tparam V_t *Container* type representing a vector
  */
-template <typename F_o, typename F_g, typename V_t = Eigen::VectorXd>
+template <typename V_t>
 class backtrack_step_search : public step_search<V_t> {
 public:
-  using objective_type = F_o;
-  using gradient_type = F_g;
   PDMATH_USING_CONTAINER_TYPES(V_t);
+  using objective_type = std::function<element_type(const V_t&)>;
+  using gradient_type = std::function<V_t(const V_t&)>;
 
   /**
    * Constructor.
@@ -273,8 +270,8 @@ public:
    *     Tibshirani, and Wainwright recommend `0.8` as a choice.
    */
   backtrack_step_search(
-    F_o func,
-    F_g grad,
+    objective_type func,
+    gradient_type grad,
     element_type eta0,
     element_type c1 = 0.5,
     element_type rho = 0.8)
@@ -347,8 +344,8 @@ public:
   const element_type& last_step() const override { return last_step_; }
 
 private:
-  F_o func_;
-  F_g grad_;
+  objective_type func_;
+  gradient_type grad_;
   element_type last_step_;
   element_type eta0_;
   element_type c1_;

@@ -17,12 +17,6 @@
 
 namespace {
 
-// convenience typedef for the himmelblau_functor
-template <typename Tp_t>
-using himmelblau_functor_t = pdmath::himmelblau_functor<
-  typename Tp_t::gradient_type, typename Tp_t::hessian_type
->;
-
 /**
  * Test fixture for our line search tests.
  *
@@ -35,7 +29,19 @@ public:
   using hessian_type = typename Tp_t::hessian_type;
 
 protected:
-  static inline himmelblau_functor_t<Tp_t> himmel_;
+  // functor to minimize (chosen for convenience)
+  static inline pdmath::himmelblau_functor<gradient_type, hessian_type> himmel_;
+  // direction search using steepest (gradient) descent
+  static inline pdmath::steepest_direction_search<gradient_type> steepest_dir_{
+    himmel_.d1
+  };
+  // step search policies: constant step size, backtrack search
+  static inline pdmath::const_step_search<gradient_type> const_step_;
+  static inline pdmath::backtrack_step_search<gradient_type> backtrack_step_{
+    himmel_.f, himmel_.d1, 0.1
+  };
+  // convergence policy based on line search direction ()
+  static inline pdmath::no_direction_policy<gradient_type> policy_;
 };
 
 // types LineSearchTest will be instantiated with + register types
@@ -47,6 +53,9 @@ using LineSearchTestTypes = ::testing::Types<
 >;
 TYPED_TEST_SUITE(LineSearchTest, LineSearchTestTypes);
 
-TYPED_TEST(LineSearchTest, DISABLED_HimmelblauTest) {}
+TYPED_TEST(LineSearchTest, DISABLED_HimmelblauTest)
+{
+  (void) 0;
+}
 
 }  // namespace
