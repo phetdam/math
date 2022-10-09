@@ -33,15 +33,28 @@ protected:
   static inline pdmath::himmelblau_functor<gradient_type, hessian_type> himmel_;
   // direction search using steepest (gradient) descent
   static inline pdmath::steepest_direction_search<gradient_type> steepest_dir_{
-    himmel_.d1
+    // note no capture needed, as himmel_ is static. lambda is used as a way to
+    // get around member functions being different types than normal functions.
+    [](const gradient_type& x) { return himmel_.d1(x); }
   };
   // step search policies: constant step size, backtrack search
   static inline pdmath::const_step_search<gradient_type> const_step_;
+// MSVC complains thatdouble (0.1) is being truncated to float
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4305)
+#endif  // _MSC_VER
   static inline pdmath::backtrack_step_search<gradient_type> backtrack_step_{
-    himmel_.f, himmel_.d1, 0.1
+    [](const gradient_type& x) { return himmel_.f(x); },
+    [](const gradient_type& x) { return himmel_.d1(x); },
+    0.1
   };
-  // convergence policy based on line search direction ()
-  static inline pdmath::no_direction_policy<gradient_type> policy_;
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
+  // line search direction convergence policies: no early convergence, 2-norm
+  static inline pdmath::no_direction_policy<gradient_type> no_policy_;
+  // static inline pdmath::min_norm_direction_policy<gradient_type> min_policy_;
 };
 
 // types LineSearchTest will be instantiated with + register types

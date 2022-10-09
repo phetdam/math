@@ -56,16 +56,14 @@ template <typename V_t>
 class steepest_direction_search : public direction_search<V_t> {
 public:
   PDMATH_USING_CONTAINER_TYPES(V_t);
-  using gradient_type = std::function<V_t(const V_t&)>;
+  using gradient_function = std::function<V_t(const V_t&)>;
 
   /**
    * `steepest_direction_search` constructor.
    *
-   * @param grad `gradient_type` gradient callable copied as a member.
+   * @param grad `gradient_function` gradient *Callable* copied as a member.
    */
-  steepest_direction_search(gradient_type grad) : grad_(grad) {}
-
-  steepest_direction_search() = delete;
+  steepest_direction_search(gradient_function grad) : grad_(grad) {}
 
   /**
    * Compute a search direction given the previous solution guess.
@@ -84,7 +82,7 @@ public:
   }
 
 private:
-  gradient_type grad_;
+  gradient_function grad_;
 };
 
 /**
@@ -129,17 +127,26 @@ template <typename V_t>
 class min_norm_direction_policy : public direction_policy<V_t> {
 public:
   PDMATH_USING_CONTAINER_TYPES(V_t);
+  using norm_type = std::function<element_type(const V_t&)>;
 
   /**
-   * Constructor.
+   * Constructor using `pdmath::p_norm` as the norm callable.
    *
    * @param min `element_type` minimum search direction norm that must be
    *     exceeded during the routine's execution to prevent early convergence.
-   * @param norm `const norm<T, V_t>&` norm functor to compute the norm. The
-   *     default is a default-constructed `p_norm`, i.e. the 2-norm.
    */
-  min_norm_direction_policy(
-    element_type min = 1e-6, const norm<V_t>& norm = p_norm())
+  min_norm_direction_policy(element_type min = 1e-6)
+    : min_norm_(min), norm_(p_norm())
+  {}
+
+  /**
+   * Constructor allowing user-specified norm *Callable*.
+   *
+   * @param min `element_type` minimum search direction norm that must be
+   *     exceeded during the routine's execution to prevent early convergence.
+   * @param norm `norm_type` norm *Callable* to compute the norm.
+   */
+  min_norm_direction_policy(norm_type norm, element_type min = 1e-6)
     : min_norm_(min), norm_(norm)
   {}
 
@@ -161,11 +168,11 @@ public:
   /**
    * Return norm functor used to compute gradient norms.
    */
-  const pdmath::norm<V_t>& norm() const { return norm_; }
+  const norm_type& norm() const { return norm_; }
 
 private:
   element_type min_norm_;
-  pdmath::norm<V_t> norm_;
+  norm_type norm_;
 };
 
 /**
@@ -182,6 +189,8 @@ template <typename V_t>
 class step_search : public fev_mixin, public gev_mixin, public hev_mixin {
 public:
   PDMATH_USING_CONTAINER_TYPES(V_t);
+
+  virtual ~step_search() = default;
 
   /**
    * Compute a step size from the previous guess and the new search direction.
@@ -254,15 +263,15 @@ template <typename V_t>
 class backtrack_step_search : public step_search<V_t> {
 public:
   PDMATH_USING_CONTAINER_TYPES(V_t);
-  using objective_type = std::function<element_type(const V_t&)>;
-  using gradient_type = std::function<V_t(const V_t&)>;
+  using objective_function = std::function<element_type(const V_t&)>;
+  using gradient_function = std::function<V_t(const V_t&)>;
 
   /**
    * Constructor.
    *
-   * @param func `F_o` objective, takes `const V_t&`, returns `element_type`
-   * @param grad `F_g` gradient, takes `const V_t&`, returns `element_type`
-   * @param eta0 `T` positive starting step size to use
+   * @param func `objective_function` objective
+   * @param grad `gradient_function` gradient
+   * @param eta0 `element_type` positive starting step size to use
    * @param c1 `element_type` Armijo condition damping factor in (0, 1)
    *     affecting the sufficient decrease condition. Nocedal and Wright
    *     recommend `1e-4`; Hastie, Tibshirani, and Wainwright recommend `0.5`.
@@ -270,12 +279,12 @@ public:
    *     Tibshirani, and Wainwright recommend `0.8` as a choice.
    */
   backtrack_step_search(
-    objective_type func,
-    gradient_type grad,
+    objective_function func,
+    gradient_function grad,
     element_type eta0,
     element_type c1 = 0.5,
     element_type rho = 0.8)
-    : func_(func), grad_(grad), last_step_(), step_search<V_t>()
+    : func_(func), grad_(grad), last_step_()
   {
     assert(eta0 > 0);
     assert(c1 > 0 && c1 < 1);
@@ -284,8 +293,6 @@ public:
     c1_ = c1;
     rho_ = rho;
   }
-
-  backtrack_step_search() = delete;
 
   /**
    * Compute a step size from the previous guess and the new search direction.
@@ -302,9 +309,11 @@ public:
     // set initial step size, precompute current objective and gradient value,
     // get inner product of gradient w/ search direction
     element_type f_x = func_(x_p);
-    element_type g_x = grad_(x_p);
+    V_t g_x = grad_(x_p);
+    // MSVC complains that there is potential loss of data converting 0 to
+    // float and emits internal conversion warnings, so use ctor explicitly
     element_type ip_x = std::inner_product(
-      g_x.cbegin(), g_x.cend(), dir.cbegin(), 0
+      g_x.cbegin(), g_x.cend(), dir.cbegin(), element_type(0)
     );
     // get new direction we use to compute the new function value
     V_t x_c = x_p;
@@ -344,8 +353,8 @@ public:
   const element_type& last_step() const override { return last_step_; }
 
 private:
-  objective_type func_;
-  gradient_type grad_;
+  objective_function func_;
+  gradient_function grad_;
   element_type last_step_;
   element_type eta0_;
   element_type c1_;
