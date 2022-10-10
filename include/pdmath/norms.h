@@ -59,7 +59,8 @@ public:
     // need to handle p_ == 0 case separately, as lp_norm gives infinity. also
     // use separate cases for other Boost norms, since they are faster.
     if (!p_) {
-      return boost::math::tools::l0_pseudo_norm(vector);
+      // need to convert returned size_t to element_type
+      return static_cast<element_type>(boost::math::tools::l0_pseudo_norm(vector));
     }
     else if (p_ == 1) {
       return boost::math::tools::l1_norm(vector);

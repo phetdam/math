@@ -14,10 +14,12 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
+#include <memory>
 #include <numeric>
 #include <utility>
 
 #include <Eigen/Core>
+#include <boost/math/tools/norms.hpp>
 
 #include "pdmath/bases.h"
 #include "pdmath/helpers.h"
@@ -121,33 +123,29 @@ public:
 /**
  * Search direction policy where direction below a minimum implies convergence.
  *
- * @tparam V_t *Container* type representing a vector
+ * This overload uses a specified a `pdmath::norm` subclass.
+ *
+ * @tparam N_t `pdmath::norm<V_t>` subclass
  */
-template <typename V_t>
-class min_norm_direction_policy : public direction_policy<V_t> {
+template <typename N_t>
+class min_norm_direction_policy
+  : public direction_policy<typename N_t::container_type> {
+private:
+  using V_t = typename N_t::container_type;
+
 public:
   PDMATH_USING_CONTAINER_TYPES(V_t);
-  using norm_type = std::function<element_type(const V_t&)>;
+  using norm_type = N_t;
+  using norm_pointer_type = std::shared_ptr<N_t>;
 
   /**
-   * Constructor using `pdmath::p_norm` as the norm callable.
+   * Constructor.
    *
    * @param min `element_type` minimum search direction norm that must be
    *     exceeded during the routine's execution to prevent early convergence.
    */
   min_norm_direction_policy(element_type min = 1e-6)
-    : min_norm_(min), norm_(p_norm())
-  {}
-
-  /**
-   * Constructor allowing user-specified norm *Callable*.
-   *
-   * @param min `element_type` minimum search direction norm that must be
-   *     exceeded during the routine's execution to prevent early convergence.
-   * @param norm `norm_type` norm *Callable* to compute the norm.
-   */
-  min_norm_direction_policy(norm_type norm, element_type min = 1e-6)
-    : min_norm_(min), norm_(norm)
+    : min_norm_(min), norm_(new N_t())
   {}
 
   /**
@@ -157,7 +155,7 @@ public:
    */
   bool operator()(const V_t& dir) override
   {
-    return norm_(dir) <= min_norm_ ? true : false;
+    return (*norm_)(dir) <= min_norm_ ? true : false;
   }
 
   /**
@@ -172,7 +170,7 @@ public:
 
 private:
   element_type min_norm_;
-  norm_type norm_;
+  norm_pointer_type norm_;
 };
 
 /**
