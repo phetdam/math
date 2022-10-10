@@ -39,7 +39,7 @@ protected:
   };
   // step search policies: constant step size, backtrack search
   static inline pdmath::const_step_search<gradient_type> const_step_;
-// MSVC complains thatdouble (0.1) is being truncated to float
+// MSVC complains that double (0.1) is being truncated to float
 #ifdef _MSC_VER
 #pragma warning (push)
 #pragma warning (disable: 4305)
