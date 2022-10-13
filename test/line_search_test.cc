@@ -55,8 +55,7 @@ protected:
 #endif  // _MSC_VER
   // line search direction convergence policies: no early convergence, 2-norm
   static inline pdmath::no_direction_policy<gradient_type> no_policy_;
-  static inline
-  pdmath::min_norm_direction_policy<pdmath::p_norm<gradient_type>> min_policy_;
+  static inline pdmath::min_p_norm_direction_policy<gradient_type> min_policy_;
 };
 
 // types LineSearchTest will be instantiated with + register types

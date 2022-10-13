@@ -121,11 +121,9 @@ public:
 };
 
 /**
- * Search direction policy where direction below a minimum implies convergence.
+ * Search direction policy where norm below a minimum implies convergence.
  *
- * This overload uses a specified a `pdmath::norm` subclass.
- *
- * @tparam N_t `pdmath::norm<V_t>` subclass
+ * @tparam N_t `pdmath::norm<V_t>` subclass, `V_t` a *Container*
  */
 template <typename N_t>
 class min_norm_direction_policy
@@ -172,6 +170,22 @@ private:
   element_type min_norm_;
   norm_pointer_type norm_;
 };
+
+/**
+ * Search direction policy where p-norm below a minimum implies convergence.
+ *
+ * @tparam V_t *Container* type representing a vector
+ */
+template <typename V_t>
+using min_p_norm_direction_policy = min_norm_direction_policy<p_norm<V_t>>;
+
+/**
+ * Search direction policy where max norm below a minimum implies convergence.
+ *
+ * @tparam V_t *Container* type representing a vector
+ */
+template <typename V_t>
+using min_max_norm_direction_policy = min_norm_direction_policy<max_norm<V_t>>;
 
 /**
  * Template base class for a step search functor.
