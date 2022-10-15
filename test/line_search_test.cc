@@ -24,7 +24,9 @@ namespace {
  * @tparam Tp_t A specialization of `func_type_pair`
  */
 template <typename Tp_t>
-class LineSearchTest : public ::testing::Test {
+class LineSearchTest
+  : public ::testing::Test,
+    public pdmath::testing::tol_mixin<typename Tp_t::scalar_type> {
 public:
   using gradient_type = typename Tp_t::gradient_type;
   using hessian_type = typename Tp_t::hessian_type;
