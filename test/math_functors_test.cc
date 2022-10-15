@@ -25,30 +25,6 @@
 namespace {
 
 /**
- * Templated mixin class providing a templated comparison tolerance function.
- *
- * Mostly just provides the float loose comparison tolerance we use a lot.
- */
-template <typename T>
-class TolMixin {
-public:
-  /**
-   * Return comparison tolerance for doubles.
-   *
-   * @note `std::numeric_limits<double>::epsilon()` returns `2.22045e-16`.
-   */
-  static T tol() { return 1e-8; }
-};
-
-/**
- * Return looser comparison tolerance for floats.
- *
- * @note `std::numeric_limits<float>::epsilon()` returns `1.19209e-07`.
- */
-template <>
-float TolMixin<float>::tol() { return 1e-4f; }
-
-/**
  * Comma-separated initializers for initializing `hess_d_` and `hess_f_`.
  *
  * This defines a positive definite 3x3 matrix (from Wikipedia).
@@ -69,7 +45,8 @@ float TolMixin<float>::tol() { return 1e-4f; }
  */
 template <typename Tp_t>
 class QuadraticFunctorTest
-  : public ::testing::Test, public TolMixin<typename Tp_t::scalar_type> {
+  : public ::testing::Test,
+    public pdmath::testing::tol_mixin<typename Tp_t::scalar_type> {
 protected:
   // convenience type aliases
   using gradient_type = typename Tp_t::gradient_type;
@@ -162,7 +139,8 @@ TYPED_TEST(QuadraticFunctorTest, EqualHessianTest)
  */
 template <typename Tp_t>
 class HimmelblauFunctorTest
-  : public ::testing::Test, public TolMixin<typename Tp_t::scalar_type> {
+  : public ::testing::Test,
+    public pdmath::testing::tol_mixin<typename Tp_t::scalar_type> {
 protected:
   // convenience type aliases
   using gradient_type = typename Tp_t::gradient_type;
@@ -255,7 +233,7 @@ TYPED_TEST(HimmelblauFunctorTest, ZeroEvalTest)
  * specialization so we can use the `isZero` method.
  *
  * @note Since the Himmelblau functor gradients tend to be rather coarse, we
- *     use `TolMixin<float>::tol` explicitly to get the comparison tolerance.
+ *     use `pdmath::testing::tol_mixin<float>::tol` for the tolerance.
  *
  * @param zero a `Tp_t::gradient_type` zero candidate
  */
@@ -263,7 +241,7 @@ TYPED_TEST(HimmelblauFunctorTest, ZeroEvalTest)
   EXPECT_TRUE( \
     pdmath::vector_from<Eigen::VectorX<typename TypeParam::scalar_type>>( \
       this->himmel_.d1(TestFixture::zero)) \
-        .isZero(TolMixin<float>::tol()) \
+        .isZero(pdmath::testing::tol_mixin<float>::tol()) \
   )
 
 /**
