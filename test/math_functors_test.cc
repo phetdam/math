@@ -113,14 +113,8 @@ TYPED_TEST(QuadraticFunctorTest, ZeroEvalTest)
 TYPED_TEST(QuadraticFunctorTest, GradNearZeroTest)
 {
   // can't use the Google Test ::testing::Each(::testing::FloatEq(0.)) here
-  // since we have a templated test that could have different types. therefore,
-  // to allow boxing, we using ::testing::Ge and ::testing::Le.
-  const auto all_near_zero = ::testing::Each(
-    ::testing::AllOf(
-      ::testing::Ge(-TestFixture::tol()), ::testing::Le(TestFixture::tol())
-    )
-  );
-  EXPECT_THAT(this->quad_.d1(this->sol_), all_near_zero);
+  // since we have a templated test that could have different types
+  EXPECT_THAT(this->quad_.d1(this->sol_), TestFixture::all_near_zero_matcher);
 }
 
 /**
@@ -228,20 +222,17 @@ TYPED_TEST(HimmelblauFunctorTest, ZeroEvalTest)
 /**
  * Macro to reduce boilerplate of checking `himmelblau_functor` gradient zeros.
  *
- * We need to use `vector_from<Eigen::VectorX<typename TypeParam::scalar_type>>`
- * to ensure that the result of `himmel_.d1` is a `Eigen::VectorX`
- * specialization so we can use the `isZero` method.
- *
  * @note Since the Himmelblau functor gradients tend to be rather coarse, we
  *     use `pdmath::testing::tol_mixin<float>::tol` for the tolerance.
  *
  * @param zero a `Tp_t::gradient_type` zero candidate
  */
 #define HimmelblauFunctorTest_EXPECT_GRAD_NEAR_ZERO(zero) \
-  EXPECT_TRUE( \
-    pdmath::vector_from<Eigen::VectorX<typename TypeParam::scalar_type>>( \
-      this->himmel_.d1(TestFixture::zero)) \
-        .isZero(pdmath::testing::tol_mixin<float>::tol()) \
+  EXPECT_THAT( \
+    this->himmel_.d1(TestFixture::zero), \
+    pdmath \
+    ::testing \
+    ::match_all_near_zero(pdmath::testing::tol_mixin<float>::tol()) \
   )
 
 /**
@@ -262,7 +253,7 @@ TYPED_TEST(HimmelblauFunctorTest, GradNearZeroTest)
  *
  * @param zero a `Tp_t::gradient_type` zero candidate
  */
-#define HimmelblauFunctortest_EXPECT_HESSIAN_NEAR_PSD(zero) \
+#define HimmelblauFunctorTest_EXPECT_HESSIAN_NEAR_PSD(zero) \
   EXPECT_GE(this->himmel_.d2(TestFixture::zero).determinant(), 0)
 
 /**
@@ -270,10 +261,10 @@ TYPED_TEST(HimmelblauFunctorTest, GradNearZeroTest)
  */
 TYPED_TEST(HimmelblauFunctorTest, PSDHessTest)
 {
-  HimmelblauFunctortest_EXPECT_HESSIAN_NEAR_PSD(min_1_);
-  HimmelblauFunctortest_EXPECT_HESSIAN_NEAR_PSD(min_2_);
-  HimmelblauFunctortest_EXPECT_HESSIAN_NEAR_PSD(min_3_);
-  HimmelblauFunctortest_EXPECT_HESSIAN_NEAR_PSD(min_4_);
+  HimmelblauFunctorTest_EXPECT_HESSIAN_NEAR_PSD(min_1_);
+  HimmelblauFunctorTest_EXPECT_HESSIAN_NEAR_PSD(min_2_);
+  HimmelblauFunctorTest_EXPECT_HESSIAN_NEAR_PSD(min_3_);
+  HimmelblauFunctorTest_EXPECT_HESSIAN_NEAR_PSD(min_4_);
 }
 
 }  // namespace

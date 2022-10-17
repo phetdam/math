@@ -8,6 +8,11 @@
 #ifndef PDMATH_TESTING_UTILS_H_
 #define PDMATH_TESTING_UTILS_H_
 
+#include <cassert>
+#include <type_traits>
+
+#include <gmock/gmock.h>
+
 namespace pdmath {
 namespace testing {
 
@@ -30,6 +35,29 @@ public:
 };
 
 /**
+ * Return a Google Test matcher for checking a *Container* is near zero.
+ *
+ * In other words, the returned matcher only allows `EXPECT_THAT` to succeed if
+ * the max norm of the *Container* is less than or equal to `tol`.
+ *
+ * We can't use the Google Test `::testing::Each(::testing::FloatEq(0.))`
+ * directly since we want to maintain the generic behavior of templates while
+ * also being able to ask for different tolerance levels.
+ *
+ * @tparam T scalar type
+ *
+ * @param tol `const T&` all close tolerance
+ */
+template <typename T>
+inline const auto match_all_near_zero(const T& tol)
+{
+  assert(tol >= 0);
+  return ::testing::Each(
+    ::testing::AllOf(::testing::Ge(-tol), ::testing::Le(tol))
+  );
+}
+
+/**
  * Templated mixin class providing a static comparison tolerance function.
  *
  * Mostly just provides the float loose comparison tolerance we use a lot,
@@ -42,27 +70,38 @@ template <typename T>
 class tol_mixin {
 public:
   /**
-   * Return comparison tolerance for doubles or double-likes.
+   * Return a floating-point comparison tolerance float-like types.
    *
-   * @note `std::numeric_limits<double>::epsilon()` returns `2.22045e-16`.
+   * @note `std::numeric_limits<double>::epsilon()` returns `2.22045e-16` while
+   *     `std::numeric_limits<float>::epsilon()` returns `1.19209e-07`.
    */
-  static T tol() { return 1e-8; }
+  static T tol()
+  {
+    if constexpr (std::is_same_v<T, float>) {
+      return 1e-4f;
+    }
+// MSVC complains about how this is truncated to float in tol_mixin<float> and
+// how this return statement is unreachable in tol_mixin<float>, which taken
+// together make for a bit of a nonsensical statement
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4305 4702)
+#endif  // _MSC_VER
+    return 1e-8;
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif  // _MSC_VER
+  }
 
   /**
    * Return user-specified tolerance.
    */
   static T tol(const T& tol_override) { return tol_override; }
-};
 
-/**
- * Return looser comparison tolerance for floats.
- *
- * @note `std::numeric_limits<float>::epsilon()` returns `1.19209e-07`.
- *
- * @param tol_override `const float&` tolerance override
- */
-template <>
-inline float tol_mixin<float>::tol() { return 1e-4f; }
+  // Google Test EXPECT_THAT matcher for checking that a *Container* is near
+  // zero, using the default tolerance returned by tol().
+  static inline const auto all_near_zero_matcher{match_all_near_zero(tol())};
+};
 
 }  // namespace testing
 }  // namespace pdmath
