@@ -14,7 +14,6 @@
 #include <Eigen/Core>
 #include <Eigen/LU>
 #include <Eigen/QR>
-#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "pdmath/helpers.h"
