@@ -84,9 +84,8 @@ public:
 #endif  // _MSC_VER
   static T tol()
   {
-    if constexpr (std::is_same_v<T, float>) {
+    if constexpr (std::is_same_v<T, float>)
       return 1e-4f;
-    }
 // MSVC complains about how this is truncated to float in tol_mixin<float>,
 // which taken together with the C4702 warning about unreachable code makes for
 // a bit of a nonsensical warning situation here.

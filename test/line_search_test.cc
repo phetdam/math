@@ -27,34 +27,37 @@ template <typename Tp_t>
 class LineSearchTest
   : public ::testing::Test,
     public pdmath::testing::tol_mixin<typename Tp_t::scalar_type> {
+private:
+  using V_t = typename Tp_t::gradient_type;
+  using H_t = typename Tp_t::hessian_type;
+
 public:
-  using gradient_type = typename Tp_t::gradient_type;
-  using hessian_type = typename Tp_t::hessian_type;
+  PDMATH_USING_FUNCTOR_TYPES(V_t, H_t);
 
 protected:
   /**
    * Constructor to populate non-shared members that will have state mutation.
    */
+// MSVC complains that double (0.1) in backtrack_step_ is truncated to float
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable: 4305)
+#endif  // _MSC_VER
   LineSearchTest()
     : steepest_search_{
         // note no capture needed, as himmel_ is static. lambda is used to get
         //around member functions being different types than normal functions.
         [](const gradient_type& x) { return himmel_.d1(x); }
       },
-// MSVC complains that double (0.1) is being truncated to float
-#ifdef _MSC_VER
-#pragma warning (push)
-#pragma warning (disable: 4305)
-#endif  // _MSC_VER
       backtrack_step_{
         [](const gradient_type& x) { return himmel_.f(x); },
         [](const gradient_type& x) { return himmel_.d1(x); },
         0.1
       }
+  {}
 #ifdef _MSC_VER
 #pragma warning (pop)
 #endif  // _MSC_VER
-  {}
 
   // direction search using steepest (gradient) descent
   pdmath::steepest_direction_search<gradient_type> steepest_search_;
@@ -86,7 +89,7 @@ TYPED_TEST_SUITE(LineSearchTest, LineSearchTestTypes);
 /**
  * Test that the `steepest_direction_search` functor works as expected.
  *
- * Uses `HIMELBLAU_ZERO_1` to check that the gradient is zero (should actually
+ * Uses `HIMMELBLAU_ZERO_1` to check that the gradient is zero (should actually
  * be exactly zero) and checks function, gradient, Hessian evals.
  */
 TYPED_TEST(LineSearchTest, SteepestDirectionSearchTest)
