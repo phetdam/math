@@ -102,6 +102,19 @@ TYPED_TEST(LineSearchTest, SteepestDirectionSearchTest)
   EXPECT_EQ(1, this->steepest_search_.n_gev());
 }
 
+/**
+ * Test that the `const_step_search` works as expected.
+ */
+TYPED_TEST(LineSearchTest, ConstStepSearchTest)
+{
+  // these should be exactly equal, they refer to same member. note that
+  // const_step_search::operator() ignores inputs
+  EXPECT_EQ(
+    TestFixture::const_step_.last_step(),
+    TestFixture::const_step_(TestFixture::x0_, TestFixture::min_1_)
+  );
+}
+
 TYPED_TEST(LineSearchTest, DISABLED_HimmelblauTest)
 {
   (void) 0;
