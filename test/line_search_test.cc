@@ -98,8 +98,10 @@ TYPED_TEST(LineSearchTest, SteepestDirectionSearchTest)
     this->steepest_search_(TestFixture::min_1_),
     TestFixture::all_near_zero_matcher
   );
-  // should increase gradient eval count to 1
+  // should increase gradient eval count to 1, no function or Hessian evals
+  EXPECT_EQ(0, this->steepest_search_.n_fev());
   EXPECT_EQ(1, this->steepest_search_.n_gev());
+  EXPECT_EQ(0, this->steepest_search_.n_hev());
 }
 
 /**
@@ -113,6 +115,10 @@ TYPED_TEST(LineSearchTest, ConstStepSearchTest)
     TestFixture::const_step_.last_step(),
     TestFixture::const_step_(TestFixture::x0_, TestFixture::min_1_)
   );
+  // no function, gradient, Hessian evals
+  EXPECT_EQ(0, TestFixture::const_step_.n_fev());
+  EXPECT_EQ(0, TestFixture::const_step_.n_gev());
+  EXPECT_EQ(0, TestFixture::const_step_.n_hev());
 }
 
 TYPED_TEST(LineSearchTest, DISABLED_HimmelblauTest)
