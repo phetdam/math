@@ -350,7 +350,7 @@ public:
     this->n_fev_ += 1;
     this->n_gev_ += 1;
     // until sufficient decrease is met, keep shrinking
-    while (this->n_fev_ += 1, func_(x_c) <= f_x + c1_ * eta * ip_x) {
+    while (this->n_fev_ += 1, func_(x_c) > f_x + c1_ * eta * ip_x) {
       eta *= rho_;
       std::transform(
         x_p.cbegin(),
