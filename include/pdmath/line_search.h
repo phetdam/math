@@ -214,6 +214,8 @@ public:
 
   /**
    * Return the last computed step size.
+   *
+   * If `operator()` not yet been invoked, should return `0`.
    */
   virtual const element_type& last_step() const = 0;
 };
@@ -235,7 +237,7 @@ public:
    *
    * @param eta `element_type` positive step size to use
    */
-  const_step_search(element_type eta = 0.1)
+  const_step_search(element_type eta = 0.1) : last_step_()
   {
     assert(eta > 0);
     eta_ = eta;
@@ -249,16 +251,21 @@ public:
    */
   element_type operator()(const V_t& /* x_p */, const V_t& /* dir */) override
   {
+    // avoid any conditional comparison and just assign
+    last_step_ = eta_;
     return eta_;
   }
 
   /**
-   * Return the last computed step length, which is always `eta_`.
+   * Return the last computed step length.
+   *
+   * If `operator()` has not yet been invoked, returns `0`, else `eta`.
    */
-  const element_type& last_step() const override { return eta_; }
+  const element_type& last_step() const override { return last_step_; }
 
 private:
   element_type eta_;
+  element_type last_step_;
 };
 
 /**

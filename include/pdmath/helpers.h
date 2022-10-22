@@ -1,7 +1,7 @@
 /**
  * @file helpers.h
  * @author Derek Huang
- * @brief C++ header for project-specific helper macros
+ * @brief C++ header for common helpers
  * @copyright MIT License
  */
 
@@ -26,6 +26,7 @@
 #include "pdmath/bases.h"
 #include "pdmath/type_traits.h"
 #include "pdmath/types.h"
+#include "pdmath/warnings.h"
 
 namespace pdmath {
 
@@ -215,12 +216,12 @@ inline boost_vector<typename V_t::value_type> boost_vector_from(const V_t& from)
 {
 // MSVC complains about signed to unsigned conversion if using Eigen vectors
 #ifdef _MSC_VER
-#pragma warning (push)
-#pragma warning (disable: 4365)
+PDMATH_WARNINGS_PUSH
+PDMATH_WARNINGS_DISABLE(4365)
 #endif  // _MSC_VER
   boost_vector<typename V_t::value_type> to(from.size());
 #ifdef _MSC_VER
-#pragma warning (pop)
+PDMATH_WARNINGS_POP
 #endif  // _MSC_VER
   // note: when compiling with MSVC, using indexing when copying using a for
   // loop causes C5045 to be emitted with /Wall, but not with iterators.
@@ -359,12 +360,12 @@ inline VOut_t vector_from(const VIn_t& from)
   if constexpr (is_vector_size_constructible_v<VOut_t>) {
 // MSVC complains about signed to unsigned conversion if using Eigen vectors
 #ifdef _MSC_VER
-#pragma warning (push)
-#pragma warning (disable: 4365)
+PDMATH_WARNINGS_PUSH
+PDMATH_WARNINGS_DISABLE(4365)
 #endif  // _MSC_VER
     to = VOut_t(from.size());
 #ifdef _MSC_VER
-#pragma warning (pop)
+PDMATH_WARNINGS_POP
 #endif // _MSC_VER
   }
   std::copy(from.cbegin(), from.cend(), to.begin());

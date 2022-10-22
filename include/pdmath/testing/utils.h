@@ -13,6 +13,8 @@
 
 #include <gmock/gmock.h>
 
+#include "pdmath/warnings.h"
+
 namespace pdmath {
 namespace testing {
 
@@ -79,8 +81,8 @@ public:
 // disable C4702 (unreachable code) before the function, as warning pragmas
 // for warning numbers >4699 used in a function only apply at function end.
 #ifdef _MSC_VER
-#pragma warning (push)
-#pragma warning (disable: 4702)
+PDMATH_WARNINGS_PUSH
+PDMATH_WARNINGS_DISABLE(4702)
 #endif  // _MSC_VER
   static T tol()
   {
@@ -90,16 +92,16 @@ public:
 // which taken together with the C4702 warning about unreachable code makes for
 // a bit of a nonsensical warning situation here.
 #ifdef _MSC_VER
-#pragma warning (push)
-#pragma warning (disable: 4305)
+PDMATH_WARNINGS_PUSH
+PDMATH_WARNINGS_DISABLE(4305)
 #endif  // _MSC_VER
     return 1e-8;
 #ifdef _MSC_VER
-#pragma warning (pop)
+PDMATH_WARNINGS_POP
 #endif  // _MSC_VER
   }
 #ifdef _MSC_VER
-#pragma warning (pop)
+PDMATH_WARNINGS_POP
 #endif  // _MSC_VER
 
   /**

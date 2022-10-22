@@ -13,6 +13,7 @@
 #include "pdmath/helpers.h"
 #include "pdmath/math_functors.h"
 #include "pdmath/norms.h"
+#include "pdmath/warnings.h"
 #include "pdmath/testing/macros.h"
 #include "pdmath/testing/utils.h"
 
@@ -35,14 +36,14 @@ public:
   PDMATH_USING_FUNCTOR_TYPES(V_t, H_t);
 
 protected:
+// MSVC complains that double (0.1) in backtrack_step_ is truncated to float
+#ifdef _MSC_VER
+PDMATH_WARNINGS_PUSH
+PDMATH_WARNINGS_DISABLE(4305)
+#endif  // _MSC_VER
   /**
    * Constructor to populate non-shared members that will have state mutation.
    */
-// MSVC complains that double (0.1) in backtrack_step_ is truncated to float
-#ifdef _MSC_VER
-#pragma warning (push)
-#pragma warning (disable: 4305)
-#endif  // _MSC_VER
   LineSearchTest()
     : steepest_search_{
         // note no capture needed, as himmel_ is static. lambda is used to get
@@ -56,7 +57,7 @@ protected:
       }
   {}
 #ifdef _MSC_VER
-#pragma warning (pop)
+PDMATH_WARNINGS_POP
 #endif  // _MSC_VER
 
   // direction search using steepest (gradient) descent
@@ -105,12 +106,48 @@ TYPED_TEST(LineSearchTest, SteepestDirectionSearchTest)
 }
 
 /**
+ * Test that `min_norm_direction_policy` works as expected.
+ */
+TYPED_TEST(LineSearchTest, MinNormDirectionPolicyTest)
+{
+  using scalar_type = typename TestFixture::scalar_type;
+  using gradient_type = typename TestFixture::gradient_type;
+  const auto& min_norm = TestFixture::min_policy_.min_norm();
+  // norm will be a bit above min_policy_.min_norm() if scale is 0.8
+// MSVC complains about double truncation to float
+#ifdef _MSC_VER
+PDMATH_WARNINGS_PUSH
+PDMATH_WARNINGS_DISABLE(4305)
+#endif  // _MSC_VER
+  scalar_type scale_a{0.8};
+#ifdef _MSC_VER
+PDMATH_WARNINGS_POP
+#endif  // _MSC_VER
+  gradient_type x_a{{-scale_a * min_norm, scale_a * min_norm}};
+  EXPECT_FALSE(TestFixture::min_policy_(x_a));
+  // norm will be a bit below min_policy_.min_norm() if scale is 0.7
+// MSVC complains about double truncation to float
+#ifdef _MSC_VER
+PDMATH_WARNINGS_PUSH
+PDMATH_WARNINGS_DISABLE(4305)
+#endif  // _MSC_VER
+  scalar_type scale_b{0.7};
+#ifdef _MSC_VER
+PDMATH_WARNINGS_POP
+#endif  // _MSC_VER
+  gradient_type x_b{{-scale_b * min_norm, scale_b * min_norm}};
+  EXPECT_TRUE(TestFixture::min_policy_(x_b));
+}
+
+/**
  * Test that the `const_step_search` works as expected.
  */
 TYPED_TEST(LineSearchTest, ConstStepSearchTest)
 {
-  // these should be exactly equal, they refer to same member. note that
-  // const_step_search::operator() ignores inputs
+  // before we call operator(), last_step() should be 0
+  EXPECT_EQ(0, TestFixture::const_step_.last_step());
+  // now should be exactly equal since the last step has been ovewritten. note
+  // that const_step_search::operator() ignores inputs
   EXPECT_EQ(
     TestFixture::const_step_.last_step(),
     TestFixture::const_step_(TestFixture::x0_, TestFixture::min_1_)
