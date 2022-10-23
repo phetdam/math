@@ -25,26 +25,23 @@
 /**
  * Disable one or several MSVC warnings.
  *
- * @param msvc_warning_numbers MSVC warning number(s), ex. 4305
+ * @param wnos MSVC warning number(s), ex. 4305
  */
-#define PDMATH_WARNINGS_DISABLE(msvc_warning_numbers) \
-  PDMATH_PRAGMA(warning (disable: msvc_warning_numbers))
+#define PDMATH_WARNINGS_DISABLE(wnos) PDMATH_PRAGMA(warning (disable: wnos))
 
 /**
  * Treat one or several MSVC warnings as error(s).
  *
- * @param msvc_warning_numbers MSVC warning number(s), ex. 4305
+ * @param wnos MSVC warning number(s), ex. 4305
  */
-#define PDMATH_WARNINGS_ERROR(msvc_warning_numbers) \
-  PDMATH_PRAGMA(warning (error: msvc_warning_numbers))
+#define PDMATH_WARNINGS_ERROR(wnos) PDMATH_PRAGMA(warning (error: wnos))
 
 /**
  * Show the warning only once for one or several MSVC warnings.
  *
- * @param msvc_warning_numbers MSVC warning number(s), ex. 4305
+ * @param wnos MSVC warning number(s), ex. 4305
  */
-#define PDMATH_WARNINGS_ONCE(msvc_warning_numbers) \
-  PDMATH_PRAGMA(warning (once: msvc_warning_numbers ))
+#define PDMATH_WARNINGS_ONCE(wnos) PDMATH_PRAGMA(warning (once: wnos))
 
 // uses __GNUC__ instead of __GNUG__ to allow use with C code
 #elif defined(__GNUC__) || defined(__clang__)
@@ -62,18 +59,16 @@
 /**
  * Disable a GCC/Clang warning.
  *
- * @param gnu_warning Warning string literal, ex. "-Wuninitialized"
+ * @param ws Warning string literal, ex. "-Wuninitialized"
  */
-#define PDMATH_WARNINGS_DISABLE(gnu_warning) \
-  PDMATH_PRAGMA(GCC diagnostic ignored gnu_warning)
+#define PDMATH_WARNINGS_DISABLE(ws) PDMATH_PRAGMA(GCC diagnostic ignored ws)
 
 /**
  * Treat a GCC/Clang warning as an error.
  *
- * @param gnu_warning Warning string literal, ex. "-Wuninitialized"
+ * @param ws Warning string literal, ex. "-Wuninitialized"
  */
-#define PDMATH_WARNINGS_ERROR(gnu_warning) \
-  PDMATH_PRAGMA(GCC diagnostic error gnu_warning)
+#define PDMATH_WARNINGS_ERROR(ws) PDMATH_PRAGMA(GCC diagnostic error ws)
 
 #else
 
