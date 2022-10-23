@@ -73,13 +73,10 @@
 #else
 
 #define PDMATH_WARNINGS_PUSH()
-#warning "unknown compiler: PDMATH_WARNINGS_PUSH defined as empty"
 #define PDMATH_WARNINGS_POP()
-#warning "unknown compiler: PDMATH_WARNINGS_POP defined as empty"
-#define PDMATH_WARNINGS_DISABLE(ignored)
-#warning "unknown compiler: PDMATH_WARNINGS_DISABLE defined as empty"
-#define PDMATH_WARNINGS_ERROR(ignored)
-#warning "unknown compiler: PDMATH_WARNINGS_ERROR defined as empty"
+#define PDMATH_WARNINGS_DISABLE(ws)
+#define PDMATH_WARNINGS_ERROR(ws)
+#warning "unknown compiler: PDMATH_WARNINGS_* macros defined as empty"
 
 #endif  // !defined(_MSC_VER) && !defined(__GNUC__) && !defined(__clang__)
 
