@@ -5,8 +5,8 @@
  * @copyright MIT License
  */
 
-#ifndef PDMATH_WARNINGSS_H_
-#define PDMATH_WARNINGSS_H_
+#ifndef PDMATH_WARNINGS_H_
+#define PDMATH_WARNINGS_H_
 
 #include "pdmath/pragma.h"
 
@@ -83,4 +83,4 @@
 
 #endif  // !defined(_MSC_VER) && !defined(__GNUC__) && !defined(__clang__)
 
-#endif  // PDMATH_WARNINGSS_H_
+#endif  // PDMATH_WARNINGS_H_
