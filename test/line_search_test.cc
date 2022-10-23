@@ -38,7 +38,7 @@ public:
 protected:
 // MSVC complains that double (0.1) in backtrack_step_ is truncated to float
 #ifdef _MSC_VER
-PDMATH_WARNINGS_PUSH
+PDMATH_WARNINGS_PUSH()
 PDMATH_WARNINGS_DISABLE(4305)
 #endif  // _MSC_VER
   /**
@@ -57,7 +57,7 @@ PDMATH_WARNINGS_DISABLE(4305)
       }
   {}
 #ifdef _MSC_VER
-PDMATH_WARNINGS_POP
+PDMATH_WARNINGS_POP()
 #endif  // _MSC_VER
 
   // direction search using steepest (gradient) descent
@@ -116,24 +116,24 @@ TYPED_TEST(LineSearchTest, MinNormDirectionPolicyTest)
   // norm will be a bit above min_policy_.min_norm() if scale is 0.8
 // MSVC complains about double truncation to float
 #ifdef _MSC_VER
-PDMATH_WARNINGS_PUSH
+PDMATH_WARNINGS_PUSH()
 PDMATH_WARNINGS_DISABLE(4305)
 #endif  // _MSC_VER
   scalar_type scale_a{0.8};
 #ifdef _MSC_VER
-PDMATH_WARNINGS_POP
+PDMATH_WARNINGS_POP()
 #endif  // _MSC_VER
   gradient_type x_a{{-scale_a * min_norm, scale_a * min_norm}};
   EXPECT_FALSE(TestFixture::min_policy_(x_a));
   // norm will be a bit below min_policy_.min_norm() if scale is 0.7
 // MSVC complains about double truncation to float
 #ifdef _MSC_VER
-PDMATH_WARNINGS_PUSH
+PDMATH_WARNINGS_PUSH()
 PDMATH_WARNINGS_DISABLE(4305)
 #endif  // _MSC_VER
   scalar_type scale_b{0.7};
 #ifdef _MSC_VER
-PDMATH_WARNINGS_POP
+PDMATH_WARNINGS_POP()
 #endif  // _MSC_VER
   gradient_type x_b{{-scale_b * min_norm, scale_b * min_norm}};
   EXPECT_TRUE(TestFixture::min_policy_(x_b));

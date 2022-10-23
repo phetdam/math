@@ -15,12 +15,12 @@
 /**
  * Save current warning state, restorable by using `PDMATH_WARNINGS_POP`.
  */
-#define PDMATH_WARNINGS_PUSH PDMATH_PRAGMA(warning (push))
+#define PDMATH_WARNINGS_PUSH() PDMATH_PRAGMA(warning (push))
 
 /**
  * Retrieve previously saved warning state and overwrite current warning state.
  */
-#define PDMATH_WARNINGS_POP PDMATH_PRAGMA(warning (pop))
+#define PDMATH_WARNINGS_POP() PDMATH_PRAGMA(warning (pop))
 
 /**
  * Disable one or several MSVC warnings.
@@ -49,12 +49,12 @@
 /**
  * Save current warning state, restorable by using `PDMATH_WARNINGS_POP`.
  */
-#define PDMATH_WARNINGS_PUSH PDMATH_PRAGMA(GCC diagnostic push)
+#define PDMATH_WARNINGS_PUSH() PDMATH_PRAGMA(GCC diagnostic push)
 
 /**
  * Retrieve previously saved warning state and overwrite current warning state.
  */
-#define PDMATH_WARNINGS_POP PDMATH_PRAGMA(GCC diagnostic pop)
+#define PDMATH_WARNINGS_POP() PDMATH_PRAGMA(GCC diagnostic pop)
 
 /**
  * Disable a GCC/Clang warning.
@@ -72,9 +72,9 @@
 
 #else
 
-#define PDMATH_WARNINGS_PUSH
+#define PDMATH_WARNINGS_PUSH()
 #warning "unknown compiler: PDMATH_WARNINGS_PUSH defined as empty"
-#define PDMATH_WARNINGS_POP
+#define PDMATH_WARNINGS_POP()
 #warning "unknown compiler: PDMATH_WARNINGS_POP defined as empty"
 #define PDMATH_WARNINGS_DISABLE(ignored)
 #warning "unknown compiler: PDMATH_WARNINGS_DISABLE defined as empty"
