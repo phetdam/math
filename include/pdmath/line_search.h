@@ -161,11 +161,6 @@ public:
    */
   const element_type& min_norm() const { return min_norm_; }
 
-  /**
-   * Return norm functor used to compute gradient norms.
-   */
-  const norm_type& norm() const { return norm_; }
-
 private:
   element_type min_norm_;
   norm_pointer_type norm_;
@@ -370,6 +365,21 @@ public:
    * On initialization, this returns `element_type()`.
    */
   const element_type& last_step() const override { return last_step_; }
+
+  /**
+   * Return the chosen starting step size.
+   */
+  const element_type& eta0() const { return eta0_; }
+
+  /**
+   * Return the Armijo condition damping factor in `(0, 1)` used.
+   */
+  const element_type& c1() const { return c1_; }
+
+  /**
+   * Return the step size shrinking factor in `(0, 1)` used.
+   */
+  const element_type& rho() const { return rho_; }
 
 private:
   objective_function func_;

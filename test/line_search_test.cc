@@ -158,6 +158,35 @@ TYPED_TEST(LineSearchTest, ConstStepSearchTest)
   EXPECT_EQ(0, TestFixture::const_step_.n_hev());
 }
 
+/**
+ * Test that `backtrack_step_search` works as expected.
+ *
+ * Since the Himmelblau function is relatively simple, we take advantage of the
+ * fact that if we start from the origin, `min_1_` is a descent direction.
+ */
+TYPED_TEST(LineSearchTest, BacktrackStepSearchTest)
+{
+  using scalar_type = typename TestFixture::scalar_type;
+  using gradient_type = typename TestFixture::gradient_type;
+  // step is taken exactly in the direction of the first minimum
+  const auto t_x{this->backtrack_step_(TestFixture::x0_, TestFixture::min_1_)};
+  // since min_1_ is the minimum itself and Himmelblau's function is decreasing
+  // to min_1_, step should be the same as what's returned by eta0()
+  EXPECT_NEAR(this->backtrack_step_.eta0(), t_x, this->tol());
+  // we define the expected step t_se and start at min_1_ - t_se * 1
+  scalar_type t_se{
+    this->backtrack_step_.eta0() *
+    this->backtrack_step_.rho() * this->backtrack_step_.rho()
+  };
+  // modify element-by-element, not all Containers define operator-, operator+
+  gradient_type x_s = TestFixture::min_1_;
+  x_s[0] -= t_se * x_s[0];
+  x_s[1] -= t_se * x_s[1];
+  // actual step should equal t_se as we are t_se away from min_1_
+  const auto t_s{this->backtrack_step_(x_s, TestFixture::min_1_)};
+  EXPECT_NEAR(t_se, t_s, this->tol());
+}
+
 TYPED_TEST(LineSearchTest, DISABLED_HimmelblauTest)
 {
   (void) 0;
