@@ -56,7 +56,7 @@ public:
     assert(hess && ((aff) ? aff->size() : true));
     assert(hess->rows() && hess->cols() && hess->rows() == hess->cols());
 // Eigen::Index is ptrdiff_t by default. we can use PDMATH_WARNINGS_(PUSH|POP)
-// without #ifdef, as PDMATH_WANRINGS_* macros are empty if compiler unknown.
+// without #ifdef, as PDMATH_WARNINGS_* macros are empty if compiler unknown.
 PDMATH_WARNINGS_PUSH()
 #if defined(__GNUG__) || defined(__clang__)
 PDMATH_WARNINGS_DISABLE("-Wsign-compare")
