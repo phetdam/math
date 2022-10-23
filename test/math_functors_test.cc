@@ -18,6 +18,7 @@
 
 #include "pdmath/helpers.h"
 #include "pdmath/types.h"
+#include "pdmath/warnings.h"
 #include "pdmath/testing/macros.h"
 #include "pdmath/testing/utils.h"
 
@@ -66,13 +67,13 @@ protected:
   };
 // MSVC warns about truncating from double to const T
 #ifdef _MSC_VER
-#pragma warning (push)
-#pragma warning (disable: 4305)
+PDMATH_WARNINGS_PUSH()
+PDMATH_WARNINGS_DISABLE(4305)
 #endif  // _MSC_VER
   // offset for the quadratic functor
   static constexpr typename Tp_t::scalar_type shf_ = 0.7;
 #ifdef _MSC_VER
-#pragma warning (pop)
+PDMATH_WARNINGS_POP()
 #endif  // _MSC_VER
   // quadratic functor we are interested in
   static inline pdmath::quadratic_functor<gradient_type, hessian_type> quad_{
@@ -159,36 +160,36 @@ const typename Tp_t::gradient_type HimmelblauFunctorTest<Tp_t>::min_1_{
 template <typename Tp_t>
 // MSVC warns about truncation from double to const T
 #ifdef _MSC_VER
-#pragma warning (push)
-#pragma warning (disable: 4305)
+PDMATH_WARNINGS_PUSH()
+PDMATH_WARNINGS_DISABLE(4305)
 #endif  // _MSC_VER
 const typename Tp_t::gradient_type HimmelblauFunctorTest<Tp_t>::min_2_{
   {HIMMELBLAU_ZERO_2}
 };
 #ifdef _MSC_VER
-#pragma warning (pop)
+PDMATH_WARNINGS_POP()
 #endif  // _MSC_VER
 template <typename Tp_t>
 #ifdef _MSC_VER
-#pragma warning (push)
-#pragma warning (disable: 4305)
+PDMATH_WARNINGS_PUSH()
+PDMATH_WARNINGS_DISABLE(4305)
 #endif  // _MSC_VER
 const typename Tp_t::gradient_type HimmelblauFunctorTest<Tp_t>::min_3_{
   {HIMMELBLAU_ZERO_3}
 };
 #ifdef _MSC_VER
-#pragma warning (pop)
+PDMATH_WARNINGS_POP()
 #endif  // _MSC_VER
 template <typename Tp_t>
 #ifdef _MSC_VER
-#pragma warning (push)
-#pragma warning (disable: 4305)
+PDMATH_WARNINGS_PUSH()
+PDMATH_WARNINGS_DISABLE(4305)
 #endif  // _MSC_VER
 const typename Tp_t::gradient_type HimmelblauFunctorTest<Tp_t>::min_4_{
   {HIMMELBLAU_ZERO_4}
 };
 #ifdef _MSC_VER
-#pragma warning (pop)
+PDMATH_WARNINGS_POP()
 #endif  // _MSC_VER
 
 using HimmelblauFunctorTestTypes = ::testing::Types<

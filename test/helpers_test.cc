@@ -18,6 +18,7 @@
 
 #include "pdmath/helpers.h"
 #include "pdmath/types.h"
+#include "pdmath/warnings.h"
 
 /**
  * Values used in the `HelpersVt(One|Two)Test` test fixtures for containers.
@@ -80,12 +81,12 @@ protected:
 template <typename V_t>
 // MSVC complains (again) about double to float truncation
 #ifdef _MSC_VER
-#pragma warning (push)
-#pragma warning (disable: 4305)
+PDMATH_WARNINGS_PUSH()
+PDMATH_WARNINGS_DISABLE(4305)
 #endif  // _MSC_VER
 const V_t HelpersVtOneTest<V_t>::values_{{HELPERS_TEST_VECTOR_VALUES}};
 #ifdef _MSC_VER
-#pragma warning (pop)
+PDMATH_WARNINGS_POP()
 #endif  // _MSC_VER
 
 using HelpersVtOneTestTypes = ::testing::Types<
@@ -187,12 +188,12 @@ protected:
 template <typename M_t>
 // MSVC complains (again) about double to float truncation
 #ifdef _MSC_VER
-#pragma warning (push)
-#pragma warning (disable: 4305)
+PDMATH_WARNINGS_PUSH()
+PDMATH_WARNINGS_DISABLE(4305)
 #endif  // _MSC_VER
 const M_t EigenVectorFromMatrixTest<M_t>::values_{HELPERS_TEST_MATRIX_VALUES};
 #ifdef _MSC_VER
-#pragma warning (pop)
+PDMATH_WARNINGS_POP()
 #endif  // _MSC_VER
 
 using EigenVectorFromMatrixTestTypes = ::testing::Types<
@@ -239,26 +240,26 @@ protected:
 template <typename Tp_t>
 // MSVC complains (again) about double to float truncation
 #ifdef _MSC_VER
-#pragma warning (push)
-#pragma warning (disable: 4305)
+PDMATH_WARNINGS_PUSH()
+PDMATH_WARNINGS_DISABLE(4305)
 #endif  // _MSC_VER
 const typename Tp_t::first_type HelpersVtTwoTest<Tp_t>::values_1_{
   {HELPERS_TEST_VECTOR_VALUES}
 };
 #ifdef _MSC_VER
-#pragma warning (pop)
+PDMATH_WARNINGS_POP()
 #endif  // _MSC_VER
 template <typename Tp_t>
 // MSVC complains (again) about double to float truncation
 #ifdef _MSC_VER
-#pragma warning (push)
-#pragma warning (disable: 4305)
+PDMATH_WARNINGS_PUSH()
+PDMATH_WARNINGS_DISABLE(4305)
 #endif  // _MSC_VER
 const typename Tp_t::second_type HelpersVtTwoTest<Tp_t>::values_2_{
   {HELPERS_TEST_VECTOR_VALUES}
 };
 #ifdef _MSC_VER
-#pragma warning (pop)
+PDMATH_WARNINGS_POP()
 #endif  // _MSC_VER
 
 using HelpersVtTwoTestTypes = ::testing::Types<

@@ -10,6 +10,7 @@
 #include <gtest/gtest.h>
 
 #include "pdmath/types.h"
+#include "pdmath/warnings.h"
 #include "pdmath/testing/macros.h"
 
 namespace {
@@ -24,25 +25,25 @@ protected:
   static constexpr pdmath::array_pair<T> hml_zero_1_ = {HIMMELBLAU_ZERO_1};
 // disable truncation warning when initializing from double
 #ifdef _MSC_VER
-#pragma warning (push)
-#pragma warning (disable: 4305)
+PDMATH_WARNINGS_PUSH()
+PDMATH_WARNINGS_DISABLE(4305)
 #endif  // _MSC_VER
   static constexpr pdmath::array_pair<T> hml_zero_2_ = {HIMMELBLAU_ZERO_2};
   static constexpr pdmath::array_pair<T> hml_zero_3_ = {HIMMELBLAU_ZERO_3};
   static constexpr pdmath::array_pair<T> hml_zero_4_ = {HIMMELBLAU_ZERO_4};
 #ifdef _MSC_VER
-#pragma warning (pop)
+PDMATH_WARNINGS_POP()
 #endif  // _MSC_VER
   // point where the three-hump camel function is zero
   static constexpr pdmath::array_pair<T> thc_zero_ = {0, 0};
   // fixed tolerance for EXPECT_NEAR macros
 #ifdef _MSC_VER
-#pragma warning (push)
-#pragma warning (disable: 4305)
+PDMATH_WARNINGS_PUSH()
+PDMATH_WARNINGS_DISABLE(4305)
 #endif  // _MSC_VER
   static constexpr T near_atol_ = 1e-10;
 #ifdef _MSC_VER
-#pragma warning (pop)
+PDMATH_WARNINGS_POP()
 #endif  // _MSC_VER
 };
 
