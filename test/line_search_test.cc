@@ -185,6 +185,11 @@ TYPED_TEST(LineSearchTest, BacktrackStepSearchTest)
   // actual step should equal t_se as we are t_se away from min_1_
   const auto t_s{this->backtrack_step_(x_s, TestFixture::min_1_)};
   EXPECT_NEAR(t_se, t_s, this->tol());
+  // should only be 2 gradient evaluations, 1 for each invocation, and there
+  // should be 2 + 1 + 3 function evaluations in total
+  EXPECT_EQ(6, this->backtrack_step_.n_fev());
+  EXPECT_EQ(2, this->backtrack_step_.n_gev());
+  EXPECT_EQ(0, this->backtrack_step_.n_hev());
 }
 
 TYPED_TEST(LineSearchTest, DISABLED_HimmelblauTest)
