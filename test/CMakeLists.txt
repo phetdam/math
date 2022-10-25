@@ -11,6 +11,7 @@ add_executable(
     math_functions_test.cc
     math_functors_test.cc
     norms_test.cc
+    type_traits_test.cc
 )
 
 include(GoogleTest)

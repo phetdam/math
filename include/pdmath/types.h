@@ -19,9 +19,7 @@
 
 namespace pdmath {
 
-using double_vector [[deprecated("use vector_d instead")]] = std::vector<double>;
 using vector_d = std::vector<double>;
-using float_vector [[deprecated("use vector_f instead")]] = std::vector<float>;
 using vector_f = std::vector<float>;
 
 template <typename T>

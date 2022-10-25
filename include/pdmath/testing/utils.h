@@ -13,6 +13,7 @@
 
 #include <gmock/gmock.h>
 
+#include "pdmath/helpers.h"
 #include "pdmath/warnings.h"
 
 namespace pdmath {
@@ -112,6 +113,21 @@ PDMATH_WARNINGS_POP()
   // Google Test EXPECT_THAT matcher for checking that a *Container* is near
   // zero, using the default tolerance returned by tol().
   static inline const auto all_near_zero_matcher{match_all_near_zero(tol())};
+};
+
+/**
+ * Templated wrapper for holding a type and a value of appropriate type.
+ *
+ * @tparam T type
+ * @tparam v `auto` value, e.g. integral type, pointer, lvalue reference
+ */
+template <typename T, auto v>
+class type_value_pair {
+public:
+  using type = T;
+  using value_type = decltype(v);
+  type_value_pair() = delete;
+  static constexpr value_type value = v;
 };
 
 }  // namespace testing

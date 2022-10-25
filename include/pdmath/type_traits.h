@@ -10,6 +10,8 @@
 
 #include <type_traits>
 
+namespace pdmath {
+
 /**
  * Checks if a vector type is "size-constructible".
  *
@@ -37,5 +39,7 @@ struct is_vector_size_constructible<T, std::void_t<typename T::Index>>
 template <typename T>
 inline constexpr bool
 is_vector_size_constructible_v = is_vector_size_constructible<T>::value;
+
+}  // namespace
 
 #endif  // PDMATH_TYPE_TRAITS_H_
