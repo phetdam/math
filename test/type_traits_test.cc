@@ -21,6 +21,14 @@
 namespace {
 
 /**
+ * Macro checking that `meta_template<T>` evalutes to the correct truth value.
+ *
+ * @param meta_template Template evaluating to a `bool`
+ */
+#define EXPECT_META_TEMPLATE_TRUTH_EQ(meta_template) \
+  EXPECT_EQ(TypeParam::value, meta_template<typename TypeParam::type>)
+
+/**
  * Test fixture template for testing `is_vector_size_constructible`.
  *
  * @tparam Tp_t `type_value_pair<T, v>` specialization
@@ -39,8 +47,7 @@ using TypeTraitsSizeConstructibleTestTypes = ::testing::Types<
   pdmath::testing::type_value_pair<std::mutex, false>
 >;
 TYPED_TEST_SUITE(
-  TypeTraitsSizeConstructibleTest,
-  TypeTraitsSizeConstructibleTestTypes
+  TypeTraitsSizeConstructibleTest, TypeTraitsSizeConstructibleTestTypes
 );
 
 /**
@@ -48,10 +55,7 @@ TYPED_TEST_SUITE(
  */
 TYPED_TEST(TypeTraitsSizeConstructibleTest, TruthTest)
 {
-  EXPECT_EQ(
-    TypeParam::value,
-    pdmath::is_vector_size_constructible_v<typename TypeParam::type>
-  );
+  EXPECT_META_TEMPLATE_TRUTH_EQ(pdmath::is_vector_size_constructible_v);
 }
 
 }  // namespace
