@@ -16,6 +16,8 @@
 #include <functional>
 #include <memory>
 #include <numeric>
+#include <string>
+#include <type_traits>
 #include <utility>
 
 #include <Eigen/Core>
@@ -142,7 +144,7 @@ public:
    * @param min `element_type` minimum search direction norm that must be
    *     exceeded during the routine's execution to prevent early convergence.
    */
-  min_norm_direction_policy(element_type min = 1e-6)
+  min_norm_direction_policy(element_type min = 1e-8)
     : min_norm_(min), norm_(new N_t())
   {}
 
@@ -390,50 +392,74 @@ private:
   element_type rho_;
 };
 
+// MSVC does not like the C-style assignment-before-evaluation idiom in the
+// main while loop. since warning number >= 4700, we disable at function start.
+#ifdef _MSC_VER
+PDMATH_WARNINGS_PUSH()
+PDMATH_WARNINGS_DISABLE(4706)
+#endif  // _MSC_VER
 /**
- * Templated [accelerated] line search descent implementation for `std` types.
+ * Templated [accelerated] line search descent implementation.
  *
- * @note `func`, `dir_search`, `eta_search`, `dir_policy` are all passed
- *     *by value*, as the base classes for these functor types all them to
- *     implement a non-`const` `operator()`.
+ * @tparam Ff_t `func_functor<In_t, Out_t, Out_d1_t, Out_d2_t>` impl or similar
+ *     type with type members defined with `scalar_type`, `gradient_type`,
+ *     `hessian_type` type members, ex. by using `PDMATH_USING_FUNCTOR_TYPES`
+ * @tparam Ds_t `direction_search<V_t>` impl or similar type implementing
+ *     `V_t operator()(const V_t&)` with a `gradient_type` type member, ex. by
+ *     as defined by using `PDMATH_USING_CONTAINER_TYPES`
+ * @tparam Ss_t `step_search<V_t>` impl or similar type implementing
+ *     `element_type operator()(const V_t& x_p, const V_t& dir)`,
+ *     `element_type last_step() const`, where `element_type` is
+ *     `V_t::value_type`, with `using gradient_type = V_t` type member
+ * @tparam Dd_t `direction_policy<V_t>` impl or similar type implementing
+ *     `bool operator()(const V_t&)` with a `gradient_type` type memer
+ * @tparam Tt_t `std::function`-like taking and returning `V_t` or `const V_t&`
  *
- * @tparam V_t *Container* type representing a vector
- * @tparam M_t matrix type with `typename V_t::value_type` elements
- * @tparam F_t callable for per-iteration update of guess post-update with the
- *     scaled search direction, ex. proximal operator such as the
- *     soft-thresholding operator, or a  projection operator. Must take a
- *     `const V_t&` and then return a `V_t`.
- *
- * @param func `func_functor<V_t, typename V_t::value_type, V_t, M_t>` functor
- *     giving the objective function, optionally with gradient and Hessian.
- * @param dir_search `direction_search<V_t>` search direction functor, which
- *     when evaluated takes the `const V_t&` current guess and returns the
- *     `V_t` search direction to update along. The returned search direction
- *     need not be a descent direction in general.
- * @param eta_search `step_search<T, V_t>` step line search functor, which
- *     when evaluated takes the `const V_t&` current guess and search direction
- *     and returns the `typename V_t::value_type` step size to use.
- * @param x0 `const V_t&` initial guess for the line search
+ * @param func `Ff_t` functor giving the unconstained minimization problem
+ * @param dir_search `Ds_t` search direction functor used to compute a search
+ *     direction from the current guess each iteration
+ * @param eta_search `Ss_t` step search functor, which when given the current
+ *     guess and search direction returns the step size to take
+ * @param x0 `const typename Ff_t::gradient_type&` initial guess
  * @param max_iter `std::uintmax_t` max iterations allowed
- * @param dir_policy `direction_policy<V_t>&` convergence policy based off of
- *     the search direction, which when evaluated takes the `const V_t&` search
- *     direction. Returns `true` to indicate convergence.
+ * @param dir_policy `Dp_t` convergence policy returning `true` if the current
+ *     search direction meets some [early] convergence criteria
+ * @param tail_transform `Tt_t` callable for per-iteration transform of updated
+ *     guess after updating previous guess with scaled search direction, ex. a
+ *     proximal operator like the soft-thresholding or projection operators
  * @param nesterov `bool` flag, `true` to use Nesterov's momentum scheme
- * @param tail_transform `F_t` callable for per-iteration transform of updated
- *     guess after updating previous guess with scaled search direction
  */
-template <typename V_t, typename M_t, typename F_t>
-optimize_result<typename V_t::value_type, V_t, V_t, M_t> line_search(
-  func_functor<V_t, typename V_t::value_type, V_t, M_t> func,
-  direction_search<V_t> dir_search,
-  step_search<V_t> eta_search,
-  const V_t& x0,
+template <
+  typename Ff_t, typename Ds_t, typename Ss_t, typename Dp_t, typename Tt_t>
+optimize_result<
+  typename Ff_t::scalar_type,
+  typename Ff_t::gradient_type,
+  typename Ff_t::hessian_type>
+line_search(
+  Ff_t func,
+  Ds_t dir_search,
+  Ss_t eta_search,
+  const typename Ff_t::gradient_type& x0,
   std::uintmax_t max_iter,
-  direction_policy<V_t> dir_policy,
-  bool nesterov = false,
-  F_t tail_transform = identity_functor<V_t>())
+  Dp_t dir_policy,
+  Tt_t tail_transform,
+  bool nesterov = false)
 {
-  using T = typename V_t::value_type;
+  using T = typename Ff_t::scalar_type;
+  using V_t = typename Ff_t::gradient_type;
+  using M_t = typename Ff_t::hessian_type;
+  // check consistency of vector types
+  static_assert(std::is_same_v<V_t, typename Ds_t::gradient_type>);
+  static_assert(std::is_same_v<V_t, typename Ss_t::gradient_type>);
+  static_assert(std::is_same_v<V_t, typename Dp_t::gradient_type>);
+  // check that tail transform has the right invocation signature
+  static_assert(
+    std::is_invocable_r_v<V_t, Tt_t, const V_t&> ||
+    std::is_invocable_r_v<V_t, Tt_t, V_t> ||
+    std::is_invocable_r_v<const V_t&, Tt_t, const V_t&> ||
+    std::is_invocable_r_v<const V_t&, Tt_t, V_t>
+  );
+  // true when converged, affected by choice of dir_policy
   bool converged = false;
   // container for the current and previous solution guesses. we only need the
   // previous guesses in the case of Nesterov acceleration
@@ -451,6 +477,10 @@ optimize_result<typename V_t::value_type, V_t, V_t, M_t> line_search(
     n_iter < max_iter &&
     !(converged = dir_policy(dx = dir_search((nesterov) ? z : x_c)))
   ) {
+// better to pop warning stack for C4706 asap
+#ifdef _MSC_VER
+PDMATH_WARNINGS_POP()
+#endif  // _MSC_VER
     eta = eta_search((nesterov) ? z : x_c, dx);
     // update the current guess and perform final transform
     std::transform(
@@ -460,9 +490,6 @@ optimize_result<typename V_t::value_type, V_t, V_t, M_t> line_search(
       x_c.begin(),
       [&](T x_c_v, T dx_v) { return x_c_v + eta * dx_v; }
     );
-    // for (std::size_t i = 0; i < x_c.size(); i++) {
-    //     x_c[i] += eta * dx[i];
-    // }
     x_c = tail_transform(x_c);
     // need to update the "lookahead" sequence if using acceleration and also
     // update the previous guess to match the current guess
@@ -474,17 +501,22 @@ optimize_result<typename V_t::value_type, V_t, V_t, M_t> line_search(
         z.begin(),
         [&](T x_c_v, T x_p_v)
         {
+// MSVC does not like the implicit conversion of n_iter to T here
+#ifdef _MSC_VER
+PDMATH_WARNINGS_PUSH()
+PDMATH_WARNINGS_DISABLE(5219)
+#endif  // _MSC_VER
           return x_c_v + (n_iter + 1) / (n_iter + 4) * (x_c_v - x_p_v);
+#ifdef _MSC_VER
+PDMATH_WARNINGS_POP()
+#endif  // _MSC_VER
         }
       );
-      // for (std::size_t i = 0; i < x_c.size(); i++) {
-      //   z[i] = x_c[i] + (n_iter + 1) / (n_iter + 4) * (x_c[i] - x_p[i]);
-      // }
       x_p = x_c;
     }
     n_iter++;
   }
-  return optimize_result<T, V_t, V_t, M_t>(
+  return optimize_result<T, V_t, M_t>(
     x_c,
     converged,
     (converged) ? "Converged by direction policy" : "Iteration limit reached",
@@ -495,6 +527,59 @@ optimize_result<typename V_t::value_type, V_t, V_t, M_t> line_search(
     1 + dir_search.n_fev() + eta_search.n_gev() + dir_policy.n_gev(),
     func.d2(x_c),
     1 + dir_search.n_hev() + eta_search.n_hev() + dir_policy.n_hev()
+  );
+}
+
+/**
+ * Templated [accelerated] line search descent without tail transform.
+ *
+ * @tparam Ff_t `func_functor<In_t, Out_t, Out_d1_t, Out_d2_t>` impl or similar
+ *     type with type members defined with `scalar_type`, `gradient_type`,
+ *     `hessian_type` type members, ex. by using `PDMATH_USING_FUNCTOR_TYPES`
+ * @tparam Ds_t `direction_search<V_t>` impl or similar type implementing
+ *     `V_t operator()(const V_t&)` with a `gradient_type` type member, ex. by
+ *     as defined by using `PDMATH_USING_CONTAINER_TYPES`
+ * @tparam Ss_t `step_search<V_t>` impl or similar type implementing
+ *     `element_type operator()(const V_t& x_p, const V_t& dir)`,
+ *     `element_type last_step() const`, where `element_type` is
+ *     `V_t::value_type`, with `using gradient_type = V_t` type member
+ * @tparam Dd_t `direction_policy<V_t>` impl or similar type implementing
+ *     `bool operator()(const V_t&)` with a `gradient_type` type memer
+ *
+ * @param func `Ff_t` functor giving the unconstained minimization problem
+ * @param dir_search `Ds_t` search direction functor used to compute a search
+ *     direction from the current guess each iteration
+ * @param eta_search `Ss_t` step search functor, which when given the current
+ *     guess and search direction returns the step size to take
+ * @param x0 `const typename Ff_t::gradient_type&` initial guess
+ * @param max_iter `std::uintmax_t` max iterations allowed
+ * @param dir_policy `Dp_t` convergence policy returning `true` if the current
+ *     search direction meets some [early] convergence criteria
+ * @param nesterov `bool` flag, `true` to use Nesterov's momentum scheme
+ */
+template <typename Ff_t, typename Ds_t, typename Ss_t, typename Dp_t>
+optimize_result<
+  typename Ff_t::scalar_type,
+  typename Ff_t::gradient_type,
+  typename Ff_t::hessian_type>
+line_search(
+  Ff_t func,
+  Ds_t dir_search,
+  Ss_t eta_search,
+  const typename Ff_t::gradient_type& x0,
+  std::uintmax_t max_iter,
+  Dp_t dir_policy,
+  bool nesterov = false)
+{
+  return line_search(
+    func,
+    dir_search,
+    eta_search,
+    x0,
+    max_iter,
+    dir_policy,
+    identity_functor<typename Ff_t::gradient_type>(),
+    nesterov
   );
 }
 

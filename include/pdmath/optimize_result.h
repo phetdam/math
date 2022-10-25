@@ -21,17 +21,16 @@ namespace pdmath {
  * Templated class holding optimization results for scalar-valued objectives.
  *
  * @tparam T objective function return type
- * @tparam X_t optimization variable type
- * @tparam G_t optimization gradient/first derivative type
+ * @tparam G_t optimization variable/gradient/first derivative type
  * @tparam H_t optimization Hessian/second derivative type
  */
-template <typename T, typename X_t = T, typename G_t = X_t, typename H_t = X_t>
+template <typename T, typename G_t = T, typename H_t = G_t>
 class optimize_result : public fev_mixin, public gev_mixin, public hev_mixin {
 public:
   /**
    * `optimize_result` full constructor.
    *
-   * @param res `X_t` optimization result
+   * @param res `G_t` optimization result
    * @param converged `bool`, `true` if converged, `false` otherwise
    * @param message `const std::string&` message on optimization status
    * @param n_iter `std::uintmax_t` number of iterations taken
@@ -43,7 +42,7 @@ public:
    * @param n_hev number of Hessian evaluations
    */
   optimize_result(
-    const X_t& res,
+    const G_t& res,
     bool converged,
     const std::string& message,
     std::uintmax_t n_iter,
@@ -65,15 +64,13 @@ public:
       hess_(hess)
   {}
 
-  optimize_result() = delete;
-
   /**
    * `optimize_result` constructor for gradient-only methods.
    *
    * See `optimize_result` full constructor for parameter documentation.
    */
   optimize_result(
-    const X_t& res,
+    const G_t& res,
     bool converged,
     const std::string& message,
     std::uintmax_t n_iter,
@@ -91,7 +88,7 @@ public:
    * See `optimize_result` full constructor for parameter documentation.
    */
   optimize_result(
-    const X_t& res,
+    const G_t& res,
     bool converged,
     const std::string& message,
     std::uintmax_t n_iter,
@@ -123,7 +120,7 @@ public:
   /**
    * Return the `optimize_result` result.
    */
-  const X_t& res() const { return res_; }
+  const G_t& res() const { return res_; }
 
   /**
    * Return the `optimize_result` gradient/1st derivative value.
@@ -136,7 +133,7 @@ public:
   const H_t& hess() const { return hess_; }
 
 private:
-  X_t res_;
+  G_t res_;
   bool converged_;
   std::string message_;
   std::uintmax_t n_iter_;

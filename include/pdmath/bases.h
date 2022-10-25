@@ -29,8 +29,9 @@ public:
  * Template functor for identity function.
  */
 template <typename T>
-class identity_functor : public functor_base<T, T&> {
-  T& operator()(const T& o) override { return o; }
+class identity_functor : public functor_base<T, const T&> {
+public:
+  const T& operator()(const T& o) override { return o; }
 };
 
 /**

@@ -8,6 +8,7 @@
 #include "pdmath/line_search.h"
 
 #include <Eigen/Core>
+#include <Eigen/LU>
 #include <gtest/gtest.h>
 
 #include "pdmath/helpers.h"
@@ -192,9 +193,39 @@ TYPED_TEST(LineSearchTest, BacktrackStepSearchTest)
   EXPECT_EQ(0, this->backtrack_step_.n_hev());
 }
 
-TYPED_TEST(LineSearchTest, DISABLED_HimmelblauTest)
+/**
+ * Check that steepest descent on the Himmelblau functor works as expected.
+ *
+ * When starting from the origin, the expected minimum reached is min_1_, i.e.
+ * HIMMELBLAU_ZERO_1, which should be relatively easy to reach. We check that
+ * the result is as expected, that the gradient is close to 0, and that the
+ * Hessian is positive semidefinite (determinant is nonnegative).
+ */
+TYPED_TEST(LineSearchTest, HimmelblauSteepestDescentTest)
 {
-  (void) 0;
+  // expected minimum when starting from origin is min_1_
+  const auto res = pdmath::line_search(
+    TestFixture::himmel_,
+    this->steepest_search_,
+    this->backtrack_step_,
+    TestFixture::x0_,
+    100,
+    TestFixture::min_policy_
+  );
+  // check that result is close with min_1_ by subtracting them and checking
+  // that the max norm of the difference and gradient is close enough to zero
+  auto x_diff = res.res();
+  std::transform(
+    x_diff.cbegin(),
+    x_diff.cend(),
+    TestFixture::min_1_.cbegin(),
+    x_diff.begin(),
+    [&](const auto& x, const auto& y) { return x - y; }
+  );
+  EXPECT_THAT(x_diff, TestFixture::all_near_zero_matcher);
+  EXPECT_THAT(res.grad(), TestFixture::all_near_zero_matcher);
+  // determinant of the Hessian should be nonnegative
+  EXPECT_GE(res.hess().determinant(), 0);
 }
 
 }  // namespace

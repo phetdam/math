@@ -440,7 +440,9 @@ inline std::unique_ptr<VOut_t> unique_vector_from(const VIn_t& from)
  */
 #define PDMATH_USING_CONTAINER_TYPES(C_t) \
   using container_type = C_t; \
+  using gradient_type = C_t; \
   using element_type = typename C_t::value_type; \
+  using scalar_type = element_type; \
   using value_type = element_type
 
 /**
