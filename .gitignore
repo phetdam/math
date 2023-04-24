@@ -7,6 +7,11 @@
 **/*.out
 **/*.pdf
 **/*.toc
+# ignore latexmk generated files
+**/*.fls
+**/*.fdb_latexmk
+# ignore Minted generated directories
+**/_minted-*
 # ignore old README.md
 README.md
 # ignore build and VS Code directories
