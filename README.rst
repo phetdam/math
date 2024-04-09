@@ -82,7 +82,7 @@ You may compile the ``.tex`` source to PDF files using the provided
 into the top-level repository directory, use ``chmod`` to set permissions
 appropriately, for example with ``chmod 777 build_pdf.sh``, and execute
 
-.. code:: shell
+.. code:: bash
 
    ./build_pdf.sh
 
