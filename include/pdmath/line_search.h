@@ -21,10 +21,10 @@
 #include <utility>
 
 // boost/math/tools/norms.hpp from Boost 1.74.0 seems to have forgotten to
-// indicate which isfinite() is being looked up so we have to pollute namespace
+// indicate which isfinite() is being looked up so we introduce to namespace
 namespace boost::math::tools {
 
-using namespace std;
+using std::isfinite;
 
 }  // namespace boost::math::tools
 

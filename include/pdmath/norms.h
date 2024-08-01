@@ -8,11 +8,14 @@
 #ifndef PDMATH_NORMS_H_
 #define PDMATH_NORMS_H_
 
+// needed for std::isfinite which boost/math/tools/norms.hpp uses unqualified
+#include <cmath>
+
 // boost/math/tools/norms.hpp from Boost 1.74.0 seems to have forgotten to
-// indicate which isfinite() is being looked up so we have to pollute namespace
+// indicate which isfinite() is being looked up so we introduce to namespace
 namespace boost::math::tools {
 
-using namespace std;
+using std::isfinite;
 
 }  // namespace boost::math::tools
 
