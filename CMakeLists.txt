@@ -14,7 +14,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
-set(CXX_STANDARD_REQUIRED TRUE)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 # debug and release flags, handle MSVC case specifically
 if(MSVC)
@@ -55,30 +55,10 @@ set(BOOST_MIN_VERSION 1.71.0)
 set(EIGEN_MIN_VERSION 3.4)
 set(GTEST_MIN_VERSION 1.10.0)
 
-# EIGEN3_DIR with Eigen3 includes can be set, or if not set on Linux, inferred.
-# either pass it using -D or set it as environment variable
-if(NOT DEFINED EIGEN3_DIR)
-    # read from environment if possible
-    if(DEFINED ENV{EIGEN3_DIR})
-        set(EIGEN3_DIR $ENV{EIGEN3_DIR})
-    # else use default on UNIX, fail on Windows
-    elseif(UNIX)
-        set(EIGEN3_DIR /usr/local/include/eigen3)
-        message(STATUS "EIGEN3_DIR not set, using default ${EIGEN3_DIR}")
-    else()
-        message(
-            FATAL_ERROR "EIGEN3_DIR not set, must be set manually on Windows"
-        )
-    endif()
-endif()
-
-# fix path on Windows
-if(WIN32)
-    file(TO_CMAKE_PATH ${EIGEN3_DIR} EIGEN3_DIR)
-    message(STATUS "EIGEN3_DIR normalized to ${EIGEN3_DIR}")
-endif()
-
 find_package(Boost ${BOOST_MIN_VERSION} REQUIRED)
+# https://eigen.tuxfamily.org/dox/TopicCMakeGuide.html indicates NO_MODULE
+# (equivalent to CONFIG) should be specified
+find_package(Eigen3 ${EIGEN_MIN_VERSION} REQUIRED CONFIG)
 find_package(GTest ${GTEST_MIN_VERSION})
 
 # base include for this repo

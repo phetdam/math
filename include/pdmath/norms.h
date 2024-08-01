@@ -8,6 +8,14 @@
 #ifndef PDMATH_NORMS_H_
 #define PDMATH_NORMS_H_
 
+// boost/math/tools/norms.hpp from Boost 1.74.0 seems to have forgotten to
+// indicate which isfinite() is being looked up so we have to pollute namespace
+namespace boost::math::tools {
+
+using namespace std;
+
+}  // namespace boost::math::tools
+
 #include <Eigen/Core>
 #include <boost/math/tools/norms.hpp>
 

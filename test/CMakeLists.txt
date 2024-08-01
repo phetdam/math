@@ -5,14 +5,15 @@ link_libraries(GTest::Main)
 
 add_executable(
     pdmath_test
-    golden_search_test.cc
-    helpers_test.cc
-    line_search_test.cc
-    math_functions_test.cc
-    math_functors_test.cc
-    norms_test.cc
-    type_traits_test.cc
+        golden_search_test.cc
+        helpers_test.cc
+        line_search_test.cc
+        math_functions_test.cc
+        math_functors_test.cc
+        norms_test.cc
+        type_traits_test.cc
 )
+target_link_libraries(pdmath_test PRIVATE Boost::headers Eigen3::Eigen)
 
 include(GoogleTest)
 # the official guidance is to use gtest_discover_tests, but do note that this
