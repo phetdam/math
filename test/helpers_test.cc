@@ -139,7 +139,8 @@ TYPED_TEST(HelpersVtOneTest, BoostVectorFromTest)
   auto bvec1 = pdmath::boost_vector_from<value_t>(HELPERS_TEST_VECTOR_VALUES);
   auto bvec2 = pdmath::boost_vector_from(TestFixture::values_);
   // boost::numeric::ublas::vector does not define operator==, so use gmock
-  EXPECT_THAT(bvec1, ::testing::ElementsAreArray(bvec2));
+  // note: we do expect all the values to be equal (no flops are performed)
+  EXPECT_THAT(bvec1, ::testing::Pointwise(::testing::Eq(), bvec2));
 }
 
 /**
