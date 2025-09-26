@@ -21,21 +21,22 @@ namespace {
 template <typename T>
 class MathFunctionsTest : public ::testing::Test {
 protected:
-  // points where the Himmelblau function is zero
-  static constexpr pdmath::array_pair<T> hml_zero_1_ = {HIMMELBLAU_ZERO_1};
-// disable truncation warning when initializing from double
+// disable truncation warning when initializing from double + CWG 1270 eefect
+// where brace elision in std::array initialization should be accepted
 #ifdef _MSC_VER
 PDMATH_WARNINGS_PUSH()
-PDMATH_WARNINGS_DISABLE(4305)
+PDMATH_WARNINGS_DISABLE(4305 5246)
 #endif  // _MSC_VER
+  // points where the Himmelblau function is zero
+  static constexpr pdmath::array_pair<T> hml_zero_1_ = {HIMMELBLAU_ZERO_1};
   static constexpr pdmath::array_pair<T> hml_zero_2_ = {HIMMELBLAU_ZERO_2};
   static constexpr pdmath::array_pair<T> hml_zero_3_ = {HIMMELBLAU_ZERO_3};
   static constexpr pdmath::array_pair<T> hml_zero_4_ = {HIMMELBLAU_ZERO_4};
+  // point where the three-hump camel function is zero
+  static constexpr pdmath::array_pair<T> thc_zero_ = {0, 0};
 #ifdef _MSC_VER
 PDMATH_WARNINGS_POP()
 #endif  // _MSC_VER
-  // point where the three-hump camel function is zero
-  static constexpr pdmath::array_pair<T> thc_zero_ = {0, 0};
   // fixed tolerance for EXPECT_NEAR macros
 #ifdef _MSC_VER
 PDMATH_WARNINGS_PUSH()
