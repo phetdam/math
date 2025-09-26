@@ -1,2 +1,5 @@
+# use LF line endings except for batch scripts
+* text=auto
+*.bat text eol=crlf
 # include examples in source statistics
 examples/** -linguist-documentation
