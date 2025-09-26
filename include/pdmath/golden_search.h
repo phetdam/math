@@ -1,6 +1,6 @@
 /**
  * @file golden_search.h
- * @author Derek Huang <djh458@stern.nyu.edu>
+ * @author Derek Huang
  * @brief Boost-like golden-section search function for standard types
  * @copyright MIT License
  */
@@ -8,11 +8,11 @@
 #ifndef PDMATH_GOLDEN_SEARCH_H_
 #define PDMATH_GOLDEN_SEARCH_H_
 
+#include <cassert>
 #include <cmath>
 #include <cstdint>
 #include <limits>
 
-#include "pdmath/bases.h"
 #include "pdmath/optimize_result.h"
 
 namespace pdmath {
