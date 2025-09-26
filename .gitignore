@@ -15,10 +15,11 @@
 # ignore old README.md
 README.md
 # ignore build and VS Code directories
-build
-build_windows
-.vscode
-# ignore top-level Testing directory sometimes created by CMake
+/build
+/build_windows*
+/.vscode
+# ignore top-level Testing directory created by CTest if you run CTest in the
+# current directory without chdir into build or without --test-dir
 /Testing
 # ignore fake_test.cc
 test/fake_test.cc
