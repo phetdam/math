@@ -1,20 +1,68 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.21)
 
 project(
-    phetdam-math
+    pdmath
     VERSION 0.1.0
-    DESCRIPTION "Accompanying code for my independent mathematical work."
+    DESCRIPTION "Independent mathetmatical work"
     HOMEPAGE_URL "https://github.com/phetdam/math"
     LANGUAGES CXX
 )
 
-# build debug by default; we set -DCMAKE_BUILD_TYPE=Release for release
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug)
+# check if generator is multi-config or not
+get_property(PDMATH_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(PDMATH_IS_MULTI_CONFIG)
+    message(STATUS "Generator config: Multi")
+else()
+    message(STATUS "Generator config: Single")
 endif()
 
+# use Debug config for single-config generators
+if(PDMATH_IS_MULTI_CONFIG)
+    message(STATUS "Build config: Multi")
+else()
+    if(NOT CMAKE_BUILD_TYPE)
+        set(CMAKE_BUILD_TYPE Debug)
+    endif()
+    message(STATUS "Build config: ${CMAKE_BUILD_TYPE}")
+endif()
+
+# TODO: consider upgrading to C++20
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+
+# TODO: consider making Boost and Eigen functionality optional
+
+# FindBoost.cmake policy
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.30)
+    cmake_policy(PUSH)
+    cmake_policy(SET CMP0167 OLD)
+endif()
+
+# Boost
+find_package(Boost 1.71.0 REQUIRED)
+message(STATUS "Boost version: ${Boost_VERSION}")
+
+# FindBoost.cmake policy
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.30)
+    cmake_policy(POP)
+endif()
+
+# Eigen
+# https://eigen.tuxfamily.org/dox/TopicCMakeGuide.html indicates NO_MODULE
+# (equivalent to CONFIG) should be specified
+find_package(Eigen3 3.4 REQUIRED CONFIG)
+message(STATUS "Eigen version: ${Eigen3_VERSION}")
+
+# Google Test
+set(GTEST_MIN_VERSION 1.10.0)
+find_package(GTest ${GTEST_MIN_VERSION})
+if(GTest_FOUND)
+    message(STATUS "Google Test version: ${GTest_VERSION}")
+else()
+    message(STATUS "Google Test version: None")
+endif()
+
+include(CTest)
 
 # debug and release flags, handle MSVC case specifically
 if(MSVC)
@@ -24,6 +72,10 @@ if(MSVC)
         /wd4514
         /wd4625
         /wd4626
+        # C4710: function marked for inline expansion not inlined
+        /wd4710
+        # C4711: function selected for inline expansion
+        /wd4711
         /wd4820
         /wd5026
         /wd5027
@@ -45,49 +97,23 @@ else()
     endif()
 endif()
 
-# macros to define based on release type
-if(CMAKE_BUILD_TYPE STREQUAL Release)
-    add_compile_definitions(EIGEN_NO_DEBUG)
-endif()
-
-# minimum versions for dependencies
-set(BOOST_MIN_VERSION 1.71.0)
-set(EIGEN_MIN_VERSION 3.4)
-set(GTEST_MIN_VERSION 1.10.0)
-
-find_package(Boost ${BOOST_MIN_VERSION} REQUIRED)
-# https://eigen.tuxfamily.org/dox/TopicCMakeGuide.html indicates NO_MODULE
-# (equivalent to CONFIG) should be specified
-find_package(Eigen3 ${EIGEN_MIN_VERSION} REQUIRED CONFIG)
-find_package(GTest ${GTEST_MIN_VERSION})
+# use flat build output layout with per-config subdirectories
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 # base include for this repo
 set(PDMATH_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-include_directories(
-    ${PDMATH_INCLUDE}
-    # in case Boost and GoogleTest were found using BOOST_ROOT, GTEST_ROOT.
-    # the SYSTEM prefix tells compilers to skip warnings not in our control
-    SYSTEM ${Boost_INCLUDE_DIR}
-    SYSTEM ${GTEST_INCLUDE_DIRS}
-    SYSTEM ${EIGEN3_DIR}
-)
+# TODO: create pdmath::pdmath INTERFACE target
+include_directories(${PDMATH_INCLUDE})
 
 add_subdirectory(src)
 add_subdirectory(examples)
 
-# only build tests and enable testing if compatible GoogleTest is found.
-# note: on Windows, GTest_VERSION doesn't seem to be locatable if built static,
-# so there is a bit of hack here to ignore the version on Windows
-if(
-    GTest_FOUND AND
-    (WIN32 OR GTest_VERSION VERSION_GREATER_EQUAL ${GTEST_MIN_VERSION})
-)
-    enable_testing()
+# Google Test is required for testing
+if(GTest_FOUND)
     add_subdirectory(test)
 else()
-    message(
-        STATUS
-        "GoogleTest >=${GTEST_MIN_VERSION} not satisfied. No tests to build"
-    )
+    message(STATUS "Skipping tests (Google Test + Google Mock required)")
 endif()
