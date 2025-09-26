@@ -154,8 +154,8 @@ int main()
   // objective functor initialized with singular values, proj residuals, lambda
   group_norm_minimize_functor objective(svs, prs, lam);
   // bounds that bracket the solution
-  auto bounds = std::make_pair<double, double>(
-    0,
+  auto bounds = std::make_pair(
+    0.,
     std::sqrt(smax * rmax * svs.size()) / std::pow(smin, 2)
   );
   // contains the norm of the group coefficients
