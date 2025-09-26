@@ -62,6 +62,15 @@ else()
     message(STATUS "Google Test version: None")
 endif()
 
+# LaTeX compiler
+message(CHECK_START "Looking for pdflatex")
+find_package(LATEX COMPONENTS PDFLATEX)
+if(LATEX_FOUND)
+    message(CHECK_PASS "found")
+else()
+    message(CHECK_FAIL "not found")
+endif()
+
 include(CTest)
 
 # debug and release flags, handle MSVC case specifically
