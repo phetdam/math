@@ -45,11 +45,11 @@ inline auto print_example_header(const std::string& path, bool print = true)
   std::string split_str("math/examples");
   // the +1 at the end is to not include the directory slash
   std::string rpath = path.substr(path.find(split_str) + split_str.size() + 1);
-  std::string frame(rpath.size(), '-');
-  std::string header = "+" + frame + "+\n|" + rpath + "|\n+" + frame + "+";
-  if (print) {
+  // add 2 to frame since we pad with a space on each side of rpath
+  std::string frame(rpath.size() + 2u, '-');
+  std::string header = "+" + frame + "+\n| " + rpath + " |\n+" + frame + "+";
+  if (print)
     std::cout << header << std::endl;
-  }
   return header;
 }
 
