@@ -41,11 +41,11 @@ currently written is either templated or implemented as ``inline``.
 ~~~~~~~~
 Contains C++ source and ``CMakeLists.txt`` for unit tests written with
 GoogleTest_. If tests have been built, they can be run with ``run_tests.sh``,
-which is a thin convenience script around ctest_.
+which is a thin convenience script around CTest_.
 
 .. _GoogleTest: https://google.github.io/googletest/
 
-.. _ctest: https://cmake.org/cmake/help/latest/manual/ctest.1.html
+.. _CTest: https://cmake.org/cmake/help/latest/manual/ctest.1.html
 
 ``tex``
 ~~~~~~~
