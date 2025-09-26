@@ -63,7 +63,7 @@ Building the C++ source
 TBA. This project depends on Boost_ 1.71 and Eigen_ 3.4 headers and is intended
 to be built using CMake_ 3.16 or newer using a C++17-compliant compiler. Local
 builds on WSL 1 Ubuntu 20.04.3 LTS used GCC_ 9.3.0 while Windows 10 builds used
-the VS 2022 x86 MSVC. Optionally, if one has GoogleTest_ installed, the unit
+the VS 2022 x64 MSVC. Optionally, if one has GoogleTest_ installed, the unit
 tests can be built and run.
 
 .. _Boost: https://www.boost.org/
@@ -71,6 +71,16 @@ tests can be built and run.
 .. _Eigen: https://eigen.tuxfamily.org/
 
 .. _GCC: https://gcc.gnu.org/
+
+For POSIX systems, you can try using the included ``build.sh`` build script. To
+build a release build, you would use the following:
+
+.. code:: bash
+
+   ./build.sh -c Release
+
+You can use the ``-Ca`` option to pass additional arguments to the CMake
+configuration step, e.g. ``-DGTest_ROOT=/path/to/googletest``, and so on.
 
 
 Building PDFs from TeX source
