@@ -14,6 +14,9 @@
 **/_minted-*
 # ignore old README.md
 README.md
+# ignore old build scripts
+/build_cpp.sh
+/build_cpp.bat
 # ignore build and VS Code directories
 /build
 /build_windows*
