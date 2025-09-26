@@ -72,15 +72,18 @@ tests can be built and run.
 
 .. _GCC: https://gcc.gnu.org/
 
-For POSIX systems, you can try using the included ``build.sh`` build script. To
-build a release build, you would use the following:
+For POSIX systems, use the included ``build.sh`` build script. To build a
+release build, use:
 
 .. code:: bash
 
    ./build.sh -c Release
 
 You can use the ``-Ca`` option to pass additional arguments to the CMake
-configuration step, e.g. ``-DGTest_ROOT=/path/to/googletest``, and so on.
+configuration step, e.g. hints for `find_package`_ like
+``-DGTest_ROOT=/path/to/googletest``, and so on.
+
+.. _find_package: https://cmake.org/cmake/help/latest/command/find_package.html
 
 
 Building PDFs from TeX source
