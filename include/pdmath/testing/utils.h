@@ -52,7 +52,7 @@ public:
  * @param tol `const T&` all close tolerance
  */
 template <typename T>
-inline const auto match_all_near_zero(const T& tol)
+inline auto match_all_near_zero(const T& tol)
 {
   assert(tol >= 0);
   return ::testing::Each(
