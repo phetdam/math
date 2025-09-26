@@ -40,8 +40,7 @@ namespace pdmath {
  * @param print `bool` where the header is printed with an extra `\n` if `true`
  * @returns `std::string` giving the header to print
  */
-inline std::string print_example_header(
-  const std::string& path, bool print = true)
+inline auto print_example_header(const std::string& path, bool print = true)
 {
   std::string split_str("math/examples");
   // the +1 at the end is to not include the directory slash
@@ -52,21 +51,6 @@ inline std::string print_example_header(
     std::cout << header << std::endl;
   }
   return header;
-}
-
-/**
- * Print a short banner header with the file name of the example program run.
- *
- * Accepts a C string (null-terminated `char` array) instead of `std::string`.
- *
- * @param path `const char *` path of the program with `main` in `examples`.
- *     This should be an absolute path, i.e. with use of `__FILE__`.
- * @param print `bool` where the header is printed with an extra `\n` if `true`
- * @returns `std::string` giving the header to print
- */
-inline std::string print_example_header(const char *path, bool print = true)
-{
-  return print_example_header(std::string(path), print);
 }
 
 /**
