@@ -62,13 +62,60 @@ else()
     message(STATUS "Google Test version: None")
 endif()
 
-# LaTeX compiler
-message(CHECK_START "Looking for pdflatex")
-find_package(LATEX COMPONENTS PDFLATEX)
+# LaTeX components
+find_package(LATEX COMPONENTS PDFLATEX BIBTEX)
 if(LATEX_FOUND)
-    message(CHECK_PASS "found")
+    # get pdflatex version
+    execute_process(
+        COMMAND ${PDFLATEX_COMPILER} -version
+        RESULT_VARIABLE pdflatex_res
+        OUTPUT_VARIABLE pdflatex_out
+        ERROR_VARIABLE pdflatex_err
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_STRIP_TRAILING_WHITESPACE
+    )
+    # if failed, fatal
+    if(pdflatex_res)
+        message(FATAL_ERROR "pdflatex -version failed: ${pdflatex_err}")
+    endif()
+    unset(pdflatex_res)
+    unset(pdflatex_err)
+    # get first line of pdflatex -version output
+    string(REGEX REPLACE "^([^\n]+)\n.+$" "\\1" PDFLATEX_VERSION "${pdflatex_out}")
+    unset(pdflatex_out)
+    # get version info. format is pdfTeX <version> ...
+    string(
+        REGEX REPLACE "^[a-zA-Z]+[ ]+([0-9.-]+)[ ]+.+$" "\\1"
+        PDFLATEX_VERSION "${PDFLATEX_VERSION}"
+    )
+    message(STATUS "pdfLaTeX version: ${PDFLATEX_VERSION}")
+    # get BibTeX version
+    execute_process(
+        COMMAND ${BIBTEX_COMPILER} -version
+        RESULT_VARIABLE bibtex_res
+        OUTPUT_VARIABLE bibtex_out
+        ERROR_VARIABLE bibtex_err
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_STRIP_TRAILING_WHITESPACE
+    )
+    # if failed, fatal
+    if(bibtex_res)
+        message(FATAL_ERROR "bibtex -version failed: ${bibtex_err}")
+    endif()
+    unset(bibtex_res)
+    unset(bibtex_err)
+    # get first line of bibtex -version output
+    string(REGEX REPLACE "^([^\n]+)\n.+$" "\\1" BIBTEX_VERSION "${bibtex_out}")
+    unset(bibtex_out)
+    # get version info. format is BibTeX <version> ...
+    string(
+        REGEX REPLACE "^[a-zA-Z]+[ ]+([0-9.-a-z]+)[ ]+.+$" "\\1"
+        BIBTEX_VERSION "${BIBTEX_VERSION}"
+    )
+    message(STATUS "BibTeX version: ${BIBTEX_VERSION}")
 else()
-    message(CHECK_FAIL "not found")
+    message(STATUS "pdfLaTeX version: None")
+    message(STATUS "BibTeX version: None")
 endif()
 
 include(CTest)
