@@ -1,3 +1,3 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION ${CMAKE_MINIMUM_REQUIRED_VERSION})
 
 add_subdirectory(stat_learn_sparsity_worked)
