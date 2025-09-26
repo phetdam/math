@@ -14,6 +14,11 @@ add_executable(
         type_traits_test.cc
 )
 target_link_libraries(pdmath_test PRIVATE Boost::headers Eigen3::Eigen)
+# need /bigobj with MSVC for math_functors_test.cc
+# TODO: may want to investigate why this is the case
+if(MSVC)
+    target_compile_options(pdmath_test PRIVATE /bigobj)
+endif()
 
 include(GoogleTest)
 # the official guidance is to use gtest_discover_tests, but do note that this
