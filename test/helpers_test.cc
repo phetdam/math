@@ -48,9 +48,14 @@ protected:
   static const std::string ex_frame_;
 };
 
-PDMATH_STATIC_DEFINE(HelpersMiscTest::ex_name_)("dir1/exampleX.cc");
-PDMATH_STATIC_DEFINE(HelpersMiscTest::ex_path_)("math/examples/" + HelpersMiscTest::ex_name_);
-PDMATH_STATIC_DEFINE(HelpersMiscTest::ex_frame_)(HelpersMiscTest::ex_name_.size(), '-');
+// TODO: replace PDMATH_STATIC_DEFINE with inline definitions
+PDMATH_STATIC_DEFINE(HelpersMiscTest::ex_name_) = "dir1/exampleX.cc";
+PDMATH_STATIC_DEFINE(HelpersMiscTest::ex_path_){
+  "math/examples/" + HelpersMiscTest::ex_name_
+};
+PDMATH_STATIC_DEFINE(HelpersMiscTest::ex_frame_)(
+  HelpersMiscTest::ex_name_.size() + 2u, '-'
+);
 
 /**
  * Test that `print_example_header` overloads work as expected.
@@ -60,7 +65,7 @@ TEST_F(HelpersMiscTest, PrintExampleHeaderTest)
   auto header = pdmath::print_example_header(ex_path_, false);
   EXPECT_EQ(header, pdmath::print_example_header(ex_path_.c_str(), false));
   ASSERT_EQ(
-    "+" + ex_frame_ + "+\n|" + ex_name_ + "|\n+" + ex_frame_ + "+", header
+    "+" + ex_frame_ + "+\n| " + ex_name_ + " |\n+" + ex_frame_ + "+", header
   );
 }
 
