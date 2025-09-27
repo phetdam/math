@@ -89,15 +89,15 @@ configuration step, e.g. hints for `find_package`_ like
 Building PDFs from TeX source
 -----------------------------
 
-> Note:
->
-> Using ``build_tex.sh`` is deprecated in favor of the CMake integration which
-> enables near-optimal minimal rebuild while correctly determining how many
-> times pdfLaTeX and BibTeX each need to be invoked. ``build_tex.sh`` is a dumb
-> script that simply loops through subdirectories and is also messy, leaving
-> behind ``.aux`` and other intemediate TeX/BibTeX output everywhere. The CMake
-> integration cleanly generates the PDFs in the CMake build directory and as a
-> convenience will copy the generated PDF back to the source directory.
+   Note:
+
+   Using ``build_tex.sh`` is deprecated in favor of the CMake integration which
+   enables near-optimal minimal rebuild while correctly determining how many
+   times pdfLaTeX and BibTeX each need to be invoked. ``build_tex.sh`` is a
+   dumb script that simply loops through subdirectories and is also messy,
+   leaving behind ``.aux`` and other intemediate TeX/BibTeX output everywhere.
+   The CMake integration cleanly generates the PDFs in the CMake build tree and
+   as a convenience will copy the generated PDF back to the source tree.
 
 You may compile the ``.tex`` source to PDF files using the provided
 ``build_tex.sh`` shell script if you have the ``bash`` shell [#]_ and
