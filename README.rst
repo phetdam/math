@@ -89,24 +89,34 @@ configuration step, e.g. hints for `find_package`_ like
 Building PDFs from TeX source
 -----------------------------
 
+> Note:
+>
+> Using ``build_tex.sh`` is deprecated in favor of the CMake integration which
+> enables near-optimal minimal rebuild while correctly determining how many
+> times pdfLaTeX and BibTeX each need to be invoked. ``build_tex.sh`` is a dumb
+> script that simply loops through subdirectories and is also messy, leaving
+> behind ``.aux`` and other intemediate TeX/BibTeX output everywhere. The CMake
+> integration cleanly generates the PDFs in the CMake build directory and as a
+> convenience will copy the generated PDF back to the source directory.
+
 You may compile the ``.tex`` source to PDF files using the provided
-``build_pdf.sh`` shell script if you have the ``bash`` shell [#]_ and
+``build_tex.sh`` shell script if you have the ``bash`` shell [#]_ and
 ``pdflatex``. After using ``git clone`` to clone the repository contents, ``cd``
 into the top-level repository directory, use ``chmod`` to set permissions
-appropriately, for example with ``chmod 777 build_pdf.sh``, and execute
+appropriately, for example with ``chmod 777 build_tex.sh``, and execute
 
 .. code:: bash
 
-   ./build_pdf.sh
+   ./build_tex.sh
 
-``build_pdf.sh`` will then compile all ``.tex`` files in ``tex`` and write its
+``build_tex.sh`` will then compile all ``.tex`` files in ``tex`` and write its
 output to the ``pdf`` directory, which will mirror the directory tree of
 ``tex``. The ``pdf`` directory and its subdirectories will be created as needed.
-If you do not wish to adjust permissions, use ``bash build_pdf.sh`` instead of
+If you do not wish to adjust permissions, use ``bash build_tex.sh`` instead of
 executing with ``./``.
 
-You can view help on more advanced use of ``build_pdf.sh`` with
-``build_pdf.sh -h`` or ``build_pdf.sh --help``.
+You can view help on more advanced use of ``build_tex.sh`` with
+``build_tex.sh -h`` or ``build_tex.sh --help``.
 
 .. [#] The ``bash`` shell is necessary since the improved ``[[`` is used once
-   in ``build_pdf.sh``.
+   in ``build_tex.sh``.
