@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 ##
-# pdmath_compile_latex.cmake
+# pdmath_latex_compile.cmake
 #
 # CMake script for compiling a .tex source into a PDF file.
 #
@@ -53,12 +53,12 @@ cmake_minimum_required(VERSION 3.20)
 # Arguments:
 #   input           TeX input file relative to CMAKE_CURRENT_SOURCE_DIR
 #
-function(pdmath_compile_latex_impl input)
+function(pdmath_latex_compile_impl input)
     # can only be run in script mode
     if(NOT CMAKE_SCRIPT_MODE_FILE)
         message(
             FATAL_ERROR
-            "pdmath_compile_latex_impl can only be run in script mode"
+            "pdmath_latex_compile_impl can only be run in script mode"
         )
     endif()
     # requires external specification of PDFLATEX_COMPILER + BIBTEX_COMPILER
@@ -234,13 +234,13 @@ endfunction()
 #
 # This runs an optimal combination of pdflatex/bibtex commands.
 #
-# See pdmath_compile_latex_impl for details on the pdflatex options. It is
+# See pdmath_latex_compile_impl for details on the pdflatex options. It is
 # assumed that PDFLATEX_COMPILER and BIBTEX_COMPILER are defined.
 #
 # Arguments:
 #   input           TeX input file relative to CMAKE_CURRENT_SOURCE_DIR
 #
-function(pdmath_compile_latex input)
+function(pdmath_latex_compile input)
     # parse options
     # TODO: accept a VERBOSE option that is passed to the script
     cmake_parse_arguments(ARG "VERBOSE" "" "" ${ARGN})
@@ -259,7 +259,7 @@ function(pdmath_compile_latex input)
                 -DBIBTEX_COMPILER=${BIBTEX_COMPILER}
                 -DPDMATH_CURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}
                 -DTEX_INPUT=${input}
-                -P ${PROJECT_SOURCE_DIR}/cmake/pdmath_compile_latex.cmake
+                -P ${PROJECT_SOURCE_DIR}/cmake/pdmath_latex_compile.cmake
         DEPFILE ${input}.d
         COMMENT "Generating PDF for ${input}"
         # needs to run in input file directory
@@ -284,5 +284,5 @@ if(CMAKE_SCRIPT_MODE_FILE)
     if(NOT TEX_INPUT)
         message(FATAL_ERROR "TEX_INPUT missing")
     endif()
-    pdmath_compile_latex_impl(${TEX_INPUT})
+    pdmath_latex_compile_impl(${TEX_INPUT})
 endif()

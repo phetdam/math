@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION ${CMAKE_MINIMUM_REQUIRED_VERSION})
 
-pdmath_compile_latex(bac_returning_math_qs.tex)
-pdmath_compile_latex(expectation_normal_cdf.tex)
-pdmath_compile_latex(revisiting_black76.tex)
+pdmath_latex_compile(bac_returning_math_qs.tex)
+pdmath_latex_compile(expectation_normal_cdf.tex)
+pdmath_latex_compile(revisiting_black76.tex)

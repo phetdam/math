@@ -1,4 +1,4 @@
 cmake_minimum_required(VERSION ${CMAKE_MINIMUM_REQUIRED_VERSION})
 
-pdmath_compile_latex(num_optimization_worked.tex)
-pdmath_compile_latex(stat_learn_sparsity_worked.tex)
+pdmath_latex_compile(num_optimization_worked.tex)
+pdmath_latex_compile(stat_learn_sparsity_worked.tex)
