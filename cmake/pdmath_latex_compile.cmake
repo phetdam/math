@@ -51,8 +51,14 @@ include(${CMAKE_CURRENT_LIST_DIR}/pdmath_termcolor.cmake)
 # The default pdflatex options are:
 #       -interaction=nonstopmode
 #       -halt-on-error
-#       -shell-escape
 #       -output-directory <directory of input>
+#
+# There is special handling for old-ish versions of the minted package where
+# the -shell-escape option is added for .tex files requiring minted.
+#
+# TODO: Stop using a separate build directory because many TeX packages assume
+# all output will be dumped in the current directory. This is incredibly
+# annoying but we can't really do anything about this.
 #
 # Arguments:
 #   input           TeX input file relative to CMAKE_CURRENT_SOURCE_DIR
@@ -76,14 +82,6 @@ function(pdmath_latex_compile_impl input)
     if(NOT PDMATH_CURRENT_BINARY_DIR)
         message(FATAL_ERROR "PDMATH_CURRENT_BINARY_DIR missing")
     endif()
-    # pdflatex command
-    set(
-        pdflatex_cmd
-            ${PDFLATEX_COMPILER}
-            -interaction=nonstopmode -halt-on-error -shell-escape
-            -output-directory ${PDMATH_CURRENT_BINARY_DIR}
-            ${CMAKE_CURRENT_SOURCE_DIR}/${input}
-    )
     # strip extension for BibTeX
     string(REGEX REPLACE "\.tex$" "" input_noext "${input}")
     # regex for a \bibliography, \input, or \include directive. capture groups
@@ -110,6 +108,25 @@ function(pdmath_latex_compile_impl input)
     string(APPEND depfile_content " \\\n  ${CMAKE_CURRENT_SOURCE_DIR}/${input}")
     # generate depfile content
     file(WRITE ${PDMATH_CURRENT_BINARY_DIR}/${input}.d "${depfile_content}\n")
+    # special handling for minted, which requires -shell-escape. check if a
+    # \usepackage{minted} directive is available
+    file(
+        STRINGS ${input} minted_lines
+        REGEX "[ \t]*\\\\usepackage(\\[.+\\])?{[a-zA-Z0-9_,]*minted[a-zA-Z0-9_,]*}"
+    )
+    list(LENGTH minted_lines have_minted)
+    # pdflatex options
+    set(pdflatex_opts -interaction=nonstopmode -halt-on-error)
+    if(have_minted)
+        list(APPEND pdflatex_opts -shell-escape)
+    endif()
+    # pdflatex command
+    set(
+        pdflatex_cmd
+            ${PDFLATEX_COMPILER} ${pdflatex_opts}
+            -output-directory ${PDMATH_CURRENT_BINARY_DIR}
+            ${CMAKE_CURRENT_SOURCE_DIR}/${input}
+    )
     # run pdflatex for the first time
     pdmath_message(BOLD_BLUE "pdfTeX compile ${input} (1)")
     execute_process(
