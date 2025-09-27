@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
+include_guard(GLOBAL)
+
 ##
 # pdmath_latex_compile.cmake
 #
@@ -10,6 +12,8 @@ cmake_minimum_required(VERSION 3.20)
 # pdfTeX compiler (in LaTeX mode) with BibTeX support. The main implementation
 # function should not be called directly (it will be called via cmake -P).
 #
+
+include(${CMAKE_CURRENT_LIST_DIR}/pdmath_termcolor.cmake)
 
 ##
 # Compile a TeX file in LaTeX mode using pdflatex.
@@ -107,7 +111,7 @@ function(pdmath_latex_compile_impl input)
     # generate depfile content
     file(WRITE ${PDMATH_CURRENT_BINARY_DIR}/${input}.d "${depfile_content}\n")
     # run pdflatex for the first time
-    message(STATUS "pdfTeX compile ${input} (1)")
+    pdmath_message(BOLD_BLUE "pdfTeX compile ${input} (1)")
     execute_process(
         COMMAND ${pdflatex_cmd}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -136,7 +140,7 @@ function(pdmath_latex_compile_impl input)
     list(LENGTH bibdata_lines bibdata_line_count)
     # ok, at least one \bibdata command, so run BibTeX
     if(bibdata_line_count)
-        message(STATUS "BibTeX compile ${input_noext}.aux")
+        pdmath_message(BOLD_BLUE "BibTeX compile ${input_noext}.aux")
         set(bibtex_cmd ${BIBTEX_COMPILER} ${input_noext}.aux)
         execute_process(
             # note: on WSL1, for some reason BibTeX might be getting blocked
@@ -180,7 +184,7 @@ function(pdmath_latex_compile_impl input)
     # pdflatex compile (2). this should almost always be used because if you
     # are using an inline bibliography, you still need to re-run once for the
     # .aux file references to be correctly picked up
-    message(STATUS "pdfTeX compile ${input} (2)")
+    pdmath_message(BOLD_BLUE "pdfTeX compile ${input} (2)")
     execute_process(
         COMMAND ${pdflatex_cmd}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -208,7 +212,7 @@ function(pdmath_latex_compile_impl input)
     # ensuring that references are correctly resolved from the .aux file
     #
     if(bibdata_line_count)
-        message(STATUS "pdfTeX compile ${input} (3)")
+        pdmath_message(BOLD_BLUE "pdfTeX compile ${input} (3)")
         execute_process(
             COMMAND ${pdflatex_cmd}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -267,7 +271,7 @@ function(pdmath_latex_compile input)
         VERBATIM
     )
     # add custom target for the PDF file that copies the PDF back to source dir
-    string(REGEX REPLACE "[\\/.]" "_" pdf_target "pdflatex_${input_noext}")
+    string(REGEX REPLACE "[\\/.]" "_" pdf_target "pdftex_${input_noext}")
     add_custom_target(
         ${pdf_target}
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${input_noext}.pdf
