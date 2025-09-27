@@ -26,6 +26,12 @@ else()
     message(STATUS "Build config: ${CMAKE_BUILD_TYPE}")
 endif()
 
+include(CTest)
+
+# update CMake module path + include
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+include(pdmath_compile_latex)
+
 # TODO: consider upgrading to C++20
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
@@ -88,7 +94,7 @@ if(LATEX_FOUND)
         REGEX REPLACE "^[a-zA-Z]+[ ]+([0-9.-]+)[ ]+.+$" "\\1"
         PDFLATEX_VERSION "${PDFLATEX_VERSION}"
     )
-    message(STATUS "pdfLaTeX version: ${PDFLATEX_VERSION}")
+    message(STATUS "pdfTeX version: ${PDFLATEX_VERSION}")
     # get BibTeX version
     execute_process(
         COMMAND ${BIBTEX_COMPILER} -version
@@ -114,11 +120,9 @@ if(LATEX_FOUND)
     )
     message(STATUS "BibTeX version: ${BIBTEX_VERSION}")
 else()
-    message(STATUS "pdfLaTeX version: None")
+    message(STATUS "pdfTeX version: None")
     message(STATUS "BibTeX version: None")
 endif()
-
-include(CTest)
 
 # debug and release flags, handle MSVC case specifically
 if(MSVC)
@@ -166,6 +170,12 @@ include_directories(${PDMATH_INCLUDE})
 
 add_subdirectory(src)
 add_subdirectory(examples)
+# enable building of TeX to PDF is pdflatex + bibtex are available
+if(LATEX_FOUND)
+    add_subdirectory(tex)
+else()
+    message(STATUS "Skipping TeX (pdfLaTeX + BibTeX required)")
+endif()
 
 # Google Test is required for testing
 if(GTest_FOUND)
