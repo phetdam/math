@@ -84,21 +84,23 @@ function(pdmath_latex_compile_impl input)
     endif()
     # strip extension for BibTeX
     string(REGEX REPLACE "\.tex$" "" input_noext "${input}")
+    # regex for a path pattern
+    set(path_char "[a-zA-Z0-9_./\\-]")
     # regex for a \bibliography, \input, or \include directive. capture groups
     # are already set for later referencing
-    set(dep_regex "[ \t]*\\\\(bibliography|input|include){([a-zA-Z0-9_./\\-]+)}")
+    set(dep_regex "[ \t]*\\\\(bibliography|input|include){(${path_char}+)}")
     # scan file for \bibliography, \input, \include commands. these will be
     # additional deps that we will output into the dependency file
     file(STRINGS ${input} tex_lines REGEX "${dep_regex}")
     # remove \bibliography directives from file names and replace with .bib
     list(
         TRANSFORM tex_lines
-        REPLACE "[ \t]*\\\\bibliography{([a-zA-Z0-9_./\\-]+)}" "\\1.bib"
+        REPLACE "[ \t]*\\\\bibliography{(${path_char}+)}" "\\1.bib"
     )
     # remove \input and \include directives and replace with .tex
     list(
         TRANSFORM tex_lines
-        REPLACE "[ \t]*\\\\(input|include){([a-zA-Z0-9_./\\-]+)}" "\\2.tex"
+        REPLACE "[ \t]*\\\\(input|include){(${path_char}+)}" "\\2.tex"
     )
     # build depfile content
     set(depfile_content "${PDMATH_CURRENT_BINARY_DIR}/${input_noext}.pdf:")
@@ -152,7 +154,7 @@ function(pdmath_latex_compile_impl input)
     # check for the presence of a single \bibdata command
     file(
         STRINGS ${PDMATH_CURRENT_BINARY_DIR}/${input_noext}.aux bibdata_lines
-        REGEX "[ \t]*\\\\bibdata{[a-zA-Z0-9_./\\-]+}"
+        REGEX "[ \t]*\\\\bibdata{${path_char}+}"
     )
     list(LENGTH bibdata_lines bibdata_line_count)
     # ok, at least one \bibdata command, so run BibTeX
