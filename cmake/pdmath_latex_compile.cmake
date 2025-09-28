@@ -16,6 +16,60 @@ include_guard(GLOBAL)
 include(${CMAKE_CURRENT_LIST_DIR}/pdmath_termcolor.cmake)
 
 ##
+# Run pdfLaTeX in CMAKE_CURRENT_SOURCE_DIR.
+#
+# This is a convenience function for invoking the same command repeatedly.
+#
+# Arguments:
+#   input                       TeX input relative to CMAKE_CURRENT_SOURCE_DIR
+#   [OPTIONS opts...]           pdfLaTeX options
+#   [ORDINAL num]               Ordinal to print as part of the compile message
+#                               useful for distinguishing separate invocations
+#                               of pdfLaTeX from each other
+#   [WORKING_DIRECTORY dir]     Working directory for the execute_process call.
+#                               If not provided, uses CMAKE_CURRENT_SOURCE_DIR.
+#
+function(pdmath_invoke_pdflatex input)
+    cmake_parse_arguments(ARG "" "ORDINAL;WORKING_DIRECTORY" "OPTIONS" ${ARGN})
+    # use empty list if no options
+    if(NOT DEFINED ARG_OPTIONS)
+        set(ARG_OPTIONS "")
+    endif()
+    # set working directory
+    if(NOT DEFINED ARG_WORKING_DIRECTORY)
+        set(ARG_WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    endif()
+    # set pdflatex message
+    set(pdflatex_msg "pdfTeX compile ${input}")
+    if(DEFINED ARG_ORDINAL)
+        string(APPEND pdflatex_msg " (${ARG_ORDINAL})")
+    endif()
+    # set pdflatex command
+    set(pdflatex_cmd ${PDFLATEX_COMPILER} ${ARG_OPTIONS} ${input})
+    # print message + call pdflatex
+    pdmath_message(BOLD_BLUE "${pdflatex_msg}")
+    execute_process(
+        COMMAND ${pdflatex_cmd}
+        WORKING_DIRECTORY ${ARG_WORKING_DIRECTORY}
+        RESULT_VARIABLE pdflatex_res
+        OUTPUT_VARIABLE pdflatex_out
+        ERROR_VARIABLE pdflatex_err
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_STRIP_TRAILING_WHITESPACE
+    )
+    if(pdflatex_res)
+        list(JOIN pdflatex_cmd " " pdflatex_cmd_str)
+        # TODO: should just tell people to look at the .log file. this doesn't
+        # really display too well and the STDERR will be empty anyways
+        message(
+            FATAL_ERROR
+            "ERROR: ${pdflatex_cmd_str}:\nSTDERR:\n${pdflatex_err}\n"
+"STDOUT:${pdflatex_out}"
+        )
+    endif()
+endfunction()
+
+##
 # Compile a TeX file in LaTeX mode using pdflatex.
 #
 # This automatically determines how many times pdflatex/bibtex need to be run
@@ -56,9 +110,14 @@ include(${CMAKE_CURRENT_LIST_DIR}/pdmath_termcolor.cmake)
 # There is special handling for old-ish versions of the minted package where
 # the -shell-escape option is added for .tex files requiring minted.
 #
-# TODO: Stop using a separate build directory because many TeX packages assume
-# all output will be dumped in the current directory. This is incredibly
-# annoying but we can't really do anything about this.
+# Note:
+#
+# There is no support for writing the TeX intermediate output into the build
+# directory given by PDMATH_CURRENT_BINARY_DIR because some packages like
+# minted don't play well out-of-the-box with separate source/build layouts. In
+# particular, you need to use \usepackage[outputdir=<dir>]{minted} prior to
+# minted 3.x, and afterwards, set a different environment variable to tell
+# minted where it expects the intermediate .pyg to be created.
 #
 # Arguments:
 #   input           TeX input file relative to CMAKE_CURRENT_SOURCE_DIR
@@ -103,7 +162,7 @@ function(pdmath_latex_compile_impl input)
         REPLACE "[ \t]*\\\\(input|include){(${path_char}+)}" "\\2.tex"
     )
     # build depfile content
-    set(depfile_content "${PDMATH_CURRENT_BINARY_DIR}/${input_noext}.pdf:")
+    set(depfile_content "${CMAKE_CURRENT_SOURCE_DIR}/${input_noext}.pdf:")
     foreach(dep ${tex_lines})
         string(APPEND depfile_content " \\\n  ${CMAKE_CURRENT_SOURCE_DIR}/${dep}")
     endforeach()
@@ -122,38 +181,12 @@ function(pdmath_latex_compile_impl input)
     if(have_minted)
         list(APPEND pdflatex_opts -shell-escape)
     endif()
-    # pdflatex command
-    set(
-        pdflatex_cmd
-            ${PDFLATEX_COMPILER} ${pdflatex_opts}
-            -output-directory ${PDMATH_CURRENT_BINARY_DIR}
-            ${CMAKE_CURRENT_SOURCE_DIR}/${input}
-    )
     # run pdflatex for the first time
-    pdmath_message(BOLD_BLUE "pdfTeX compile ${input} (1)")
-    execute_process(
-        COMMAND ${pdflatex_cmd}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        RESULT_VARIABLE pdflatex_res
-        OUTPUT_VARIABLE pdflatex_out
-        ERROR_VARIABLE pdflatex_err
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        ERROR_STRIP_TRAILING_WHITESPACE
-    )
-    if(pdflatex_res)
-        list(JOIN pdflatex_cmd " " pdflatex_cmd_str)
-        # TODO: should just tell people to look at the .log file. this doesn't
-        # really display too well and the STDERR will be empty anyways
-        message(
-            FATAL_ERROR
-            "ERROR: ${pdflatex_cmd_str}:\nSTDERR:\n${pdflatex_err}\n"
-"STDOUT:${pdflatex_out}"
-        )
-    endif()
+    pdmath_invoke_pdflatex(${input} OPTIONS ${pdflatex_opts} ORDINAL 1)
     # read .aux file to determine if BibTeX needs to be run. that is, we just
     # check for the presence of a single \bibdata command
     file(
-        STRINGS ${PDMATH_CURRENT_BINARY_DIR}/${input_noext}.aux bibdata_lines
+        STRINGS ${input_noext}.aux bibdata_lines
         REGEX "[ \t]*\\\\bibdata{${path_char}+}"
     )
     list(LENGTH bibdata_lines bibdata_line_count)
@@ -162,12 +195,17 @@ function(pdmath_latex_compile_impl input)
         pdmath_message(BOLD_BLUE "BibTeX compile ${input_noext}.aux")
         set(bibtex_cmd ${BIBTEX_COMPILER} ${input_noext}.aux)
         execute_process(
+        # note: no longer necessary since we do TeX compile in the source
+        # directory directly. it's just too much hassle to try and work around
+        # this deficiency in the TeX build tooling ecosystem.
+        #[[==
             # note: on WSL1, for some reason BibTeX might be getting blocked
             # from writing files in the build directory for whatever reason, so
             # we first copy the .aux file into the source directory
             COMMAND ${CMAKE_COMMAND}
                     -E copy ${PDMATH_CURRENT_BINARY_DIR}/${input_noext}.aux
                     ${input_noext}.aux
+        #==]]
             COMMAND ${bibtex_cmd}
             # resolve references relative to current directory
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -178,7 +216,9 @@ function(pdmath_latex_compile_impl input)
             ERROR_STRIP_TRAILING_WHITESPACE
         )
         # move .aux + BibTeX outputs back to build directory so they don't
-        # accumulate. since the BibTeX command may fail, we run these separately
+        # accumulate. since the BibTeX command may fail we run these separately
+        # note: no longer necessary since we build in the source tree
+        #[[==
         execute_process(
             COMMAND ${CMAKE_COMMAND}
                     -E rename ${input_noext}.aux
@@ -191,36 +231,21 @@ function(pdmath_latex_compile_impl input)
                     ${PDMATH_CURRENT_BINARY_DIR}/${input_noext}.bbl
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         )
+        #==]]
         # check BibTeX command for failure
         if(bibtex_res)
             list(JOIN bibtex_cmd " " bibtex_cmd_str)
             message(
                 FATAL_ERROR
-                "ERROR: ${bibtex_cmd}\nSTDERR:\n${bibtex_err}\nSTDOUT:${bibtex_out}"
+                "ERROR: ${bibtex_cmd_str}\n"
+"STDERR:\n${bibtex_err}\nSTDOUT:${bibtex_out}"
             )
         endif()
     endif()
     # pdflatex compile (2). this should almost always be used because if you
     # are using an inline bibliography, you still need to re-run once for the
     # .aux file references to be correctly picked up
-    pdmath_message(BOLD_BLUE "pdfTeX compile ${input} (2)")
-    execute_process(
-        COMMAND ${pdflatex_cmd}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        RESULT_VARIABLE pdflatex_res
-        OUTPUT_VARIABLE pdflatex_out
-        ERROR_VARIABLE pdflatex_err
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        ERROR_STRIP_TRAILING_WHITESPACE
-    )
-    if(pdflatex_res)
-        list(JOIN pdflatex_cmd " " pdflatex_cmd_str)
-        message(
-            FATAL_ERROR
-            "ERROR: ${pdflatex_cmd_str}:\nSTDERR:\n${pdflatex_err}\n"
-"STDOUT:${pdflatex_out}"
-        )
-    endif()
+    pdmath_invoke_pdflatex(${input} OPTIONS ${pdflatex_opts} ORDINAL 2)
     # if we ran BibTeX, we need to run pdflatex again. in general, whenever you
     # are working with bibliographies, you need to do the following:
     #
@@ -231,31 +256,14 @@ function(pdmath_latex_compile_impl input)
     # ensuring that references are correctly resolved from the .aux file
     #
     if(bibdata_line_count)
-        pdmath_message(BOLD_BLUE "pdfTeX compile ${input} (3)")
-        execute_process(
-            COMMAND ${pdflatex_cmd}
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-            RESULT_VARIABLE pdflatex_res
-            OUTPUT_VARIABLE pdflatex_out
-            ERROR_VARIABLE pdflatex_err
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-            ERROR_STRIP_TRAILING_WHITESPACE
-        )
-        if(pdflatex_res)
-            list(JOIN pdflatex_cmd " " pdflatex_cmd_str)
-            message(
-                FATAL_ERROR
-                "ERROR: ${pdflatex_cmd_str}:\nSTDERR:\n${pdflatex_err}\n"
-    "STDOUT:${pdflatex_out}"
-            )
-        endif()
+        pdmath_invoke_pdflatex(${input} OPTIONS ${pdflatex_opts} ORDINAL 3)
     endif()
 endfunction()
 
 ##
 # Compile a TeX file in LaTeX mode using pdflatex.
 #
-# This runs an optimal combination of pdflatex/bibtex commands.
+# This runs an optimal sequence of pdflatex/bibtex commands.
 #
 # See pdmath_latex_compile_impl for details on the pdflatex options. It is
 # assumed that PDFLATEX_COMPILER and BIBTEX_COMPILER are defined.
@@ -276,7 +284,7 @@ function(pdmath_latex_compile input)
     # create custom command for .tex file
     add_custom_command(
         # note: other pdflatex outputs are ignored
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${input_noext}.pdf
+        OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/${input_noext}.pdf
         COMMAND ${CMAKE_COMMAND}
                 -DPDFLATEX_COMPILER=${PDFLATEX_COMPILER}
                 -DBIBTEX_COMPILER=${BIBTEX_COMPILER}
@@ -289,13 +297,14 @@ function(pdmath_latex_compile input)
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         VERBATIM
     )
-    # add custom target for the PDF file that copies the PDF back to source dir
+    # add custom target for the PDF file so pdmath_tex drives the build
     string(REGEX REPLACE "[\\/.]" "_" pdf_target "pdftex_${input_noext}")
     add_custom_target(
         ${pdf_target}
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${input_noext}.pdf
-                ${CMAKE_CURRENT_SOURCE_DIR}/${input_noext}.pdf
-        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${input_noext}.pdf
+        # note: no more copy_if_different necessary as build in source tree
+        # COMMAND ${CMAKE_COMMAND} -E copy_if_different ${input_noext}.pdf
+        #         ${CMAKE_CURRENT_SOURCE_DIR}/${input_noext}.pdf
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${input_noext}.pdf
     )
     # add dependency to top-level target
     add_dependencies(pdmath_tex ${pdf_target})
