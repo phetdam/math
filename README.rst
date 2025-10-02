@@ -13,9 +13,9 @@ Some mathematical work that I have done on my own for fun.
 
    Still deciding on a new banner.
 
-See the `Building PDFs from TeX source`_ section for how to compile the ``.tex``
-source in ``tex`` into PDF and see the `Building the C++ source`_ section for
-how to build the accompanying C++ source code using `CMake`_.
+See the Building_ section for instructions on how to compile the repo's C++ and
+LaTeX sources with CMake_. The LaTeX source is in the ``tex`` subdirectory and
+will be compiled into PDF files.
 
 Any mathematical errors are wholly my own.
 
@@ -91,7 +91,7 @@ PDF files in the repo tree if pdfTeX_ and BibTeX_ are locatable via
 ``find_package`` and/or searching the directories in your ``PATH``.
 
 .. _pdfTeX: https://www.tug.org/applications/pdftex/
--- _BibTeX: https://www.bibtex.org/
+.. _BibTeX: https://www.bibtex.org/
 
 Local builds have been tested with the following compiler + platforms:
 
@@ -123,7 +123,7 @@ On Windows, the included ``build.bat`` can be used in the same manner:
 
 Note that arguments containing ``=`` have to be quoted for CMD. Therefore,
 CMake ``-D`` arguments should be passed in double quotes, e.g. like
-``"-DGTest_ROOT=C:\path\to\googletest"``
+``"-DGTest_ROOT=C:\path\to\googletest"``, else CMD will be confused.
 
 
 Building PDFs from TeX source
@@ -134,12 +134,13 @@ Building PDFs from TeX source
    Using ``build_tex.sh`` is deprecated in favor of the CMake integration which
    enables near-optimal minimal rebuild while correctly determining how many
    times pdfLaTeX and BibTeX each need to be invoked. ``build_tex.sh`` is a
-   dumb script that simply loops through subdirectories. Do note the CMake
-   integration produces the exact same in-tree results as building through an
-   editor with latexmk_ or using ``build_tex.sh``; I found it difficult to
-   reliably get all outputs written to a separate build directory because some
-   LaTeX packages like minted_ don't integrate well with the pdfTeX
-   ``-output-directory`` option.
+   dumb script that simply loops through subdirectories.
+
+   Do note the CMake integration produces the exact same in-tree results as
+   building through an editor with latexmk_ or using ``build_tex.sh``; I found
+   it difficult to reliably get all outputs written to a separate build
+   directory because some LaTeX packages like minted_ don't integrate well with
+   the pdfTeX ``-output-directory`` option.
 
 .. _latexmk: https://www.cantab.net/users/johncollins/latexmk/
 .. _minted: https://ctan.org/pkg/minted?lang=en
