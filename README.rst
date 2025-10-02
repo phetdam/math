@@ -57,18 +57,48 @@ etc., while the ``original`` directory is for my own original work. The
 used in other ``.tex`` files, typically by using ``\input``.
 
 
-Building the C++ source
------------------------
+Building
+--------
 
-TBA. This project depends on Boost_ 1.71 and Eigen_ 3.4 headers and is intended
-to be built using CMake_ 3.16 or newer using a C++17-compliant compiler. Local
-builds on WSL 1 Ubuntu 20.04.3 LTS used GCC_ 9.3.0 while Windows 10 builds used
-the VS 2022 x64 MSVC. Optionally, if one has GoogleTest_ installed, the unit
-tests can be built and run.
+To perform a local build with this repo the following dependencies are required:
+
+   Note:
+
+   Dependencies on Boost and Eigen are planned to be reduced, removed, and/or
+   made optional in the future. Originally, the C++ code was written at a time
+   when the author had just started learning C++17 and didn't understand
+   template metaprogramming quite as well compared to his knowledge today.
+
+* A C++17 compiler
+* CMake_ >= 3.21
+* Boost_ >= 1.71
+* Eigen_ [#]_ >= 3.4
 
 .. _Boost: https://www.boost.org/
 
-.. _Eigen: https://eigen.tuxfamily.org/
+.. _Eigen: https://libeigen.gitlab.io/docs/
+
+.. [#] The Eigen documentation used to live at eigen.tuxfamily.org but the
+   domain no longer seems reachable. Up-to-date ``master`` branch documentation
+   for Eigen is now hosted on their GitLab Pages.
+
+Unit tests will be included in the build if the following are available:
+
+* GoogleTest_ >= 1.10.0
+
+The LaTeX source in the ``tex`` subdirectory will also be built inplace into
+PDF files in the repo tree if pdfTeX_ and BibTeX_ are locatable via
+``find_package`` and/or searching the directories in your ``PATH``.
+
+.. _pdfTeX: https://www.tug.org/applications/pdftex/
+-- _BibTeX: https://www.bibtex.org/
+
+Local builds have been tested with the following compiler + platforms:
+
+* GCC_ 9.3.0 on WSL1 Ubuntu 20.04.3 LTS
+* GCC 11.3.0 on WSL1 Ubuntu 22.04.2 LTS
+* Visual Studio 2022 on Windows 10 Home
+* Visual Studio 2022 on Windows 11 Home
 
 .. _GCC: https://gcc.gnu.org/
 
@@ -85,6 +115,16 @@ configuration step, e.g. hints for `find_package`_ like
 
 .. _find_package: https://cmake.org/cmake/help/latest/command/find_package.html
 
+On Windows, the included ``build.bat`` can be used in the same manner:
+
+.. code:: shell
+
+   build -c Release
+
+Note that arguments containing ``=`` have to be quoted for CMD. Therefore,
+CMake ``-D`` arguments should be passed in double quotes, e.g. like
+``"-DGTest_ROOT=C:\path\to\googletest"``
+
 
 Building PDFs from TeX source
 -----------------------------
@@ -94,10 +134,15 @@ Building PDFs from TeX source
    Using ``build_tex.sh`` is deprecated in favor of the CMake integration which
    enables near-optimal minimal rebuild while correctly determining how many
    times pdfLaTeX and BibTeX each need to be invoked. ``build_tex.sh`` is a
-   dumb script that simply loops through subdirectories and is also messy,
-   leaving behind ``.aux`` and other intemediate TeX/BibTeX output everywhere.
-   The CMake integration cleanly generates the PDFs in the CMake build tree and
-   as a convenience will copy the generated PDF back to the source tree.
+   dumb script that simply loops through subdirectories. Do note the CMake
+   integration produces the exact same in-tree results as building through an
+   editor with latexmk_ or using ``build_tex.sh``; I found it difficult to
+   reliably get all outputs written to a separate build directory because some
+   LaTeX packages like minted_ don't integrate well with the pdfTeX
+   ``-output-directory`` option.
+
+.. _latexmk: https://www.cantab.net/users/johncollins/latexmk/
+.. _minted: https://ctan.org/pkg/minted?lang=en
 
 You may compile the ``.tex`` source to PDF files using the provided
 ``build_tex.sh`` shell script if you have the ``bash`` shell [#]_ and
