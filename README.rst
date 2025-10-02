@@ -14,8 +14,7 @@ Some mathematical work that I have done on my own for fun.
    Still deciding on a new banner.
 
 See the Building_ section for instructions on how to compile the repo's C++ and
-LaTeX sources with CMake_. The LaTeX source is in the ``tex`` subdirectory and
-will be compiled into PDF files.
+LaTeX sources with CMake_.
 
 Any mathematical errors are wholly my own.
 
