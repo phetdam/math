@@ -38,6 +38,8 @@ else()
 endif()
 
 # indicate if unity build is used or not
+# TODO: this doesn't really help. the bottleneck is in linking some of the
+# executables (may be related to Boost or Eigen being really heavy)
 if(CMAKE_UNITY_BUILD)
     message(STATUS "Build unity: Yes")
 else()
