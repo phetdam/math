@@ -1,6 +1,6 @@
 /**
  * @file mixins.h
- * @author Derek Huang <djh458@stern.nyu.edu>
+ * @author Derek Huang
  * @brief C++ headers for [templated] mixin classes
  * @copyright MIT License
  */

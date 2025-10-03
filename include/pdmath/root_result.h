@@ -1,6 +1,6 @@
 /**
  * @file root_result.h
- * @author Derek Huang <djh458@stern.nyu.edu>
+ * @author Derek Huang
  * @brief Template class implementing the SciPy RootResults
  * @copyright MIT License
  */
@@ -32,7 +32,7 @@ public:
    * @param n_iter `std::uintmax_t` number of iterations
    * @param n_fev `std::uintmax_t` number of function evaluations
    */
-  root_result<T>::root_result(
+  root_result(
     const T& root,
     bool converged,
     const std::string& message,

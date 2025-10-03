@@ -1,6 +1,6 @@
 /**
  * @file optimize_result.h
- * @author Derek Huang <djh458@stern.nyu.edu>
+ * @author Derek Huang
  * @brief C++ header implementing a stripped SciPy OptimizeResult template
  * @copyright MIT License
  */

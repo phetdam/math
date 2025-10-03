@@ -1,6 +1,6 @@
 /**
  * @file bases.h
- * @author Derek Huang <djh458@stern.nyu.edu>
+ * @author Derek Huang
  * @brief C++ header for [templated] base classes
  * @copyright MIT License
  */
