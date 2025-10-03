@@ -1,0 +1,41 @@
+/**
+ * @file version.h
+ * @author Derek Huang
+ * @brief C/C++ pdmath version header
+ * @copyright MIT License
+ */
+
+#ifndef PDMATH_VERSION_H_
+#define PDMATH_VERSION_H_
+
+/**
+ * pdmath major version.
+ */
+#define PDMATH_MAJOR_VERSION @PDMATH_MAJOR_VERSION@
+
+/**
+ * pdmath minor version.
+ */
+#define PDMATH_MINOR_VERSION @PDMATH_MINOR_VERSION@
+
+/**
+ * pdmath patch version.
+ */
+#define PDMATH_PATCH_VERSION @PDMATH_PATCH_VERSION@
+
+/**
+ * pdmath version string.
+ *
+ * pdmath release builds do not include appended build information.
+ */
+#define PDMATH_VERSION "@PDMATH_VERSION@"
+
+/**
+ * pdmath build info string.
+ *
+ * pdmath release builds will set this to an empty string while development
+ * builds will either set it to "DEV" or a short Git hash.
+ */
+#define PDMATH_BUILD_INFO "@PDMATH_BUILD_INFO@"
+
+#endif  // PDMATH_VERSION_H_

@@ -8,6 +8,17 @@ project(
     LANGUAGES CXX
 )
 
+# for releases build info is empty
+option(PDMATH_BUILD_RELEASE "Build a pdmath release" OFF)
+
+# locate Git for build hash
+find_package(Git 2.34)
+if(Git_FOUND)
+    message(STATUS "Git version: ${GIT_VERSION_STRING}")
+else()
+    message(STATUS "Git version: None")
+endif()
+
 # check if generator is multi-config or not
 get_property(PDMATH_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(PDMATH_IS_MULTI_CONFIG)
@@ -166,8 +177,64 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 # base include for this repo
 set(PDMATH_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-# TODO: create pdmath::pdmath INTERFACE target
-include_directories(${PDMATH_INCLUDE})
+# configure version info. build suffix determined via Git
+if(Git_FOUND AND NOT PDMATH_BUILD_RELEASE)
+    execute_process(
+        COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
+        RESULT_VARIABLE git_rev_res
+        OUTPUT_VARIABLE git_rev_out
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    # if failed, warn and use DEV for build info
+    if(git_ver_res)
+        message(WARNING "git rev-parse --short HEAD error! build info set to DEV")
+        set(PDMATH_BUILD_INFO "DEV")
+    # otherwise, use the output
+    else()
+        set(PDMATH_BUILD_INFO ${git_rev_out})
+    endif()
+    # clean up
+    unset(git_rev_res)
+    unset(git_rev_out)
+endif()
+# if PDMATH_BUILD_INFO is not defined, set to DEV if not building release
+if(NOT DEFINED PDMATH_BUILD_INFO)
+    if(PDMATH_BUILD_RELEASE)
+        set(PDMATH_BUILD_INFO "")
+    else()
+        set(PDMATH_BUILD_INFO "DEV")
+    endif()
+endif()
+# standard version components
+foreach(comp MAJOR MINOR PATCH)
+    set(PDMATH_${comp}_VERSION ${PROJECT_VERSION_${comp}})
+endforeach()
+# set full version with build info. non-release appends build info
+set(
+    PDMATH_VERSION
+    ${PDMATH_MAJOR_VERSION}.${PDMATH_MINOR_VERSION}.${PDMATH_PATCH_VERSION}
+)
+if(NOT PDMATH_BUILD_RELEASE)
+    string(APPEND PDMATH_VERSION "-${PDMATH_BUILD_INFO}")
+endif()
+
+# print version + configure version.h.in
+message(STATUS "Build version: ${PDMATH_VERSION}")
+set(pdmath_version_h include/pdmath/version.h)
+# variables consumed:
+#
+#   PDMATH_MAJOR_VERSION
+#   PDMATH_MINOR_VERSION
+#   PDMATH_PATCH_VERSION
+#   PDMATH_VERSION
+#   PDMATH_BUILD_INFO
+#
+configure_file(${pdmath_version_h}.in ${pdmath_version_h} @ONLY NEWLINE_STYLE LF)
+message(STATUS "Generated ${pdmath_version_h}")
+
+# TODO: create pdmath::pdmath INTERFACE target. if you don't do this, every
+# time include directories are updated, all targets will rebuild
+include_directories(${PDMATH_INCLUDE} ${CMAKE_CURRENT_BINARY_DIR}/include)
 
 add_subdirectory(src)
 add_subdirectory(examples)
