@@ -37,6 +37,13 @@ else()
     message(STATUS "Build config: ${CMAKE_BUILD_TYPE}")
 endif()
 
+# indicate if unity build is used or not
+if(CMAKE_UNITY_BUILD)
+    message(STATUS "Build unity: Yes")
+else()
+    message(STATUS "Build unity: No")
+endif()
+
 include(CTest)
 
 # update CMake module path + include project modules
