@@ -1,7 +1,7 @@
 /**
  * @file type_traits.h
  * @author Derek Huang
- * @brief Extensions to the C++ standard library `<type_traits>` header.
+ * @brief C++ header for additional type traits
  * @copyright MIT License
  */
 
