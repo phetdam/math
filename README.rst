@@ -32,9 +32,9 @@ as instructed in an exercise or other application.
 
 ``include``
 ~~~~~~~~~~~
-Contains C++ headers and ``CMakeLists.txt`` for library code used by the CLI
-executables in ``examples``. There is no ``src`` directory since all the code
-currently written is either templated or implemented as ``inline``.
+Contains C++ headers for library code used by the CLI executables in
+``examples``. There is no ``src`` directory since all the code currently
+written is either templated or implemented as ``inline``.
 
 ``test``
 ~~~~~~~~
