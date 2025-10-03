@@ -9,7 +9,9 @@
 #define PDMATH_MATH_FUNCTIONS_H_
 
 #include <cmath>
+#include <type_traits>
 
+#include "pdmath/type_traits.h"
 #include "pdmath/warnings.h"
 
 namespace pdmath {
@@ -17,10 +19,14 @@ namespace pdmath {
 /**
  * Himmelblau's function.
  *
- * @tparam T scalar type
+ * @tparam T Arithmetic type
+ * @tparam U Arithmetic type
  */
-template <typename T>
-inline T himmelblau(const T& x, const T& y)
+template <typename T, typename U>
+auto himmelblau(
+  T x,
+  U y,
+  constraint_t<std::is_arithmetic_v<T> && std::is_arithmetic_v<U>> = 0)
 {
 // disable warning about conversion from double to T
 #ifdef _MSC_VER
@@ -38,10 +44,14 @@ PDMATH_WARNINGS_POP()
 /**
  * Three-hump camel function.
  *
- * @tparam T scalar type
+ * @tparam T Arithmetic type
+ * @tparam U Arithmetic type
  */
-template <typename T>
-inline T three_hump_camel(const T& x, const T& y)
+template <typename T, typename U>
+auto three_hump_camel(
+  T x,
+  U y,
+  constraint_t<std::is_arithmetic_v<T> && std::is_arithmetic_v<U>> = 0)
 {
 // disable warning about conversion from double to T
 #ifdef _MSC_VER
