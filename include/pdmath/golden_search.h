@@ -12,8 +12,10 @@
 #include <cmath>
 #include <cstdint>
 #include <limits>
+#include <type_traits>
 
 #include "pdmath/optimize_result.h"
+#include "pdmath/type_traits.h"
 
 namespace pdmath {
 
@@ -24,17 +26,21 @@ namespace pdmath {
  * mostly an interpretation of the golden-section search described in Xin Li's
  * notes for Lecture 15 of CMU's 18-660 optimization course.
  *
- * @param f `F` callable to find a minimum of, takes and returns `T`
- * @param lbound `T` lower endpoint of search interval
- * @param ubound `T` upper endpoint of search interval
- * @param tol `T` termination tolerance
+ * @tparam F Unary callable
+ * @tparam T Floating-point type
+ *
+ * @param f Univariate callable to find a minimum of
+ * @param lbound Lower endpoint of search interval
+ * @param ubound Uper endpoint of search interval
+ * @param tol Termination tolerance
  */
 template <typename T, typename F>
 optimize_result<T> golden_search(
-  F f,
+  F&& f,
   T lbound,
   T ubound,
-  T tol = std::sqrt(std::numeric_limits<T>::epsilon()))
+  T tol = std::sqrt(std::numeric_limits<T>::epsilon()),
+  constraint_t<std::is_floating_point_v<T> && std::is_invocable_r_v<T, F, T>> = 0)
 {
   assert(lbound < ubound);
   std::uintmax_t n_iter = 0;
@@ -86,7 +92,7 @@ optimize_result<T> golden_search(
   // choose midpoint of lbound, ubound as result. note we multiply individually
   // to prevent overflow or rounding error from subtraction.
   T res(0.5 * lbound + 0.5 * ubound);
-  return optimize_result<T>(
+  return {
     res,
     true,
     "Converged within tolerance",
@@ -94,7 +100,7 @@ optimize_result<T> golden_search(
     f(res),
     // +1 to n_fev since we evaluate f again at res above
     1 + n_fev
-  );
+  };
 }
 
 }  // namespace pdmath
