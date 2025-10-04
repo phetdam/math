@@ -13,7 +13,7 @@ add_executable(
         norms_test.cc
         type_traits_test.cc
 )
-target_link_libraries(pdmath_test PRIVATE Boost::headers Eigen3::Eigen)
+target_link_libraries(pdmath_test PRIVATE Boost::headers Eigen3::Eigen pdmath)
 # need /bigobj with MSVC for math_functors_test.cc
 # TODO: may want to investigate why this is the case
 if(MSVC)

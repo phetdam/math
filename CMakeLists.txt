@@ -241,11 +241,22 @@ set(pdmath_version_h include/pdmath/version.h)
 configure_file(${pdmath_version_h}.in ${pdmath_version_h} @ONLY NEWLINE_STYLE LF)
 message(STATUS "Generated ${pdmath_version_h}")
 
+# main pdmath INTERFACE target since library is header-only
+# TODO: technically this library depends on Boost and Eigen headers so the
+# relevant targets should be linked as INTERFACE requirements. however, in the
+# future we want to make the dependency optional, so we exclude for now
+add_library(pdmath INTERFACE)
+target_include_directories(
+    pdmath INTERFACE
+    $<BUILD_INTERFACE:${PDMATH_INCLUDE}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+
 # TODO: create pdmath::pdmath INTERFACE target. if you don't do this, every
 # time include directories are updated, all targets will rebuild
 include_directories(${PDMATH_INCLUDE} ${CMAKE_CURRENT_BINARY_DIR}/include)
 
-add_subdirectory(src)
 add_subdirectory(examples)
 # enable building of TeX to PDF is pdflatex + bibtex are available
 if(LATEX_FOUND)
