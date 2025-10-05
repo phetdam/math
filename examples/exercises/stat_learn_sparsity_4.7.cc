@@ -18,8 +18,10 @@
 #include "pdmath/bases.h"
 #include "pdmath/golden_search.h"
 #include "pdmath/helpers.h"
+#include "pdmath/program_banner.h"
 #include "pdmath/range_format.h"
 #include "pdmath/types.h"
+#include "pdmath/warnings.h"
 
 namespace {
 
@@ -142,6 +144,12 @@ private:
 
 }  // namespace
 
+// silence C4866 warning on MSVC being unable to guarantee left-to-right
+// evaluation order of operands in the final std::cout stream
+#ifdef _MSC_VER
+PDMATH_WARNINGS_PUSH()
+PDMATH_WARNINGS_DISABLE(4866)
+#endif  // _MSC_VER
 int main()
 {
   // lambda used in the objective
@@ -164,11 +172,14 @@ int main()
   // range print policy
   pdmath::range_format_policy policy;
   // print results
-  pdmath::print_example_header(__FILE__);
   std::cout <<
+    PDMATH_PROGRAM_BANNER() <<
     "lambda: " << lam << "\n" <<
     "singular values: " << policy << svs << "\n" <<
     "bounds: (" << bounds.first << ", " << bounds.second << ")\n" <<
     "target norm: " << res.res() << std::endl;
+#ifdef _MSC_VER
+PDMATH_WARNINGS_POP()
+#endif  // _MSC_VER
   return EXIT_SUCCESS;
 }
