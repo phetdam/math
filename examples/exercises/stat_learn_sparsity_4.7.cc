@@ -1,7 +1,7 @@
 /**
- * @file ex4.7.cc
- * @author Derek Huang <djh458@stern.nyu.edu>
- * @brief Main program for exercise 4.7
+ * @file stat_learn_sparsity_4.7.cc
+ * @author Derek Huang
+ * @brief C++ program for Statistical Learning with Sparsity exercise 4.7
  * @copyright MIT License
  */
 
