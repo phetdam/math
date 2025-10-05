@@ -16,7 +16,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "pdmath/helpers.h"
+// TODO: remove range_format.h include once we migrate tests + fixtures
+#include "pdmath/range_format.h"
 #include "pdmath/types.h"
 #include "pdmath/warnings.h"
 
@@ -58,12 +59,11 @@ PDMATH_STATIC_DEFINE(HelpersMiscTest::ex_frame_)(
 );
 
 /**
- * Test that `print_example_header` overloads work as expected.
+ * Test that `print_example_header` works as expected.
  */
 TEST_F(HelpersMiscTest, PrintExampleHeaderTest)
 {
   auto header = pdmath::print_example_header(ex_path_, false);
-  EXPECT_EQ(header, pdmath::print_example_header(ex_path_.c_str(), false));
   ASSERT_EQ(
     "+" + ex_frame_ + "+\n| " + ex_name_ + " |\n+" + ex_frame_ + "+", header
   );
@@ -106,6 +106,10 @@ TYPED_TEST_SUITE(HelpersVtOneTest, HelpersVtOneTestTypes);
 
 /**
  * Test that `print_vector` overloads work as expected.
+ *
+ * @todo Rename this test since it works with generic ranges. We also want to
+ *  move this into a separate translation unit for `range_format.h` tests.
+ *  `print_vector` also doesn't exist anymore (removed).
  */
 TYPED_TEST(HelpersVtOneTest, PrintVectorTest)
 {
@@ -117,8 +121,8 @@ TYPED_TEST(HelpersVtOneTest, PrintVectorTest)
     }
     ss_def << v;
   }
-  // formatted string printed using custom vector_print_policy
-  pdmath::vector_print_policy print_policy(",", 2, "[", 2, "]", 2);
+  // formatted string printed using custom formatting policy
+  pdmath::range_format_policy policy(",", 2, "[", 2, "]", 2);
   std::stringstream ss_cust;
   ss_cust << "[  ";
   for (const auto& v : TestFixture::values_) {
@@ -128,11 +132,8 @@ TYPED_TEST(HelpersVtOneTest, PrintVectorTest)
     ss_cust << v;
   }
   ss_cust << "  ]";
-  EXPECT_EQ(ss_def.str(), pdmath::print_vector(TestFixture::values_, false));
-  EXPECT_EQ(
-    ss_cust.str(),
-    pdmath::print_vector(TestFixture::values_, print_policy, false)
-  );
+  EXPECT_EQ(ss_def.str(), pdmath::to_string(TestFixture::values_));
+  EXPECT_EQ(ss_cust.str(), pdmath::to_string(TestFixture::values_, policy));
 }
 
 /**

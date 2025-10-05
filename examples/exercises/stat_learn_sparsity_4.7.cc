@@ -18,6 +18,7 @@
 #include "pdmath/bases.h"
 #include "pdmath/golden_search.h"
 #include "pdmath/helpers.h"
+#include "pdmath/range_format.h"
 #include "pdmath/types.h"
 
 namespace {
@@ -160,14 +161,14 @@ int main()
   );
   // contains the norm of the group coefficients
   auto res = pdmath::golden_search(objective, bounds.first, bounds.second);
+  // range print policy
+  pdmath::range_format_policy policy;
   // print results
   pdmath::print_example_header(__FILE__);
-  std::cout << "lambda: " << lam << "\n";
-  std::cout << "singular values: ";
-  pdmath::print_vector(svs);
-  std::cout << "projected residuals: ";
-  pdmath::print_vector(prs);
-  std::cout << "bounds: (" << bounds.first << ", " << bounds.second << ")\n";
-  std::cout << "target norm: " << res.res() << std::endl;
+  std::cout <<
+    "lambda: " << lam << "\n" <<
+    "singular values: " << policy << svs << "\n" <<
+    "bounds: (" << bounds.first << ", " << bounds.second << ")\n" <<
+    "target norm: " << res.res() << std::endl;
   return EXIT_SUCCESS;
 }

@@ -42,6 +42,8 @@ namespace pdmath {
  */
 inline auto print_example_header(const std::string& path, bool print = true)
 {
+  // TODO: have a path delimiter string literal or use std::filesystem::path.
+  // this obviously doesn't work with Windows-style paths
   std::string split_str("math/examples");
   // the +1 at the end is to not include the directory slash
   std::string rpath = path.substr(path.find(split_str) + split_str.size() + 1);
@@ -51,141 +53,6 @@ inline auto print_example_header(const std::string& path, bool print = true)
   if (print)
     std::cout << header << std::endl;
   return header;
-}
-
-/**
- * Controls how `print_vector` prints `std::vector<T>` instances.
- */
-class vector_print_policy {
-public:
-  /**
-   * `vector_print_policy` full constructor.
-   *
-   * @param delim `const std::string&` token used to separate vector values
-   * @param padding `unsigned int` number of spaces to print after `delim`
-   *     before printing the next value in the vector
-   * @param pre_token `const std::string&` token printed before the values
-   * @param pre_padding `unsigned int` number of spaces to print after
-   *     `pre_token` before printing the first vector value
-   * @param post_token `const std::string&` token printed after the values
-   * @param post_padding `unsigned int` number of spaces to print before
-   *     `post_token` after printing the last vector value
-   */
-  vector_print_policy(
-    const std::string& delim,
-    unsigned int padding,
-    const std::string& pre_token,
-    unsigned int pre_padding,
-    const std::string& post_token,
-    unsigned int post_padding)
-    : delim_(delim),
-      padding_(padding),
-      pre_token_(pre_token),
-      pre_padding_(pre_padding),
-      post_token_(post_token),
-      post_padding_(post_padding)
-  {}
-
-  /**
-   * Simplified constructor with no pre/post padding or tokens.
-   *
-   * See the full constructor for parameter documentation.
-   */
-  vector_print_policy(const std::string& delim = "", unsigned int padding = 1)
-    : vector_print_policy(delim, padding, "", 0, "", 0)
-  {}
-
-  /**
-   * Return string delimiter used to separate values.
-   */
-  const std::string& delim() const { return delim_; }
-
-  /**
-   * Return number of spaces trailing delimiter before next value is printed.
-   */
-  unsigned int padding() const { return padding_; }
-
-  /**
-   * Return token printed before the first vector value is printed.
-   */
-  const std::string& pre_token() const { return pre_token_; }
-
-  /**
-   * Return number of spaces printed after `pre_token` before first value.
-   */
-  unsigned int pre_padding() const { return pre_padding_; }
-
-  /**
-   * Return token printed after the last vector value is printed.
-   */
-  const std::string& post_token() const { return post_token_; }
-
-  /**
-   * Return number of spaces printed before `post_token` after last value.
-   */
-  unsigned int post_padding() const { return post_padding_; }
-
-private:
-  std::string delim_;
-  unsigned int padding_;
-  std::string pre_token_;
-  unsigned int pre_padding_;
-  std::string post_token_;
-  unsigned int post_padding_;
-};
-
-/**
- * Print elements of a *Container* to `std::cout`.
- *
- * Useful for identifying the program in `examples` being run by the user. If
- * `V_t::value_type` is user-defined, it must overload `operator<<`.
- *
- * @tparam V_t *Container* to print
- *
- * @param vec `const V_t&` *Container* to print out
- * @param print_policy `const vector_print_policy&` print policy
- * @param print `bool` where `vec` is printed with an extra `\n` if `true`
- * @returns `std::string` giving the string to print
- */
-template <typename V_t>
-std::string print_vector(
-  const V_t& vec,
-  const vector_print_policy& print_policy,
-  bool print = true)
-{
-  std::stringstream stream;
-  stream << print_policy.pre_token();
-  stream << std::string(print_policy.pre_padding(), ' ');
-  for (const auto& v : vec) {
-    if (v != *vec.begin()) {
-      stream << print_policy.delim() + std::string(print_policy.padding(), ' ');
-    }
-    stream << v;
-  }
-  stream << std::string(print_policy.post_padding(), ' ');
-  stream << print_policy.post_token();
-  std::string vec_str = stream.str();
-  if (print) {
-    std::cout << vec_str << std::endl;
-  }
-  return vec_str;
-}
-
-/**
- * Print a *Container* to `std::cout` with default `vector_print_policy`.
- *
- * If `V_t::value_type` is user-defined, it must overload `operator<<`.
- *
- * @tparam V_t *Container* to print
- *
- * @param vec `const V_t&` *Container* to print out
- * @param print `bool` where `vec` is printed with an extra `\n` if `true`
- * @returns `std::string` giving the string to print
- */
-template <typename V_t>
-inline std::string print_vector(const V_t& vec, bool print = true)
-{
-  return print_vector(vec, vector_print_policy(), print);
 }
 
 /**
