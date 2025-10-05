@@ -13,14 +13,20 @@
 #include <utility>
 #include <vector>
 
+#include "pdmath/features.h"
+
+#if PDMATH_HAS_BOOST
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
+#endif  // PDMATH_HAS_BOOST
 
 namespace pdmath {
 
 using vector_d = std::vector<double>;
 using vector_f = std::vector<float>;
 
+// note: PDMATH_HAS_BOOST should be used to check if the Boost aliases exist
+#if PDMATH_HAS_BOOST
 template <typename T>
 using boost_vector = boost::numeric::ublas::vector<T>;
 using boost_vector_d = boost_vector<double>;
@@ -29,6 +35,7 @@ template <typename T>
 using boost_matrix = boost::numeric::ublas::matrix<T>;
 using boost_matrix_d = boost_matrix<double>;
 using boost_matrix_f = boost_matrix<float>;
+#endif  // PDMATH_HAS_BOOST
 
 template <std::size_t N>
 using array_d = std::array<double, N>;
