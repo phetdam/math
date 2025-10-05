@@ -275,56 +275,6 @@ auto to_string(
   return ss.str();
 }
 
-// TODO: remove print_vector compatibility function templates later
-
-/**
- * Print elements of a range to `std::cout`.
- *
- * It is assumed that the range's value type is streamable to `std::ostream`.
- *
- * @tparam T Range to print
- *
- * @param vec Range to print
- * @param policy Range formatting policy
- * @param print `true` to write the range to `std::cout` with an extra `\n`
- * @returns `std::string` giving the string to print
- */
-template <typename T>
-auto print_vector(
-  const T& vec,
-  const range_format_policy& policy,
-  bool print = true,
-  constraint_t<is_range_v<T>> = 0)
-{
-  // first obtain formatted string
-  auto str = to_string(vec, policy);
-  // print to std::cout if requested + return
-  if (print)
-    std::cout << str << std::endl;
-  return str;
-}
-
-/**
- * Print elements of a range to `std::cout` using default formatting policy.
- *
- * It is assumed that the range's value type is streamable to `std::ostream`.
- *
- * @tparam T Range to print
- *
- * @param vec Range to print
- * @param print `true` to write the range to `std::cout` with an extra `\n`
- * @returns `std::string` giving the string to print
- */
-template <typename T>
-auto print_vector(
-  const T& vec,
-  bool print = true,
-  constraint_t<is_range_v<T>> = 0)
-{
-  // note: use explicit type since constraint adds ambiguity
-  return print_vector(vec, range_format_policy{}, print);
-}
-
 }  // namespace pdmath
 
 #endif  // PDMATH_RANGE_FORMAT_H_
