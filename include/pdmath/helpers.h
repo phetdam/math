@@ -17,6 +17,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -35,21 +36,25 @@ namespace pdmath {
  *
  * Useful for identifying the program in `examples` being run by the user.
  *
- * @param path `const std::string&` path of program with `main` in `examples`.
- *     This should be an absolute path, i.e. with use of `__FILE__`.
- * @param print `bool` where the header is printed with an extra `\n` if `true`
+ * @note This function is really not all that helpful. In the future we should
+ *  should have something that creates a similar banner with just the file name
+ *  and no attempt to have other intermediate paths.
+ *
+ * @param path Absolute path of program with `main`, e.g. `__FILE__`
+ * @param print `true` to print header with an extra `\n`
  * @returns `std::string` giving the header to print
  */
-inline auto print_example_header(const std::string& path, bool print = true)
+inline auto print_example_header(std::string_view path, bool print = true)
 {
-  // TODO: have a path delimiter string literal or use std::filesystem::path.
-  // this obviously doesn't work with Windows-style paths
-  std::string split_str("math/examples");
+  constexpr std::string_view split_str{"math/examples"};
   // the +1 at the end is to not include the directory slash
-  std::string rpath = path.substr(path.find(split_str) + split_str.size() + 1);
+  auto rel_path = path.substr(path.find(split_str) + split_str.size() + 1);
   // add 2 to frame since we pad with a space on each side of rpath
-  std::string frame(rpath.size() + 2u, '-');
-  std::string header = "+" + frame + "+\n| " + rpath + " |\n+" + frame + "+";
+  std::string frame(rel_path.size() + 2u, '-');
+  // create the final header
+  std::stringstream ss;
+  ss << "+" << frame << "+\n| " << rel_path << " |\n+" << frame << "+";
+  auto header = ss.str();
   if (print)
     std::cout << header << std::endl;
   return header;
