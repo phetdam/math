@@ -14,7 +14,6 @@
 #include <gmock/gmock.h>
 
 #include "pdmath/helpers.h"
-#include "pdmath/warnings.h"
 
 namespace pdmath {
 namespace testing {
@@ -78,32 +77,15 @@ public:
    * @note `std::numeric_limits<double>::epsilon()` returns `2.22045e-16` while
    *     `std::numeric_limits<float>::epsilon()` returns `1.19209e-07`.
    */
-// MSVC complains about how the return is unreachable in tol_mixin<float>. we
-// disable C4702 (unreachable code) before the function, as warning pragmas
-// for warning numbers >4699 used in a function only apply at function end.
-#ifdef _MSC_VER
-PDMATH_WARNINGS_PUSH()
-PDMATH_WARNINGS_DISABLE(4702)
-#endif  // _MSC_VER
   static T tol()
   {
     if constexpr (std::is_same_v<T, float>)
       return 1e-4f;
-// MSVC complains about how this is truncated to float in tol_mixin<float>,
-// which taken together with the C4702 warning about unreachable code makes for
-// a bit of a nonsensical warning situation here.
-#ifdef _MSC_VER
-PDMATH_WARNINGS_PUSH()
-PDMATH_WARNINGS_DISABLE(4305)
-#endif  // _MSC_VER
-    return 1e-8;
-#ifdef _MSC_VER
-PDMATH_WARNINGS_POP()
-#endif  // _MSC_VER
+    // note: without the else the compiler will always keep the second return
+    // statement in. this correctly leads to C4702 and C4305 warnings with MSVC
+    else
+      return 1e-8;
   }
-#ifdef _MSC_VER
-PDMATH_WARNINGS_POP()
-#endif  // _MSC_VER
 
   /**
    * Return user-specified tolerance.
