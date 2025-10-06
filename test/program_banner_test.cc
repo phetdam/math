@@ -116,6 +116,7 @@ INSTANTIATE_TEST_SUITE_P(
  */
 template <std::size_t I>
 struct program_banner_constexpr_case {
+  // test index, banner object, and expected file stem
   static constexpr auto index = I;
   static constexpr pdmath::program_banner value{stem_test_cases[I].input()};
   static constexpr auto expected = stem_test_cases[I].expected();
