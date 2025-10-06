@@ -9,6 +9,7 @@
 #define PDMATH_PROGRAM_BANNER_H_
 
 #include <ostream>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 
@@ -39,25 +40,25 @@ public:
    *
    * @param path Path-like string
    */
-  constexpr program_banner(std::string_view path) noexcept
-    : path_{path}
+  constexpr program_banner(std::string_view path) : path_{path}
   {
+    // must be non-empty
+    if (path.empty())
+      throw std::runtime_error{"path string must be nonempty"};
     // iterators
     auto begin = path_.begin();
     auto end = path_.end();
-    auto it = --end;
+    auto it = end;
     // move backwards until we hit the first path component
-    while (it != begin && *it != '/' && *it != '\\')
-      it--;
+    while (--it != begin && *it != '/' && *it != '\\');
     // if we are sitting at a path separator, move forward to avoid it
     if (*it == '/' || *it == '\\')
       it++;
-    // update begin iterator
+    // update begin iterator + reset it
     begin = it;
-    it = end - 1;
+    it = end;
     // now move backwards until first . is hit
-    while (it != begin && *it != '.')
-      it--;
+    while (--it != begin && *it != '.');
     // if we are at begin, either no '.' in file name or file starts with '.',
     // in which case we leave it as-is (e.g. could be a dotfile)
     // note: before C++20 there is no {begin, end} ctor available yet. we also
