@@ -7,6 +7,8 @@
 
 #include "pdmath/type_traits.h"
 
+#include <cstddef>
+#include <deque>
 #include <list>
 #include <mutex>
 #include <string>
@@ -30,11 +32,31 @@ namespace {
   EXPECT_EQ(TypeParam::value, meta_template<typename TypeParam::type>)
 
 /**
- * Test fixture template for testing `is_vector_size_constructible`.
- *
- * @tparam Tp_t `type_value_pair<T, v>` specialization
+ * Simple user-defined type constructible via a `size_t`.
  */
-template <typename Tp_t>
+class size_constructible_1 {
+public:
+  constexpr size_constructible_1(std::size_t) noexcept {}
+};
+
+/**
+ * Simple user-defined type constructible via an `int`.
+ *
+ * This is used to test the fact that `is_constructible` uses
+ * `T(std::declval<Ts>()...)` instead of `T{std::declval<Ts>()...}` as the
+ * latter would not accept a narrowing conversion.
+ */
+class size_constructible_2 {
+public:
+  constexpr size_constructible_2(int) noexcept {}
+};
+
+/**
+ * Test fixture template for testing `is_size_constructible`.
+ *
+ * @tparam T `type_value_pair<T, v>` specialization
+ */
+template <typename T>
 class TypeTraitsSizeConstructibleTest : public ::testing::Test {};
 
 using TypeTraitsSizeConstructibleTestTypes = ::testing::Types<
@@ -45,7 +67,10 @@ using TypeTraitsSizeConstructibleTestTypes = ::testing::Types<
   pdmath::testing::type_value_pair<pdmath::boost_matrix_d, false>,
   pdmath::testing::type_value_pair<pdmath::array_pair_d, false>,
   pdmath::testing::type_value_pair<std::string, false>,
-  pdmath::testing::type_value_pair<std::mutex, false>
+  pdmath::testing::type_value_pair<std::mutex, false>,
+  pdmath::testing::type_value_pair<std::deque<double>, true>,
+  pdmath::testing::type_value_pair<size_constructible_1, true>,
+  pdmath::testing::type_value_pair<size_constructible_2, true>
 >;
 TYPED_TEST_SUITE(
   TypeTraitsSizeConstructibleTest, TypeTraitsSizeConstructibleTestTypes
@@ -56,7 +81,7 @@ TYPED_TEST_SUITE(
  */
 TYPED_TEST(TypeTraitsSizeConstructibleTest, TruthTest)
 {
-  EXPECT_META_TEMPLATE_TRUTH_EQ(pdmath::is_vector_size_constructible_v);
+  EXPECT_META_TEMPLATE_TRUTH_EQ(pdmath::is_size_constructible_v);
 }
 
 /**
