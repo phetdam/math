@@ -52,6 +52,8 @@ constexpr bool is_vector_size_constructible_v = is_size_constructible_v<T>;
  * That is, the type `T` implements or inherits `operator std::string`, which
  * may or may not be declared as explicit, i.e. cast required.
  *
+ * @deprecated Just use `is_convertible_v<T, std::string>` instead.
+ *
  * @tparam T type
  */
 template <typename T, typename = void>
@@ -189,6 +191,35 @@ struct is_range<
  */
 template <typename T>
 constexpr bool is_range_v = is_range<T>::value;
+
+/**
+ * Traits type for an indirectly readable type.
+ *
+ * That is, the type of an object `x` that supports the `*x` expression that
+ * yields a reference that can be cv-qualified.
+ *
+ * @tparam T type
+ */
+template <typename T, typename = void>
+struct is_indirectly_readable : std::false_type {};
+
+/**
+ * True specialization for types that support dereferencing.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct is_indirectly_readable<
+  T, std::enable_if_t<std::is_reference_v<decltype(*std::declval<T>())>> >
+  : std::true_type {};
+
+/**
+ * Indicate that a type is indirectly readable (can be dereferenced).
+ *
+ * @tparam T type
+ */
+template <typename T>
+constexpr bool is_indirectly_readable_v = is_indirectly_readable<T>::value;
 
 }  // namespace pdmath
 
