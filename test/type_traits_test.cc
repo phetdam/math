@@ -117,7 +117,7 @@ public:
 struct not_string_convertible {};
 
 /**
- * Test fixture template for testing `is_stringable`.
+ * Test fixture template for testing `has_operator_string`.
  *
  * @tparam Tp_t `type_value_pair<T, v>` specialization
  */
