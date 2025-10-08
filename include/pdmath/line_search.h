@@ -232,7 +232,7 @@ public:
  *
  * @tparam V_t *Container* type representing a vector
  */
-template <typename V_t = Eigen::VectorXd>
+template <typename V_t>
 class const_step_search : public step_search<V_t> {
 public:
   PDMATH_USING_CONTAINER_TYPES(V_t);
