@@ -308,7 +308,7 @@ public:
     element_type eta0,
     element_type c1 = 0.5,
     element_type rho = 0.8)
-    : func_(func), grad_(grad), last_step_()
+    : func_{std::move(func)}, grad_{std::move(grad)}, last_step_{}
   {
     assert(eta0 > 0);
     assert(c1 > 0 && c1 < 1);
@@ -329,24 +329,26 @@ public:
   element_type operator()(const V_t& x_p, const V_t& dir) override
   {
     // set initial step size, reset function eval count
-    element_type eta = eta0_;
+    auto eta = eta0_;
     // set initial step size, precompute current objective and gradient value,
     // get inner product of gradient w/ search direction
-    element_type f_x = func_(x_p);
-    V_t g_x = grad_(x_p);
+    auto f_x = func_(x_p);
+    auto g_x = grad_(x_p);
     // MSVC complains that there is potential loss of data converting 0 to
     // float and emits internal conversion warnings, so use ctor explicitly
-    element_type ip_x = std::inner_product(
-      g_x.cbegin(), g_x.cend(), dir.cbegin(), element_type(0)
+    auto ip_x = std::inner_product(
+      std::begin(g_x), std::end(g_x), std::begin(dir), element_type{0}
     );
     // get new direction we use to compute the new function value
-    V_t x_c = x_p;
+    auto x_c = x_p;
     std::transform(
-      x_c.cbegin(),
-      x_c.cend(),
-      dir.cbegin(),
-      x_c.begin(),
-      [&](const element_type& a, const element_type& b) { return a + eta * b; }
+      std::begin(x_c),
+      std::end(x_c),
+      std::begin(dir),
+      std::begin(x_c),
+      // TODO: might want to just make a copy since element_type is arithmetic
+      // note: could use eta0_ and just take this pointer by copy
+      [eta](const auto& a, const auto& b) { return a + eta * b; }
     );
     // update number of function + gradient evals. note that since this is a
     // template class, we have to use this, as otherwise these members will
@@ -358,11 +360,13 @@ public:
     while (this->n_fev_ += 1, func_(x_c) > f_x + c1_ * eta * ip_x) {
       eta *= rho_;
       std::transform(
-        x_p.cbegin(),
-        x_p.cend(),
-        dir.cbegin(),
-        x_c.begin(),
-        [&](const element_type& a, const element_type& b) { return a + eta * b; }
+        std::begin(x_p),
+        std::end(x_p),
+        std::begin(dir),
+        std::begin(x_c),
+        // TODO: see same TODO above
+        // note: could be a single named closure that takes eta by refeence
+        [eta](const auto& a, const auto& b) { return a + eta * b; }
       );
     }
     last_step_ = eta;
