@@ -112,6 +112,11 @@ public:
 };
 
 /**
+ * User-defined type that has no conversion to `std::string`.
+ */
+struct not_string_convertible {};
+
+/**
  * Test fixture template for testing `is_stringable`.
  *
  * @tparam Tp_t `type_value_pair<T, v>` specialization
@@ -125,7 +130,8 @@ using TypeTraitsHasOperatorStringTestTypes = ::testing::Types<
   pdmath::testing::type_value_pair<explicit_hello, true>,
   pdmath::testing::type_value_pair<pdmath::boost_vector_d, false>,
   pdmath::testing::type_value_pair<std::list<int>, false>,
-  pdmath::testing::type_value_pair<std::mutex, false>
+  pdmath::testing::type_value_pair<std::mutex, false>,
+  pdmath::testing::type_value_pair<not_string_convertible, false>
 >;
 TYPED_TEST_SUITE(
   TypeTraitsHasOperatorStringTest, TypeTraitsHasOperatorStringTestTypes
