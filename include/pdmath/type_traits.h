@@ -8,6 +8,7 @@
 #ifndef PDMATH_TYPE_TRAITS_H_
 #define PDMATH_TYPE_TRAITS_H_
 
+#include <cstddef>
 // TODO: consider using <iosfwd> and std::basic_ostream<char> instead
 #include <ostream>
 #include <string>
@@ -17,32 +18,33 @@
 namespace pdmath {
 
 /**
- * Checks if a vector type is "size-constructible".
+ * Check is a type is constructible from a `size_t`.
  *
- * That is, the type is a *Container* with a constructor that sets its capacity
- * to a specific size, where the size type is `size_type` or `Eigen::Index`.
+ * Examples would be `std::vector`, which can be constructed with a given
+ * number of value-initialized elements, or an Eigen row/column vector.
  *
  * @tparam T type
  */
-template <typename T, typename = void>
-struct is_vector_size_constructible : std::false_type {};
-
 template <typename T>
-struct is_vector_size_constructible<T, std::void_t<typename T::size_type>>
-  : std::is_constructible<T, typename T::size_type> {};
-
-template <typename T>
-struct is_vector_size_constructible<T, std::void_t<typename T::Index>>
-  : std::is_constructible<T, typename T::Index> {};
+struct is_size_constructible : std::is_constructible<T, std::size_t> {};
 
 /**
- * Helper for `is_vector_size_constructible` to get the truth value.
+ * Indicate if a type is constructible from a `size_t`.
  *
  * @tparam T type
  */
 template <typename T>
-constexpr bool
-is_vector_size_constructible_v = is_vector_size_constructible<T>::value;
+constexpr bool is_size_constructible_v = is_size_constructible<T>::value;
+
+/**
+ * Indicate if a type is constructible from a `size_t`.
+ *
+ * @deprecated This is provided for compatibility with existing code.
+ *
+ * @tparam T type
+ */
+template <typename T>
+constexpr bool is_vector_size_constructible_v = is_size_constructible_v<T>;
 
 /**
  * Checks if a type is castable to `std::string`.
