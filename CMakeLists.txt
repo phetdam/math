@@ -145,6 +145,16 @@ else()
     message(STATUS "BibTeX version: None")
 endif()
 
+# find Doxygen
+# TODO: Doxygen 1.11.0 has a regression with Markdown file \ref commands not
+# properly resolving references. may want to add a warning about this
+find_package(Doxygen 1.10)
+if(Doxygen_FOUND)
+    message(STATUS "Doxygen version: ${DOXYGEN_VERSION}")
+else()
+    message(STATUS "Doxygen version: None")
+endif()
+
 # debug and release flags, handle MSVC case specifically
 if(MSVC)
     add_compile_options(
