@@ -221,6 +221,179 @@ struct is_indirectly_readable<
 template <typename T>
 constexpr bool is_indirectly_readable_v = is_indirectly_readable<T>::value;
 
+/**
+ * Traits type for a weakly incrementable type.
+ *
+ * This partially satisfies the C++20 `std::weakly_incrementable` concept. In
+ * particular, there are no constraints on movability, although we do require
+ * that the pre-increment operation yields a reference.
+ *
+ * Roughly speaking, this traits checks that a type supports both the pre- and
+ * post-increment operations, where pre-increment yields a reference.
+ *
+ * @tparam T type
+ */
+template <typename T, typename = void, typename = void>
+struct is_weakly_incrementable : std::false_type {};
+
+/**
+ * True specialization for a type that is weakly incrementable.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct is_weakly_incrementable<
+  T,
+  std::enable_if_t<std::is_reference_v<decltype(++std::declval<T>())>>,
+  std::void_t<decltype(std::declval<T>()++)>
+> : std::true_type {};
+
+/**
+ * Indicate that a type is weakly incrementable.
+ *
+ * @tparam T type
+ */
+template <typename T>
+constexpr bool is_weakly_incrementable_v = is_weakly_incrementable<T>::value;
+
+/**
+ * Traits type for a *LegacyIterator*.
+ *
+ * This partially satisfies the *LegacyIterator* named requirements. The main
+ * difference is that there is no `std::iterator_traits` member requirement.
+ *
+ * @tparam T type
+ */
+template <typename T, typename = void, typename = void, typename = void>
+struct is_legacy_iterator : std::false_type {};
+
+/**
+ * True specialization for a type that satisfies *LegacyIterator* semantics.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct is_legacy_iterator<
+  T,
+  std::enable_if_t<
+    std::is_copy_constructible_v<T> &&
+    std::is_copy_assignable_v<T> &&
+    std::is_destructible_v<T> &&
+    std::is_swappable_v<T>
+  >,
+  std::void_t<decltype(*std::declval<T>())>,
+  std::enable_if_t<std::is_reference_v<decltype(++std::declval<T>())>>
+> : std::true_type {};
+
+/**
+ * Indicate that a type satisfies *LegacyIterator* semantics.
+ *
+ * @tparam T type
+ */
+template <typename T>
+constexpr bool is_legacy_iterator_v = is_legacy_iterator<T>::value;
+
+/**
+ * Traits type for an equality-comparable type.
+ *
+ * This simply tests that `a == b` is convertible to `bool`.
+ *
+ * @tparam T type
+ */
+template <typename T, typename = void>
+struct is_equality_comparable : std::false_type {};
+
+/**
+ * True specialization for equality-comparable types.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct is_equality_comparable<
+  T,
+  std::enable_if_t<
+    std::is_convertible_v<decltype(std::declval<T>() == std::declval<T>()), bool>
+  > > : std::true_type {};
+
+/**
+ * Indicate that a type is equality-comparable.
+ *
+ * @tparam T type
+ */
+template <typename T>
+constexpr bool is_equality_comparable_v = is_equality_comparable<T>::value;
+
+/**
+ * Traits type for a type that is inequality comparable.
+ *
+ * This simply tests that `a != b` is convertible to `bool`.
+ *
+ * @note In C++20 `operator!=` can be *synthesized* from `operator==`, which
+ *  means that `a == b` implies that `a != b` is also valid.
+ *
+ * @tparam T type
+ */
+template <typename T, typename = void>
+struct is_inequality_comparable : std::false_type {};
+
+/**
+ * True specialization for inequality-comparable types.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct is_inequality_comparable<
+  T,
+  std::enable_if_t<
+    std::is_convertible_v<decltype(std::declval<T>() != std::declval<T>()), bool>
+  > > : std::true_type {};
+
+/**
+ * Indicate that a type is inequality-comparable.
+ *
+ * @tparam T type
+ */
+template <typename T>
+constexpr bool is_inequality_comparable_v = is_inequality_comparable<T>::value;
+
+/**
+ * Traits type for a *LegacyInputIterator*.
+ *
+ * This satisfies the *LegacyInputIterator* named requirements.
+ *
+ * @tparam T type
+ */
+template <typename T, typename = void, typename = void, typename = void>
+struct is_legacy_input_iterator : std::false_type {};
+
+/**
+ * True specialization for a type that satisfies *LegacyInputIterator*.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct is_legacy_input_iterator<
+  T,
+  std::enable_if_t<
+    is_legacy_iterator_v<T> &&
+    is_equality_comparable_v<T> &&
+    is_inequality_comparable_v<T> &&  // note: not necessary in C++20
+    is_indirectly_readable_v<T>
+  >,
+  // note: in C++20 input_iterator doesn't require operator->()
+  std::void_t<decltype(std::declval<T>().operator->())>,
+  // LegacyInputIterator supports post-increment
+  std::void_t<decltype(std::declval<T>()++)>
+> : std::true_type {};
+
+/**
+ * Indicate that a type satisfies *LegacyInputIterator*.
+ *
+ * @tparam T type
+ */
+template <typename T>
+constexpr bool is_legacy_input_iterator_v = is_legacy_input_iterator<T>::value;
+
 }  // namespace pdmath
 
 #endif  // PDMATH_TYPE_TRAITS_H_
