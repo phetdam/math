@@ -281,6 +281,8 @@ private:
  * step size shrinkage factor, from Hastie, Tibshirani, and Wainwright's
  * monograph *Statistical Learning with Sparsity*, page 102.
  *
+ * @todo Relax the requirements on `V_t` to be that of a forward range.
+ *
  * @tparam V_t *Container* type representing a vector
  */
 template <typename V_t>
@@ -293,14 +295,14 @@ public:
   /**
    * Constructor.
    *
-   * @param func `objective_function` objective
-   * @param grad `gradient_function` gradient
-   * @param eta0 `element_type` positive starting step size to use
-   * @param c1 `element_type` Armijo condition damping factor in (0, 1)
-   *     affecting the sufficient decrease condition. Nocedal and Wright
-   *     recommend `1e-4`; Hastie, Tibshirani, and Wainwright recommend `0.5`.
-   * @param rho `element_type` step size shrinkage factor in (0, 1). Hastie,
-   *     Tibshirani, and Wainwright recommend `0.8` as a choice.
+   * @param func Objective function
+   * @param grad Gradient function
+   * @param eta0 Positive starting step size to use
+   * @param c1 Armijo condition damping factor in \f$(0, 1)\f$ affecting the
+   *  sufficient decrease condition. Nocedal and Wright recommend `1e-4`;
+   *  Hastie, Tibshirani, and Wainwright recommend `0.5`.
+   * @param rho Step size shrinkage factor in \f$(0, 1)\f$. Hastie, Tibshirani,
+   *  and Wainwright recommend `0.8` as a choice.
    */
   backtrack_step_search(
     objective_function func,
@@ -323,8 +325,8 @@ public:
    *
    * Updates number of function + gradient evaluations and last step each time.
    *
-   * @param x_p `const V_t&` previous solution guess
-   * @param dir `const V_t&` new search direction to update `x_p` with
+   * @param x_p Previous solution guess
+   * @param dir New search direction to update previous solution `x_p` with
    */
   element_type operator()(const V_t& x_p, const V_t& dir) override
   {
@@ -383,17 +385,17 @@ public:
   /**
    * Return the chosen starting step size.
    */
-  const element_type& eta0() const { return eta0_; }
+  const element_type& eta0() const noexcept { return eta0_; }
 
   /**
    * Return the Armijo condition damping factor in `(0, 1)` used.
    */
-  const element_type& c1() const { return c1_; }
+  const element_type& c1() const noexcept { return c1_; }
 
   /**
    * Return the step size shrinking factor in `(0, 1)` used.
    */
-  const element_type& rho() const { return rho_; }
+  const element_type& rho() const noexcept { return rho_; }
 
 private:
   objective_function func_;
