@@ -14,6 +14,7 @@
 #include <gmock/gmock.h>
 
 #include "pdmath/helpers.h"
+#include "pdmath/type_traits.h"
 
 namespace pdmath {
 namespace testing {
@@ -48,10 +49,10 @@ public:
  *
  * @tparam T scalar type
  *
- * @param tol `const T&` all close tolerance
+ * @param tol All close tolerance
  */
 template <typename T>
-inline auto match_all_near_zero(const T& tol)
+auto match_all_near_zero(T tol, constraint_t<std::is_floating_point_v<T>> = 0)
 {
   assert(tol >= 0);
   return ::testing::Each(
@@ -77,7 +78,7 @@ public:
    * @note `std::numeric_limits<double>::epsilon()` returns `2.22045e-16` while
    *     `std::numeric_limits<float>::epsilon()` returns `1.19209e-07`.
    */
-  static T tol()
+  static constexpr T tol() noexcept
   {
     if constexpr (std::is_same_v<T, float>)
       return 1e-4f;
@@ -90,7 +91,7 @@ public:
   /**
    * Return user-specified tolerance.
    */
-  static T tol(const T& tol_override) { return tol_override; }
+  static constexpr T tol(T tol_override) noexcept { return tol_override; }
 
   // Google Test EXPECT_THAT matcher for checking that a *Container* is near
   // zero, using the default tolerance returned by tol().
@@ -111,6 +112,46 @@ public:
   type_value_pair() = delete;
   static constexpr value_type value = v;
 };
+
+/**
+ * Traits type test case template base for Google Test templated tests.
+ *
+ * This takes a unary type traits and a `type_value_pair`.
+ *
+ * @tparam Traits *UnaryTypeTrait* class template
+ * @tparam T `type_value_pair` specialization
+ */
+template <template <typename...> typename Traits, typename T>
+class traits_test {};
+
+/**
+ * Partial specialization for `type_value_pair`.
+ *
+ * @tparam Traits *UnaryTypeTrait* class template
+ * @tparam T Input type
+ * @tparam v Expected truth result
+ */
+template <template <typename...> typename Traits, typename T, bool v>
+class traits_test<Traits, type_value_pair<T, v>> : public ::testing::Test {
+protected:
+  // truth result of evaluating the traits
+  static constexpr bool value_ = Traits<T>::value;
+  // expected truth result
+  static constexpr bool expected_ = v;
+  // operator() for triggering EXPECT_EQ
+  constexpr void operator()() const noexcept { EXPECT_EQ(expected_, value_); }
+};
+
+/**
+ * `TYPED_TEST` default implementation for `traits_test.
+ *
+ * This wraps `TYPED_TEST` and removes the need to define the test body.
+ *
+ * @param fixture `traits_test` test fixture type name
+ */
+#define PDMATH_TRAITS_TEST(fixture) \
+  /* static_assert used to enforce semicolon usage */ \
+  TYPED_TEST(fixture, TruthTest) { (*this)(); } static_assert(true)
 
 }  // namespace testing
 }  // namespace pdmath
