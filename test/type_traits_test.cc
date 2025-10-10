@@ -11,9 +11,11 @@
 #include <deque>
 #include <list>
 #include <mutex>
+#include <ostream>
 #include <string>
 #include <type_traits>
 #include <typeinfo>
+#include <variant>
 
 #include <Eigen/Core>
 #include <gtest/gtest.h>
@@ -49,10 +51,10 @@ public:
  * @tparam T `type_value_pair<U, v>` specialization
  */
 template <typename T>
-class TypeTraitsSizeConstructibleTest
+class SizeConstructibleTest
   : public pdmath::testing::traits_test<pdmath::is_size_constructible, T> {};
 
-using TypeTraitsSizeConstructibleTestTypes = ::testing::Types<
+using SizeConstructibleTestTypes = ::testing::Types<
   pdmath::testing::type_value_pair<pdmath::vector_d, true>,
   pdmath::testing::type_value_pair<pdmath::boost_vector_f, true>,
   pdmath::testing::type_value_pair<Eigen::VectorXd, true>,
@@ -65,12 +67,10 @@ using TypeTraitsSizeConstructibleTestTypes = ::testing::Types<
   pdmath::testing::type_value_pair<size_constructible_1, true>,
   pdmath::testing::type_value_pair<size_constructible_2, true>
 >;
-TYPED_TEST_SUITE(
-  TypeTraitsSizeConstructibleTest, TypeTraitsSizeConstructibleTestTypes
-);
+TYPED_TEST_SUITE(SizeConstructibleTest, SizeConstructibleTestTypes);
 
 // define test for is_size_constructible
-PDMATH_TRAITS_TEST(TypeTraitsSizeConstructibleTest);
+PDMATH_TRAITS_TEST(SizeConstructibleTest);
 
 /**
  * Template class castable to a `std::string` giving its mangled `typeid` name.
@@ -110,10 +110,10 @@ struct not_string_convertible {};
  * @tparam T `type_value_pair<U, v>` specialization
  */
 template <typename T>
-class TypeTraitsHasOperatorStringTest
+class HasOperatorStringTest
   : public pdmath::testing::traits_test<pdmath::has_operator_string, T> {};
 
-using TypeTraitsHasOperatorStringTestTypes = ::testing::Types<
+using HasOperatorStringTestTypes = ::testing::Types<
   pdmath::testing::type_value_pair<printable<pdmath::array_pair_f>, true>,
   pdmath::testing::type_value_pair<implicit_hello, true>,
   pdmath::testing::type_value_pair<explicit_hello, true>,
@@ -122,11 +122,69 @@ using TypeTraitsHasOperatorStringTestTypes = ::testing::Types<
   pdmath::testing::type_value_pair<std::mutex, false>,
   pdmath::testing::type_value_pair<not_string_convertible, false>
 >;
-TYPED_TEST_SUITE(
-  TypeTraitsHasOperatorStringTest, TypeTraitsHasOperatorStringTestTypes
-);
+TYPED_TEST_SUITE(HasOperatorStringTest, HasOperatorStringTestTypes);
 
 // define test for has_operator_string
-PDMATH_TRAITS_TEST(TypeTraitsHasOperatorStringTest);
+PDMATH_TRAITS_TEST(HasOperatorStringTest);
+
+/**
+ * Test fixture template for testing `is_ostreamable`.
+ *
+ * @tparam T `type_value_pair<U, v>` specialization
+ */
+template <typename T>
+class IsOstreamableTest
+  : public pdmath::testing::traits_test<pdmath::is_ostreamable, T> {};
+
+/**
+ * User-defined type with `operator<<`.
+ */
+struct streamable {};
+
+auto& operator<<(std::ostream& out, streamable value)
+{
+  return out << "<streamable at " << &value;
+}
+
+/**
+ * User-defined type with no `operator<<`.
+ */
+struct not_streamable {};
+
+using IsOstreamableTestTypes = ::testing::Types<
+  pdmath::testing::type_value_pair<std::string, true>,
+  pdmath::testing::type_value_pair<int, true>,
+  pdmath::testing::type_value_pair<void*, true>,
+  pdmath::testing::type_value_pair<streamable, true>,
+  pdmath::testing::type_value_pair<not_streamable, false>,
+  pdmath::testing::type_value_pair<double, true>
+>;
+TYPED_TEST_SUITE(IsOstreamableTest, IsOstreamableTestTypes);
+
+// define test for is_ostreamable
+PDMATH_TRAITS_TEST(IsOstreamableTest);
+
+/**
+ * Test fixture template for testing `is_range`.
+ *
+ * @tparam T `type_value_pair` specialization
+ */
+template <typename T>
+class IsRangeTest : public pdmath::testing::traits_test<pdmath::is_range, T> {};
+
+// TODO: add user-defined range-like type
+
+using IsRangeTestTypes = ::testing::Types<
+  pdmath::testing::type_value_pair<std::string, true>,
+  pdmath::testing::type_value_pair<int, false>,
+  pdmath::testing::type_value_pair<std::deque<int>, true>,
+  pdmath::testing::type_value_pair<std::vector<double>, true>,
+  pdmath::testing::type_value_pair<std::monostate, false>,
+  pdmath::testing::type_value_pair<std::list<unsigned>, true>
+>;
+TYPED_TEST_SUITE(IsRangeTest, IsRangeTestTypes);
+
+// define test for is_range
+PDMATH_TRAITS_TEST(IsRangeTest);
 
 }  // namespace
