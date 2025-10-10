@@ -143,15 +143,16 @@ protected:
 };
 
 /**
- * `TYPED_TEST` default implementation for `traits_test.
+ * `TYPED_TEST` default implementation for `traits_test`.
  *
- * This wraps `TYPED_TEST` and removes the need to define the test body.
+ * This wraps `TYPED_TEST` and removes the need to define the test body. The
+ * test name used for `TYPED_TEST` is `TraitsValueTest`.
  *
  * @param fixture `traits_test` test fixture type name
  */
 #define PDMATH_TRAITS_TEST(fixture) \
   /* static_assert used to enforce semicolon usage */ \
-  TYPED_TEST(fixture, TruthTest) { (*this)(); } static_assert(true)
+  TYPED_TEST(fixture, TraitsValueTest) { (*this)(); } static_assert(true)
 
 }  // namespace testing
 }  // namespace pdmath
