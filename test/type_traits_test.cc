@@ -22,6 +22,7 @@
 
 #include "pdmath/types.h"
 #include "pdmath/testing/utils.h"
+#include "pdmath/warnings.h"
 
 namespace {
 
@@ -141,10 +142,18 @@ class IsOstreamableTest
  */
 struct streamable {};
 
+// silence MSVC C5245 (unreferenced function with internal linkage removed)
+#ifdef _MSC_VER
+PDMATH_WARNINGS_PUSH()
+PDMATH_WARNINGS_DISABLE(5245)
+#endif  // _MSC_VER
 auto& operator<<(std::ostream& out, streamable value)
 {
   return out << "<streamable at " << &value;
 }
+#ifdef _MSC_VER
+PDMATH_WARNINGS_POP()
+#endif  // _MSC_VER
 
 /**
  * User-defined type with no `operator<<`.
