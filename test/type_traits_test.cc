@@ -24,14 +24,6 @@
 namespace {
 
 /**
- * Macro checking that `meta_template<T>` evalutes to the correct truth value.
- *
- * @param meta_template Template evaluating to a `bool`
- */
-#define EXPECT_META_TEMPLATE_TRUTH_EQ(meta_template) \
-  EXPECT_EQ(TypeParam::value, meta_template<typename TypeParam::type>)
-
-/**
  * Simple user-defined type constructible via a `size_t`.
  */
 class size_constructible_1 {
@@ -54,10 +46,11 @@ public:
 /**
  * Test fixture template for testing `is_size_constructible`.
  *
- * @tparam T `type_value_pair<T, v>` specialization
+ * @tparam T `type_value_pair<U, v>` specialization
  */
 template <typename T>
-class TypeTraitsSizeConstructibleTest : public ::testing::Test {};
+class TypeTraitsSizeConstructibleTest
+  : public pdmath::testing::traits_test<pdmath::is_size_constructible, T> {};
 
 using TypeTraitsSizeConstructibleTestTypes = ::testing::Types<
   pdmath::testing::type_value_pair<pdmath::vector_d, true>,
@@ -76,13 +69,8 @@ TYPED_TEST_SUITE(
   TypeTraitsSizeConstructibleTest, TypeTraitsSizeConstructibleTestTypes
 );
 
-/**
- * Check that the type is or is not size-constructible, as expected.
- */
-TYPED_TEST(TypeTraitsSizeConstructibleTest, TruthTest)
-{
-  EXPECT_META_TEMPLATE_TRUTH_EQ(pdmath::is_size_constructible_v);
-}
+// define test for is_size_constructible
+PDMATH_TRAITS_TEST(TypeTraitsSizeConstructibleTest);
 
 /**
  * Template class castable to a `std::string` giving its mangled `typeid` name.
@@ -119,10 +107,11 @@ struct not_string_convertible {};
 /**
  * Test fixture template for testing `has_operator_string`.
  *
- * @tparam Tp_t `type_value_pair<T, v>` specialization
+ * @tparam T `type_value_pair<U, v>` specialization
  */
-template <typename Tp_t>
-class TypeTraitsHasOperatorStringTest : public ::testing::Test {};
+template <typename T>
+class TypeTraitsHasOperatorStringTest
+  : public pdmath::testing::traits_test<pdmath::has_operator_string, T> {};
 
 using TypeTraitsHasOperatorStringTestTypes = ::testing::Types<
   pdmath::testing::type_value_pair<printable<pdmath::array_pair_f>, true>,
@@ -140,9 +129,7 @@ TYPED_TEST_SUITE(
 /**
  * Check that `has_operator_string` is substituting correctly.
  */
-TYPED_TEST(TypeTraitsHasOperatorStringTest, TruthTest)
-{
-  EXPECT_META_TEMPLATE_TRUTH_EQ(pdmath::has_operator_string_v);
-}
+// define test for has_operator_string
+PDMATH_TRAITS_TEST(TypeTraitsHasOperatorStringTest);
 
 }  // namespace
