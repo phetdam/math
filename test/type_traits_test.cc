@@ -126,9 +126,6 @@ TYPED_TEST_SUITE(
   TypeTraitsHasOperatorStringTest, TypeTraitsHasOperatorStringTestTypes
 );
 
-/**
- * Check that `has_operator_string` is substituting correctly.
- */
 // define test for has_operator_string
 PDMATH_TRAITS_TEST(TypeTraitsHasOperatorStringTest);
 
