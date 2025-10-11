@@ -77,7 +77,6 @@ struct pi_traits<long double> {
   static constexpr auto value = 3.141592653589793L;
   static constexpr auto digits = 15u;
 #endif  // !defined(__SIZEOF_LONG_DOUBLE__)
-  static const auto abc = 1.3q;
 };
 
 /**
