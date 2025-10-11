@@ -31,15 +31,4 @@
 #define PDMATH_HAS_BOOST 0
 #endif  // PDMATH_HAS_BOOST
 
-// libquadmath
-#ifdef __has_include
-#if __has_include(<quadmath.h>)
-#define PDMATH_HAS_QUADMATH 1
-#endif  // __has_include(<quadmath.h>)
-#endif  // __has_include
-
-#ifndef PDMATH_HAS_QUADMATH
-#define PDMATH_HAS_QUADMATH 0
-#endif  // PDMATH_HAS_QUADMATH
-
 #endif  // PDMATH_FEATURES_H_

@@ -155,25 +155,6 @@ else()
     message(STATUS "Doxygen version: None")
 endif()
 
-# find GCC's libquadmath library (for fpi program)
-message(CHECK_START "Looking for libquadmath")
-# quadmath.h is located in GCC's own include tree so we cannot locate it via
-# find_path or find_file. we therefore need to try compiling and linking a
-# program that includes quadmath.h and requires -lquadmath
-try_compile(
-    quadmath_FOUND
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/quadmath.cc
-    LINK_LIBRARIES quadmath
-    CXX_STANDARD ${CMAKE_CXX_STANDARD}
-    CXX_STANDARD_REQUIRED ${CMAKE_CXX_STANDARD_REQUIRED}
-)
-if(quadmath_FOUND)
-    message(CHECK_PASS "found")
-else()
-    message(CHECK_FAIL "not found")
-endif()
-
 # debug and release flags, handle MSVC case specifically
 if(MSVC)
     add_compile_options(
@@ -287,8 +268,6 @@ target_include_directories(
 include_directories(${PDMATH_INCLUDE} ${CMAKE_CURRENT_BINARY_DIR}/include)
 
 add_subdirectory(examples)
-add_subdirectory(src)
-
 # enable building of TeX to PDF is pdflatex + bibtex are available
 if(LATEX_FOUND)
     add_subdirectory(tex)
