@@ -169,6 +169,7 @@ int main()
   dynamic_cast<vtkPlotPoints*>(plot_2)->SetMarkerStyle(vtkPlotPoints::DIAMOND);
   // begin rendering window + interactor
   win->Render();
+  // TODO: uncomment to start interactor event loop
   // iwin->Initialize();
   // iwin->Start();
   // create window filter to write to write to image
