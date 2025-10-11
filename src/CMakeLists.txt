@@ -9,3 +9,13 @@ if(quadmath_FOUND)
 endif()
 # simple smoke test
 add_test(NAME fpi COMMAND fpi)
+
+# vtk_normal_plot: plot standard normal PDF and CDF with VTK
+if(VTK_FOUND)
+    add_executable(vtk_normal_plot vtk_normal_plot.cc)
+    # note: too many modules to keep track of so just use VTK_LIBRARIES
+    target_link_libraries(vtk_normal_plot PRIVATE ${VTK_LIBRARIES})
+    vtk_module_autoinit(TARGETS vtk_normal_plot MODULES ${VTK_LIBRARIES})
+else()
+    message(STATUS "Skipping vtk_normal_plot (requires VTK)")
+endif()

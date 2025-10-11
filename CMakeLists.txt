@@ -174,7 +174,25 @@ else()
 endif()
 
 # find VTK for visualization
-find_package(VTK 9.1 COMPONENTS ChartsCore)
+find_package(
+    VTK 9.1
+    COMPONENTS
+        ChartsCore
+        CommonColor
+        CommonCore
+        CommonDataModel
+        FiltersSources
+        InteractionStyle
+        IOImage
+        png
+        RenderingContext2D
+        RenderingContextOpenGL2
+        RenderingCore
+        RenderingFreeType
+        RenderingGL2PSOpenGL2
+        RenderingOpenGL2
+        ViewsContext2D
+)
 if(VTK_FOUND)
     message(STATUS "VTK version: ${VTK_VERSION}")
     # print components
