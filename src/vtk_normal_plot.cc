@@ -142,15 +142,14 @@ int main()
     data->SetValue(i, 2, pdmath::normal::cdf(x));
   }
   // plotting color
-  // TODO: for some reason blues are rendering as green
-  auto plot_color = colors->GetColor4ub("Blue");
+  auto plot_color = colors->GetColor4ub("Violet");
   // add (x, pdf(x)) point plot to top chart (squares)
   auto plot_1 = chart_1->AddPlot(vtkChart::POINTS);
   plot_1->SetInputData(data, 0, 1);
   plot_1->SetColor(
     plot_color.GetRed(),
-    plot_color.GetBlue(),
     plot_color.GetGreen(),
+    plot_color.GetBlue(),
     plot_color.GetAlpha()
   );
   plot_1->SetWidth(1.);  // cover entire chart
@@ -160,8 +159,8 @@ int main()
   plot_2->SetInputData(data, 0, 2);
   plot_2->SetColor(
     plot_color.GetRed(),
-    plot_color.GetBlue(),
     plot_color.GetGreen(),
+    plot_color.GetBlue(),
     plot_color.GetAlpha()
   );
   plot_2->SetWidth(1.);  // cover entire chart
