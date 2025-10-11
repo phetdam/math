@@ -37,7 +37,6 @@
 #include "pdmath/normal.h"
 
 // TODO: add a helper to reduce boilerplate in creating a single chart
-// TODO: haven't been able to figure out why the PNG is black and white
 
 namespace {
 
