@@ -5,7 +5,6 @@ project(
     VERSION 0.1.0
     DESCRIPTION "Independent mathetmatical work"
     HOMEPAGE_URL "https://github.com/phetdam/math"
-    LANGUAGES CXX
 )
 
 # for releases build info is empty
@@ -172,6 +171,24 @@ if(quadmath_FOUND)
     message(CHECK_PASS "found")
 else()
     message(CHECK_FAIL "not found")
+endif()
+
+# find VTK for visualization
+find_package(VTK 9.1 COMPONENTS ChartsCore)
+if(VTK_FOUND)
+    message(STATUS "VTK version: ${VTK_VERSION}")
+    # print components
+    list(JOIN VTK_AVAILABLE_COMPONENTS " " vtk_comps_str)
+    message(STATUS "VTK components: ${vtk_comps_str}")
+    unset(vtk_comps_str)
+    # print Qt version if any
+    if(VTK_QT_VERSION)
+        message(STATUS "VTK Qt version: ${VTK_QT_VERSION}")
+    else()
+        message(STATUS "VTK Qt version: None")
+    endif()
+else()
+    message(STATUS "VTK version: None")
 endif()
 
 # debug and release flags, handle MSVC case specifically
