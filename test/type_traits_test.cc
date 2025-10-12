@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <deque>
 #include <list>
+#include <memory>
 #include <mutex>
 #include <ostream>
 #include <string>
@@ -181,7 +182,22 @@ PDMATH_TRAITS_TEST(IsOstreamableTest);
 template <typename T>
 class IsRangeTest : public pdmath::testing::traits_test<pdmath::is_range, T> {};
 
-// TODO: add user-defined range-like type
+/**
+ * Vector wrapper class representing a range.
+ *
+ * @tparam T type
+ */
+template <typename T>
+class vec_wrapper {
+public:
+  vec_wrapper(std::vector<T>&& values) noexcept : values_{std::move(values)} {}
+  auto begin() const noexcept { return values_.begin(); }
+  auto end() const noexcept { return values_.end(); }
+  auto& operator[](std::size_t i) noexcept { return values_[i]; }
+  auto& operator[](std::size_t i) const noexcept { return values_[i]; }
+private:
+  std::vector<T> values_;
+};
 
 using IsRangeTestTypes = ::testing::Types<
   pdmath::testing::type_value_pair<std::string, true>,
@@ -189,11 +205,91 @@ using IsRangeTestTypes = ::testing::Types<
   pdmath::testing::type_value_pair<std::deque<int>, true>,
   pdmath::testing::type_value_pair<std::vector<double>, true>,
   pdmath::testing::type_value_pair<std::monostate, false>,
-  pdmath::testing::type_value_pair<std::list<unsigned>, true>
+  pdmath::testing::type_value_pair<std::list<unsigned>, true>,
+  pdmath::testing::type_value_pair<vec_wrapper<int>, true>
 >;
 TYPED_TEST_SUITE(IsRangeTest, IsRangeTestTypes);
 
 // define test for is_range
 PDMATH_TRAITS_TEST(IsRangeTest);
+
+/**
+ * Test fixture template for testing `is_indirectly_readable`.
+ *
+ * @tparam T `type_value_pair` specialization
+ */
+template <typename T>
+class IsIndirectlyReadableTest
+  : public pdmath::testing::traits_test<pdmath::is_indirectly_readable, T> {};
+
+using IsIndirectlyReadableTestTypes = ::testing::Types<
+  pdmath::testing::type_value_pair<const char*, true>,
+  pdmath::testing::type_value_pair<const char&, false>,
+  pdmath::testing::type_value_pair<void*, false>,
+  pdmath::testing::type_value_pair<int, false>,
+  pdmath::testing::type_value_pair<std::unique_ptr<std::vector<double>>, true>,
+  pdmath::testing::type_value_pair<std::shared_ptr<std::string>, true>,
+  pdmath::testing::type_value_pair<std::string, false>
+>;
+TYPED_TEST_SUITE(IsIndirectlyReadableTest, IsIndirectlyReadableTestTypes);
+
+// define teste for is_indirectly_readable
+PDMATH_TRAITS_TEST(IsIndirectlyReadableTest);
+
+/**
+ * Test fixture template for testing `is_weakly_incrementable`.
+ *
+ * @tparam T `type_value_pair` specialization
+ */
+template <typename T>
+class IsWeaklyIncrementableTest
+  : public pdmath::testing::traits_test<pdmath::is_weakly_incrementable, T> {};
+
+/**
+ * Type that is pre-incrementable.
+ */
+class pre_incrementable {
+public:
+  auto& operator++() noexcept { return *this; }
+};
+
+/**
+ * Type that is post-incrementable.
+ */
+class post_incrementable {
+public:
+  auto operator++(int) noexcept { return *this; }
+};
+
+/**
+ * Type that is both pre- and post- incrementable.
+ */
+class incrementable {
+public:
+  auto& operator++() noexcept { return *this; }
+  auto operator++(int) noexcept { return *this; }
+};
+
+using IsWeaklyIncrementableTestTypes = ::testing::Types<
+  pdmath::testing::type_value_pair<int, true>,
+  pdmath::testing::type_value_pair<double, true>,
+  pdmath::testing::type_value_pair<std::vector<int>::iterator, true>,
+  pdmath::testing::type_value_pair<std::string::iterator, true>,
+  pdmath::testing::type_value_pair<void, false>,
+  pdmath::testing::type_value_pair<std::string, false>,
+  pdmath::testing::type_value_pair<const char*, true>,
+  // object type is incomplete and does not admit operator++ or operator++(int)
+  pdmath::testing::type_value_pair<const void*, false>,
+  // not post-incrementable
+  pdmath::testing::type_value_pair<pre_incrementable, false>,
+  // not pre-incrementable
+  pdmath::testing::type_value_pair<post_incrementable, false>,
+  // pre- and post-incrementable
+  pdmath::testing::type_value_pair<incrementable, true>
+>;
+TYPED_TEST_SUITE(IsWeaklyIncrementableTest, IsWeaklyIncrementableTestTypes);
+
+// define is_weakly_incrementable test
+PDMATH_TRAITS_TEST(IsWeaklyIncrementableTest);
 
 }  // namespace
