@@ -88,7 +88,7 @@ template <std::size_t N>
 struct spaces : spaces_impl<std::make_index_sequence<N>> {};
 
 /**
- * Get the `spaces<N>` with `N` equal to `std::numeric_limits<T>::digits10()`.
+ * Get the `spaces<N>` with `N` equal to `std::numeric_limits<T>::digits10`.
  *
  * @tparam T type
  */
