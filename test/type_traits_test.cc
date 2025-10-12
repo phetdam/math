@@ -21,6 +21,7 @@
 #include <Eigen/Core>
 #include <gtest/gtest.h>
 
+#include "pdmath/fibonacci.h"
 #include "pdmath/types.h"
 #include "pdmath/testing/utils.h"
 #include "pdmath/warnings.h"
@@ -291,5 +292,28 @@ TYPED_TEST_SUITE(IsWeaklyIncrementableTest, IsWeaklyIncrementableTestTypes);
 
 // define is_weakly_incrementable test
 PDMATH_TRAITS_TEST(IsWeaklyIncrementableTest);
+
+/**
+ * Test fixture template for testing `is_legacy_iterator`.
+ *
+ * @tparam T `type_value_pair` specialization
+ */
+template <typename T>
+class IsLegacyIteratorTest
+  : public pdmath::testing::traits_test<pdmath::is_legacy_iterator, T> {};
+
+using IsLegacyIteratorTestTypes = ::testing::Types<
+  pdmath::testing::type_value_pair<std::vector<int>::iterator, true>,
+  pdmath::testing::type_value_pair<std::string::iterator, true>,
+  pdmath::testing::type_value_pair<const char*, true>,
+  // cannot dereference with incomplete type
+  pdmath::testing::type_value_pair<const void*, false>,
+  pdmath::testing::type_value_pair<pdmath::basic_fibonacci_generator, true>,
+  pdmath::testing::type_value_pair<pdmath::fibonacci_generator, true>
+>;
+TYPED_TEST_SUITE(IsLegacyIteratorTest, IsLegacyIteratorTestTypes);
+
+// define is_legacy_iterator test
+PDMATH_TRAITS_TEST(IsLegacyIteratorTest);
 
 }  // namespace
