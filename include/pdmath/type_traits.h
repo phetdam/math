@@ -9,7 +9,6 @@
 #define PDMATH_TYPE_TRAITS_H_
 
 #include <cstddef>
-// TODO: consider using <iosfwd> and std::basic_ostream<char> instead
 #include <ostream>
 #include <string>
 #include <type_traits>
