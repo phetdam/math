@@ -11,7 +11,6 @@
 #include "pdmath/pragma.h"
 
 #if defined(_MSC_VER)
-
 /**
  * Save current warning state, restorable by using `PDMATH_WARNINGS_POP`.
  */
@@ -42,10 +41,8 @@
  * @param wnos MSVC warning number(s), ex. 4305
  */
 #define PDMATH_WARNINGS_ONCE(wnos) PDMATH_PRAGMA(warning (once: wnos))
-
 // uses __GNUC__ instead of __GNUG__ to allow use with C code
 #elif defined(__GNUC__) || defined(__clang__)
-
 /**
  * Save current warning state, restorable by using `PDMATH_WARNINGS_POP`.
  */
@@ -69,15 +66,24 @@
  * @param ws Warning string literal, ex. "-Wuninitialized"
  */
 #define PDMATH_WARNINGS_ERROR(ws) PDMATH_PRAGMA(GCC diagnostic error ws)
-
+// unknown compiler
 #else
-
 #define PDMATH_WARNINGS_PUSH()
 #define PDMATH_WARNINGS_POP()
 #define PDMATH_WARNINGS_DISABLE(ws)
 #define PDMATH_WARNINGS_ERROR(ws)
 #warning "unknown compiler: PDMATH_WARNINGS_* macros defined as empty"
-
 #endif  // !defined(_MSC_VER) && !defined(__GNUC__) && !defined(__clang__)
+
+// MSVC-specific warnings are common so they get their own macros
+#if defined(_MSC_VER)
+#define PDMATH_MSVC_WARNINGS_PUSH() __pragma(warning(push))
+#define PDMATH_MSVC_WARNINGS_DISABLE(wnos) __pragma(warning(disable: wnos))
+#define PDMATH_MSVC_WARNINGS_POP() __pragma(warning(pop))
+#else
+#define PDMATH_MSVC_WARNINGS_PUSH()
+#define PDMATH_MSVC_WARNINGS_DISABLE(wnos)
+#define PDMATH_MSVC_WARNINGS_POP()
+#endif  // !defined(_MSC_VER)
 
 #endif  // PDMATH_WARNINGS_H_
