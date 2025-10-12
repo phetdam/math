@@ -154,6 +154,16 @@ protected:
   /* static_assert used to enforce semicolon usage */ \
   TYPED_TEST(fixture, TraitsValueTest) { (*this)(); } static_assert(true)
 
+// TODO: consider if a macro like the following would help reduce boilerplate
+#if 0
+#define PDMATH_DEFINE_TRAITS_TEST(test, traits, ...) \
+  template <typename T> \
+  class test : public pdmath::testing::traits_test<traits, T> {}; \
+  using PDMATH_CONCAT(test, Types) = ::testing::Types<__VA_ARGS__>; \
+  TYPED_TEST_SUITE(test, PDMATH_CONCAT(test, Types)); \
+  PDMATH_TRAITS_TEST(test)
+#endif  // 0
+
 }  // namespace testing
 }  // namespace pdmath
 
