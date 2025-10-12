@@ -64,7 +64,7 @@ public:
     constexpr auto operator()(T x) const noexcept
     {
       // TODO: precompute 1 / sqrt(2)
-      return (1 + std::erf(x / std::sqrt(T{2})));
+      return (1 + std::erf(x / std::sqrt(T{2}))) / 2;
     }
   };
 
