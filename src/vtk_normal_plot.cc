@@ -179,7 +179,7 @@ int main()
   vtkNew<vtkPNGWriter> pngw;
   auto png_path = progpath;
   png_path.replace_extension(".png");
-  std::cout << "Writing render to " << png_path.filename() << "... " << std::flush;
+  std::cout << "Writing " << png_path.filename() << "... " << std::flush;
   pngw->SetFileName(png_path.c_str());
   pngw->SetInputConnection(wif->GetOutputPort());
   pngw->Write();
