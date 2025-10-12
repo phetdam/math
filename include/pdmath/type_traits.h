@@ -282,6 +282,7 @@ struct is_legacy_iterator<
     std::is_destructible_v<T> &&
     std::is_swappable_v<T>
   >,
+  // note: LegacyIterator requirements do not specify return type
   std::void_t<decltype(*std::declval<T>())>,
   // note: as before, need an lvalue reference for pre/post increment
   std::enable_if_t<std::is_reference_v<decltype(++std::declval<T&>())>>
