@@ -15,6 +15,7 @@
 #include <utility>
 
 #include "pdmath/features.h"
+#include "pdmath/warnings.h"
 
 namespace pdmath {
 
@@ -138,6 +139,10 @@ namespace detail {
 template <typename T>
 struct fibonacci_sequence_impl {};
 
+// MSVC emits C5246 erroenously with std::array
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(5246)
+
 /**
  * Specialization for `std::make_index_sequence<0u>`.
  */
@@ -174,6 +179,8 @@ public:
     prev::value[sizeof...(Is)] + prev::value[sizeof...(Is) - 1u]
   };
 };
+
+PDMATH_MSVC_WARNINGS_POP()
 
 }  // namespace detail
 
