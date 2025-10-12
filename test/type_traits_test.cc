@@ -338,7 +338,23 @@ using IsEqualityComparableTestTypes = ::testing::Types<
 >;
 TYPED_TEST_SUITE(IsEqualityComparableTest, IsEqualityComparableTestTypes);
 
-// define is_equality_comparable_test
+// define is_equality_comparable test
 PDMATH_TRAITS_TEST(IsEqualityComparableTest);
+
+/**
+ * Test fixture template for testing `is_inequality_comparable`.
+ *
+ * @tparam T `type_value_pair` specialization
+ */
+template <typename T>
+class IsInequalityComparableTest
+  : public pdmath::testing::traits_test<pdmath::is_inequality_comparable, T> {};
+
+// reusing types from IsEqualityComparableTest
+using IsInequalityComparableTestTypes = IsEqualityComparableTestTypes;
+TYPED_TEST_SUITE(IsInequalityComparableTest, IsInequalityComparableTestTypes);
+
+// define is_inequality_comparable test
+PDMATH_TRAITS_TEST(IsInequalityComparableTest);
 
 }  // namespace
