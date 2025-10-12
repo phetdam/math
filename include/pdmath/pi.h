@@ -8,6 +8,11 @@
 #ifndef PDMATH_PI_H_
 #define PDMATH_PI_H_
 
+#include <cstddef>
+#include <type_traits>
+
+#include "pdmath/type_traits.h"
+
 namespace pdmath {
 
 /**
@@ -91,6 +96,58 @@ constexpr T pi_v = pi_traits<T>::value;
  * \f$\pi\f$ double-precision constant.
  */
 inline constexpr auto pi = pi_v<double>;
+
+namespace detail {
+
+/**
+ * Indicate if two points are inside the 2D closed unit circle \f$[-1, 1]^2\f$.
+ *
+ * @tparam T Floating-point type
+ * @tparam U Floating-point type
+ */
+template <typename T, typename U>
+bool in_unit_circle(
+  T x,
+  U y,
+  constraint_t<std::is_floating_point_v<T> && std::is_floating_point_v<U>> = 0)
+{
+  return x * x + y * y <= 1;  // note: no square root operation is needed
+}
+
+}  // namespace detail
+
+/**
+ * Estimate \f$\pi\f$ using a quasi Monte Carlo stratified sampling method.
+ *
+ * This aims to efficiently estimate \f$\pi\f$ using an evenly-spaced grid of
+ * points that partitions \f$[0, 1]^2\f$ into evenly-size squares and then
+ * samples the center point of each square. Therefore, given \f$n\f$ partitions
+ * of \f$[0, 1]\f$, there will be \f$n^2\f$ squares, and the \f$(i, j)\f$
+ * point, where \f$i, j \in \{0, \ldots n - 1\}\f$, will have coordinates
+ * \f$\left(\frac{i + 1/2}{n}, \frac{j + 1/2}{n})\f$.
+ *
+ * By using this evenly-spaced sampling method we can sample a given number of
+ * points far faster than using a PRNG or another sampling method. We also
+ * avoid any patterning that can arise from PRNG usage.
+ *
+ * @note The pdmpmt project implements the same in `pdmpmt::quasi_mcpi()`.
+ *
+ * @tparam T Floating-point type
+ *
+ * @param n Number of partitions along an axis (square root of total samples)
+ */
+template <typename T = double>
+T qmc_pi(std::size_t n, constraint_t<std::is_floating_point_v<T>> = 0) noexcept
+{
+  // number of points inside top-right quadrant of unit circle
+  std::size_t n_in = 0u;
+  // double loop
+  for (decltype(n) i = 0u; i < n; i++)
+    for (decltype(n) j = 0u; j < n; j++)
+      n_in += detail::in_unit_circle((i + T{0.5}) / n, (j + T{0.5}) / n);
+  // return pi estimate
+  return 4 * (n_in / static_cast<T>(n * n));
+}
 
 }  // namespace pdmath
 
