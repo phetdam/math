@@ -316,4 +316,25 @@ TYPED_TEST_SUITE(IsLegacyIteratorTest, IsLegacyIteratorTestTypes);
 // define is_legacy_iterator test
 PDMATH_TRAITS_TEST(IsLegacyIteratorTest);
 
+/**
+ * Test fixture template for testing `is_equality_comparable`.
+ *
+ * @tparam T `type_value_pair` specialization
+ */
+template <typename T>
+class IsEqualityComparableTest
+  : public pdmath::testing::traits_test<pdmath::is_equality_comparable, T> {};
+
+using IsEqualityComparableTestTypes = ::testing::Types<
+  pdmath::testing::type_value_pair<std::vector<double>::iterator, true>,
+  pdmath::testing::type_value_pair<int, true>,
+  pdmath::testing::type_value_pair<const char*, true>,
+  pdmath::testing::type_value_pair<const void*, true>,
+  // LegacyIterator doesn't have to be equality comparable
+  pdmath::testing::type_value_pair<pdmath::basic_fibonacci_generator, false>,
+  // LegacyInputIterator requires equality comparable
+  pdmath::testing::type_value_pair<pdmath::fibonacci_generator, true>,
+  pdmath::testing::type_value_pair<std::mutex, false>
+>;
+
 }  // namespace
