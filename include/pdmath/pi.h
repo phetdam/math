@@ -12,6 +12,7 @@
 #include <type_traits>
 
 #include "pdmath/type_traits.h"
+#include "pdmath/warnings.h"
 
 namespace pdmath {
 
@@ -141,12 +142,17 @@ T qmc_pi(std::size_t n, constraint_t<std::is_floating_point_v<T>> = 0) noexcept
 {
   // number of points inside top-right quadrant of unit circle
   std::size_t n_in = 0u;
+// MSVC emits C5219 complaining about loss of data converting size_t to T
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(5219)
   // double loop
   for (decltype(n) i = 0u; i < n; i++)
     for (decltype(n) j = 0u; j < n; j++)
       n_in += detail::in_unit_circle((i + T{0.5}) / n, (j + T{0.5}) / n);
+PDMATH_MSVC_WARNINGS_POP()
   // return pi estimate
-  return 4 * (n_in / static_cast<T>(n * n));
+  // note: second static_cast<T> is unnecessary but is there to silence MSVC
+  return 4 * (static_cast<T>(n_in) / static_cast<T>(n * n));
 }
 
 }  // namespace pdmath
