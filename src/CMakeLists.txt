@@ -20,10 +20,10 @@ else()
     message(STATUS "Skipping vtk_normal_plot (requires VTK)")
 endif()
 
-# fib50: print the first 50 values in the Fibonacci sequence
-add_executable(fib50 fib50.cc)
-target_link_libraries(fib50 PRIVATE pdmath)
-add_test(NAME fib50 COMMAND fib50)
+# fib_50: print the first 50 values in the Fibonacci sequence
+add_executable(fib_50 fib_50.cc)
+target_link_libraries(fib_50 PRIVATE pdmath)
+add_test(NAME fib_50 COMMAND fib_50)
 
 # qmc_pi: estimate pi using quasi Monte Carlo
 add_executable(qmc_pi qmc_pi.cc)
