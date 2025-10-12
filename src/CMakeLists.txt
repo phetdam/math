@@ -19,3 +19,8 @@ if(VTK_FOUND)
 else()
     message(STATUS "Skipping vtk_normal_plot (requires VTK)")
 endif()
+
+# fib50: print the first 50 values in the Fibonacci sequence
+add_executable(fib50 fib50.cc)
+target_link_libraries(fib50 PRIVATE pdmath)
+add_test(NAME fib50 COMMAND fib50)
