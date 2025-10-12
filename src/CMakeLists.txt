@@ -24,3 +24,8 @@ endif()
 add_executable(fib50 fib50.cc)
 target_link_libraries(fib50 PRIVATE pdmath)
 add_test(NAME fib50 COMMAND fib50)
+
+# qmc_pi: estimate pi using quasi Monte Carlo
+add_executable(qmc_pi qmc_pi.cc)
+target_link_libraries(qmc_pi PRIVATE pdmath)
+add_test(NAME qmc_pi COMMAND qmc_pi)
