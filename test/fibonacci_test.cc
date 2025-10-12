@@ -15,6 +15,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include "pdmath/warnings.h"
+
 namespace {
 
 /**
@@ -24,6 +26,9 @@ class FibonacciTest : public ::testing::Test {
 protected:
   // number of Fibonacci numbers
   static constexpr auto n_fib_ = 50u;
+// MSVC emits 5246 erroneously even in C++17 mode
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(5246)
   // n_fib_ numbers from OEIS list https://oeis.org/A000045/b000045.txt
   static constexpr std::array<std::uint_fast64_t, n_fib_> expected_ = {
     0,
@@ -77,6 +82,7 @@ protected:
     4807526976,
     7778742049
   };
+PDMATH_MSVC_WARNINGS_POP()
   // retrieve matcher for elementwise comparison
   // note: can't use ContainerEq since iterator types would differ
   auto matcher() const
