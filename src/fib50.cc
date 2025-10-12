@@ -16,7 +16,6 @@
 
 int main()
 {
-  constexpr auto n = 50u;
-  std::cout << pdmath::fibonacci_sequence<n - 1u>{} << std::endl;
+  std::cout << pdmath::fibonacci_sequence<50u - 1u>{} << std::endl;
   return EXIT_SUCCESS;
 }
