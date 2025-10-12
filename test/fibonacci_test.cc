@@ -77,6 +77,12 @@ protected:
     4807526976,
     7778742049
   };
+  // retrieve matcher for elementwise comparison
+  // note: can't use ContainerEq since iterator types would differ
+  auto matcher() const
+  {
+    return ::testing::Pointwise(::testing::Eq(), expected_);
+  }
 };
 
 /**
@@ -90,8 +96,7 @@ TEST_F(FibonacciTest, GeneratorTest)
   std::vector<std::uint_fast64_t> seq(n_fib_);
   std::for_each(seq.begin(), seq.end(), [&gen](auto& v) { v = *gen++; });
   // compare elementwise for equality
-  // note: can't use ContainerEq since iterator types would differ
-  EXPECT_THAT(seq, ::testing::Pointwise(::testing::Eq(), expected_));
+  EXPECT_THAT(seq, matcher());
 }
 
 /**
@@ -99,10 +104,7 @@ TEST_F(FibonacciTest, GeneratorTest)
  */
 TEST_F(FibonacciTest, TemplateTest)
 {
-  EXPECT_THAT(
-    pdmath::fibonacci_sequence<n_fib_ - 1u>::value,
-    ::testing::Pointwise(::testing::Eq(), expected_)
-  );
+  EXPECT_THAT(pdmath::fibonacci_sequence<n_fib_ - 1u>::value, matcher());
 }
 
 }  // namespace
