@@ -243,8 +243,10 @@ struct is_weakly_incrementable : std::false_type {};
 template <typename T>
 struct is_weakly_incrementable<
   T,
-  std::enable_if_t<std::is_reference_v<decltype(++std::declval<T>())>>,
-  std::void_t<decltype(std::declval<T>()++)>
+  // note: need to use T& since increment is defined only on glvalues. we just
+  // rely on reference collapsing rules to deal with T being reference
+  std::enable_if_t<std::is_reference_v<decltype(++std::declval<T&>())>>,
+  std::void_t<decltype(std::declval<T&>()++)>
 > : std::true_type {};
 
 /**
@@ -281,7 +283,8 @@ struct is_legacy_iterator<
     std::is_swappable_v<T>
   >,
   std::void_t<decltype(*std::declval<T>())>,
-  std::enable_if_t<std::is_reference_v<decltype(++std::declval<T>())>>
+  // note: as before, need an lvalue reference for pre/post increment
+  std::enable_if_t<std::is_reference_v<decltype(++std::declval<T&>())>>
 > : std::true_type {};
 
 /**
@@ -382,7 +385,8 @@ struct is_legacy_input_iterator<
   // note: in C++20 input_iterator doesn't require operator->()
   std::void_t<decltype(std::declval<T>().operator->())>,
   // LegacyInputIterator supports post-increment
-  std::void_t<decltype(std::declval<T>()++)>
+  // note: as before, need an lvalue reference for pre/post increment
+  std::void_t<decltype(std::declval<T&>()++)>
 > : std::true_type {};
 
 /**
