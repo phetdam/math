@@ -336,5 +336,9 @@ using IsEqualityComparableTestTypes = ::testing::Types<
   pdmath::testing::type_value_pair<pdmath::fibonacci_generator, true>,
   pdmath::testing::type_value_pair<std::mutex, false>
 >;
+TYPED_TEST_SUITE(IsEqualityComparableTest, IsEqualityComparableTestTypes);
+
+// define is_equality_comparable_test
+PDMATH_TRAITS_TEST(IsEqualityComparableTest);
 
 }  // namespace
