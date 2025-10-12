@@ -24,7 +24,7 @@ class FibonacciTest : public ::testing::Test {
 protected:
   // number of Fibonacci numbers
   static constexpr auto n_fib_ = 50u;
-  // n_fib Fibonacci number from OEIS list https://oeis.org/A000045/b000045.txt
+  // n_fib_ numbers from OEIS list https://oeis.org/A000045/b000045.txt
   static constexpr std::array<std::uint_fast64_t, n_fib_> expected_ = {
     0,
     1,
