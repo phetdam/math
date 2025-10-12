@@ -5,6 +5,7 @@ link_libraries(GTest::Main)
 
 add_executable(
     pdmath_test
+        fibonacci_test.cc
         golden_search_test.cc
         helpers_test.cc
         line_search_test.cc
