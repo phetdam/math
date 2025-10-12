@@ -152,7 +152,7 @@ int main()
     plot_color.GetBlue(),
     plot_color.GetAlpha()
   );
-  plot_1->SetWidth(1.);  // cover entire chart
+  plot_1->SetWidth(1.);  // sets the marker/line size
   dynamic_cast<vtkPlotPoints*>(plot_1)->SetMarkerStyle(vtkPlotPoints::SQUARE);
   // add (x, cdf(x)) point plot to bottom chart (diamonds)
   auto plot_2 = chart_2->AddPlot(vtkChart::POINTS);
@@ -163,7 +163,7 @@ int main()
     plot_color.GetBlue(),
     plot_color.GetAlpha()
   );
-  plot_2->SetWidth(1.);  // cover entire chart
+  plot_2->SetWidth(1.);  // sets the marker/line size
   dynamic_cast<vtkPlotPoints*>(plot_2)->SetMarkerStyle(vtkPlotPoints::DIAMOND);
   // begin rendering window + interactor
   win->Render();
