@@ -187,9 +187,8 @@ PDMATH_MSVC_WARNINGS_POP()
 /**
  * Fibonacci sequence generation template.
  *
- * This generates the first `N` Fibonacci numbers 0, 1, 1, 2, 3, ... and stores
- * them in an array, providing a way to reference the numbers at compile-time.
- * The number of elements in the array is `N + 1` for all `N`.
+ * This generates the first `N + 1` Fibonacci numbers 0, 1, 1, 2, 3, ... and
+ * stores them in an array to enable using the numbers at compile time.
  *
  * @note By defining `N` as the *index* of the largest Fibonacci number we can
  *  one-to-one map to the OEIS list of the first 2000 Fibonacci numbers, which
