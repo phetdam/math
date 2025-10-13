@@ -8,6 +8,7 @@
 #include "pdmath/type_traits.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <deque>
 #include <list>
 #include <memory>
@@ -356,5 +357,56 @@ TYPED_TEST_SUITE(IsInequalityComparableTest, IsInequalityComparableTestTypes);
 
 // define is_inequality_comparable test
 PDMATH_TRAITS_TEST(IsInequalityComparableTest);
+
+/**
+ * Test fixture template for testing `iter_value`.
+ *
+ * @tparam T `type_pair_wrapper` specialization
+ */
+template <typename T>
+class IterValueTest
+  : public pdmath::testing::traits_test<pdmath::iter_value, T> {};
+
+using IterValueTestTypes = ::testing::Types <
+  pdmath::testing::type_pair_wrapper<std::vector<int>::iterator, int>,
+  pdmath::testing::type_pair_wrapper<const double*, double>,
+  pdmath::testing::type_pair_wrapper<
+    pdmath::basic_fibonacci_generator, std::uint_fast64_t
+  >,
+  pdmath::testing::type_pair_wrapper<
+    pdmath::fibonacci_generator, std::uint_fast64_t
+  >
+>;
+TYPED_TEST_SUITE(IterValueTest, IterValueTestTypes);
+
+// define iter_value test
+PDMATH_TRAITS_TEST(IterValueTest);
+
+/**
+ * Test fixture template for testing `is_legacy_input_iterator`.
+ *
+ * @tparam T `type_value_pair` specialization
+ */
+template <typename T>
+class IsLegacyInputIteratorTest
+  : public pdmath::testing::traits_test<pdmath::is_legacy_input_iterator, T> {};
+
+using IsLegacyInputIteratorTestTypes = ::testing::Types<
+  pdmath::testing::type_value_pair<std::vector<int>::iterator, true>,
+  pdmath::testing::type_value_pair<std::deque<unsigned>::iterator, true>,
+  pdmath::testing::type_value_pair<std::vector<int>::const_iterator, true>,
+  // primitive types don't have members but they qualify as input iterators
+  pdmath::testing::type_value_pair<const char*, false>,
+  pdmath::testing::type_value_pair<const void*, false>,
+  pdmath::testing::type_value_pair<int, false>,
+  pdmath::testing::type_value_pair<std::string::iterator, true>,
+  pdmath::testing::type_value_pair<std::string, false>,
+  pdmath::testing::type_value_pair<pdmath::basic_fibonacci_generator, false>,
+  pdmath::testing::type_value_pair<pdmath::fibonacci_generator, true>
+>;
+TYPED_TEST_SUITE(IsLegacyInputIteratorTest, IsLegacyInputIteratorTestTypes);
+
+// define is_legacy_input_iterator test
+PDMATH_TRAITS_TEST(IsLegacyInputIteratorTest);
 
 }  // namespace

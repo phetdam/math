@@ -297,6 +297,35 @@ template <typename T>
 constexpr bool is_legacy_iterator_v = is_legacy_iterator<T>::value;
 
 /**
+ * Traits type for the value type of an iterator-like type.
+ *
+ * This can be used for non-iterator types as well as the minimum requirement
+ * is that `is_indirectly_readable<T>::value` is `true`.
+ *
+ * @tparam T type
+ */
+template <typename T, typename = void>
+struct iter_value {};
+
+/**
+ * Partial specialization for an iterator-like type.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct iter_value<T, std::enable_if_t<is_indirectly_readable_v<T>> > {
+  using type = std::decay_t<decltype(*std::declval<T>())>;
+};
+
+/**
+ * SFINAE helper for the value type of an iterator-like type.
+ *
+ * @tparam T type
+ */
+template <typename T>
+using iter_value_t = typename iter_value<T>::type;
+
+/**
  * Traits type for an equality-comparable type.
  *
  * This simply tests that `a == b` is convertible to `bool`.
@@ -383,8 +412,13 @@ struct is_legacy_input_iterator<
     is_inequality_comparable_v<T> &&  // note: not necessary in C++20
     is_indirectly_readable_v<T>
   >,
-  // note: in C++20 input_iterator doesn't require operator->()
-  std::void_t<decltype(std::declval<T>().operator->())>,
+  std::enable_if_t<
+    !std::is_class_v<std::decay_t<decltype(*std::declval<T>())>> ||
+    !std::is_union_v<std::decay_t<T>> ||
+    // note: only applies if value type is not a class or union
+    // note: in C++20 input_iterator doesn't require operator->()
+    std::is_pointer_v<decltype(std::declval<T>().operator->())>
+  >,
   // LegacyInputIterator supports post-increment
   // note: as before, need an lvalue reference for pre/post increment
   std::void_t<decltype(std::declval<T&>()++)>
