@@ -133,6 +133,28 @@ struct constraint<true> {
 };
 
 /**
+ * Traits type that always has a `false` value member.
+ *
+ * This is useful for representing false when testing and is essentially
+ * `std::false_type` but parameterized with a type parameter.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct always_false : std::false_type {};
+
+/**
+ * Traits type that always has a `true` value member.
+ *
+ * This is useful for representing true when testing and is essentially
+ * `std::true_type` but parameterized with a type parameter.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct always_true : std::true_type {};
+
+/**
  * Traits to indicate if a type can be streamed to `std::ostream`.
  *
  * @tparam T type
@@ -308,7 +330,7 @@ template <typename T, typename = void>
 struct iter_value {};
 
 /**
- * Partial specialization for an iterator-like type.
+ * True specialization for an iterator-like type.
  *
  * @tparam T type
  */
@@ -324,6 +346,36 @@ struct iter_value<T, std::enable_if_t<is_indirectly_readable_v<T>> > {
  */
 template <typename T>
 using iter_value_t = typename iter_value<T>::type;
+
+/**
+ * Traits type for the value type of a range-like type.
+ *
+ * @tparam T type
+ */
+template <typename T, typename = void, typename = void>
+struct range_value {};
+
+/**
+ * True specialization for a range-like type.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct range_value<
+  T,
+  std::enable_if_t<is_range_v<T>>,
+  std::void_t<iter_value_t<decltype(std::begin(std::declval<T>()))>>
+> {
+  using type = iter_value_t<decltype(std::begin(std::declval<T>()))>;
+};
+
+/**
+ * SFINAE helper for the value type of an range-like type.
+ *
+ * @tparam T type
+ */
+template <typename T>
+using range_value_t = typename range_value<T>::type;
 
 /**
  * Traits type for an equality-comparable type.
