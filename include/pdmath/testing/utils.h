@@ -210,8 +210,6 @@ struct has_type_member<T, std::void_t<typename T::type> > : std::true_type {};
 template <template <typename...> typename Traits, typename T, typename U>
 class traits_test<Traits, type_pair_wrapper<T, U>> : public ::testing::Test {
 protected:
-  // truth result of evaluating the traits (expect true)
-  static constexpr bool value_ = detail::has_type_member<Traits<T>>::value;
   // operator() for triggering EXPECT_EQ
   void operator()() const
   {
