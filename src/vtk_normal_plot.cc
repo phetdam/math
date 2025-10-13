@@ -35,6 +35,7 @@
 #include <vtkWindowToImageFilter.h>
 
 #include "pdmath/normal.h"
+#include "pdmath/vtk_table.h"
 
 // TODO: add a helper to reduce boilerplate in creating a single chart
 
@@ -116,31 +117,23 @@ int main()
   chart_2->GetBackgroundBrush()->SetColor(colors->GetColor4ub("Thistle"));
   chart_2->GetBackgroundBrush()->SetOpacityF(0.5);
   chart_2->SetTitle("normal cdf");
-  // create table with x values, pdf(x), and cdf(x) values
-  vtkNew<vtkTable> data;
-  vtkNew<vtkFloatArray> x_data;
-  vtkNew<vtkFloatArray> pdf_data;
-  vtkNew<vtkFloatArray> cdf_data;
-  x_data->SetName("x");
-  pdf_data->SetName("pdf(x)");
-  cdf_data->SetName("cdf(x)");
-  data->AddColumn(x_data);
-  data->AddColumn(pdf_data);
-  data->AddColumn(cdf_data);
-  // set number of table rows
-  constexpr auto n_points = 80u;
-  data->SetNumberOfRows(n_points);
-  // fill values into table. we want points in (-5, 5)
-  for (auto i = 0u; i < n_points; i++) {
+  // callable to fill each table row with
+  auto make_row = [](auto i, auto n_rows)
+  {
     // x values lie in [-5, 5] and we want them to avoid the endpoints. this
-    // allows the points, if they were in (0, 1), to be
-    // (0.5 / n_points, ... (n_points - 1) / n_points)
-    auto x = -5 + 10 * (0.5 + i) / n_points;
+    // allows the points, if they were in (0, 1), to be the sequence
+    // (0.5 / n_rows, ... (n_rows - 1) / n_rows)
+    auto x = -5 + 10 * (0.5 + i) / n_rows;
     // set x, pdf(x), cdf(x)
-    data->SetValue(i, 0, x);
-    data->SetValue(i, 1, pdmath::normal::pdf(x));
-    data->SetValue(i, 2, pdmath::normal::cdf(x));
-  }
+    return std::make_tuple(x, pdmath::normal::pdf(x), pdmath::normal::cdf(x));
+  };
+  // create table with x values, pdf(x), and cdf(x) values
+  auto data = pdmath::vtk_table{}
+    .column<vtkFloatArray>("x")
+    .column<vtkFloatArray>("pdf(x)")
+    .column<vtkFloatArray>("cdf(x)")
+    .rows(80, make_row)
+    ();
   // plotting color
   auto plot_color = colors->GetColor4ub("Violet");
   // add (x, pdf(x)) point plot to top chart (squares)
