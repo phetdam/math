@@ -96,10 +96,7 @@ TYPED_TEST_SUITE(LineSearchTest, LineSearchTestTypes);
  */
 TYPED_TEST(LineSearchTest, SteepestDirectionSearchTest)
 {
-  EXPECT_THAT(
-    this->steepest_search_(TestFixture::min_1_),
-    TestFixture::all_near_zero_matcher
-  );
+  EXPECT_THAT(this->steepest_search_(TestFixture::min_1_), this->AllNearZero());
   // should increase gradient eval count to 1, no function or Hessian evals
   EXPECT_EQ(0, this->steepest_search_.n_fev());
   EXPECT_EQ(1, this->steepest_search_.n_gev());
@@ -222,8 +219,8 @@ TYPED_TEST(LineSearchTest, HimmelblauSteepestDescentTest)
     x_diff.begin(),
     [&](const auto& x, const auto& y) { return x - y; }
   );
-  EXPECT_THAT(x_diff, TestFixture::all_near_zero_matcher);
-  EXPECT_THAT(res.grad(), TestFixture::all_near_zero_matcher);
+  EXPECT_THAT(x_diff, this->AllNearZero());
+  EXPECT_THAT(res.grad(), this->AllNearZero());
   // determinant of the Hessian should be nonnegative
   EXPECT_GE(res.hess().determinant(), 0);
 }

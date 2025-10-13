@@ -114,7 +114,7 @@ TYPED_TEST(QuadraticFunctorTest, GradNearZeroTest)
 {
   // can't use the Google Test ::testing::Each(::testing::FloatEq(0.)) here
   // since we have a templated test that could have different types
-  EXPECT_THAT(this->quad_.d1(this->sol_), TestFixture::all_near_zero_matcher);
+  EXPECT_THAT(this->quad_.d1(this->sol_), this->AllNearZero());
 }
 
 /**

@@ -76,7 +76,7 @@ public:
    * Return a floating-point comparison tolerance float-like types.
    *
    * @note `std::numeric_limits<double>::epsilon()` returns `2.22045e-16` while
-   *     `std::numeric_limits<float>::epsilon()` returns `1.19209e-07`.
+   *  `std::numeric_limits<float>::epsilon()` returns `1.19209e-07`.
    */
   static constexpr T tol() noexcept
   {
@@ -93,9 +93,17 @@ public:
    */
   static constexpr T tol(T tol_override) noexcept { return tol_override; }
 
-  // Google Test EXPECT_THAT matcher for checking that a *Container* is near
-  // zero, using the default tolerance returned by tol().
-  static inline const auto all_near_zero_matcher{match_all_near_zero(tol())};
+  /**
+   * Return GMock matcher checking that all container values are near zero.
+   *
+   * An optional tolerance is provided with the default from `tol()`.
+   *
+   * @param t Tolerance value
+   */
+  auto AllNearZero(T t = tol()) const
+  {
+    return match_all_near_zero(t);
+  }
 };
 
 /**
@@ -114,6 +122,31 @@ public:
 };
 
 /**
+ * Templated wrapper for holding a type as its only member.
+ *
+ * This is useful for embedding types in a `std::tuple` in situations when one
+ * or more of the types may be incomplete or have unknown extent.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct type_wrapper {
+  using type = T;
+};
+
+/**
+ * Templated wrapper for holding two types as its only members.
+ *
+ * @tparam T First type
+ * @tparam U Second type
+ */
+template <typename T, typename U>
+struct type_pair_wrapper {
+  using first_type = T;
+  using second_type = U;
+};
+
+/**
  * Traits type test case template base for Google Test templated tests.
  *
  * This takes a unary type traits and a `type_value_pair`.
@@ -127,19 +160,68 @@ class traits_test {};
 /**
  * Partial specialization for `type_value_pair`.
  *
+ * This is used for testing traits types that have a `constexpr` non-type
+ * member `value` we expect to equal a certain value.
+ *
  * @tparam Traits *UnaryTypeTrait* class template
  * @tparam T Input type
- * @tparam v Expected truth result
+ * @tparam v Expected result value
  */
-template <template <typename...> typename Traits, typename T, bool v>
+template <template <typename...> typename Traits, typename T, auto v>
 class traits_test<Traits, type_value_pair<T, v>> : public ::testing::Test {
 protected:
-  // truth result of evaluating the traits
-  static constexpr bool value_ = Traits<T>::value;
-  // expected truth result
-  static constexpr bool expected_ = v;
   // operator() for triggering EXPECT_EQ
-  constexpr void operator()() const noexcept { EXPECT_EQ(expected_, value_); }
+  void operator()() const
+  {
+    EXPECT_EQ(Traits<T>::value, v);
+  }
+};
+
+namespace detail {
+
+/**
+ * Traits type to indicate if a type has a type member `type`.
+ *
+ * @tparam T type
+ */
+template <typename T, typename = void>
+struct has_type_member : std::false_type {};
+
+/**
+ * True specialization for types with the type member `type`.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct has_type_member<T, std::void_t<typename T::type> > : std::true_type {};
+
+}  // namespace detail
+
+/**
+ * Partial specialization for `type_pair_wrapper`.
+ *
+ * This is used for testing traits type that have a type member `type` which
+ * we expect will be the same type as the `U` of the `type_pair_wrapper<T, U>`.
+ *
+ * @tparam Traits Traits type expected to have a `type` member
+ * @tparam T Input type
+ * @tparam U Expected type
+ */
+template <template <typename...> typename Traits, typename T, typename U>
+class traits_test<Traits, type_pair_wrapper<T, U>> : public ::testing::Test {
+protected:
+  // truth result of evaluating the traits (expect true)
+  static constexpr bool value_ = detail::has_type_member<Traits<T>>::value;
+  // operator() for triggering EXPECT_EQ
+  void operator()() const
+  {
+    // if Traits<T> has no member type this is a separate error
+    if constexpr (!detail::has_type_member<Traits<T>>::value)
+      GTEST_FAIL() << "traits type missing type member";
+    // otherwise, check that types are the same
+    else
+      EXPECT_TRUE((std::is_same_v<typename Traits<T>::type, U>));
+  }
 };
 
 /**
