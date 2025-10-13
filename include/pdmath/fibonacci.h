@@ -192,8 +192,8 @@ PDMATH_MSVC_WARNINGS_POP()
  * The number of elements in the array is `N + 1` for all `N`.
  *
  * @note By defining `N` as the *index* of the largest Fibonacci number we can
- *  one-to-map to the OEIS list of the first 2000 Fibonacci numbers, which can
- *  be found here: https://oeis.org/A000045/b000045.txt
+ *  one-to-one map to the OEIS list of the first 2000 Fibonacci numbers, which
+ *  can be found here: https://oeis.org/A000045/b000045.txt
  *
  * @tparam N Zero index of the largest Fibonacci number to generate
  */
