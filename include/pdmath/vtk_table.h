@@ -51,7 +51,7 @@ public:
   }
 
   /**
-   * Access a member of the container `vtkTable`.
+   * Access a member of the contained `vtkTable`.
    */
   auto operator->() const noexcept
   {
