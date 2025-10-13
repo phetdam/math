@@ -112,7 +112,7 @@ struct constraint {};
  * @code{.cc}
  * // constrain to only floating-point value types while allowing additional
  * // constrained function templates, e.g. for integral value types
- * template <typename T, typename A, constraint_t<std::is_floating_point_v<T>> = 0>
+ * template <typename T, typename A, constraint_t<std::is_integral_v<T>> = 0>
  * auto& operator<<(std::ostream& out, const std::vector<T, A>& vec)
  * {
  *   // ...
@@ -126,6 +126,10 @@ using constraint_t = typename constraint<V>::type;
 
 /**
  * True specialization that provides the `int` type alias.
+ *
+ * @todo Consider changing `type` to be that of a distinct tag type. This would
+ *  make it less likely for use of `constraint_t` as an optional parameter to
+ *  be less error-prone in the fact of overloads involving integral parameters.
  */
 template <>
 struct constraint<true> {
