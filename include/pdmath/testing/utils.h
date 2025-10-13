@@ -198,9 +198,9 @@ struct has_type_member<T, std::void_t<typename T::type> > : std::true_type {};
 }  // namespace detail
 
 /**
- * Partial specialization for `type_pair_wrapper`.
+ * Partial specialization for `type_pair_wrapper<T, U>`.
  *
- * This is used for testing traits type that have a type member `type` which
+ * This is used for testing traits types that have a type member `type` which
  * we expect will be the same type as the `U` of the `type_pair_wrapper<T, U>`.
  *
  * @tparam Traits Traits type expected to have a `type` member
@@ -220,6 +220,33 @@ protected:
     else
       EXPECT_TRUE((std::is_same_v<typename Traits<T>::type, U>));
   }
+};
+
+/**
+ * Partial specialization for `type_pair_wrapper<T, always_false<U>>`.
+ *
+ * This is used for testing traits type that have a type member `type` which
+ * we expect will *not* be the same as the `U` of the
+ * `type_pair_wrapper<T, always_false<U>>`.
+ *
+ * @tparam Traits Traits type expected to have a `type` member
+ * @tparam T Input type
+ * @tparam U Expected type
+ */
+template <template <typename...> typename Traits, typename T, typename U>
+class traits_test<Traits, type_pair_wrapper<T, always_false<U>> >
+  : public ::testing::Test {
+protected:
+    // operator() for triggering EXPECT_EQ
+    void operator()() const
+    {
+      // if Traits<T> has no member type this is a separate error
+      if constexpr (!detail::has_type_member<Traits<T>>::value)
+        GTEST_FAIL() << "traits type missing type member";
+      // otherwise, check that types are *not* the same
+      else
+        EXPECT_FALSE((std::is_same_v<typename Traits<T>::type, U>));
+    }
 };
 
 /**
