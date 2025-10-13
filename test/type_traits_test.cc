@@ -367,7 +367,7 @@ template <typename T>
 class IterValueTest
   : public pdmath::testing::traits_test<pdmath::iter_value, T> {};
 
-using IterValueTestTypes = ::testing::Types <
+using IterValueTestTypes = ::testing::Types<
   pdmath::testing::type_pair_wrapper<std::vector<int>::iterator, int>,
   pdmath::testing::type_pair_wrapper<const double*, double>,
   pdmath::testing::type_pair_wrapper<
@@ -375,12 +375,42 @@ using IterValueTestTypes = ::testing::Types <
   >,
   pdmath::testing::type_pair_wrapper<
     pdmath::fibonacci_generator, std::uint_fast64_t
+  >,
+  // test against expected incorrect types too
+  pdmath::testing::type_pair_wrapper<const double*, pdmath::always_false<int>>,
+  pdmath::testing::type_pair_wrapper<
+    std::deque<unsigned>::iterator, pdmath::always_false<double>
   >
 >;
 TYPED_TEST_SUITE(IterValueTest, IterValueTestTypes);
 
 // define iter_value test
 PDMATH_TRAITS_TEST(IterValueTest);
+
+/**
+ * Test fixture template for testing `range_value`.
+ *
+ * @tparam T `type_pair_wrapper` specialization
+ */
+template <typename T>
+class RangeValueTest
+  : public pdmath::testing::traits_test<pdmath::range_value, T> {};
+
+using RangeValueTestTypes = ::testing::Types<
+  pdmath::testing::type_pair_wrapper<std::vector<double>, double>,
+  pdmath::testing::type_pair_wrapper<vec_wrapper<int>, int>,
+  pdmath::testing::type_pair_wrapper<std::deque<unsigned>, unsigned>,
+  pdmath::testing::type_pair_wrapper<std::string, char>,
+  // test against expected incorrect types too
+  pdmath::testing::type_pair_wrapper<
+    std::vector<int>, pdmath::always_false<std::string>
+  >,
+  pdmath::testing::type_pair_wrapper<std::string, pdmath::always_false<int>>
+>;
+TYPED_TEST_SUITE(RangeValueTest, RangeValueTestTypes);
+
+// define range_value test
+PDMATH_TRAITS_TEST(RangeValueTest);
 
 /**
  * Test fixture template for testing `is_legacy_input_iterator`.
