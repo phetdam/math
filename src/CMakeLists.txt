@@ -16,6 +16,8 @@ if(VTK_FOUND)
     # note: too many modules to keep track of so just use VTK_LIBRARIES
     target_link_libraries(vtk_normal_plot PRIVATE ${VTK_LIBRARIES})
     vtk_module_autoinit(TARGETS vtk_normal_plot MODULES ${VTK_LIBRARIES})
+    # note: can add as test since we render offscreen
+    add_test(NAME vtk_normal_plot COMMAND vtk_normal_plot)
 else()
     message(STATUS "Skipping vtk_normal_plot (requires VTK)")
 endif()
