@@ -10,7 +10,7 @@ endif()
 # simple smoke test
 add_test(NAME fpi COMMAND fpi)
 
-# vtk_normal_plot: plot standard normal PDF and CDF with VTK
+# vtk_normal_plot: plot multiple normal PDFs and CDFs with VTK
 if(VTK_FOUND)
     add_executable(vtk_normal_plot vtk_normal_plot.cc)
     # note: too many modules to keep track of so just use VTK_LIBRARIES

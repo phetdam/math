@@ -1,7 +1,7 @@
 /**
  * @file vtk_normal_plot.cc
  * @author Derek Huang
- * @brief C++ program using VTK to plot normal PDF and CDF
+ * @brief C++ program using VTK to plot multiple normal PDFs and CDFs
  * @copyright MIT License
  *
  * This program plots the standard normal PDF and CDF across (-5, 5), aiming to
@@ -35,6 +35,7 @@
 #include <vtkWindowToImageFilter.h>
 
 #include "pdmath/normal.h"
+#include "pdmath/vtk_chart.h"
 #include "pdmath/vtk_table.h"
 
 // TODO: add a helper to reduce boilerplate in creating a single chart
@@ -49,122 +50,184 @@ const auto progname = progpath.stem().string();
 
 int main()
 {
-  // x + y dimension of each plot
-  constexpr auto x_dim = 640u;
-  constexpr auto y_dim = 480u;
-  // create VTK rendering window + interactor
-  vtkNew<vtkRenderWindow> win;
-  vtkNew<vtkRenderWindowInteractor> iwin;
-  win->SetWindowName("normal pdf + cdf");
-  win->SetSize(x_dim, y_dim * 2);
-  iwin->SetRenderWindow(win);
-  // VTK named colors object
+  // VTK named colors object + RGB double + RGBA named color helpers
   vtkNew<vtkNamedColors> colors;
-  // number of plots on the x and y axes
-  // constexpr auto x_plots = 1u;
-  // constexpr auto y_plots = 2u;
-  // create top and bottom renderer viewport coordinates. each consists of
-  // (x_min, y_min, x_max, y_max) as a point in 4D [0, 1] hypercube
-  vtkNew<vtkRenderer> ren_1;
-  ren_1->SetViewport(0., 0.5, 1., 1.);  // top renderer
-  vtkNew<vtkRenderer> ren_2;
-  ren_2->SetViewport(0., 0., 1., 0.5);  // bottom renderer
-  // set renderer colors. see https://htmlpreview.github.io/ of
-  // https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
-  ren_1->SetBackground(colors->GetColor3d("AliceBlue").GetData());
-  ren_2->SetBackground(colors->GetColor3d("Lavender").GetData());
-  // add renderers to window
-  win->AddRenderer(ren_1);
-  win->AddRenderer(ren_2);
-  // create top chart for ren_1
-  vtkNew<vtkChartXY> chart_1;
-  vtkNew<vtkContextScene> scene_1;
-  vtkNew<vtkContextActor> actor_1;
-  scene_1->AddItem(chart_1);
-  actor_1->SetScene(scene_1);
-  // update renderer with actor and scene with renderer
-  ren_1->AddActor(actor_1);
-  scene_1->SetRenderer(ren_1);
-  // paint chart_1 left and bottom axes + set their titles
-  auto x_axis_1 = chart_1->GetAxis(vtkAxis::BOTTOM);
-  auto y_axis_1 = chart_1->GetAxis(vtkAxis::LEFT);
-  // note: using 4-component RGBA so we have transparency (alpha) level
-  x_axis_1->GetGridPen()->SetColor(colors->GetColor4ub("LightGrey"));
-  x_axis_1->SetTitle("x");
-  y_axis_1->GetGridPen()->SetColor(x_axis_1->GetGridPen()->GetColorObject());
-  y_axis_1->SetTitle("pdf(x)");
-  // set background + title for chart_1
-  chart_1->GetBackgroundBrush()->SetColor(colors->GetColor4ub("MistyRose"));
-  chart_1->GetBackgroundBrush()->SetOpacityF(0.5);
-  chart_1->SetTitle("normal pdf");
-  // create bottom chart for ren_2
-  vtkNew<vtkChartXY> chart_2;
-  vtkNew<vtkContextScene> scene_2;
-  vtkNew<vtkContextActor> actor_2;
-  scene_2->AddItem(chart_2);
-  actor_2->SetScene(scene_2);
-  // update renderer with actor and scene with renderer
-  ren_2->AddActor(actor_2);
-  scene_2->SetRenderer(ren_2);
-  // paint chart_2 left and bottom axes + set their titles
-  auto x_axis_2 = chart_2->GetAxis(vtkAxis::BOTTOM);
-  auto y_axis_2 = chart_2->GetAxis(vtkAxis::LEFT);
-  x_axis_2->GetGridPen()->SetColor(colors->GetColor4ub("LightCyan"));
-  x_axis_2->SetTitle("x");
-  y_axis_2->GetGridPen()->SetColor(x_axis_2->GetGridPen()->GetColorObject());
-  y_axis_2->SetTitle("cdf(x)");
-  // set background + title for chart_2
-  chart_2->GetBackgroundBrush()->SetColor(colors->GetColor4ub("Thistle"));
-  chart_2->GetBackgroundBrush()->SetOpacityF(0.5);
-  chart_2->SetTitle("normal cdf");
+  auto drgb = [&colors](auto name) { return colors->GetColor3d(name); };
+  auto rgba = [&colors](auto name) { return colors->GetColor4ub(name); };
   // callable to fill each table row with
   auto make_row = [](auto i, auto n_rows)
   {
     // x values lie in [-5, 5] and we want them to avoid the endpoints. this
     // allows the points, if they were in (0, 1), to be the sequence
-    // (0.5 / n_rows, ... (n_rows - 1) / n_rows)
+    // (0.5 / n_rows, ... (n_rows - 0.5) / n_rows)
     auto x = -5 + 10 * (0.5 + i) / n_rows;
-    // set x, pdf(x), cdf(x)
-    return std::make_tuple(x, pdmath::normal::pdf(x), pdmath::normal::cdf(x));
+    // set x, pdf(x), pdf(0, 0.2)(x), pdf(0, 5)(x), pdf(-2, 0.5)(x), cdf(x),
+    // cdf(0, 0.2)(x), cdf(0, 5)(x), cdf(-2, 0.5)(x)
+    return std::make_tuple(
+      x,
+      pdmath::normal::pdf(x),
+      pdmath::normal::pdf(x / std::sqrt(0.2)) / std::sqrt(0.2),
+      pdmath::normal::pdf(x / std::sqrt(5.)) / std::sqrt(5.),
+      pdmath::normal::pdf((x + 2) / std::sqrt(0.5)) / std::sqrt(0.5),
+      pdmath::normal::cdf(x),
+      pdmath::normal::cdf(x / std::sqrt(0.2)),
+      pdmath::normal::cdf(x / std::sqrt(5.)),
+      pdmath::normal::cdf((x + 2) / std::sqrt(0.5))
+    );
   };
   // create table with x values, pdf(x), and cdf(x) values
   auto data = pdmath::vtk_table{}
     .column<vtkFloatArray>("x")
     .column<vtkFloatArray>("pdf(x)")
+    .column<vtkFloatArray>("pdf(0, 0.2)(x)")
+    .column<vtkFloatArray>("pdf(0, 5)(x)")
+    .column<vtkFloatArray>("pdf(-2, 0.5)(x)")
     .column<vtkFloatArray>("cdf(x)")
+    .column<vtkFloatArray>("cdf(0, 0.2)(x)")
+    .column<vtkFloatArray>("cdf(0, 5)(x)")
+    .column<vtkFloatArray>("cdf(-2, 0.5)(x)")
     .rows(80, make_row)
     ();
-  // plotting color
-  auto plot_color = colors->GetColor4ub("Violet");
-  // add (x, pdf(x)) point plot to top chart (squares)
-  auto plot_1 = chart_1->AddPlot(vtkChart::POINTS);
-  plot_1->SetInputData(data, 0, 1);
-  plot_1->SetColor(
-    plot_color.GetRed(),
-    plot_color.GetGreen(),
-    plot_color.GetBlue(),
-    plot_color.GetAlpha()
-  );
-  // sets the line width so without a line plot we don't need it
-  // plot_1->SetWidth(1.);
-  dynamic_cast<vtkPlotPoints*>(plot_1)->SetMarkerStyle(vtkPlotPoints::SQUARE);
-  // add (x, cdf(x)) point plot to bottom chart (diamonds)
-  auto plot_2 = chart_2->AddPlot(vtkChart::POINTS);
-  plot_2->SetInputData(data, 0, 2);
-  plot_2->SetColor(
-    plot_color.GetRed(),
-    plot_color.GetGreen(),
-    plot_color.GetBlue(),
-    plot_color.GetAlpha()
-  );
-  // sets the line width so without a line plot we don't need it
-  // plot_2->SetWidth(1.);
-  dynamic_cast<vtkPlotPoints*>(plot_2)->SetMarkerStyle(vtkPlotPoints::DIAMOND);
-  // begin rendering window + interactor
+  // add top chart for normal PDF plots
+  auto new_chart_1 = pdmath::vtk_xy_chart{}
+    .title("normal pdf")
+    .color(rgba("MistyRose"))
+    .opacity(0.5)
+    // draw axes
+    .axis(vtkAxis::BOTTOM)
+      .grid_color(rgba("LightGrey"))
+      .title("x")
+    ()
+    .axis(vtkAxis::LEFT)
+      .grid_color(rgba("LightGrey"))
+      .title("pdf(x)")
+    ()
+    // add line plots
+    .plot<vtkChart::LINE>()
+      .data(data, "x", "pdf(x)")
+      .color(rgba("Red"))
+      .width(3.)
+      .label("N(0, 1)")
+    ()
+    .plot<vtkChart::LINE>()
+      .data(data, "x", "pdf(0, 0.2)(x)")
+      .color(rgba("CornflowerBlue"))
+      .width(3.)
+      .label("N(0, 0.2)")
+    ()
+    .plot<vtkChart::LINE>()
+      .data(data, "x", "pdf(0, 5)(x)")
+      .color(rgba("Orange"))
+      .width(3.)
+      .label("N(0, 5)")
+    ()
+    .plot<vtkChart::LINE>()
+      .data(data, "x", "pdf(-2, 0.5)(x)")
+      .color(rgba("Green"))
+      .width(3.)
+      .label("N(-2, 0.5)")
+    ()
+    // move legend and make visible
+    .legend()
+      .align<vtkChartLegend::LEFT>()
+      .show()
+    ()
+    ();
+  // add bottom chart for normal CDF plots
+  auto new_chart_2 = pdmath::vtk_xy_chart{}
+    .title("normal cdf")
+    .color(rgba("Thistle"))
+    .opacity(0.5)
+    .axis(vtkAxis::BOTTOM)
+      .grid_color(rgba("LightCyan"))
+      .title("x")
+    ()
+    .axis(vtkAxis::LEFT)
+      .grid_color(rgba("LightCyan"))
+      .title("cdf(x)")
+    ()
+    .plot<vtkChart::LINE>()
+      .data(data, "x", "cdf(x)")
+      .color(rgba("Red"))
+      .width(3.)
+      .label("N(0, 1)")
+    ()
+    .plot<vtkChart::LINE>()
+      .data(data, "x", "cdf(0, 0.2)(x)")
+      .color(rgba("CornflowerBlue"))
+      .width(3.)
+      .label("N(0, 0.2)")
+    ()
+    .plot<vtkChart::LINE>()
+      .data(data, "x", "cdf(0, 5)(x)")
+      .color(rgba("Orange"))
+      .width(3.)
+      .label("N(0, 5)")
+    ()
+    .plot<vtkChart::LINE>()
+      .data(data, "x", "cdf(-2, 0.5)(x)")
+      .color(rgba("Green"))
+      .width(3.)
+      .label("N(-2, 0.5)")
+    ()
+    .legend()
+      // more explicitly:
+      // .align<vtkChartLegend::LEFT, pdmath::vtk_no_align>()
+      .align<vtkChartLegend::LEFT>()
+      .show()
+    ()
+    ();
+  // create scenes + add plots to them
+  vtkNew<vtkContextScene> scene_1;
+  scene_1->AddItem(new_chart_1);
+  vtkNew<vtkContextScene> scene_2;
+  scene_2->AddItem(new_chart_2);
+  // create actors + add scenes to them
+  vtkNew<vtkContextActor> actor_1;
+  actor_1->SetScene(scene_1);
+  vtkNew<vtkContextActor> actor_2;
+  actor_2->SetScene(scene_1);
+  // create top and bottom renderers. viewport coordinates consist of
+  // (x_min, y_min, x_max, y_max) as a point in 4D [0, 1] hypercube. see
+  // color list used for renders via https://htmlpreview.github.io/ of
+  // https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
+  vtkNew<vtkRenderer> ren_1;
+  ren_1->SetViewport(0., 0.5, 1., 1.);  // top renderer
+  ren_1->SetBackground(drgb("AliceBlue").GetData());
+  vtkNew<vtkRenderer> ren_2;
+  ren_2->SetViewport(0., 0., 1., 0.5);  // bottom renderer
+  ren_2->SetBackground(drgb("Lavender").GetData());
+  // add actors to renderers
+  ren_1->AddActor(actor_1);
+  ren_2->AddActor(actor_2);
+  // x + y dimension of each plot
+  constexpr auto x_dim = 640u;
+  constexpr auto y_dim = 480u;
+  // create VTK rendering window that writes to framebuffer instead of screen
+  vtkNew<vtkRenderWindow> win;
+  win->SetWindowName("normal pdf + cdf");
+  win->SetSize(x_dim, y_dim * 2);
+  // TODO: #if 0 to enable window interactor
+#if 1
+  win->SetOffScreenRendering(1);  // hide window + use off-screen buffer
+#endif  // 1
+  // add renderers to window
+  win->AddRenderer(ren_1);
+  win->AddRenderer(ren_2);
+  // create window interactor to enable rendering
+  // TODO: #if 1 to start interactor event loop
+#if 0
+  vtkNew<vtkRenderWindowInteractor> iwin;
+  iwin->SetRenderWindow(win);
+#endif  // 0
+  // render window and start event loop
+  // note: do *not* render before setting the interactor's render window; this
+  // will cause a segmentation fault when you close the window
   win->Render();
-  // TODO: uncomment to start interactor event loop
-  // iwin->Initialize();
-  // iwin->Start();
+  // TODO: #if 1 to start interactor even tloop
+#if 0
+  iwin->Start();  // automatically calls Initialize()
+#endif  // 0
   // create window filter to write to write to image
   vtkNew<vtkWindowToImageFilter> wif;
   wif->SetInput(win);
@@ -174,7 +237,7 @@ int main()
   vtkNew<vtkPNGWriter> pngw;
   auto png_path = progpath;
   png_path.replace_extension(".png");
-  std::cout << "Writing " << png_path.filename() << "... " << std::flush;
+  std::cout << "writing " << png_path.filename() << "... " << std::flush;
   pngw->SetFileName(png_path.c_str());
   pngw->SetInputConnection(wif->GetOutputPort());
   pngw->Write();
