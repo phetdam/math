@@ -23,6 +23,8 @@
 #include <vtkStdString.h>
 #include <vtkTable.h>
 
+#include "pdmath/type_traits.h"
+
 namespace pdmath {
 
 /**
@@ -456,7 +458,7 @@ private:
  * // create the chart with sin, cos, tan plots
  * auto chart = vtk_xy_chart{}
  *   // set up title, background color, and background color opacity
- *   .title("trigonometric functions")
+ *   .title("sin, cos, tan")
  *   .color(named_color("Thistle"))
  *   .opacity(0.5)
  *   // update x (bottom) and y (left) axis grid line colors + titles
