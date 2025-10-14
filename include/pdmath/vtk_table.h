@@ -42,10 +42,10 @@ namespace pdmath {
  * // one can use a single-argument lambda that only takes the row index.
  * auto make_row = [](auto i, auto n_rows)
  * {
- *   // points in (-1.5, 1.5). we avoid the left endpoint by using the sequence
+ *   // points in (-1.2, 1.2). we avoid the left endpoint by using the sequence
  *   // of points {0.5 / n_rows, ... (n_rows - 0.5) / n_rows} before we do the
  *   // affine transform to ensure points are in the desired interval
- *   auto x = -1.5 + 3 * (0.5 + i) / n_rows;
+ *   auto x = -1.2 + 2.4 * (0.5 + i) / n_rows;
  *   // row is composed of x, sin(x), cos(x), tan(x)
  *   return std::make_tuple(x, std::sin(x), std::cos(x), std::tan(x));
  * };
