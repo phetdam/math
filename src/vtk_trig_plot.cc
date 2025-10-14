@@ -31,19 +31,6 @@ int main()
   vtkNew<vtkNamedColors> colors;
   auto drgb = [&colors](auto name) { return colors->GetColor3d(name); };
   auto rgba = [&colors](auto name) { return colors->GetColor4ub(name); };
-  // plot dimensions
-  constexpr auto x_dim = 640u;
-  constexpr auto y_dim = 480u;
-  // create VTK window that writes to a framebuffer instead
-  vtkNew<vtkRenderWindow> win;
-  win->SetWindowName("sin, cos, tan");
-  win->SetSize(x_dim, y_dim);
-  win->OffScreenRenderingOn();
-  // create renderer + add to window
-  vtkNew<vtkRenderer> ren;
-  ren->SetViewport(0., 0., 1., 1.);  // x_min, y_min, x_max, y_max
-  ren->SetBackground(drgb("Lavender").GetData());
-  win->AddRenderer(ren);
   // callable to fill table rows with
   auto make_row = [](auto i, auto n_rows)
   {
@@ -110,8 +97,23 @@ int main()
   // add actor with scene
   vtkNew<vtkContextActor> actor;
   actor->SetScene(scene);
-  // add actor to renderer + begin rendering window
+  // add renderer with actor
+  vtkNew<vtkRenderer> ren;
+  ren->SetViewport(0., 0., 1., 1.);  // x_min, y_min, x_max, y_max
+  ren->SetBackground(drgb("Lavender").GetData());
+  // note: must explicitly set alpha (0 by default for transparency)
+  ren->SetBackgroundAlpha(0.5);
   ren->AddActor(actor);
+  // rendering dimensions
+  constexpr auto x_dim = 640u;
+  constexpr auto y_dim = 480u;
+  // add VTK window writing to framebuffer instead of screen with renderer
+  vtkNew<vtkRenderWindow> win;
+  win->SetWindowName("sin, cos, tan");  // not shown if rendering off-screen
+  win->SetSize(x_dim, y_dim);
+  win->OffScreenRenderingOn();
+  win->AddRenderer(ren);
+  // begin rendering window
   win->Render();
   // create window filter to write to write to image
   vtkNew<vtkWindowToImageFilter> wif;
