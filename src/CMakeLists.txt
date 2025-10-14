@@ -29,3 +29,13 @@ add_test(NAME fib_50 COMMAND fib_50)
 add_executable(qmc_pi qmc_pi.cc)
 target_link_libraries(qmc_pi PRIVATE pdmath)
 add_test(NAME qmc_pi COMMAND qmc_pi)
+
+# vtk_trig_plot: plot sin, cos, tan with VTK
+if(VTK_FOUND)
+    add_executable(vtk_trig_plot vtk_trig_plot.cc)
+    target_link_libraries(vtk_trig_plot PRIVATE ${VTK_LIBRARIES})
+    vtk_module_autoinit(TARGETS vtk_trig_plot MODULES ${VTK_LIBRARIES})
+    add_test(NAME vtk_trig_plot COMMAND vtk_trig_plot)
+else()
+    message(STATUS "Skipping vtk_trig_plot (requires VTK)")
+endif()
