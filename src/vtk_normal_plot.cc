@@ -186,7 +186,7 @@ int main()
   vtkNew<vtkContextActor> actor_1;
   actor_1->SetScene(scene_1);
   vtkNew<vtkContextActor> actor_2;
-  actor_2->SetScene(scene_1);
+  actor_2->SetScene(scene_2);
   // create top and bottom renderers. viewport coordinates consist of
   // (x_min, y_min, x_max, y_max) as a point in 4D [0, 1] hypercube. see
   // color list used for renders via https://htmlpreview.github.io/ of
@@ -194,9 +194,11 @@ int main()
   vtkNew<vtkRenderer> ren_1;
   ren_1->SetViewport(0., 0.5, 1., 1.);  // top renderer
   ren_1->SetBackground(drgb("AliceBlue").GetData());
+  ren_1->SetBackgroundAlpha(0.5);       // 0 by default for transparency
   vtkNew<vtkRenderer> ren_2;
   ren_2->SetViewport(0., 0., 1., 0.5);  // bottom renderer
   ren_2->SetBackground(drgb("Lavender").GetData());
+  ren_2->SetBackgroundAlpha(0.5);       // 0 by default for transparency
   // add actors to renderers
   ren_1->AddActor(actor_1);
   ren_2->AddActor(actor_2);
