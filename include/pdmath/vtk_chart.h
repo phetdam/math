@@ -481,7 +481,7 @@ private:
  *     .width(3.)
  *     .label("cos(x)")
  *   ()
- *   .plot<vtkkChart::LINE>()
+ *   .plot<vtkChart::LINE>()
  *     .data(table, "x", "tan(x)")
  *     .color(named_color("Green"))
  *     .width(3.)
