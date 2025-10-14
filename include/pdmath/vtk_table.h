@@ -28,7 +28,42 @@ namespace pdmath {
 /**
  * `vtkTable` wrapper with fluent API.
  *
- * This simplifies the process of creating a multi-column table.
+ * This simplifies the process of creating a multi-column table. Using the VTK
+ * object-oriented interface directly is a bit verbose since APIs are not
+ * fluent and because of some of the design decisions made. By using templates
+ * and some more functional programming paradigms, the `vtk_table` provides a
+ * simpler fluent API, with self-management of column data.
+ *
+ * For example, to create a table with float columns, one can use:
+ *
+ * @code{.cc}
+ * // lambda for filling rows (other invocables can be used too). i is the row
+ * // index and n_rows gives the number of rows in the table to fill. note that
+ * // one can use a single-argument lambda that only takes the row index.
+ * auto make_row = [](auto i, auto n_rows)
+ * {
+ *   // points in (-10, 10). we avoid the left endpoint by using the sequence
+ *   // of points {0.5 / n_rows, ... (n_rows - 0.5) / n_rows} before we do the
+ *   // affine transform to ensure points are in the desired interval
+ *   auto x = -10 + 20 * (0.5 + i) / n_rows;
+ *   // row is composed of x, sin(x), cos(x), tan(x)
+ *   return std::make_tuple(x, std::sin(x), std::cos(x), std::tan(x));
+ * };
+ * // number of points to generate (also number of rows in table)
+ * constexpr auto n_points = 50u;
+ * // create table with float columns and fill rows using make_row
+ * auto table = vtk_table{}
+ *   .column<vtkFloatArray>("x")
+ *   .column<vtkFloatArray>("sin(x)")
+ *   .column<vtkFloatArray>("cos(x)")
+ *   .column<vtkFloatArray>("tan(x)")
+ *   .rows(n_points, make_row)
+ *   ();
+ * @endcode
+ *
+ * The table has implicit conversions to `vtkTable*` for interop with standard
+ * VTK functions and allows member access of the underlying `vtkTable` since it
+ * also provides an overloaded `operator->`.
  *
  * @note This object is move-only since `vtkNew` is used to manage allocations.
  */
@@ -113,9 +148,7 @@ public:
   /**
    * Set the number of rows in the table.
    *
-   * This should be called after at least one column is added.
-   *
-   * @note Call this *after* adding all the new table columns.
+   * This should be called after at least one column is added to the table.
    *
    * @todo Consider removing this as it is kind of confusing.
    *
@@ -181,6 +214,8 @@ public:
   /**
    * Fill a given row with the incoming values.
    *
+   * @note The specified row should already exist in the table.
+   *
    * @tparam Ts Tuple types
    *
    * @param i Row index
@@ -193,14 +228,15 @@ public:
   }
 
   /**
-   * Invoke the given callable on each row.
+   * Fill the table rows using the provided invocable.
    *
-   * This callable takes the row index and should return a tuple with number of
-   * elements equal to the number of columns currently in the table.
+   * This should be called after `rows(vtkIdType)` is called. `f` takes the row
+   * index and should return a tuple with number of elements equal to the
+   * number of columns currently in the table.
    *
    * @note Element types must match those in the `vtkTable`.
    *
-   * @tparam F Unary callable returning a tuple of elements for the row
+   * @tparam F Unary callable returning a tuple of row elements
    *
    * @param f Callable to use for filling row elements
    */
@@ -213,7 +249,19 @@ public:
     return *this;
   }
 
-  // TODO: document more
+  /**
+   * Fill the table rows using the provided invocable.
+   *
+   * This should be called after `rows(vtkIdType)` is called. `f` takes the row
+   * index and total number of rows and should return a tuple with number of
+   * elements equal to the number of columns currently in the table.
+   *
+   * @note Element types must match those in the `vtkTable`.
+   *
+   * @tparam F Binary callable returning a tuple of row elements
+   *
+   * @param f Callable to use for filling row elements
+   */
   template <typename F>
   auto& rows(F&& f, constraint_t<binary_row_callable<F>::value> = 0)
   {
@@ -222,8 +270,20 @@ public:
     return *this;
   }
 
-  // TODO: document more. sets number of rows + fills them with the callable
-  // note: cannot reverse n_rows, f as otherwise a different overload is picked
+  /**
+   * Fill the table rows using the provided invocable.
+   *
+   * After adding columns to the table, call this member to set the number of
+   * table rows and then populate each row using the invocable.
+   *
+   * @note We cannot reverse `n_rows` and `f` as otherwise the `rows(F&&)`
+   *  overload is selected (due to the optional argument).
+   *
+   * @tparam F Unary or binary callable returning a tuple of row elements
+   *
+   * @param n_rows Number of desired table row
+   * @param f Callable to use for filling row elements
+   */
   template <typename F>
   auto& rows(
     vtkIdType n_rows,
@@ -237,6 +297,19 @@ public:
 
   /**
    * Self-move to enable initialization via fluent API.
+   *
+   * This allows the following pattern to work:
+   *
+   * @code{.cc}
+   * auto table = vtk_table{}
+   *   .column<vtkFloatArray>("x")
+   *   .column<vtkFloatArray>("x * x")
+   *   .rows(20, [](auto i) { return std::make_tuple(i, i * i); })
+   *   ();
+   * @endcode
+   *
+   * Without this `operator()` you will get a compiler error as the `vtk_table`
+   * is a move-only class since `vtkNew` is move-only.
    */
   auto operator()()
   {
