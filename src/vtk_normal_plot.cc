@@ -38,16 +38,6 @@
 #include "pdmath/vtk_chart.h"
 #include "pdmath/vtk_table.h"
 
-// TODO: add a helper to reduce boilerplate in creating a single chart
-
-namespace {
-
-// current program absolute path + name
-const std::filesystem::path progpath{__FILE__};
-const auto progname = progpath.stem().string();
-
-}  // namespace
-
 int main()
 {
   // VTK named colors object + RGB double + RGBA named color helpers
@@ -239,10 +229,9 @@ int main()
   wif->ReadFrontBufferOff();        // read back buffer only
   wif->SetInputBufferTypeToRGBA();  // RGBA input (need alpha level)
   // use PNG writer to write rendering to file
-  vtkNew<vtkPNGWriter> pngw;
-  auto png_path = progpath;
-  png_path.replace_extension(".png");
+  auto png_path = std::filesystem::path{__FILE__}.replace_extension(".png");
   std::cout << "writing " << png_path.filename() << "... " << std::flush;
+  vtkNew<vtkPNGWriter> pngw;
   pngw->SetFileName(png_path.c_str());
   pngw->SetInputConnection(wif->GetOutputPort());
   pngw->Write();
