@@ -22,12 +22,12 @@
 #include <vtkContextScene.h>
 #include <vtkContextView.h>
 #include <vtkFloatArray.h>
+#include <vtkNamedColors.h>
+#include <vtkNew.h>
 #include <vtkPen.h>
 #include <vtkPlot.h>
 #include <vtkPlotPoints.h>
 #include <vtkPNGWriter.h>
-#include <vtkNamedColors.h>
-#include <vtkNew.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
