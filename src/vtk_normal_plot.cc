@@ -219,7 +219,7 @@ int main()
   // note: do *not* render before setting the interactor's render window; this
   // will cause a segmentation fault when you close the window
   win->Render();
-  // TODO: #if 1 to start interactor even tloop
+  // TODO: #if 1 to start interactor event loop
 #if 0
   iwin->Start();  // automatically calls Initialize()
 #endif  // 0
