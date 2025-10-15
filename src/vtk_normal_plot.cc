@@ -61,31 +61,34 @@ int main()
     // allows the points, if they were in (0, 1), to be the sequence
     // (0.5 / n_rows, ... (n_rows - 0.5) / n_rows)
     auto x = -5 + 10 * (0.5 + i) / n_rows;
-    // set x, pdf(x), pdf(0, 0.2)(x), pdf(0, 5)(x), pdf(-2, 0.5)(x), cdf(x),
-    // cdf(0, 0.2)(x), cdf(0, 5)(x), cdf(-2, 0.5)(x)
+    // precompute standard deviations
+    auto root_0_2 = std::sqrt(0.2);
+    auto root_5 = std::sqrt(5.);
+    auto root_0_5 = std::sqrt(0.5);
+    // set, pdf(x), and cdf(x) values
     return std::make_tuple(
       x,
-      pdmath::normal::pdf(x),
-      pdmath::normal::pdf(x / std::sqrt(0.2)) / std::sqrt(0.2),
-      pdmath::normal::pdf(x / std::sqrt(5.)) / std::sqrt(5.),
-      pdmath::normal::pdf((x + 2) / std::sqrt(0.5)) / std::sqrt(0.5),
-      pdmath::normal::cdf(x),
-      pdmath::normal::cdf(x / std::sqrt(0.2)),
-      pdmath::normal::cdf(x / std::sqrt(5.)),
-      pdmath::normal::cdf((x + 2) / std::sqrt(0.5))
+      pdmath::normal::pdf(x),                              // N(0, 1)
+      pdmath::normal::pdf(x / root_0_2) / root_0_2,        // N(0, 0.2)
+      pdmath::normal::pdf(x / root_5) / root_5,            // N(0, 5)
+      pdmath::normal::pdf((x + 2) / root_0_5) / root_0_5,  // N(-2, 0.5)
+      pdmath::normal::cdf(x),                              // N(0, 1)
+      pdmath::normal::cdf(x / root_0_2),                   // N(0, 0.2)
+      pdmath::normal::cdf(x / root_5),                     // N(0, 5)
+      pdmath::normal::cdf((x + 2) / root_0_5)              // N(-2, 0.5)
     );
   };
   // create table with x values, pdf(x), and cdf(x) values
   auto data = pdmath::vtk_table{}
     .column<vtkFloatArray>("x")
     .column<vtkFloatArray>("pdf(x)")
-    .column<vtkFloatArray>("pdf(0, 0.2)(x)")
-    .column<vtkFloatArray>("pdf(0, 5)(x)")
-    .column<vtkFloatArray>("pdf(-2, 0.5)(x)")
+    .column<vtkFloatArray>("pdf[0, 0.2](x)")
+    .column<vtkFloatArray>("pdf[0, 5](x)")
+    .column<vtkFloatArray>("pdf[-2, 0.5](x)")
     .column<vtkFloatArray>("cdf(x)")
-    .column<vtkFloatArray>("cdf(0, 0.2)(x)")
-    .column<vtkFloatArray>("cdf(0, 5)(x)")
-    .column<vtkFloatArray>("cdf(-2, 0.5)(x)")
+    .column<vtkFloatArray>("cdf[0, 0.2](x)")
+    .column<vtkFloatArray>("cdf[0, 5](x)")
+    .column<vtkFloatArray>("cdf[-2, 0.5](x)")
     .rows(80, make_row)
     ();
   // add top chart for normal PDF plots
@@ -110,19 +113,19 @@ int main()
       .label("N(0, 1)")
     ()
     .plot<vtkChart::LINE>()
-      .data(data, "x", "pdf(0, 0.2)(x)")
+      .data(data, "x", "pdf[0, 0.2](x)")
       .color(rgba("CornflowerBlue"))
       .width(3.)
       .label("N(0, 0.2)")
     ()
     .plot<vtkChart::LINE>()
-      .data(data, "x", "pdf(0, 5)(x)")
+      .data(data, "x", "pdf[0, 5](x)")
       .color(rgba("Orange"))
       .width(3.)
       .label("N(0, 5)")
     ()
     .plot<vtkChart::LINE>()
-      .data(data, "x", "pdf(-2, 0.5)(x)")
+      .data(data, "x", "pdf[-2, 0.5](x)")
       .color(rgba("Green"))
       .width(3.)
       .label("N(-2, 0.5)")
@@ -153,19 +156,19 @@ int main()
       .label("N(0, 1)")
     ()
     .plot<vtkChart::LINE>()
-      .data(data, "x", "cdf(0, 0.2)(x)")
+      .data(data, "x", "cdf[0, 0.2](x)")
       .color(rgba("CornflowerBlue"))
       .width(3.)
       .label("N(0, 0.2)")
     ()
     .plot<vtkChart::LINE>()
-      .data(data, "x", "cdf(0, 5)(x)")
+      .data(data, "x", "cdf[0, 5](x)")
       .color(rgba("Orange"))
       .width(3.)
       .label("N(0, 5)")
     ()
     .plot<vtkChart::LINE>()
-      .data(data, "x", "cdf(-2, 0.5)(x)")
+      .data(data, "x", "cdf[-2, 0.5](x)")
       .color(rgba("Green"))
       .width(3.)
       .label("N(-2, 0.5)")
