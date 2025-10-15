@@ -5,9 +5,9 @@
  * @copyright MIT License
  *
  * This program plots the standard normal PDF and CDF across (-5, 5), aiming to
- * replicate the plots on https://en.wikipedia.org/wiki/Normal_distribution,
- * but only for the standard normal distribution. Program is adapted from the
- * VTK example https://examples.vtk.org/site/Cxx/Plotting/MultiplePlots/.
+ * replicate the plots on https://en.wikipedia.org/wiki/Normal_distribution.
+ * Program is heavily modified and resdesigned from the VTK example
+ * https://examples.vtk.org/site/Cxx/Plotting/MultiplePlots/.
  */
 
 #include <cstdlib>
