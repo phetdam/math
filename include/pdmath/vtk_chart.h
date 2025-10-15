@@ -511,6 +511,7 @@ public:
   {
     return chart_.Get();
   }
+
   auto operator()()
   {
     return std::move(*this);
