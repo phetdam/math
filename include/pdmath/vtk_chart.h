@@ -439,6 +439,8 @@ private:
   parent_type* parent_;
 };
 
+struct vtk_no_parent {};
+
 /**
  * `vtkChartXY` wrapper with fluent API.
  *
@@ -497,10 +499,46 @@ private:
  *   ();
  * @endcode
  */
+template <typename T = void>
 class vtk_xy_chart {
+private:
+  // TODO: finish prototyping for compile-time ownership architecture
+  // parent type check (void for standalone type)
+  static_assert(
+    std::is_same_v<T, void> ||
+    (!std::is_pointer_v<T> && std::is_convertible_v<T, vtkContextScene*>) ||
+    std::is_base_of_v<vtkContextScene, T>
+  );
+  // member type
+  using chart_ptr = std::conditional_t<
+    std::is_void_v<T>,
+    vtkNew<vtkChartXY>,  // owning
+    vtkChartXY*          // non-owning
+  >;
+
 public:
+  using parent_type = T;
   using axis_type = vtk_child_axis<vtk_xy_chart>;
   using legend_type = vtk_child_legend<vtk_xy_chart>;
+
+  /**
+   * Default ctor.
+   *
+   * This is only available when the `vtk_xy_chart` has no parent.
+   *
+   * @note Extra template arg is used to make the declaration dependent on a
+   *  template type and therefore delay instantiation and use SFINAE.
+   */
+  template <typename U = int>
+  vtk_xy_chart(std::enable_if_t<std::is_void_v<T>, U> = 0) : parent_{} {}
+
+  template <typename U = int>
+  vtk_xy_chart(
+    vtkChartXY* chart,
+    T* parent = nullptr,
+    std::enable_if_t<!std::is_void_v<T>, U> = 0) noexcept
+    : chart_{chart}, parent_{parent}
+  {}
 
   // TODO: document more
 
@@ -509,12 +547,18 @@ public:
 
   auto operator->() const noexcept
   {
-    return chart_.Get();
+    if constexpr (std::is_void_v<T>)
+      return chart_.Get();
+    else
+      return chart_;
   }
 
-  auto operator()()
+  auto&& operator()()
   {
-    return std::move(*this);
+    if constexpr (std::is_void_v<T>)
+      return std::move(*this);
+    else
+      return *parent_;
   }
 
   operator vtkChartXY*() const noexcept
@@ -576,7 +620,8 @@ public:
   }
 
 private:
-  vtkNew<vtkChartXY> chart_;
+  chart_ptr chart_;
+  parent_type* parent_;
 };
 
 }  // namespace pdmath
