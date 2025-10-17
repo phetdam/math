@@ -17,7 +17,15 @@ if(VTK_FOUND)
     target_link_libraries(vtk_normal_plot PRIVATE ${VTK_LIBRARIES})
     vtk_module_autoinit(TARGETS vtk_normal_plot MODULES ${VTK_LIBRARIES})
     # note: can add as test since we render offscreen
+    # TODO: still requires X display with OpenGL on POSIX so enable skip if
+    # we've detected at build time that there is no X display
     add_test(NAME vtk_normal_plot COMMAND vtk_normal_plot)
+    if(NOT PDMATH_HAS_X_DISPLAY)
+        set_tests_properties(
+            vtk_normal_plot PROPERTIES
+            SKIP_REGULAR_EXPRESSION "No display available"
+        )
+    endif()
 else()
     message(STATUS "Skipping vtk_normal_plot (requires VTK)")
 endif()
@@ -37,7 +45,14 @@ if(VTK_FOUND)
     add_executable(vtk_trig_plot vtk_trig_plot.cc)
     target_link_libraries(vtk_trig_plot PRIVATE ${VTK_LIBRARIES})
     vtk_module_autoinit(TARGETS vtk_trig_plot MODULES ${VTK_LIBRARIES})
+    # note: see above. skip if we can't open an X display
     add_test(NAME vtk_trig_plot COMMAND vtk_trig_plot)
+    if(NOT PDMATH_HAS_X_DISPLAY)
+        set_tests_properties(
+            vtk_trig_plot PROPERTIES
+            SKIP_REGULAR_EXPRESSION "No display available"
+        )
+    endif()
 else()
     message(STATUS "Skipping vtk_trig_plot (requires VTK)")
 endif()

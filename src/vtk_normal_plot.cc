@@ -215,6 +215,12 @@ int main()
   vtkNew<vtkRenderWindowInteractor> iwin;
   iwin->SetRenderWindow(win);
 #endif  // 0
+  // check: if there isn't a display, we can't render
+  // note: EnsureDisplay() is preferred but not available in VTK 9.1
+  if (!win->GetGenericDisplayId()) {
+    std::cerr << "Error: No display available" << std::endl;
+    return EXIT_FAILURE;
+  }
   // render window and start event loop
   // note: do *not* render before setting the interactor's render window; this
   // will cause a segmentation fault when you close the window
