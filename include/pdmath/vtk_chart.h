@@ -501,25 +501,22 @@ struct vtk_no_parent {};
  */
 template <typename T = void>
 class vtk_xy_chart {
-private:
+public:
+  // indicate if owning or not
+  static constexpr bool owning = std::is_void_v<T>;
   // TODO: finish prototyping for compile-time ownership architecture
   // parent type check (void for standalone type)
   static_assert(
-    std::is_same_v<T, void> ||
-    (!std::is_pointer_v<T> && std::is_convertible_v<T, vtkContextScene*>) ||
-    std::is_base_of_v<vtkContextScene, T>
+    owning ||
+    (!std::is_pointer_v<T> && std::is_convertible_v<T, vtkContextScene*>)
   );
-  // member type
-  using chart_ptr = std::conditional_t<
-    std::is_void_v<T>,
-    vtkNew<vtkChartXY>,  // owning
-    vtkChartXY*          // non-owning
-  >;
 
-public:
   using parent_type = T;
   using axis_type = vtk_child_axis<vtk_xy_chart>;
   using legend_type = vtk_child_legend<vtk_xy_chart>;
+
+  template <int V>
+  using plot_type = vtk_child_plot<vtk_xy_chart, V>;
 
   /**
    * Default ctor.
@@ -530,24 +527,21 @@ public:
    *  template type and therefore delay instantiation and use SFINAE.
    */
   template <typename U = int>
-  vtk_xy_chart(std::enable_if_t<std::is_void_v<T>, U> = 0) : parent_{} {}
+  vtk_xy_chart(std::enable_if_t<owning, U> = 0) : parent_{} {}
 
   template <typename U = int>
   vtk_xy_chart(
     vtkChartXY* chart,
     T* parent = nullptr,
-    std::enable_if_t<!std::is_void_v<T>, U> = 0) noexcept
+    std::enable_if_t<!owning, U> = 0) noexcept
     : chart_{chart}, parent_{parent}
   {}
 
   // TODO: document more
 
-  template <int V>
-  using plot_type = vtk_child_plot<vtk_xy_chart, V>;
-
   auto operator->() const noexcept
   {
-    if constexpr (std::is_void_v<T>)
+    if constexpr (owning)
       return chart_.Get();
     else
       return chart_;
@@ -555,7 +549,7 @@ public:
 
   auto&& operator()()
   {
-    if constexpr (std::is_void_v<T>)
+    if constexpr (owning)
       return std::move(*this);
     else
       return *parent_;
@@ -620,7 +614,7 @@ public:
   }
 
 private:
-  chart_ptr chart_;
+  std::conditional_t<owning, vtkNew<vtkChartXY>, vtkChartXY*> chart_;
   parent_type* parent_;
 };
 
