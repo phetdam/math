@@ -173,6 +173,41 @@ else()
     message(CHECK_FAIL "not found")
 endif()
 
+# find X11
+message(CHECK_START "Looking for X11")
+find_package(X11)
+if(X11_FOUND)
+    message(CHECK_PASS "found")
+else()
+    message(CHECK_FAIL "not found")
+endif()
+
+# if X11 found use try_run to build + try to connect to the default display
+if(X11_FOUND)
+    try_run(
+        xopen_run_res xopen_build_res
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/cmake/xopen.cc
+        LINK_LIBRARIES X11::X11
+        # for consistency with the rest of the build
+        CXX_STANDARD ${CMAKE_CXX_STANDARD}
+        CXX_STANDARD_REQUIRED ${CMAKE_CXX_STANDARD_REQUIRED}
+    )
+    # if unable to build or if run failed, no X display
+    # if nonzero return we have an X display
+    if(NOT xopen_run_res)
+        set(PDMATH_HAS_X_DISPLAY 1)
+    else()
+        set(PDMATH_HAS_X_DISPLAY 0)
+    endif()
+endif()
+# indicate if there is a default X display to connect to
+if(PDMATH_HAS_X_DISPLAY)
+    message(STATUS "X default display: Yes")
+else()
+    message(STATUS "X default display: No")
+endif()
+
 # find VTK for visualization
 find_package(
     VTK 9.1
