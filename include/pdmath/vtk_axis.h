@@ -9,6 +9,7 @@
 #define PDMATH_VTK_AXIS_H_
 
 #include <vtkAxis.h>
+#include <vtkPen.h>
 
 #include "pdmath/vtk_skeleton.h"
 

@@ -17,8 +17,6 @@
 #include <vtkChartXY.h>
 #include <vtkColor.h>
 #include <vtkChartLegend.h>
-#include <vtkNew.h>
-#include <vtkPen.h>
 #include <vtkStdString.h>
 #include <vtkTable.h>
 
