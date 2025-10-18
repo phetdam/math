@@ -164,6 +164,8 @@ public:
 
   /**
    * Enable implicit conversion to the VTK object pointer.
+   *
+   * This is useful for integration with VTK functions that take pointers.
    */
   operator V*() const noexcept
   {
@@ -182,7 +184,35 @@ public:
    * Return reference to support method chaining.
    *
    * For owning skeletons this is `*this` as a `T` xvalue while for non-owning
-   * skeletons this is an lvalue reference to the parent.
+   * skeletons this is an lvalue reference to the parent. For example, this
+   * allows the following kind of patterns to work.
+   *
+   * First, the pattern where the object owns its own data:
+   *
+   * @code{.cc}
+   * auto table = vtk_table{}
+   *   .column<vtkFloatArray>("x")
+   *   .column<vtkFloatArray>("x * x")
+   *   .rows(20, [](auto i) { return std::make_tuple(i, i * i); })
+   *   // std::move(*this) for initialization
+   *   ();
+   * @endcode
+   *
+   * Second, the pattern where the object is owned by a parent object:
+   *
+   * @code{.cc}
+   *   // ... parent object calls ...
+   *   // create a new vtk_table<parent_type>
+   *   .table()
+   *     .column<vtkFloatArray>("x")
+   *     .column<vtkFloatArray>("x * x")
+   *     .rows(20, [](auto i) { return std::make_tuple(i, i * i); })
+   *   // lvalue reference to parent for method chaining
+   *   ()
+   *   // ... parent object calls ...
+   *   // std::move(parent) for initialization
+   *   ();
+   * @endcode
    */
   auto&& operator()()
     noexcept(!owning || noexcept(std::move(*static_cast<T*>(this))))
