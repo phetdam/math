@@ -22,7 +22,6 @@
 #include <vtkContextScene.h>
 #include <vtkContextView.h>
 #include <vtkFloatArray.h>
-#include <vtkNamedColors.h>
 #include <vtkNew.h>
 #include <vtkPen.h>
 #include <vtkPlot.h>
@@ -36,14 +35,14 @@
 
 #include "pdmath/normal.h"
 #include "pdmath/vtk_chart.h"
+#include "pdmath/vtk_named_colors.h"
 #include "pdmath/vtk_table.h"
 
 int main()
 {
-  // VTK named colors object + RGB double + RGBA named color helpers
-  vtkNew<vtkNamedColors> colors;
-  auto drgb = [&colors](auto name) { return colors->GetColor3d(name); };
-  auto rgba = [&colors](auto name) { return colors->GetColor4ub(name); };
+  using namespace pdmath::vtk_literals;
+  // VTK named colors object
+  pdmath::vtk_named_colors nc;
   // callable to fill each table row with
   auto make_row = [](auto i, auto n_rows)
   {
@@ -84,39 +83,39 @@ int main()
   // add top chart for normal PDF plots
   auto new_chart_1 = pdmath::vtk_xy_chart{}
     .title("normal pdf")
-    .color(rgba("MistyRose"))
+    .color(nc("MistyRose"_4ub))
     .opacity(0.5)
     // draw axes
     .axis(vtkAxis::BOTTOM)
-      .grid_color(rgba("LightGrey"))
+      .grid_color(nc("LightGrey"_4ub))
       .title("x")
     ()
     .axis(vtkAxis::LEFT)
-      .grid_color(rgba("LightGrey"))
+      .grid_color(nc("LightGrey"_4ub))
       .title("pdf(x)")
     ()
     // add line plots
     .plot<vtkChart::LINE>()
       .data(data, "x", "pdf(x)")
-      .color(rgba("Red"))
+      .color(nc("Red"_4ub))
       .width(3.)
       .label("N(0, 1)")
     ()
     .plot<vtkChart::LINE>()
       .data(data, "x", "pdf[0, 0.2](x)")
-      .color(rgba("CornflowerBlue"))
+      .color(nc("CornflowerBlue"_4ub))
       .width(3.)
       .label("N(0, 0.2)")
     ()
     .plot<vtkChart::LINE>()
       .data(data, "x", "pdf[0, 5](x)")
-      .color(rgba("Orange"))
+      .color(nc("Orange"_4ub))
       .width(3.)
       .label("N(0, 5)")
     ()
     .plot<vtkChart::LINE>()
       .data(data, "x", "pdf[-2, 0.5](x)")
-      .color(rgba("Green"))
+      .color(nc("Green"_4ub))
       .width(3.)
       .label("N(-2, 0.5)")
     ()
@@ -129,37 +128,37 @@ int main()
   // add bottom chart for normal CDF plots
   auto new_chart_2 = pdmath::v2::vtk_xy_chart{}
     .title("normal cdf")
-    .color(rgba("Thistle"))
+    .color(nc("Thistle"_4ub))
     .opacity(0.5)
     .axis(vtkAxis::BOTTOM)
-      .grid_color(rgba("LightCyan"))
+      .grid_color(nc("LightCyan"_4ub))
       .title("x")
     ()
     .axis(vtkAxis::LEFT)
-      .grid_color(rgba("LightCyan"))
+      .grid_color(nc("LightCyan"_4ub))
       .title("cdf(x)")
     ()
     .plot<vtkChart::LINE>()
       .data(data, "x", "cdf(x)")
-      .color(rgba("Red"))
+      .color(nc("Red"_4ub))
       .width(3.)
       .label("N(0, 1)")
     ()
     .plot<vtkChart::LINE>()
       .data(data, "x", "cdf[0, 0.2](x)")
-      .color(rgba("CornflowerBlue"))
+      .color(nc("CornflowerBlue"_4ub))
       .width(3.)
       .label("N(0, 0.2)")
     ()
     .plot<vtkChart::LINE>()
       .data(data, "x", "cdf[0, 5](x)")
-      .color(rgba("Orange"))
+      .color(nc("Orange"_4ub))
       .width(3.)
       .label("N(0, 5)")
     ()
     .plot<vtkChart::LINE>()
       .data(data, "x", "cdf[-2, 0.5](x)")
-      .color(rgba("Green"))
+      .color(nc("Green"_4ub))
       .width(3.)
       .label("N(-2, 0.5)")
     ()
@@ -186,11 +185,11 @@ int main()
   // https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
   vtkNew<vtkRenderer> ren_1;
   ren_1->SetViewport(0., 0.5, 1., 1.);  // top renderer
-  ren_1->SetBackground(drgb("AliceBlue").GetData());
+  ren_1->SetBackground(nc("AliceBlue"_3d).GetData());
   ren_1->SetBackgroundAlpha(0.5);       // 0 by default for transparency
   vtkNew<vtkRenderer> ren_2;
   ren_2->SetViewport(0., 0., 1., 0.5);  // bottom renderer
-  ren_2->SetBackground(drgb("Lavender").GetData());
+  ren_2->SetBackground(nc("Lavender"_3d).GetData());
   ren_2->SetBackgroundAlpha(0.5);       // 0 by default for transparency
   // add actors to renderers
   ren_1->AddActor(actor_1);
