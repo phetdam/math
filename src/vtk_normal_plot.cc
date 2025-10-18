@@ -127,7 +127,7 @@ int main()
     ()
     ();
   // add bottom chart for normal CDF plots
-  auto new_chart_2 = pdmath::vtk_xy_chart{}
+  auto new_chart_2 = pdmath::v2::vtk_xy_chart{}
     .title("normal cdf")
     .color(rgba("Thistle"))
     .opacity(0.5)
@@ -215,13 +215,8 @@ int main()
   vtkNew<vtkRenderWindowInteractor> iwin;
   iwin->SetRenderWindow(win);
 #endif  // 0
-  // check: if there isn't a display, we can't render
-  // note: EnsureDisplay() is preferred but not available in VTK 9.1
-  if (!win->GetGenericDisplayId()) {
-    std::cerr << "Error: No display available" << std::endl;
-    return EXIT_FAILURE;
-  }
   // render window and start event loop
+  // note: if there is no display this will hard abort
   // note: do *not* render before setting the interactor's render window; this
   // will cause a segmentation fault when you close the window
   win->Render();

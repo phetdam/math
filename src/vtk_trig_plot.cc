@@ -113,13 +113,8 @@ int main()
   win->SetSize(x_dim, y_dim);
   win->OffScreenRenderingOn();
   win->AddRenderer(ren);
-  // check: if there isn't a display, we can't render
-  // note: EnsureDisplay() is preferred but not available in VTK 9.1
-  if (!win->GetGenericDisplayId()) {
-    std::cerr << "Error: No display available" << std::endl;
-    return EXIT_FAILURE;
-  }
   // begin rendering window
+  // note: if there is no display this will hard abort
   win->Render();
   // create window filter to write to write to image
   vtkNew<vtkWindowToImageFilter> wif;

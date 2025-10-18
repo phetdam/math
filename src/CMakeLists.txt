@@ -17,13 +17,18 @@ if(VTK_FOUND)
     target_link_libraries(vtk_normal_plot PRIVATE ${VTK_LIBRARIES})
     vtk_module_autoinit(TARGETS vtk_normal_plot MODULES ${VTK_LIBRARIES})
     # note: can add as test since we render offscreen
-    # TODO: still requires X display with OpenGL on POSIX so enable skip if
-    # we've detected at build time that there is no X display
-    add_test(NAME vtk_normal_plot COMMAND vtk_normal_plot)
-    if(NOT PDMATH_HAS_X_DISPLAY)
+    # note: VTK will hard abort if there is no display so we use the suggested
+    # method of using cmake -E env to run the VTK program
+    add_test(
+        NAME vtk_normal_plot
+        COMMAND ${CMAKE_COMMAND} -E env $<TARGET_FILE:vtk_normal_plot>
+    )
+    # if using X Windows, the VTK render Window should be using GLX, so if we
+    # see this message (no X server) we should skip the test
+    if(X11_FOUND)
         set_tests_properties(
             vtk_normal_plot PROPERTIES
-            SKIP_REGULAR_EXPRESSION "No display available"
+            SKIP_REGULAR_EXPRESSION "bad X server"
         )
     endif()
 else()
@@ -45,12 +50,15 @@ if(VTK_FOUND)
     add_executable(vtk_trig_plot vtk_trig_plot.cc)
     target_link_libraries(vtk_trig_plot PRIVATE ${VTK_LIBRARIES})
     vtk_module_autoinit(TARGETS vtk_trig_plot MODULES ${VTK_LIBRARIES})
-    # note: see above. skip if we can't open an X display
-    add_test(NAME vtk_trig_plot COMMAND vtk_trig_plot)
-    if(NOT PDMATH_HAS_X_DISPLAY)
+    # note: see above. skip if using GLX and no X server is available
+    add_test(
+        NAME vtk_trig_plot
+        COMMAND ${CMAKE_COMMAND} -E env $<TARGET_FILE:vtk_trig_plot>
+    )
+    if(X11_FOUND)
         set_tests_properties(
             vtk_trig_plot PROPERTIES
-            SKIP_REGULAR_EXPRESSION "No display available"
+            SKIP_REGULAR_EXPRESSION "bad X server"
         )
     endif()
 else()
