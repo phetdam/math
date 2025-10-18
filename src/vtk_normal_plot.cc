@@ -126,7 +126,7 @@ int main()
     ()
     ();
   // add bottom chart for normal CDF plots
-  auto new_chart_2 = pdmath::v2::vtk_xy_chart{}
+  auto new_chart_2 = pdmath::vtk_xy_chart{}
     .title("normal cdf")
     .color(nc("Thistle"_4ub))
     .opacity(0.5)
