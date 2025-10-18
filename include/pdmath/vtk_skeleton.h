@@ -237,7 +237,7 @@ private:
  * @param ... Type arguments to `vtk_skeleton`
  */
 #define PDMATH_USING_VTK_SKELETON(...) \
-  using skeleton = vtk_skeleton<__VA_ARGS__>; \
+  using skeleton = ::pdmath::vtk_skeleton<__VA_ARGS__>; \
   using skeleton::skeleton; \
   using skeleton::operator->; \
   using skeleton::operator(); \
