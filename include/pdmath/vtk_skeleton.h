@@ -195,7 +195,8 @@ private:
  * Macro for `using` declarations to bring in skeleton type operators.
  *
  * This defines the `skeleton` type alias for the `vtk_skeleton` base and
- * brings `skeleton::operator->`, `skeleton::operator()`, and ctor into scope.
+ * brings the ctor, `operator->`, `operator()`, `object()`, and `parent()`
+ * members of the skeleton type into scope for convenience.
  *
  * @param ... Type arguments to `vtk_skeleton`
  */
@@ -203,7 +204,9 @@ private:
   using skeleton = vtk_skeleton<__VA_ARGS__>; \
   using skeleton::skeleton; \
   using skeleton::operator->; \
-  using skeleton::operator()
+  using skeleton::operator(); \
+  using skeleton::object; \
+  using skeleton::parent
 
 }  // namespace pdmath
 
