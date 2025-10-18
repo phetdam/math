@@ -19,184 +19,15 @@
 #include <vtkChartLegend.h>
 #include <vtkNew.h>
 #include <vtkPen.h>
-#include <vtkPlotPoints.h>
 #include <vtkStdString.h>
 #include <vtkTable.h>
 
 #include "pdmath/type_traits.h"
 #include "pdmath/vtk_axis.h"
+#include "pdmath/vtk_plot.h"
 #include "pdmath/vtk_skeleton.h"
 
 namespace pdmath {
-
-/**
- * Template class representing a `vtkPlot` owned by another object.
- *
- * This is a cheap proxy object for modifying plot settings before returning
- * back to the parent object's fluent API. The parent type could be `vtk_chart`
- * or any type convertible to `vtkChart*`.
- *
- * @tparam T Parent type convertible to `vtkChart*`
- * @tparam V Plot type, e.g. `vtkChart::LINE`, etc.
- */
-template <typename T, int V>
-class vtk_child_plot {
-public:
-  static_assert(std::is_convertible_v<T, vtkChart*>);  // check
-  using parent_type = T;
-
-  // plot type from the vtkChart plot type constants, e.g. vtkChart::LINE
-  static constexpr auto type = V;
-
-  /**
-   * Ctor.
-   *
-   * @param plot Plot object pointer
-   * @param parent Parent object pointer
-   */
-  vtk_child_plot(vtkPlot* plot, parent_type* parent = nullptr) noexcept
-    : plot_{plot}, parent_{parent}
-  {}
-
-  /**
-   * Provide member access to the pointed-to `vtkPlot`.
-   */
-  auto operator->() const noexcept
-  {
-    return plot_;
-  }
-
-  /**
-   * Return reference to parent object to support method chaining.
-   *
-   * @todo Maybe put this and `operator->` in a template mixin.
-   */
-  auto& operator()()
-  {
-    return *parent_;
-  }
-
-  /**
-   * Return the RGB plotting color.
-   *
-   * This is the color used to draw the plot, e.g. a plot line, points, etc.
-   *
-   * @note One can set an alpha value for the plot color (RGBA).
-   */
-  auto color() const
-  {
-    unsigned char rgb[3];
-    plot_->GetColor(rgb);
-    return vtkColor3ub{rgb};
-  }
-
-  /**
-   * Update the RGBA plot color.
-   *
-   * @note The alpha value cannot be retrieved with the `color()` getter.
-   *
-   * @param color RGBA color to use when drawing the plot points, lines, etc.
-   */
-  auto& color(const vtkColor4ub& color)
-  {
-    plot_->SetColor(
-      color.GetRed(),
-      color.GetGreen(),
-      color.GetBlue(),
-      color.GetAlpha()
-    );
-    return *this;
-  }
-
-  /**
-   * Update the x, y input data used for the plot by column index.
-   *
-   * @param table Table containing the plot data
-   * @param xcol Column index for x values
-   * @param ycol Column index for y values
-   */
-  auto& data(vtkTable* table, vtkIdType xcol, vtkIdType ycol)
-  {
-    plot_->SetInputData(table, xcol, ycol);
-    return *this;
-  }
-
-  /**
-   * Update the x, y input data used for the plot by column name.
-   *
-   * @param table Table containing the plot data
-   * @param xcol Column name for x values
-   * @param ycol Column name for y values
-   */
-  auto& data(vtkTable* table, const vtkStdString& xcol, const vtkStdString& ycol)
-  {
-    plot_->SetInputData(table, xcol, ycol);
-    return *this;
-  }
-
-  /**
-   * Return the plot label used in the chart legend as a string.
-   */
-  auto label() const
-  {
-    return plot_->GetLabel();
-  }
-
-  /**
-   * Update the plot label used in the chart legend.
-   *
-   * @param text Label text
-   */
-  auto& label(const vtkStdString& text)
-  {
-    plot_->SetLabel(text);
-    return *this;
-  }
-
-  /**
-   * Update the marker style used by the plot.
-   *
-   * This member function is conditionally available for point/line plots.
-   *
-   * @param style Plot marker style, e.g. `vtkPlotPoints::PLUS`
-   */
-  template <constraint_t<vtkChart::POINTS == V || vtkChart::LINE == V> = 0>
-  auto& marker(int style)
-  {
-    // vtkPlotLine inherits vtkPlotPoints so casting to base is enough
-    dynamic_cast<vtkPlotPoints*>(plot_)->SetMarkerStyle(style);
-    return *this;
-  }
-
-  /**
-   * Get the width of the plotting line.
-   *
-   * @note Not sure what the units are but they appear to be in fractional em.
-   *
-   * This does not affect `vtkChart::POINTS` plots that don't draw plot lines.
-   */
-  auto width() const
-  {
-    return plot_->GetWidth();
-  }
-
-  /**
-   * Update the width of the plotting line.
-   *
-   * @note Not sure what the units are but they appear to be in fractional em.
-   *
-   * @param em Line width
-   */
-  auto& width(float em)
-  {
-    plot_->SetWidth(em);
-    return *this;
-  }
-
-private:
-  vtkPlot* plot_;
-  parent_type* parent_;
-};
 
 /**
  * Special constant indicating a legend should not be aligned.
@@ -212,6 +43,8 @@ inline constexpr int vtk_no_align = -1;
  * returning back to the parent object's fluent API.
  *
  * @tparam T Parent type convertible to `vtkChart*`
+ *
+ * @todo Reimplement using `vtk_skeleton`.
  */
 template <typename T>
 class vtk_child_legend {
@@ -427,7 +260,7 @@ public:
   using legend_type = vtk_child_legend<vtk_xy_chart>;
 
   template <int V>
-  using plot_type = vtk_child_plot<vtk_xy_chart, V>;
+  using plot_type = vtk_plot<V, vtk_xy_chart>;
 
   /**
    * Default ctor.
@@ -548,7 +381,7 @@ public:
   // TODO: document more and replace original implementation
 
   template <int V>
-  using plot_type = vtk_child_plot<vtk_xy_chart, V>;
+  using plot_type = vtk_plot<V, vtk_xy_chart>;
 
   auto axis(vtkAxis::Location loc)
   {
