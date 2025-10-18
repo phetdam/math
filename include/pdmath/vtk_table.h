@@ -14,14 +14,13 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
-#include <vector>
 
-#include <vtkAbstractArray.h>
 #include <vtkNew.h>
 #include <vtkTable.h>
 #include <vtkType.h>
 
 #include "pdmath/type_traits.h"
+#include "pdmath/vtk_skeleton.h"
 
 namespace pdmath {
 
@@ -65,16 +64,19 @@ namespace pdmath {
  * VTK functions and allows member access of the underlying `vtkTable` since it
  * also provides an overloaded `operator->`.
  *
- * @note This object is move-only since `vtkNew` is used to manage allocations.
+ * @tparam P Parent type
  */
-class vtk_table {
+template <typename P = void>
+class vtk_table : public vtk_skeleton<vtk_table<P>, vtkTable, P> {
 public:
+  PDMATH_USING_VTK_SKELETON(vtk_table<P>, vtkTable, P);
+
   /**
    * Return the number of rows in the table.
    */
   auto rows() const
   {
-    return table_->GetNumberOfRows();
+    return object()->GetNumberOfRows();
   }
 
   /**
@@ -82,23 +84,7 @@ public:
    */
   auto columns() const
   {
-    return table_->GetNumberOfColumns();
-  }
-
-  /**
-   * Access a member of the contained `vtkTable`.
-   */
-  auto operator->() const noexcept
-  {
-    return table_.Get();
-  }
-
-  /**
-   * Implicitly convert into `vtkTable*`.
-   */
-  operator vtkTable*() const noexcept
-  {
-    return table_;
+    return object()->GetNumberOfColumns();
   }
 
   /**
@@ -116,12 +102,12 @@ public:
     constraint_t<std::is_base_of_v<vtkAbstractArray, T>> = 0)
   {
     assert(name && "name must be valid");
-    // create new column + set name
+    // create new column, set name, and add to table
+    // note: no leak on scope exit because AddColumn() increments the ref count
     vtkNew<T> col;
     col->SetName(name);
-    // add to table + insert into column vector
-    table_->AddColumn(col);
-    columns_.push_back(std::move(col));
+    col->DebugOn();
+    object()->AddColumn(col);
     return *this;
   }
 
@@ -132,7 +118,7 @@ public:
    */
   auto column(vtkIdType col) const
   {
-    return table_->GetColumn(col);
+    return object()->GetColumn(col);
   }
 
   /**
@@ -142,7 +128,7 @@ public:
    */
   auto column(const char* name) const
   {
-    return table_->GetColumnByName(name);
+    return object()->GetColumnByName(name);
   }
 
   /**
@@ -156,7 +142,7 @@ public:
    */
   auto& rows(vtkIdType n_rows)
   {
-    table_->SetNumberOfRows(n_rows);
+    object()->SetNumberOfRows(n_rows);
     return *this;
   }
 
@@ -295,31 +281,7 @@ public:
     return *this;
   }
 
-  /**
-   * Self-move to enable initialization via fluent API.
-   *
-   * This allows the following pattern to work:
-   *
-   * @code{.cc}
-   * auto table = vtk_table{}
-   *   .column<vtkFloatArray>("x")
-   *   .column<vtkFloatArray>("x * x")
-   *   .rows(20, [](auto i) { return std::make_tuple(i, i * i); })
-   *   ();
-   * @endcode
-   *
-   * Without this `operator()` you will get a compiler error as the `vtk_table`
-   * is a move-only class since `vtkNew` is move-only.
-   */
-  auto operator()()
-  {
-    return std::move(*this);
-  }
-
 private:
-  vtkNew<vtkTable> table_;                         // table object
-  std::vector<vtkNew<vtkAbstractArray>> columns_;  // table columns
-
   /**
    * Fill a given row with the incoming values.
    *
@@ -339,7 +301,7 @@ private:
     static_assert(sizeof...(Ts) == sizeof...(Is));
     assert(sizeof...(Ts) == columns());
     // fold over tuple types to set row values
-    ([this, i, &vals] { table_->SetValue(i, Is, std::get<Is>(vals)); }(), ...);
+    ([this, i, &vals] { object()->SetValue(i, Is, std::get<Is>(vals)); }(), ...);
     return *this;
   }
 };
