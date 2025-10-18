@@ -440,8 +440,6 @@ private:
   parent_type* parent_;
 };
 
-struct vtk_no_parent {};
-
 /**
  * `vtkChartXY` wrapper with fluent API.
  *
