@@ -43,40 +43,40 @@ namespace pdmath {
  *
  * @code{.cc}
  * // note: how table is defined can be found in the vtk_table example
- * // VTK colors object + convenience lambda for named RGBA color
- * vtkNew<vtkColors> colors;
- * auto named_color = [&colors](auto name) { return colors->GetColor4ub(name); };
+ * // note: see vtk_named_colors.h for details on using vtk_named_colors
+ * using namespace pdmath::vtk_literals;
+ * vtk_named_colors nc;
  * // create the chart with sin, cos, tan plots
  * auto chart = vtk_xy_chart{}
  *   // set up title, background color, and background color opacity
  *   .title("sin, cos, tan")
- *   .color(named_color("Thistle"))
+ *   .color(nc("Thistle"_4ub))
  *   .opacity(0.5)
  *   // update x (bottom) and y (left) axis grid line colors + titles
  *   .axis(vtkAxis::BOTTOM)
- *     .grid_color(named_color("LightCyan"))
+ *     .grid_color(nc("LightCyan"_4ub))
  *     .title("x")
  *   ()
  *   .axis(vtkAxis::LEFT)
- *     .grid_color(named_color("LightCyan"))
+ *     .grid_color(nc("LightCyan"_4ub))
  *     .title("y")
  *   ()
  *   // add sin(x), cos(x), and tan(x) line plots
  *   .plot<vtkChart::LINE>()
  *     .data(table, "x", "sin(x)")
- *     .color(named_color("Red"))
+ *     .color(nc("Red"_4ub))
  *     .width(3.)
  *     .label("sin(x)")
  *   ()
  *   .plot<vtkChart::LINE>()
  *     .data(table, "x", "cos(x)")
- *     .color(named_color("CornflowerBlue"))
+ *     .color(nc("CornflowerBlue"_4ub))
  *     .width(3.)
  *     .label("cos(x)")
  *   ()
  *   .plot<vtkChart::LINE>()
  *     .data(table, "x", "tan(x)")
- *     .color(named_color("Green"))
+ *     .color(nc("Green"_4ub))
  *     .width(3.)
  *     .label("tan(x)")
  *   ()
