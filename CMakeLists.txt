@@ -183,6 +183,7 @@ else()
 endif()
 
 # if X11 found use try_run to build + try to connect to the default display
+# TODO: don't really need this anymore. remove?
 if(X11_FOUND)
     try_run(
         xopen_run_res xopen_build_res
@@ -200,6 +201,9 @@ if(X11_FOUND)
     else()
         set(PDMATH_HAS_X_DISPLAY 0)
     endif()
+    # clean up
+    unset(xopen_run_res)
+    unset(xopen_build_res)
 endif()
 # indicate if there is a default X display to connect to
 if(PDMATH_HAS_X_DISPLAY)
