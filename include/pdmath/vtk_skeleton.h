@@ -129,7 +129,10 @@ public:
    * @param parent Parent object
    */
   template <typename D = int>
-  vtk_skeleton(V* object, P* parent = nullptr) noexcept
+  vtk_skeleton(
+    V* object,
+    P* parent = nullptr,
+    std::enable_if_t<!owning, D> = 0) noexcept
     : state_{object, parent}
   {}
 
@@ -151,7 +154,7 @@ public:
    * used to make it type-dependent so SFINAE will work.
    */
   template <typename D = int>
-  auto parent(std::enable_if_t<owning, D> = 0) const noexcept
+  auto parent(std::enable_if_t<!owning, D> = 0) const noexcept
   {
     return state_.parent;
   }
