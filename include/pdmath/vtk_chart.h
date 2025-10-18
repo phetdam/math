@@ -24,98 +24,10 @@
 #include <vtkTable.h>
 
 #include "pdmath/type_traits.h"
+#include "pdmath/vtk_axis.h"
 #include "pdmath/vtk_skeleton.h"
 
 namespace pdmath {
-
-/**
- * Template class representing a `vtkAxis` owned by another object.
- *
- * This acts as a cheap proxy object for modifying axis settings before
- * returning back to the parent object's fluent API.
- *
- * The parent type could be `vtk_chart` or any type convertible to `vtkChart*`.
- *
- * @tparam T Parent type convertible to `vtkChart*`
- */
-template <typename T>
-class vtk_child_axis {
-public:
-  static_assert(std::is_convertible_v<T, vtkChart*>);  // check
-  using parent_type = T;
-
-  /**
-   * Ctor.
-   *
-   * @param axis Axis object pointer
-   * @param parent Parent object pointer
-   */
-  vtk_child_axis(vtkAxis* axis, parent_type* parent = nullptr) noexcept
-    : axis_{axis}, parent_{parent}
-  {}
-
-  /**
-   * Provide member access to the pointed-to `vtkAxis`.
-   */
-  auto operator->() const noexcept
-  {
-    return axis_;
-  }
-
-  /**
-   * Return reference to parent object to support method chaining.
-   *
-   * Like the `operator()` provided by the `vtk_chart`, this marks the "end" of
-   * settings update for the axis, but has the additional effect of indicating
-   * return back the parent (`vtkChart` typically) object's scope.
-   */
-  auto& operator()() noexcept
-  {
-    return *parent_;
-  }
-
-  /**
-   * Get the RGBA axis grid color object.
-   */
-  auto grid_color() const
-  {
-    return axis_->GetGridPen()->GetColorObject();
-  }
-
-  /**
-   * Set the axis grid color.
-   *
-   * @param color RGBA color to to use for the axis grid
-   */
-  auto& grid_color(const vtkColor4ub& color)
-  {
-    axis_->GetGridPen()->SetColor(color);
-    return *this;
-  }
-
-  /**
-   * Get the axis title string.
-   */
-  auto title() const
-  {
-    return axis_->GetTitle();
-  }
-
-  /**
-   * Set the axis title string.
-   *
-   * @param text Axis title text
-   */
-  auto& title(const vtkStdString& text)
-  {
-    axis_->SetTitle(text);
-    return *this;
-  }
-
-private:
-  vtkAxis* axis_;
-  parent_type* parent_;
-};
 
 /**
  * Template class representing a `vtkPlot` owned by another object.
@@ -511,7 +423,7 @@ public:
   );
 
   using parent_type = T;
-  using axis_type = vtk_child_axis<vtk_xy_chart>;
+  using axis_type = vtk_axis<vtk_xy_chart>;
   using legend_type = vtk_child_legend<vtk_xy_chart>;
 
   template <int V>
@@ -630,7 +542,7 @@ template <typename T = void>
 class vtk_xy_chart : public vtk_skeleton<vtk_xy_chart<T>, vtkChartXY, T> {
 public:
   PDMATH_USING_VTK_SKELETON(vtk_xy_chart<T>, vtkChartXY, T);
-  using axis_type = vtk_child_axis<vtk_xy_chart>;
+  using axis_type = vtk_axis<vtk_xy_chart>;
   using legend_type = vtk_child_legend<vtk_xy_chart>;
 
   // TODO: document more and replace original implementation
