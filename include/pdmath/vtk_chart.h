@@ -24,6 +24,7 @@
 #include <vtkTable.h>
 
 #include "pdmath/type_traits.h"
+#include "pdmath/vtk_skeleton.h"
 
 namespace pdmath {
 
@@ -617,6 +618,83 @@ private:
   std::conditional_t<owning, vtkNew<vtkChartXY>, vtkChartXY*> chart_;
   parent_type* parent_;
 };
+
+namespace v2 {
+
+/**
+ * `vtkChartXY` wrapper with fluent API.
+ *
+ * This is the `v2` implementation using `vtk_skeleton`.
+ *
+ * @tparam T Parent type
+ */
+template <typename T = void>
+class vtk_xy_chart : public vtk_skeleton<vtk_xy_chart<T>, vtkChartXY, T> {
+public:
+  PDMATH_USING_VTK_SKELETON(vtk_xy_chart<T>, vtkChartXY, T);
+  using axis_type = vtk_child_axis<vtk_xy_chart>;
+  using legend_type = vtk_child_legend<vtk_xy_chart>;
+
+  // TODO: document more and replace original implementation
+
+  template <int V>
+  using plot_type = vtk_child_plot<vtk_xy_chart, V>;
+
+  auto axis(vtkAxis::Location loc)
+  {
+    return axis_type{object()->GetAxis(loc), this};
+  }
+
+  // background color
+  auto& color(const vtkColor4ub& color)
+  {
+    object()->GetBackgroundBrush()->SetColor(color);
+    return *this;
+  }
+
+  auto color() const
+  {
+    return object()->GetBackgroundBrush()->GetColorObject();
+  }
+
+  auto& opacity(double v)
+  {
+    object()->GetBackgroundBrush()->SetOpacityF(v);
+    return *this;
+  }
+
+  // create a *new* plot
+  template <int V>
+  auto plot()
+  {
+    return plot_type<V>{object()->AddPlot(V), this};
+  }
+
+  auto& title(const vtkStdString& text)
+  {
+    object()->SetTitle(text);
+    return *this;
+  }
+
+  auto title() const
+  {
+    return object()->GetTitle();
+  }
+
+  auto legend()
+  {
+    return legend_type{object()->GetLegend(), this};
+  }
+
+  // version that also sets whether or not the legend is visible
+  auto legend(bool show)
+  {
+    object()->SetShowLegend(show);
+    return legend();
+  }
+};
+
+}  // namespace v2
 
 }  // namespace pdmath
 
