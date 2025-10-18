@@ -196,7 +196,6 @@ private:
     > > : std::true_type {};
 
 public:
-
   /**
    * Fill a given row with the incoming values.
    *
