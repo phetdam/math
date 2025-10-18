@@ -68,6 +68,9 @@ namespace pdmath {
  * provide access to the VTK object and the `operator()` needed to mark the
  * "end" of a declarative configuration block.
  *
+ * @note Owning `vtk_skeleton` objects are move-only since they use `vtkNew`
+ *  while non-owning (owned) `vtk_skeleton` objects are trivially copyable.
+ *
  * @tparam T CRTP derived type
  * @tparam V VTK object type
  * @tparam P Parent type, e.g. another `vtk_skeleton`, or `void` for owning
