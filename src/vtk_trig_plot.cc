@@ -10,6 +10,9 @@
 #include <filesystem>
 #include <tuple>
 
+#include <vtkAxis.h>
+#include <vtkChart.h>
+#include <vtkChartLegend.h>
 #include <vtkContextActor.h>
 #include <vtkContextScene.h>
 #include <vtkFloatArray.h>
