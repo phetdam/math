@@ -14,23 +14,22 @@
 #include <vtkContextScene.h>
 #include <vtkFloatArray.h>
 #include <vtkPNGWriter.h>
-#include <vtkNamedColors.h>
 #include <vtkNew.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 #include <vtkWindowToImageFilter.h>
 
 #include "pdmath/vtk_chart.h"
+#include "pdmath/vtk_named_colors.h"
 #include "pdmath/vtk_table.h"
 
 // TODO: figure out how to simplify window + renderer stuff
 
 int main()
 {
-  // VTK named colors object + RGB double + RGBA color helper
-  vtkNew<vtkNamedColors> colors;
-  auto drgb = [&colors](auto name) { return colors->GetColor3d(name); };
-  auto rgba = [&colors](auto name) { return colors->GetColor4ub(name); };
+  using namespace pdmath::vtk_literals;
+  // VTK named colors object
+  pdmath::vtk_named_colors nc;
   // callable to fill table rows with
   auto make_row = [](auto i, auto n_rows)
   {
@@ -55,33 +54,33 @@ int main()
   auto chart = pdmath::vtk_xy_chart{}
     // set up title, background color, and background color opacity
     .title("sin, cos, tan")
-    .color(rgba("Thistle"))
+    .color(nc("Thistle"_4ub))
     .opacity(0.5)
     // update x (bottom) and y (left) axis grid line colors + titles
     .axis(vtkAxis::BOTTOM)
-      .grid_color(rgba("LightCyan"))
+      .grid_color(nc("LightCyan"_4ub))
       .title("x")
     ()
     .axis(vtkAxis::LEFT)
-      .grid_color(rgba("LightCyan"))
+      .grid_color(nc("LightCyan"_4ub))
       .title("y")
     ()
     // add sin(x), cos(x), and tan(x) line plots
     .plot<vtkChart::LINE>()
       .data(table, "x", "sin(x)")
-      .color(rgba("Red"))
+      .color(nc("Red"_4ub))
       .width(3.)
       .label("sin(x)")
     ()
     .plot<vtkChart::LINE>()
       .data(table, "x", "cos(x)")
-      .color(rgba("CornflowerBlue"))
+      .color(nc("CornflowerBlue"_4ub))
       .width(3.)
       .label("cos(x)")
     ()
     .plot<vtkChart::LINE>()
       .data(table, "x", "tan(x)")
-      .color(rgba("Green"))
+      .color(nc("Green"_4ub))
       .width(3.)
       .label("tan(x)")
     ()
@@ -100,7 +99,7 @@ int main()
   // add renderer with actor
   vtkNew<vtkRenderer> ren;
   ren->SetViewport(0., 0., 1., 1.);  // x_min, y_min, x_max, y_max
-  ren->SetBackground(drgb("Lavender").GetData());
+  ren->SetBackground(nc("Lavender"_3d).GetData());
   // note: must explicitly set alpha (0 by default for transparency)
   ren->SetBackgroundAlpha(0.5);
   ren->AddActor(actor);
