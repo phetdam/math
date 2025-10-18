@@ -24,10 +24,10 @@ namespace pdmath {
 inline constexpr int vtk_no_align = -1;
 
 /**
- * Template class representing a `vtkChartLegend` owned by another object.
+ * `vtkChartLegend` wrapper with fluent API.
  *
- * This is a cheap project object for modifying legend settings before
- * returning back to the parent object's fluent API.
+ * This provides a fluent API for the `vtkChartLegend` while using the
+ * `vtk_skeleton` ownership architecture to model ownership.
  *
  * @tparam T Parent type
  */
