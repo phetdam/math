@@ -12,16 +12,14 @@
 
 #include <vtkAxis.h>
 #include <vtkChart.h>
-#include <vtkChartLegend.h>
 #include <vtkContextActor.h>
-#include <vtkContextScene.h>
 #include <vtkFloatArray.h>
 #include <vtkPNGWriter.h>
 #include <vtkNew.h>
 #include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
 #include <vtkWindowToImageFilter.h>
 
+#include "pdmath/vtk_actor.h"
 #include "pdmath/vtk_chart.h"
 #include "pdmath/vtk_named_colors.h"
 #include "pdmath/vtk_renderer.h"
@@ -94,17 +92,15 @@ int main()
       .show()
     ()
     ();
-  // add scene with chart
-  vtkNew<vtkContextScene> scene;
-  scene->AddItem(chart);
-  // add actor with scene
-  vtkNew<vtkContextActor> actor;
-  actor->SetScene(scene);
-  // add renderer with actor
+  // add renderer with actor, scene, and chart
   auto ren = pdmath::vtk_renderer{}
     .viewport({0., 1.}, {0., 1.})    // {xmin, xmax}, {ymin, ymax}
     .color(nc("Lavender"_3d), 0.5)   // 0 by default for transparency
-    .add(actor)
+    .add<vtkContextActor>()
+      .scene()
+        .add(chart)
+      ()
+    ()
     ();
   // rendering dimensions
   constexpr auto x_dim = 640u;

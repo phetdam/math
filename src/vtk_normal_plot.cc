@@ -19,21 +19,17 @@
 #include <vtkBrush.h>
 #include <vtkChartXY.h>
 #include <vtkContextActor.h>
-#include <vtkContextScene.h>
-#include <vtkContextView.h>
 #include <vtkFloatArray.h>
 #include <vtkNew.h>
 #include <vtkPen.h>
-#include <vtkPlot.h>
-#include <vtkPlotPoints.h>
 #include <vtkPNGWriter.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
 #include <vtkTable.h>
 #include <vtkWindowToImageFilter.h>
 
 #include "pdmath/normal.h"
+#include "pdmath/vtk_actor.h"
 #include "pdmath/vtk_chart.h"
 #include "pdmath/vtk_named_colors.h"
 #include "pdmath/vtk_renderer.h"
@@ -170,28 +166,26 @@ int main()
       .show()
     ()
     ();
-  // create scenes + add plots to them
-  vtkNew<vtkContextScene> scene_1;
-  scene_1->AddItem(chart_1);
-  vtkNew<vtkContextScene> scene_2;
-  scene_2->AddItem(chart_2);
-  // create actors + add scenes to them
-  vtkNew<vtkContextActor> actor_1;
-  actor_1->SetScene(scene_1);
-  vtkNew<vtkContextActor> actor_2;
-  actor_2->SetScene(scene_2);
-  // create top and bottom renderers + add actors. see color list used for
+  // create top and bottom renderers with charts. see color list used for
   // renderer backgrounds via https://htmlpreview.github.io/ of
   // https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
   auto ren_1 = pdmath::vtk_renderer{}
     .viewport({0., 1.}, {0.5, 1.})     // render on top half of window
     .color(nc("AliceBlue"_3d), 0.5)    // 0 by default for transparency
-    .add(actor_1)
+    .add<vtkContextActor>()
+      .scene()
+        .add(chart_1)
+      ()
+    ()
     ();
   auto ren_2 = pdmath::vtk_renderer{}
     .viewport({0., 1.}, {0., 0.5})     // render on top half of window
     .color(nc("Lavender"_3d), 0.5)     // 0 by default for transparency
-    .add(actor_2)
+    .add<vtkContextActor>()
+      .scene()
+        .add(chart_2)
+      ()
+    ()
     ();
   // x + y dimension of each plot
   constexpr auto x_dim = 640u;
