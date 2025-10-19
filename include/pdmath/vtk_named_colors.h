@@ -45,7 +45,7 @@ namespace vtk_literals {
 /**
  * Define a string literal operator for the given VTK color suffix.
  *
- * @param suffix VTK color suffix, e.g. `4ub,` 3d`
+ * @param suffix VTK color suffix, e.g. `4ub`, `3d`
  */
 #define PDMATH_VTK_COLOR_NAME_LITERAL(suffix) \
   inline PDMATH_CONCAT(vtk_color_name_, suffix) operator \
