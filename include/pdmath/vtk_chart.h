@@ -14,9 +14,9 @@
 #include <vtkAxis.h>
 #include <vtkBrush.h>
 #include <vtkChart.h>
+#include <vtkChartLegend.h>
 #include <vtkChartXY.h>
 #include <vtkColor.h>
-#include <vtkChartLegend.h>
 #include <vtkStdString.h>
 #include <vtkTable.h>
 
