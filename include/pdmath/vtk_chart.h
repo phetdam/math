@@ -101,6 +101,8 @@ public:
   /**
    * Get the axis object at the specified location.
    *
+   * @todo Consider making `loc` a constrained template parameter.
+   *
    * @param loc Axis location, e.g. `vtkAxis::LEFT` for the y-axis
    */
   auto axis(vtkAxis::Location loc)
