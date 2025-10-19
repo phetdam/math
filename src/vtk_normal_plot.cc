@@ -185,14 +185,12 @@ int main()
   // https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
   auto ren_1 = pdmath::vtk_renderer{}
     .viewport({0., 1.}, {0.5, 1.})     // render on top half of window
-    .color(nc("AliceBlue"_3d))
-    .alpha(0.5)                        // 0 by default for transparency
+    .color(nc("AliceBlue"_3d), 0.5)    // 0 by default for transparency
     .add(actor_1)
     ();
   auto ren_2 = pdmath::vtk_renderer{}
     .viewport({0., 1.}, {0., 0.5})     // render on top half of window
-    .color(nc("Lavender"_3d))
-    .alpha(0.5)                        // 0 by default for transparency
+    .color(nc("Lavender"_3d), 0.5)     // 0 by default for transparency
     .add(actor_2)
     ();
   // x + y dimension of each plot

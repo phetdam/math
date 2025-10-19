@@ -103,8 +103,7 @@ int main()
   // add renderer with actor
   auto ren = pdmath::vtk_renderer{}
     .viewport({0., 1.}, {0., 1.})    // {xmin, xmax}, {ymin, ymax}
-    .color(nc("Lavender"_3d))
-    .alpha(0.5)                      // 0 by default for transparency
+    .color(nc("Lavender"_3d), 0.5)   // 0 by default for transparency
     .add(actor)
     ();
   // rendering dimensions

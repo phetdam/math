@@ -97,7 +97,20 @@ public:
   /**
    * Set the renderer background color and transparency.
    *
-   * @param rgba RGBA color to use for the renderer background.
+   * @param rgb RGB color to use for the renderer background
+   * @param a Alpha value in [0, 1]
+   */
+  auto& color(const vtkColor3d& rgb, double a)
+  {
+    color(rgb);
+    alpha(a);
+    return *this;
+  }
+
+  /**
+   * Set the renderer background color and transparency.
+   *
+   * @param rgba RGBA color to use for the renderer background
    */
   auto& color(const vtkColor4d& rgba)
   {
