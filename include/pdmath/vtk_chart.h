@@ -190,6 +190,16 @@ public:
   }
 };
 
+/**
+ * Partial specialization for `vtk_skeleton_type`.
+ *
+ * @tparam P Parent type
+ */
+template <typename P>
+struct vtk_skeleton_type<vtkChartXY, P> {
+  using type = vtk_xy_chart<P>;
+};
+
 }  // namespace pdmath
 
 #endif  // PDMATH_VTK_CHART_H_
