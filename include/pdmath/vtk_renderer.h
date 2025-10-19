@@ -211,6 +211,16 @@ public:
   }
 };
 
+/**
+ * Partial specialization for `vtk_skeleton_type`.
+ *
+ * @tparam P Parent type
+ */
+template <typename P>
+struct vtk_skeleton_type<vtkRenderer, P> {
+  using type = vtk_renderer<P>;
+};
+
 }  // namespace pdmath
 
 #endif  // PDMATH_VTK_RENDERER_H_
