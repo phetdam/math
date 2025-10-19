@@ -81,7 +81,7 @@ int main()
     .rows(80, make_row)
     ();
   // add top chart for normal PDF plots
-  auto new_chart_1 = pdmath::vtk_xy_chart{}
+  auto chart_1 = pdmath::vtk_xy_chart{}
     .title("normal pdf")
     .color(nc("MistyRose"_4ub))
     .opacity(0.5)
@@ -126,7 +126,7 @@ int main()
     ()
     ();
   // add bottom chart for normal CDF plots
-  auto new_chart_2 = pdmath::vtk_xy_chart{}
+  auto chart_2 = pdmath::vtk_xy_chart{}
     .title("normal cdf")
     .color(nc("Thistle"_4ub))
     .opacity(0.5)
@@ -171,9 +171,9 @@ int main()
     ();
   // create scenes + add plots to them
   vtkNew<vtkContextScene> scene_1;
-  scene_1->AddItem(new_chart_1);
+  scene_1->AddItem(chart_1);
   vtkNew<vtkContextScene> scene_2;
-  scene_2->AddItem(new_chart_2);
+  scene_2->AddItem(chart_2);
   // create actors + add scenes to them
   vtkNew<vtkContextActor> actor_1;
   actor_1->SetScene(scene_1);
