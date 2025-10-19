@@ -24,6 +24,7 @@
 
 #include "pdmath/vtk_chart.h"
 #include "pdmath/vtk_named_colors.h"
+#include "pdmath/vtk_renderer.h"
 #include "pdmath/vtk_table.h"
 
 // TODO: figure out how to simplify window + renderer stuff
@@ -100,12 +101,12 @@ int main()
   vtkNew<vtkContextActor> actor;
   actor->SetScene(scene);
   // add renderer with actor
-  vtkNew<vtkRenderer> ren;
-  ren->SetViewport(0., 0., 1., 1.);  // x_min, y_min, x_max, y_max
-  ren->SetBackground(nc("Lavender"_3d).GetData());
-  // note: must explicitly set alpha (0 by default for transparency)
-  ren->SetBackgroundAlpha(0.5);
-  ren->AddActor(actor);
+  auto ren = pdmath::vtk_renderer{}
+    .viewport({0., 1.}, {0., 1.})    // {xmin, xmax}, {ymin, ymax}
+    .color(nc("Lavender"_3d))
+    .alpha(0.5)                      // 0 by default for transparency
+    .add(actor)
+    ();
   // rendering dimensions
   constexpr auto x_dim = 640u;
   constexpr auto y_dim = 480u;

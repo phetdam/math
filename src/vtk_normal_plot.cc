@@ -36,6 +36,7 @@
 #include "pdmath/normal.h"
 #include "pdmath/vtk_chart.h"
 #include "pdmath/vtk_named_colors.h"
+#include "pdmath/vtk_renderer.h"
 #include "pdmath/vtk_table.h"
 
 int main()
@@ -179,21 +180,21 @@ int main()
   actor_1->SetScene(scene_1);
   vtkNew<vtkContextActor> actor_2;
   actor_2->SetScene(scene_2);
-  // create top and bottom renderers. viewport coordinates consist of
-  // (x_min, y_min, x_max, y_max) as a point in 4D [0, 1] hypercube. see
-  // color list used for renders via https://htmlpreview.github.io/ of
+  // create top and bottom renderers + add actors. see color list used for
+  // renderer backgrounds via https://htmlpreview.github.io/ of
   // https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
-  vtkNew<vtkRenderer> ren_1;
-  ren_1->SetViewport(0., 0.5, 1., 1.);  // top renderer
-  ren_1->SetBackground(nc("AliceBlue"_3d).GetData());
-  ren_1->SetBackgroundAlpha(0.5);       // 0 by default for transparency
-  vtkNew<vtkRenderer> ren_2;
-  ren_2->SetViewport(0., 0., 1., 0.5);  // bottom renderer
-  ren_2->SetBackground(nc("Lavender"_3d).GetData());
-  ren_2->SetBackgroundAlpha(0.5);       // 0 by default for transparency
-  // add actors to renderers
-  ren_1->AddActor(actor_1);
-  ren_2->AddActor(actor_2);
+  auto ren_1 = pdmath::vtk_renderer{}
+    .viewport({0., 1.}, {0.5, 1.})     // render on top half of window
+    .color(nc("AliceBlue"_3d))
+    .alpha(0.5)                        // 0 by default for transparency
+    .add(actor_1)
+    ();
+  auto ren_2 = pdmath::vtk_renderer{}
+    .viewport({0., 1.}, {0., 0.5})     // render on top half of window
+    .color(nc("Lavender"_3d))
+    .alpha(0.5)                        // 0 by default for transparency
+    .add(actor_2)
+    ();
   // x + y dimension of each plot
   constexpr auto x_dim = 640u;
   constexpr auto y_dim = 480u;
