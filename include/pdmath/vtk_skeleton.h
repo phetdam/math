@@ -245,6 +245,45 @@ private:
   using skeleton::object; \
   using skeleton::parent
 
+/**
+ * A default `vtk_skeleton` implementation.
+ *
+ * This is used as the default implementation for VTK object types. It will not
+ * provide the same level of fluency as a specialized implementation.
+ *
+ * @tparam V VTK object tyoe
+ * @tparam P Parent type
+ */
+template <typename V, typename P = void>
+class vtk_impl_skeleton : public vtk_skeleton<vtk_impl_skeleton<V, P>, V, P> {
+public:
+  PDMATH_USING_VTK_SKELETON(vtk_impl_skeleton<V, P>, V, P);
+};
+
+/**
+ * Traits type mapping a VTK type and the parent type to a `vtk_skeleton`.
+ *
+ * By default this provides the `vtk_impl_skeleton` that matches the template
+ * parameters but specialized implementations should provide a [partial]
+ * specialization to override the provided type member.
+ *
+ * @tparam V VTK object type
+ * @tparam P Parent type, e.g. another `vtk_skeleton`, or `void`
+ */
+template <typename V, typename P = void>
+struct vtk_skeleton_type {
+  using type = vtk_impl_skeleton<V, P>;
+};
+
+/**
+ * SFINAE helper for the `vtk_skeleton` type for a given VTK type.
+ *
+ * @tparam V VTK object type
+ * @tparam P Parent type
+ */
+template <typename V, typename P = void>
+using vtk_skeleton_type_t = typename vtk_skeleton_type<V, P>::type;
+
 }  // namespace pdmath
 
 #endif  // PDMATH_VTK_SKELETON_H_
