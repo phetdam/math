@@ -60,7 +60,7 @@ public:
   {
     vtkNew<T> prop;
     // note: reference increment means no use-after-free error on scope exit
-    object()->AddViewProp(prop);
+    add(prop);
     return vtk_skeleton_type_t<T, vtk_renderer>{prop, this};
   }
 
