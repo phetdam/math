@@ -136,6 +136,16 @@ public:
   }
 };
 
+/**
+ * Partial specialization for `vtk_skeleton_type`.
+ *
+ * @tparam P Parent type
+ */
+template <typename P>
+struct vtk_skeleton_type<vtkChartLegend, P> {
+  using type = vtk_legend<P>;
+};
+
 }  // namespace pdmath
 
 #endif  // PDMATH_VTK_LEGEND_H_
