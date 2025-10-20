@@ -17,19 +17,19 @@
 
 #include <vtkAxis.h>
 #include <vtkBrush.h>
-#include <vtkChartXY.h>
+#include <vtkChart.h>
+#include <vtkChartLegend.h>
 #include <vtkContextActor.h>
 #include <vtkFloatArray.h>
 #include <vtkNew.h>
 #include <vtkPen.h>
-#include <vtkPNGWriter.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkTable.h>
-#include <vtkWindowToImageFilter.h>
 
 #include "pdmath/normal.h"
 #include "pdmath/vtk_actor.h"
 #include "pdmath/vtk_chart.h"
+#include "pdmath/vtk_image_writer.h"
 #include "pdmath/vtk_named_colors.h"
 #include "pdmath/vtk_renderer.h"
 #include "pdmath/vtk_table.h"
@@ -212,18 +212,15 @@ int main()
 #if 0
   iwin->Start();  // automatically calls Initialize()
 #endif  // 0
-  // create window filter to write to write to image
-  vtkNew<vtkWindowToImageFilter> wif;
-  wif->SetInput(win);
-  wif->ReadFrontBufferOff();        // read back buffer only
-  wif->SetInputBufferTypeToRGBA();  // RGBA input (need alpha level)
-  // use PNG writer to write rendering to file
+  // output path for PNG
   auto png_path = std::filesystem::path{__FILE__}.replace_extension(".png");
+  // create new PNG pipeline for window and write to file
   std::cout << "writing " << png_path.filename() << "... " << std::flush;
-  vtkNew<vtkPNGWriter> pngw;
-  pngw->SetFileName(png_path.c_str());
-  pngw->SetInputConnection(wif->GetOutputPort());
-  pngw->Write();
+  pdmath::vtk_png_pipeline{}
+    .input(win)
+    .rgba()
+    .output(png_path)
+    ();
   std::cout << "done" << std::endl;
   return EXIT_SUCCESS;
 }

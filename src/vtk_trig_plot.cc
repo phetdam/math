@@ -12,14 +12,15 @@
 
 #include <vtkAxis.h>
 #include <vtkChart.h>
+#include <vtkChartLegend.h>
 #include <vtkContextActor.h>
 #include <vtkFloatArray.h>
-#include <vtkPNGWriter.h>
 #include <vtkNew.h>
 #include <vtkWindowToImageFilter.h>
 
 #include "pdmath/vtk_actor.h"
 #include "pdmath/vtk_chart.h"
+#include "pdmath/vtk_image_writer.h"
 #include "pdmath/vtk_named_colors.h"
 #include "pdmath/vtk_renderer.h"
 #include "pdmath/vtk_table.h"
@@ -112,18 +113,15 @@ int main()
     // note: if there is no display this will hard abort
     .render()
     ();
-  // create window filter to write to write to image
-  vtkNew<vtkWindowToImageFilter> wif;
-  wif->SetInput(win);
-  wif->ReadFrontBufferOff();        // read back buffer only
-  wif->SetInputBufferTypeToRGBA();  // RGBA input (need alpha level)
-  // use PNG writer to write rendering to file
-  vtkNew<vtkPNGWriter> pngw;
+  // output path for PNG
   auto png_path = std::filesystem::path{__FILE__}.replace_extension(".png");
+  // create new PNG pipeline for window and write to file
   std::cout << "writing " << png_path.filename() << "... " << std::flush;
-  pngw->SetFileName(png_path.c_str());
-  pngw->SetInputConnection(wif->GetOutputPort());
-  pngw->Write();
+  pdmath::vtk_png_pipeline{}
+    .input(win)
+    .rgba()
+    .output(png_path)
+    ();
   std::cout << "done" << std::endl;
   return EXIT_SUCCESS;
 }
