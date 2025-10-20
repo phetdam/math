@@ -96,6 +96,9 @@ public:
    * Get the actor's scene.
    *
    * This returns the `vtk_skeleton` derived type for `vtkContextScene`.
+   *
+   * @note When `vtkContextActor` objects are created they already contain a
+   *  `vtkContextScene` we can start adding context items to.
    */
   auto scene()
   {
