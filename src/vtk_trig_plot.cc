@@ -96,7 +96,7 @@ int main()
   constexpr auto y_dim = 480u;
   // add VTK window writing to framebuffer instead of screen with renderer
   auto win = pdmath::vtk_window{}
-    .name("sin, cos, tan")            // not shown if rendering off-scren
+    .name("sin, cos, tan")            // not shown if rendering off-screen
     .size(x_dim, y_dim)
     .off_screen_rendering()
     // renderer with sin, cos, tan line plot chart
