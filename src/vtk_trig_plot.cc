@@ -16,7 +16,6 @@
 #include <vtkFloatArray.h>
 #include <vtkPNGWriter.h>
 #include <vtkNew.h>
-#include <vtkRenderWindow.h>
 #include <vtkWindowToImageFilter.h>
 
 #include "pdmath/vtk_actor.h"
@@ -24,8 +23,7 @@
 #include "pdmath/vtk_named_colors.h"
 #include "pdmath/vtk_renderer.h"
 #include "pdmath/vtk_table.h"
-
-// TODO: figure out how to simplify window + renderer stuff
+#include "pdmath/vtk_window.h"
 
 int main()
 {
@@ -92,28 +90,28 @@ int main()
       .show()
     ()
     ();
-  // add renderer with actor, scene, and chart
-  auto ren = pdmath::vtk_renderer{}
-    .viewport({0., 1.}, {0., 1.})    // {xmin, xmax}, {ymin, ymax}
-    .color(nc("Lavender"_3d), 0.5)   // 0 by default for transparency
-    .add<vtkContextActor>()
-      .scene()
-        .add(chart)
-      ()
-    ()
-    ();
-  // rendering dimensions
+  // window dimensions
   constexpr auto x_dim = 640u;
   constexpr auto y_dim = 480u;
   // add VTK window writing to framebuffer instead of screen with renderer
-  vtkNew<vtkRenderWindow> win;
-  win->SetWindowName("sin, cos, tan");  // not shown if rendering off-screen
-  win->SetSize(x_dim, y_dim);
-  win->OffScreenRenderingOn();
-  win->AddRenderer(ren);
-  // begin rendering window
-  // note: if there is no display this will hard abort
-  win->Render();
+  auto win = pdmath::vtk_window{}
+    .name("sin, cos, tan")            // not shown if rendering off-scren
+    .size(x_dim, y_dim)
+    .off_screen_rendering()
+    // renderer with sin, cos, tan line plot chart
+    .renderer()
+      .viewport({0., 1.}, {0., 1.})   // {xmin, xmax}, {ymin, ymax}
+      .color(nc("Lavender"_3d), 0.5)  // 0 by default for transparency
+      .add<vtkContextActor>()
+        .scene()
+          .add(chart)
+        ()
+      ()
+    ()
+    // render window
+    // note: if there is no display this will hard abort
+    .render()
+    ();
   // create window filter to write to write to image
   vtkNew<vtkWindowToImageFilter> wif;
   wif->SetInput(win);

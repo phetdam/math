@@ -23,7 +23,6 @@
 #include <vtkNew.h>
 #include <vtkPen.h>
 #include <vtkPNGWriter.h>
-#include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkTable.h>
 #include <vtkWindowToImageFilter.h>
@@ -34,6 +33,7 @@
 #include "pdmath/vtk_named_colors.h"
 #include "pdmath/vtk_renderer.h"
 #include "pdmath/vtk_table.h"
+#include "pdmath/vtk_window.h"
 
 int main()
 {
@@ -166,41 +166,37 @@ int main()
       .show()
     ()
     ();
-  // create top and bottom renderers with charts. see color list used for
-  // renderer backgrounds via https://htmlpreview.github.io/ of
-  // https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
-  auto ren_1 = pdmath::vtk_renderer{}
-    .viewport({0., 1.}, {0.5, 1.})     // render on top half of window
-    .color(nc("AliceBlue"_3d), 0.5)    // 0 by default for transparency
-    .add<vtkContextActor>()
-      .scene()
-        .add(chart_1)
-      ()
-    ()
-    ();
-  auto ren_2 = pdmath::vtk_renderer{}
-    .viewport({0., 1.}, {0., 0.5})     // render on top half of window
-    .color(nc("Lavender"_3d), 0.5)     // 0 by default for transparency
-    .add<vtkContextActor>()
-      .scene()
-        .add(chart_2)
-      ()
-    ()
-    ();
   // x + y dimension of each plot
   constexpr auto x_dim = 640u;
   constexpr auto y_dim = 480u;
   // create VTK rendering window that writes to framebuffer instead of screen
-  vtkNew<vtkRenderWindow> win;
-  win->SetWindowName("normal pdf + cdf");
-  win->SetSize(x_dim, y_dim * 2);
-  // TODO: #if 0 to enable window interactor
-#if 1
-  win->SetOffScreenRendering(1);  // hide window + use off-screen buffer
-#endif  // 1
-  // add renderers to window
-  win->AddRenderer(ren_1);
-  win->AddRenderer(ren_2);
+  auto win = pdmath::vtk_window{}
+    .name("normal pdf + cdf")
+    .size(x_dim, 2 * y_dim)
+    .off_screen_rendering()            // hide window + use off-screen buffer
+    // top renderer with normal PDF plots. see color list used for renderer
+    // backgrounds via https://htmlpreview.github.io/ of the following:
+    // https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html
+    .renderer()
+      .viewport({0., 1.}, {0.5, 1.})   // render on top half of window
+      .color(nc("AliceBlue"_3d), 0.5)  // 0 by default for transparency
+      .add<vtkContextActor>()
+        .scene()
+          .add(chart_1)
+        ()
+      ()
+    ()
+    // bottom renderer with normal CDF plots
+    .renderer()
+      .viewport({0., 1.}, {0., 0.5})   // render on top half of window
+      .color(nc("Lavender"_3d), 0.5)   // 0 by default for transparency
+      .add<vtkContextActor>()
+        .scene()
+          .add(chart_2)
+        ()
+      ()
+    ()
+    ();
   // create window interactor to enable rendering
   // TODO: #if 1 to start interactor event loop
 #if 0
@@ -211,7 +207,7 @@ int main()
   // note: if there is no display this will hard abort
   // note: do *not* render before setting the interactor's render window; this
   // will cause a segmentation fault when you close the window
-  win->Render();
+  win.render();
   // TODO: #if 1 to start interactor event loop
 #if 0
   iwin->Start();  // automatically calls Initialize()
