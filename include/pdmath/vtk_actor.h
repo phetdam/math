@@ -93,14 +93,13 @@ public:
   }
 
   /**
-   * Set the actor's scene from a newly created scene.
+   * Get the actor's scene.
    *
    * This returns the `vtk_skeleton` derived type for `vtkContextScene`.
    */
   auto scene()
   {
-    vtkNew<vtkContextScene> scn;
-    scene(scn);
+    auto scn = object()->GetScene();
     return vtk_skeleton_type_t<vtkContextScene, vtk_context_actor>{scn, this};
   }
 };
