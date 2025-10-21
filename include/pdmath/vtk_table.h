@@ -148,14 +148,12 @@ public:
 
 private:
   /**
-   * Indicate if a type is a tuple-like type.
-   *
-   * This includes `std::tuple` and `std::pair`.
+   * Indicate if a type is a `std::tuple` specialization or not.
    *
    * @tparam T type
    */
   template <typename T>
-  struct is_tuple_like : std::false_type {};
+  struct is_tuple : std::false_type {};
 
   /**
    * Partial specialization for `std::tuple`.
@@ -163,16 +161,7 @@ private:
    * @tparam Ts Tuple types
    */
   template <typename... Ts>
-  struct is_tuple_like<std::tuple<Ts...>> : std::true_type {};
-
-  /**
-   * Partial specialization for `std::pair`.
-   *
-   * @tparam T First type
-   * @tparam U Second type
-   */
-  template <typename T, typename U>
-  struct is_tuple_like<std::pair<T, U>> : std::true_type {};
+  struct is_tuple<std::tuple<Ts...>> : std::true_type {};
 
   /**
    * Traits type to indicate a unary callable that can be used to fill a row.
@@ -187,7 +176,7 @@ private:
     T,
     std::enable_if_t<
       std::is_invocable_v<T, vtkIdType /*row index*/> &&
-      is_tuple_like<std::invoke_result_t<T, vtkIdType>>::value
+      is_tuple<std::invoke_result_t<T, vtkIdType>>::value
     > > : std::true_type {};
 
   /**
@@ -203,7 +192,7 @@ private:
     T,
     std::enable_if_t<
       std::is_invocable_v<T, vtkIdType /*row index*/, vtkIdType /*row count*/> &&
-      is_tuple_like<std::invoke_result_t<T, vtkIdType, vtkIdType>>::value
+      is_tuple<std::invoke_result_t<T, vtkIdType, vtkIdType>>::value
     > > : std::true_type {};
 
 public:
