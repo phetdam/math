@@ -16,13 +16,11 @@
 #include <string>
 
 #include <vtkAxis.h>
-#include <vtkBrush.h>
 #include <vtkChart.h>
 #include <vtkChartLegend.h>
 #include <vtkContextActor.h>
 #include <vtkFloatArray.h>
 #include <vtkNew.h>
-#include <vtkPen.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkTable.h>
 

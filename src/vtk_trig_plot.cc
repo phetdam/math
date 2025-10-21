@@ -15,8 +15,6 @@
 #include <vtkChartLegend.h>
 #include <vtkContextActor.h>
 #include <vtkFloatArray.h>
-#include <vtkNew.h>
-#include <vtkWindowToImageFilter.h>
 
 #include "pdmath/vtk_actor.h"
 #include "pdmath/vtk_chart.h"
