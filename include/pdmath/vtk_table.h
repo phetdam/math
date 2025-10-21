@@ -284,7 +284,7 @@ public:
   auto& rows(
     vtkIdType n_rows,
     F&& f,
-    constraint_t<binary_row_callable<F>::value> = 0)
+    constraint_t<unary_row_callable<F>::value || binary_row_callable<F>::value> = 0)
   {
     rows(n_rows);
     rows(std::forward<F>(f));
