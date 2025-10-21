@@ -5,7 +5,6 @@
  * @copyright MIT License
  */
 
-#include <iostream>  // TODO: remove when print_vector is removed
 #include <ostream>
 #include <string>
 #include <utility>
