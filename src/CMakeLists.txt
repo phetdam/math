@@ -64,3 +64,23 @@ if(VTK_FOUND)
 else()
     message(STATUS "Skipping vtk_trig_plot (requires VTK)")
 endif()
+
+# vtk_qmc_pi: plot quasi Monte Carlo estimates of pi
+if(VTK_FOUND)
+    add_executable(vtk_qmc_pi vtk_qmc_pi.cc)
+    target_link_libraries(vtk_qmc_pi PRIVATE ${VTK_LIBRARIES})
+    vtk_module_autoinit(TARGETS vtk_qmc_pi MODULES ${VTK_LIBRARIES})
+    # note: see above. skip if using GLX and no X server is available
+    add_test(
+        NAME vtk_qmc_pi
+        COMMAND ${CMAKE_COMMAND} -E env $<TARGET_FILE:vtk_qmc_pi>
+    )
+    if(X11_FOUND)
+        set_tests_properties(
+            vtk_qmc_pi PROPERTIES
+            SKIP_REGULAR_EXPRESSION "bad X server"
+        )
+    endif()
+else()
+    message(STATUS "Skipping vtk_qmc_cpi (requires VTK)")
+endif()
