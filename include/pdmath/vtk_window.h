@@ -11,6 +11,7 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 
+#include "pdmath/vtk_renderer.h"  // for vtk_skeleton_type_t specialization
 #include "pdmath/vtk_skeleton.h"
 
 namespace pdmath {
