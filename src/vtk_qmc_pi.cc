@@ -13,6 +13,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <filesystem>
+#include <future>
 #include <iostream>
 #include <tuple>
 #include <vector>
@@ -37,12 +38,24 @@ int main()
   constexpr auto n_rows = 50u;
   // named colors object
   pdmath::vtk_named_colors nc;
-   // callable to compute x (partition count), pi, and qmc_pi(x)
-  auto pi_pair = [](auto i /*row index*/)
+  // lambda to convert an index into a partition count
+  // note: we want max 5000 partitions for 25m points at max
+  auto parts = [](auto i) { return 1000u + 80u * (i + 1u); };
+  // compute async values of QMC pi estimate
+  // note: this is faster than serial estimation of QMC pi
+  // TODO: maybe use an actual thread pool as this is uncontrolled
+  std::vector<std::future<double>> futs(n_rows);
+  for (auto i = 0u; i < n_rows; i++)
+    futs[i] = std::async(
+      std::launch::async,
+      [n = parts(i)] { return pdmath::qmc_pi(n); }
+    );
+  // callable to block for n (partition count), pi, and qmc_pi(n)
+  auto pi_pair = [&futs, &parts](auto i /*row index*/)
   {
     // we want n to be 5000 at max for 25m points at max
-    std::size_t n = 1000u + 80u * (i + 1u);
-    return std::make_tuple(n * n, pdmath::pi, pdmath::qmc_pi(n));
+    auto n = parts(i);
+    return std::make_tuple(n * n, pdmath::pi, futs[i].get());
   };
   // create table with x, pi, and qmc_pi(x) data
   auto table = pdmath::vtk_table{}
