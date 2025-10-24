@@ -84,3 +84,15 @@ if(VTK_FOUND)
 else()
     message(STATUS "Skipping vtk_qmc_cpi (requires VTK)")
 endif()
+
+# vtk_fluent_type: print VTK helper pseudo-expression template types
+if(VTK_FOUND)
+    add_executable(vtk_fluent_type vtk_fluent_type.cc)
+    target_link_libraries(vtk_fluent_type PRIVATE ${VTK_LIBRARIES})
+    vtk_module_autoinit(TARGETS vtk_fluent_type MODULES ${VTK_LIBRARIES})
+    # note: doesn't need the skipping logic since all expressions involving
+    # VTK types are unevaluated (we just use decltype() on them)
+    add_test(NAME vtk_fluent_type COMMAND vtk_fluent_type)
+else()
+    message(STATUS "Skipping vtk_fluent_type (requires VTK)")
+endif()
