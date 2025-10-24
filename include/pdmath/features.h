@@ -72,4 +72,15 @@
 #define PDMATH_HAS_QUADMATH 0
 #endif  // PDMATH_HAS_QUADMATH
 
+// cxxabi.h (available for compilers following the Itanium C++ ABI)
+#ifdef __has_include
+#if __has_include(<cxxabi.h>)
+#define PDMATH_ITANIUM_ABI 1
+#endif  // __has_include(<cxxabi.h>)
+#endif  // __has_include
+
+#ifndef PDMATH_ITANIUM_ABI
+#define PDMATH_ITANIUM_ABI 0
+#endif  // PDMATH_ITANIUM_ABI
+
 #endif  // PDMATH_FEATURES_H_
