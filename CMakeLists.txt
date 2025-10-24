@@ -264,6 +264,12 @@ if(MSVC)
         /wd5026
         /wd5027
         /wd5045
+        # ensure standards-conformant lambda handling. by default, the legacy
+        # lambda processor has shortcomings such as requiring capture of
+        # constexpr variables. /Zc:lambda is implied when using /std:c++20
+        # TODO: do we want to check support? this was only introduced in Visual
+        # Studio 2019 16.8 so it is still a relatively recent option
+        /Zc:lambda
     )
     # MSVC issues C4996 due to use of std::iterator in Boost
     add_compile_definitions(_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
