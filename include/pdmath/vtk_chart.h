@@ -190,6 +190,9 @@ public:
   }
 };
 
+// deduction guide for MSVC
+vtk_xy_chart() -> vtk_xy_chart<>;
+
 /**
  * Partial specialization for `vtk_skeleton_type`.
  *

@@ -229,6 +229,9 @@ public:
   }
 };
 
+// deduction guide for MSVC
+vtk_window() -> vtk_window<>;
+
 /**
  * Partial specialization for `vtk_skeleton_type`.
  *

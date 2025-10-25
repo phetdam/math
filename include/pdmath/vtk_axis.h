@@ -67,6 +67,19 @@ public:
   }
 };
 
+// deduction guide for MSVC
+vtk_axis() -> vtk_axis<>;
+
+/**
+ * Partial specialization for `vtk_skeleton_type`.
+ *
+ * @tparam P Parent type
+ */
+template <typename P>
+struct vtk_skeleton_type<vtkAxis, P> {
+  using type = vtk_axis<P>;
+};
+
 }  // namespace pdmath
 
 #endif  // PDMATH_VTK_AXIS_H_

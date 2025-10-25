@@ -60,6 +60,9 @@ public:
   }
 };
 
+// deduction guide for MSVC
+vtk_context_scene() -> vtk_context_scene<>;
+
 /**
  * Partial specialization for `vtk_skeleton_type`.
  *
@@ -106,6 +109,9 @@ public:
     return vtk_skeleton_type_t<vtkContextScene, vtk_context_actor>{scn, this};
   }
 };
+
+// deduction guide for MSVC
+vtk_context_actor() -> vtk_context_actor<>;
 
 /**
  * Partial specialization for `vtk_skeleton_type`.

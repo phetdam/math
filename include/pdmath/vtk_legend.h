@@ -136,6 +136,9 @@ public:
   }
 };
 
+// deduction guide for MSVC
+vtk_legend() -> vtk_legend<>;
+
 /**
  * Partial specialization for `vtk_skeleton_type`.
  *
