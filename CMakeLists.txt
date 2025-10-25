@@ -267,6 +267,8 @@ if(MSVC)
         /wd5026
         /wd5027
         /wd5045
+        # C5267: implicit copy ctor def deprecated due to user-defined dtor
+        /wd5267
         # ensure standards-conformant lambda handling. by default, the legacy
         # lambda processor has shortcomings such as requiring capture of
         # constexpr variables. /Zc:lambda is implied when using /std:c++20
