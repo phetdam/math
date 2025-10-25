@@ -83,4 +83,89 @@
 #define PDMATH_ITANIUM_ABI 0
 #endif  // PDMATH_ITANIUM_ABI
 
+// SIMD features. see https://stackoverflow.com/a/11228864/14227825
+
+// SSE from xmmintrin.h
+#ifdef __has_include
+#if __has_include(<xmmintrin.h>)
+#define PDMATH_HAS_SSE 1
+#endif  // __has_include(<xmmintrin.h>)
+#endif  // __has_include
+
+#ifndef PDMATH_HAS_SSE
+#define PDMATH_HAS_SSE 0
+#endif  // PDMATH_HAS_SSE
+
+// SSE2 from emmintrin.h
+#ifdef __has_include
+#if __has_include(<emmintrin.h>)
+#define PDMATH_HAS_SSE2 1
+#endif  // __has_include(<emmintrin.h>)
+#endif  // __has_include
+
+#ifndef PDMATH_HAS_SSE2
+#define PDMATH_HAS_SSE2 1
+#endif  // PDMATH_HAS_SSE2
+
+// SSE3 from pmmintrin.h
+#ifdef __has_include
+#if __has_include(<pmmintrin.h>)
+#define PDMATH_HAS_SSE3 1
+#endif  // __has_include(<pmmintrin.h>)
+#endif  // __has_include
+
+// SSE4.1 from smmintrin.h
+#ifdef __has_include
+#if __has_include(<smmintrin.h>)
+#define PDMATH_HAS_SSE4_1 1
+#endif  // __has_include(<smmintrin.h>)
+#endif  // __has_include
+
+#ifndef PDMATH_HAS_SSE4_1
+#define PDMATH_HAS_SSE4_1 0
+#endif  // PDMATH_HAS_SSE4_1
+
+// SSE4.2 from nmmintrin.h
+#ifdef __has_include
+#if __has_include(<nmmintrin.h>)
+#define PDMATH_HAS_SSE4_2 1
+#endif  // __has_include(<nmmintrin.h>)
+#endif  // __has_include
+
+#ifndef PDMATH_HAS_SSE4_2
+#define PDMATH_HAS_SSE4_2 0
+#endif  // PDMATH_HAS_SSE4_2
+
+// AVX, AVX2, FMA from immintrin.h
+#ifdef __has_include
+#if __has_include(<immintrin.h>)
+#define PDMATH_HAS_AVX 1
+#define PDMATH_HAS_AVX2 1
+#define PDMATH_HAS_FMA 1
+#endif  // __has_include(<immintrin.h>)
+#endif  // __has_include
+
+#ifndef PDMATH_HAS_AVX
+#define PDMATH_HAS_AVX 0
+#endif  // PDMATH_HAS_AVX
+
+#ifndef PDMATH_HAS_AVX2
+#define PDMATH_HAS_AVX2 0
+#endif  // PDMATH_HAS_AVX2
+
+#ifndef PDMATH_HAS_FMA
+#define PDMATH_HAS_FMA 0
+#endif  // PDMATH_HAS_FMA
+
+// AVX-512 from zmmintrin.h
+#ifdef __has_include
+#if __has_include(<zmmintrin.h>)
+#define PDMATH_HAS_AVX512 1
+#endif  // __has_include(<zmmintrin.h>)
+#endif  // __has_include
+
+#ifndef PDMATH_HAS_AVX512
+#define PDMATH_HAS_AVX512 0
+#endif  // PDMATH_HAS_AVX512
+
 #endif  // PDMATH_FEATURES_H_
