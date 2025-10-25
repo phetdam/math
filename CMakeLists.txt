@@ -254,6 +254,8 @@ if(MSVC)
         /Wall
         /wd4265
         /wd4514
+        # C4623: default ctor implicitly defined as deleted
+        /wd4623
         /wd4625
         /wd4626
         # C4710: function marked for inline expansion not inlined
