@@ -70,7 +70,15 @@ public:
    */
   auto& output(const std::filesystem::path& path)
   {
+// MSVC uses wchar_t so need temporary string materialization
+// note: can't use if constexpr since discarded statements are fully
+// checked if used outside the definition of a function template
+#if defined(_MSC_VER)
+    writer_->SetFileName(path.string().c_str());
+// otherwise just use c_str() directlry
+#else
     writer_->SetFileName(path.c_str());
+#endif  // !defined(_MSC_VER)
     return *this;
   }
 
