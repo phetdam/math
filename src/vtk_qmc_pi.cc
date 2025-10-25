@@ -30,6 +30,7 @@
 #include "pdmath/vtk_named_colors.h"
 #include "pdmath/vtk_table.h"
 #include "pdmath/vtk_window.h"
+#include "pdmath/warnings.h"
 
 int main()
 {
@@ -55,7 +56,11 @@ int main()
   {
     // we want n to be 5000 at max for 25m points at max
     auto n = parts(i);
+// MSVC emits C4365 since vtkIdType is signed
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(4365)
     return std::make_tuple(n * n, pdmath::pi, futs[i].get());
+PDMATH_MSVC_WARNINGS_POP()
   };
   // create table with x, pi, and qmc_pi(x) data
   auto table = pdmath::vtk_table{}
