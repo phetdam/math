@@ -11,8 +11,14 @@
 #include <cstddef>
 #include <type_traits>
 
+#include "pdmath/features.h"
 #include "pdmath/type_traits.h"
 #include "pdmath/warnings.h"
+
+// SIMD headers
+#if PDMATH_HAS_AVX
+#include <immintrin.h>
+#endif  // PDMATH_HAS_AVX
 
 namespace pdmath {
 
@@ -101,10 +107,13 @@ inline constexpr auto pi = pi_v<double>;
 namespace detail {
 
 /**
- * Indicate if two points are inside the 2D closed unit circle \f$[-1, 1]^2\f$.
+ * Indicate if a point is inside the 2D closed unit circle \f$[-1, 1]^2\f$.
  *
  * @tparam T Floating-point type
  * @tparam U Floating-point type
+ *
+ * @param x First dimension value
+ * @param y Second dimension value
  */
 template <typename T, typename U>
 bool in_unit_circle(
@@ -114,6 +123,27 @@ bool in_unit_circle(
 {
   return x * x + y * y <= 1;  // note: no square root operation is needed
 }
+
+#if PDMATH_HAS_AVX
+/**
+ * Indicate if points are inside the closed unit circle \f$[-1, 1]^2\f$.
+ *
+ * This uses AVX intrinsics to return a mask of the points in the circle.
+ *
+ * @param x First dimension values
+ * @param y Second dimension values
+ */
+inline auto in_unit_circle(__m256 x, __m256 y)
+{
+  // prod = x * x
+  auto prod = _mm256_mul_ps(x, x);
+  // prod += y * y
+  prod = _mm256_fmadd_ps(y, y, prod);
+  // check prod <= 1
+  __m256 one = {1, 1, 1, 1, 1, 1, 1, 1};
+  return _mm256_cmp_ps_mask(prod, one, _CMP_LE_OQ);
+}
+#endif  // PDMATH_HAS_AVX
 
 }  // namespace detail
 
