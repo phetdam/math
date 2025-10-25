@@ -22,6 +22,7 @@
 #include <vtkChartXY.h>
 #include <vtkContextActor.h>
 #include <vtkDoubleArray.h>
+#include <vtkObject.h>
 
 #include "pdmath/pi.h"
 #include "pdmath/vtk_actor.h"
@@ -35,6 +36,10 @@
 int main()
 {
   using namespace pdmath::vtk_literals;
+// on Windows, disable logging of warnings
+#ifdef _WIN32
+  vtkObject::GlobalWarningDisplayOff();
+#endif  // _WIN32
   // number of rows (also number of plotted data points)
   constexpr auto n_rows = 50u;
   // named colors object

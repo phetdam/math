@@ -50,6 +50,7 @@ include(CTest)
 # update CMake module path + include project modules
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(pdmath_latex_compile)
+include(pdmath_target_helpers)
 include(pdmath_termcolor)
 
 # TODO: consider upgrading to C++20

@@ -15,6 +15,7 @@
 #include <vtkChartLegend.h>
 #include <vtkContextActor.h>
 #include <vtkFloatArray.h>
+#include <vtkObject.h>
 
 #include "pdmath/vtk_actor.h"
 #include "pdmath/vtk_chart.h"
@@ -23,10 +24,15 @@
 #include "pdmath/vtk_renderer.h"
 #include "pdmath/vtk_table.h"
 #include "pdmath/vtk_window.h"
+#include "pdmath/warnings.h"
 
 int main()
 {
   using namespace pdmath::vtk_literals;
+// on Windows, disable logging of warnings
+#ifdef _WIN32
+  vtkObject::GlobalWarningDisplayOff();
+#endif  // _WIN32
   // VTK named colors object
   pdmath::vtk_named_colors nc;
   // callable to fill table rows with
@@ -35,7 +41,10 @@ int main()
     // points in (-1.2, 1.2). we avoid the left endpoint by using the sequence
     // of points {0.5 / n_rows, ... (n_rows - 0.5) / n_rows} before we do the
     // affine transform to ensure points are in the desired interval
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(5219)
     auto x = -1.2 + 2.4 * (0.5 + i) / n_rows;
+PDMATH_MSVC_WARNINGS_POP()
     // row is composed of x, sin(x), cos(x), tan(x)
     return std::make_tuple(x, std::sin(x), std::cos(x), std::tan(x));
   };

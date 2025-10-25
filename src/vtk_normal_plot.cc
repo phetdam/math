@@ -21,6 +21,7 @@
 #include <vtkContextActor.h>
 #include <vtkFloatArray.h>
 #include <vtkNew.h>
+#include <vtkObject.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkTable.h>
 
@@ -32,10 +33,15 @@
 #include "pdmath/vtk_renderer.h"
 #include "pdmath/vtk_table.h"
 #include "pdmath/vtk_window.h"
+#include "pdmath/warnings.h"
 
 int main()
 {
   using namespace pdmath::vtk_literals;
+// on Windows, disable logging of warnings
+#ifdef _WIN32
+  vtkObject::GlobalWarningDisplayOff();
+#endif  // _WIN32
   // VTK named colors object
   pdmath::vtk_named_colors nc;
   // callable to fill each table row with
@@ -44,7 +50,10 @@ int main()
     // x values lie in [-5, 5] and we want them to avoid the endpoints. this
     // allows the points, if they were in (0, 1), to be the sequence
     // (0.5 / n_rows, ... (n_rows - 0.5) / n_rows)
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(5219)
     auto x = -5 + 10 * (0.5 + i) / n_rows;
+PDMATH_MSVC_WARNINGS_POP()
     // precompute standard deviations
     auto root_0_2 = std::sqrt(0.2);
     auto root_5 = std::sqrt(5.);

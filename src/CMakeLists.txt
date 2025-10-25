@@ -16,6 +16,8 @@ if(VTK_FOUND)
     # note: too many modules to keep track of so just use VTK_LIBRARIES
     target_link_libraries(vtk_normal_plot PRIVATE ${VTK_LIBRARIES})
     vtk_module_autoinit(TARGETS vtk_normal_plot MODULES ${VTK_LIBRARIES})
+    # on Windows, we copy the runtime DLLs into the build directory
+    pdmath_copy_runtime_dlls(vtk_normal_plot)
     # note: can add as test since we render offscreen
     # note: VTK will hard abort if there is no display so we use the suggested
     # method of using cmake -E env to run the VTK program
@@ -50,6 +52,7 @@ if(VTK_FOUND)
     add_executable(vtk_trig_plot vtk_trig_plot.cc)
     target_link_libraries(vtk_trig_plot PRIVATE ${VTK_LIBRARIES})
     vtk_module_autoinit(TARGETS vtk_trig_plot MODULES ${VTK_LIBRARIES})
+    pdmath_copy_runtime_dlls(vtk_trig_plot)
     # note: see above. skip if using GLX and no X server is available
     add_test(
         NAME vtk_trig_plot
@@ -70,6 +73,7 @@ if(VTK_FOUND)
     add_executable(vtk_qmc_pi vtk_qmc_pi.cc)
     target_link_libraries(vtk_qmc_pi PRIVATE ${VTK_LIBRARIES})
     vtk_module_autoinit(TARGETS vtk_qmc_pi MODULES ${VTK_LIBRARIES})
+    pdmath_copy_runtime_dlls(vtk_qmc_pi)
     # note: see above. skip if using GLX and no X server is available
     add_test(
         NAME vtk_qmc_pi
@@ -90,6 +94,7 @@ if(VTK_FOUND)
     add_executable(vtk_fluent_type vtk_fluent_type.cc)
     target_link_libraries(vtk_fluent_type PRIVATE ${VTK_LIBRARIES})
     vtk_module_autoinit(TARGETS vtk_fluent_type MODULES ${VTK_LIBRARIES})
+    pdmath_copy_runtime_dlls(vtk_fluent_type)
     # note: doesn't need the skipping logic since all expressions involving
     # VTK types are unevaluated (we just use decltype() on them)
     add_test(NAME vtk_fluent_type COMMAND vtk_fluent_type)
