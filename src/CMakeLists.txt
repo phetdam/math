@@ -101,3 +101,24 @@ if(VTK_FOUND)
 else()
     message(STATUS "Skipping vtk_fluent_type (requires VTK)")
 endif()
+
+# vtk_qmc_pi_grid: plot the unit circle boundary and the QMC pi grid points
+if(VTK_FOUND)
+    add_executable(vtk_qmc_pi_grid vtk_qmc_pi_grid.cc)
+    target_link_libraries(vtk_qmc_pi_grid PRIVATE ${VTK_LIBRARIES})
+    vtk_module_autoinit(TARGETS vtk_qmc_pi_grid MODULES ${VTK_LIBRARIES})
+    pdmath_copy_runtime_dlls(vtk_qmc_pi_grid)
+    # note: see above. skip if using GLX and no X server is available
+    add_test(
+        NAME vtk_qmc_pi_grid
+        COMMAND ${CMAKE_COMMAND} -E env $<TARGET_FILE:vtk_qmc_pi_grid>
+    )
+    if(X11_FOUND)
+        set_tests_properties(
+            vtk_qmc_pi_grid PROPERTIES
+            SKIP_REGULAR_EXPRESSION "bad X server"
+        )
+    endif()
+else()
+    message(STATUS "Skipping vtk_qmc_pi_grid (requires VTK)")
+endif()
