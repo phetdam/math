@@ -83,6 +83,60 @@ public:
   }
 
   /**
+   * Get the axis data label offset in fractional pixels from the axis.
+   */
+  auto label_offset() const
+  {
+    return object()->GetLabelOffset();
+  }
+
+  /**
+   * Set the axis data lavel offset in fractional pixels from the axis.
+   *
+   * @param px Number of pixels separating the axis label from the axis
+   */
+  auto& label_offset(float px)
+  {
+    object()->SetLabelOffset(px);
+    return *this;
+  }
+
+  /**
+   * Indicate if the axis data labels are visible or not.
+   */
+  bool labels_visible() const
+  {
+    return object()->GetLabelsVisible();
+  }
+
+  /**
+   * Indicage if the axis data labels should be visible or not.
+   *
+   * @param v `true` to show the axis data labels, `false` to hide
+   */
+  auto& labels_visible(bool v)
+  {
+    object()->SetLabelsVisible(v);
+    return *this;
+  }
+
+  /**
+   * Hide the axis data labels.
+   */
+  auto& hide_labels()
+  {
+    return labels_visible(false);
+  }
+
+  /**
+   * Show the axis data labels.
+   */
+  auto& show_labels()
+  {
+    return labels_visible(true);
+  }
+
+  /**
    * Get the axis tick length in fractional pixels.
    */
   auto tick_length() const
@@ -139,6 +193,41 @@ public:
   {
     object()->SetTitle(text);
     return *this;
+  }
+
+  /**
+   * Indicate if the axis title is visible.
+   */
+  bool title_visible() const
+  {
+    return object()->GetTitleVisible();
+  }
+
+  /**
+   * Indicate if the axis title should be visible.
+   *
+   * @param v `true` to show axis title, `false` to hide
+   */
+  auto& title_visible(bool v)
+  {
+    object()->SetTitleVisible(v);
+    return *this;
+  }
+
+  /**
+   * Hide the axis title.
+   */
+  auto& hide_title()
+  {
+    return title_visible(false);
+  }
+
+  /**
+   * Show the axis title.
+   */
+  auto& show_title()
+  {
+    return title_visible(true);
   }
 };
 
