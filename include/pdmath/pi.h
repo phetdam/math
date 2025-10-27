@@ -16,10 +16,10 @@
 #include "pdmath/type_traits.h"
 #include "pdmath/warnings.h"
 
-// SIMD headers
-#if PDMATH_HAS_AVX
+// note: can reduce the ISA requirement as necessary later
+#if PDMATH_HAS_AVX2
 #include <immintrin.h>
-#endif  // PDMATH_HAS_AVX
+#endif  // PDMATH_HAS_AVX2
 
 namespace pdmath {
 
@@ -184,7 +184,7 @@ PDMATH_MSVC_WARNINGS_POP()
   return 4 * (static_cast<T>(n_in) / static_cast<T>(n * n));
 }
 
-#if PDMATH_HAS_AVX
+#if PDMATH_HAS_AVX2
 /**
  * Estimate \f$\pi\f$ using a quasi Monte Carlo stratified sampling method.
  *
@@ -273,7 +273,7 @@ PDMATH_MSVC_WARNINGS_POP()
   return 4 * (static_cast<T>(n_in) / static_cast<T>(n * n));
 PDMATH_MSVC_WARNINGS_POP()
 }
-#endif  // PDMATH_HAS_AVX
+#endif  // PDMATH_HAS_AVX2
 
 }  // namespace pdmath
 
