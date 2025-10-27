@@ -12,6 +12,7 @@
 #include <type_traits>
 
 #include "pdmath/features.h"
+#include "pdmath/impl_policy.h"
 #include "pdmath/type_traits.h"
 #include "pdmath/warnings.h"
 
@@ -128,20 +129,18 @@ bool in_unit_circle(
 /**
  * Indicate if points are inside the closed unit circle \f$[-1, 1]^2\f$.
  *
- * This uses AVX intrinsics to return a mask of the points in the circle.
+ * This uses AVX intrinsics to return a `__m256` mask of points in the circle,
+ * e.g. `0xFFFFFFFF` for selected lanes and `0x00000000` for unselected lanes.
  *
  * @param x First dimension values
  * @param y Second dimension values
  */
 inline auto in_unit_circle(__m256 x, __m256 y)
 {
-  // prod = x * x
-  auto prod = _mm256_mul_ps(x, x);
-  // prod += y * y
-  prod = _mm256_fmadd_ps(y, y, prod);
+  // prod = y * y + x * x
+  auto prod = _mm256_fmadd_ps(y, y, _mm256_mul_ps(x, x));
   // check prod <= 1
-  __m256 one = {1, 1, 1, 1, 1, 1, 1, 1};
-  return _mm256_cmp_ps_mask(prod, one, _CMP_LE_OQ);
+  return _mm256_cmp_ps(prod, _mm256_set1_ps(1.f), _CMP_LE_OQ);
 }
 #endif  // PDMATH_HAS_AVX
 
@@ -184,6 +183,97 @@ PDMATH_MSVC_WARNINGS_POP()
   // note: second static_cast<T> is unnecessary but is there to silence MSVC
   return 4 * (static_cast<T>(n_in) / static_cast<T>(n * n));
 }
+
+#if PDMATH_HAS_AVX
+/**
+ * Estimate \f$\pi\f$ using a quasi Monte Carlo stratified sampling method.
+ *
+ * This is a SIMD implementation of the original serial logic that uses AVX
+ * instructions to speed up computation. With a 64-bit /arch:AVX2 MSVC build
+ * this results in around a 3.4x speedup while with a 64-bit GCC -march=native
+ * build on an AVX2 achine this results in nearly a 7x speedup.
+ *
+ * @tparam T Floating-point type
+ *
+ * @param n Number of partitions along an axis (square root of total samples)
+ */
+template <typename T = double>
+T qmc_pi(
+  simd_implementation,
+  std::size_t n,
+  constraint_t<std::is_floating_point_v<T>> = 0) noexcept
+{
+// disable C5219 which is emitted in several places
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(5219)
+  // number of elements in an __m256
+  constexpr auto stride = sizeof(__m256) / sizeof(float);
+  // TODO: move to SIMD traits header?
+  // SIMD points inside top-right quadrant of unit circle
+  auto pn_in = _mm256_set1_epi32(0);
+  // scalar count of points inside top-right quadrant of unit circle
+  std::size_t n_in = 0u;
+  // packed 1.f / n precomputed for FMA
+  auto pn_inv = _mm256_set1_ps(1.f / n);
+  // packed step 0.5, ... (stride - 0.5) / n values precomputed for FMA
+  // TODO: we could use a pack expansion to reduce the manual typing here
+  auto pstep = _mm256_mul_ps(
+    pn_inv,
+    _mm256_set_ps(0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f)
+  );
+  // outer loop
+  for (decltype(n) i = 0u; i < n; i++) {
+    // inner loop counter. this is used by both strided and scalar loop
+    decltype(n) j = 0u;
+    // since i is fixed for the inner loop, compute packed (i + 0.5f) / n
+    auto px = _mm256_set1_ps((i + 0.5f) / n);
+    // strided inner loop
+    for (; j + stride <= n; j += stride) {
+      // use FMA to compute (j + 0.5f) / n, ... (j + stride - 0.5) / n
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(4244)
+      auto py = _mm256_fmadd_ps(_mm256_set1_ps(j), pn_inv, pstep);
+PDMATH_MSVC_WARNINGS_POP()
+      // use mask to see if points are in unit circle + to increment count
+      // note: treating as if everything is a single 8-bit int
+      pn_in = _mm256_blendv_epi8(
+        pn_in,                                               // false branch
+        _mm256_add_epi32(pn_in, _mm256_set1_epi32(1)),       // true branch
+        // note: since in_unit_circle is returning a float mask of 0xFFFFFFFF
+        // and zeroes, we can just reinterpret it as an integral mask
+        _mm256_castps_si256(detail::in_unit_circle(px, py))  // mask
+      );
+    }
+    // remaining elements are added to the scalar sum
+    // note: use float for all calculations
+    // note: with optimization GCC complains about this being UB
+    for (; j < n; j++)
+      n_in += detail::in_unit_circle((i + 0.5f) / n, (j + 0.5f) / n);
+  }
+  // horizontally add lower and upper 128 bits
+  // note: (x7 + x6, x5 + x4, x3 + x2, x1 + x0)
+  auto pn_inh = _mm_hadd_epi32(
+    _mm256_castsi256_si128(pn_in),      // low 128 bits (x3, x2, x1, x0)
+    _mm256_extracti128_si256(pn_in, 1)  // high 128 bits (x7, x6, x5, x4)
+  );
+  // move upper 2 32-bit ints into lower 64 bits
+  // note: (x7 + x6, x5 + x4, x7 + x6, x5 + x4)
+  auto pn_inu = _mm_unpackhi_epi64(pn_inh, pn_inh);
+  // perform an addition to futher accumulate
+  // note: (2(x7 + x6), 2(x5 + x4), x3 + x2 + x7 + x6, x1 + x0 + x5 + x4)
+  auto pn_sum1 = _mm_add_epi32(pn_inh, pn_inu);
+  // swap lower (and highest) two 32-bit ints so we can get full summation
+  // note: (2(x5 + x4), 2(x7 + x6), x1 + x0 + x5 + x4, x3 + x2 + x7 + x6)
+  auto pn_sum2 = _mm_shuffle_epi32(pn_sum1, _MM_SHUFFLE(2, 3, 0, 1));
+  // perform another addition and get lower 32-bit result to add to scalar sum
+  // note: explicitly initialize as unsigned instead of signed
+  n_in += _mm_cvtsi128_si32(_mm_add_epi32(pn_sum1, pn_sum2));
+  // return pi estimate. we just cast to T
+  // note: second static_cast<T> is unnecessary but is there to silence MSVC
+  return 4 * (static_cast<T>(n_in) / static_cast<T>(n * n));
+PDMATH_MSVC_WARNINGS_POP()
+}
+#endif  // PDMATH_HAS_AVX
 
 }  // namespace pdmath
 
