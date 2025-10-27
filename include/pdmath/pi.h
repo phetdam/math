@@ -188,10 +188,10 @@ PDMATH_MSVC_WARNINGS_POP()
 /**
  * Estimate \f$\pi\f$ using a quasi Monte Carlo stratified sampling method.
  *
- * This is a SIMD implementation of the original serial logic that uses AVX
+ * This is a SIMD implementation of the original serial logic that uses AVX2
  * instructions to speed up computation. With a 64-bit /arch:AVX2 MSVC build
  * this results in around a 3.4x speedup while with a 64-bit GCC -march=native
- * build on an AVX2 achine this results in nearly a 7x speedup.
+ * build on an AVX2 machine this results in nearly a 7x speedup.
  *
  * @tparam T Floating-point type
  *
