@@ -47,6 +47,18 @@ add_executable(qmc_pi qmc_pi.cc)
 target_link_libraries(qmc_pi PRIVATE pdmath)
 add_test(NAME qmc_pi COMMAND qmc_pi)
 
+# qmc_pi_avx: estimate pi using AVX2 quasi Monte Carlo
+# TODO: conditionally enable only for machines with AVX2
+add_executable(qmc_pi_avx qmc_pi_avx.cc)
+target_link_libraries(qmc_pi_avx PRIVATE pdmath)
+# note: these don't really help qmc_pi go any faster
+if(MSVC)
+    target_compile_options(qmc_pi_avx PRIVATE /arch:AVX2)
+else()
+    target_compile_options(qmc_pi_avx PRIVATE -march=native)
+endif()
+add_test(NAME qmc_pi_avx COMMAND qmc_pi_avx)
+
 # vtk_trig_plot: plot sin, cos, tan with VTK
 if(VTK_FOUND)
     add_executable(vtk_trig_plot vtk_trig_plot.cc)
