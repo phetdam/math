@@ -83,89 +83,129 @@
 #define PDMATH_ITANIUM_ABI 0
 #endif  // PDMATH_ITANIUM_ABI
 
-// SIMD features. see https://stackoverflow.com/a/11228864/14227825
+// SIMD features. see https://stackoverflow.com/a/28939692/14227825
 
-// SSE from xmmintrin.h
-#ifdef __has_include
-#if __has_include(<xmmintrin.h>)
+// SSE
+// MSVC-specific logic
+#if defined(_MSC_VER)
+// for x86, _M_IX86_FP needs to be 1 or higher to indicate SSE support
+#if defined(_M_IX86_FP)
+#if _M_IX86_FP >= 1
 #define PDMATH_HAS_SSE 1
-#endif  // __has_include(<xmmintrin.h>)
-#endif  // __has_include
+#endif  // _M_IX86_FP >= 1
+// for x64, SSE2 is the default instruction set, so just set to 1
+#elif defined(_M_AMD64)
+#define PDMATH_HAS_SSE 1
+#endif  // !defined(_M_IX86_FP) && !defined(_M_AMD64)
+// GCC/Clang
+#elif defined(__SSE__)
+#define PDMATH_HAS_SSE 1
+#endif  // !defined(_MSC_VER) && !defined(__SSE__)
 
 #ifndef PDMATH_HAS_SSE
 #define PDMATH_HAS_SSE 0
 #endif  // PDMATH_HAS_SSE
 
-// SSE2 from emmintrin.h
-#ifdef __has_include
-#if __has_include(<emmintrin.h>)
+// SSE2
+// MSVC-specific logic
+#if defined(_MSC_VER)
+// for x86, _M_IX86_FP needs to be 2 or higher to indicate SSE2 support
+#if defined(_M_IX86_FP)
+#if _M_IX86_FP >= 2
 #define PDMATH_HAS_SSE2 1
-#endif  // __has_include(<emmintrin.h>)
-#endif  // __has_include
+#endif  // _M_IX86_FP >= 2
+// for x64, SSE2 is the default instruction set, so just set to 1
+#elif defined(_M_AMD64)
+#define PDMATH_HAS_SSE2 1
+#endif  // !defined(_M_IX86_FP) && !defined(_M_AMD64)
+// GCC/Clang
+#elif defined(__SSE2__)
+#define PDMATH_HAS_SSE2 1
+#endif  // !defined(_MSC_VER) && !defined(__SSE2__)
 
 #ifndef PDMATH_HAS_SSE2
 #define PDMATH_HAS_SSE2 1
 #endif  // PDMATH_HAS_SSE2
 
-// SSE3 from pmmintrin.h
-#ifdef __has_include
-#if __has_include(<pmmintrin.h>)
+// SSE3
+// MSVC has no explicit SSE3 detection so assume AVX implies it
+#if defined(__SSE3__) || (defined(_MSC_VER) && defined(__AVX__))
 #define PDMATH_HAS_SSE3 1
-#endif  // __has_include(<pmmintrin.h>)
-#endif  // __has_include
+#else
+#define PDMATH_HAS_SSE3 0
+#endif  // !defined(__SSE3__) && !(defined(_MSC_VER) && defined(__AVX__))
 
-// SSE4.1 from smmintrin.h
-#ifdef __has_include
-#if __has_include(<smmintrin.h>)
+// SSE4.1
+// MSVC has no explicit SSE4.1 detection so assume AVX implies it
+#if defined(__SSE4_1__) || (defined(_MSC_VER) && defined(__AVX__))
 #define PDMATH_HAS_SSE4_1 1
-#endif  // __has_include(<smmintrin.h>)
-#endif  // __has_include
-
-#ifndef PDMATH_HAS_SSE4_1
+#else
 #define PDMATH_HAS_SSE4_1 0
-#endif  // PDMATH_HAS_SSE4_1
+#endif  // !defined(__SSE4_1__) && !(defined(_MSC_VER) && defined(__AVX__))
 
-// SSE4.2 from nmmintrin.h
-#ifdef __has_include
-#if __has_include(<nmmintrin.h>)
+// SSE4.2
+// MSVC has no explicit SSE4.1 detection so assume AVX implies it
+#if defined(__SSE4_2__) || (defined(_MSC_VER) && defined(__AVX__))
 #define PDMATH_HAS_SSE4_2 1
-#endif  // __has_include(<nmmintrin.h>)
-#endif  // __has_include
-
-#ifndef PDMATH_HAS_SSE4_2
+#else
 #define PDMATH_HAS_SSE4_2 0
-#endif  // PDMATH_HAS_SSE4_2
+#endif  // !defined(__SSE4_2__) && !(defined(_MSC_VER) && defined(__AVX__))
 
-// AVX, AVX2, FMA from immintrin.h
-#ifdef __has_include
-#if __has_include(<immintrin.h>)
+// AVX
+#if defined(__AVX__)
 #define PDMATH_HAS_AVX 1
-#define PDMATH_HAS_AVX2 1
-#define PDMATH_HAS_FMA 1
-#endif  // __has_include(<immintrin.h>)
-#endif  // __has_include
-
-#ifndef PDMATH_HAS_AVX
+#else
 #define PDMATH_HAS_AVX 0
-#endif  // PDMATH_HAS_AVX
+#endif  // !defined(__AVX__)
 
-#ifndef PDMATH_HAS_AVX2
+// AVX2
+#if defined(__AVX2__)
+#define PDMATH_HAS_AVX2 1
+#else
 #define PDMATH_HAS_AVX2 0
-#endif  // PDMATH_HAS_AVX2
+#endif  // !defined(__AVX2__)
 
-#ifndef PDMATH_HAS_FMA
+// FMA
+// MSVC has no explicit FMA detection so assume AVX implies it
+#if defined(__FMA__) || (defined(_MSC_VER) && defined(__AVX__))
+#define PDMATH_HAS_FMA 1
+#else
 #define PDMATH_HAS_FMA 0
-#endif  // PDMATH_HAS_FMA
+#endif  // !defined(__FMA__) && !(defined(_MSC_VER) && defined(__AVX__))
 
-// AVX-512 from zmmintrin.h
-#ifdef __has_include
-#if __has_include(<zmmintrin.h>)
-#define PDMATH_HAS_AVX512 1
-#endif  // __has_include(<zmmintrin.h>)
-#endif  // __has_include
+// AVX-512BW
+#if defined(__AVX512BW__)
+#define PDMATH_HAS_AVX512BW 1
+#else
+#define PDMATH_HAS_AVX512BW 0
+#endif  // !defined(__AVX512BW__)
 
-#ifndef PDMATH_HAS_AVX512
-#define PDMATH_HAS_AVX512 0
-#endif  // PDMATH_HAS_AVX512
+// AVX-512CD
+#if defined(__AVX512CD__)
+#define PDMATH_HAS_AVX512CD 1
+#else
+#define PDMATH_HAS_AVX512CD 0
+#endif  // !defined(__AVX512CD__)
+
+// AVX-512DQ
+#if defined(__AVX512DQ__)
+#define PDMATH_HAS_AVX512DQ 1
+#else
+#define PDMATRH_HAS_AVX512DQ 0
+#endif  // !defined(__AVX512DQ__)
+
+// AVX-512F
+#if defined(__AVX512F__)
+#define PDMATH_HAS_AVX512F 1
+#else
+#define PDMATH_HAS_AVX512F 0
+#endif  // !defined(__AVX512F__)
+
+// AVX-512VL
+#if defined(__AVX512VL__)
+#define PDMATH_HAS_AVX512VL 1
+#else
+#define PDMATH_HAS_AVX512VL 0
+#endif  // !defined(__AVX512VL__)
 
 #endif  // PDMATH_FEATURES_H_
