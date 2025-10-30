@@ -86,4 +86,15 @@
 #define PDMATH_MSVC_WARNINGS_POP()
 #endif  // !defined(_MSC_VER)
 
+// GNU-specific warnings are sometimes necessary
+#if defined(__GNUC__)
+#define PDMATH_GNU_WARNINGS_PUSH() _Pragma("GCC diagnostic push")
+#define PDMATH_GNU_WARNINGS_DISABLE(ws) PDMATH_PRAGMA(GCC diagnostic ignored ws)
+#define PDMATH_GNU_WARNINGS_POP() _Pragma("GCC diagnostic pop")
+#else
+#define PDMATH_GNU_WARNINGS_PUSH()
+#define PDMATH_GNU_WARNINGS_DISABLE(ws)
+#define PDMATH_GNU_WARNINGS_POP()
+#endif  // !defined(__GNUC__)
+
 #endif  // PDMATH_WARNINGS_H_
