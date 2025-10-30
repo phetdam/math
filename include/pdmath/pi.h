@@ -13,6 +13,7 @@
 
 #include "pdmath/features.h"
 #include "pdmath/impl_policy.h"
+#include "pdmath/simd.h"
 #include "pdmath/type_traits.h"
 #include "pdmath/warnings.h"
 
@@ -125,7 +126,7 @@ bool in_unit_circle(
   return x * x + y * y <= 1;  // note: no square root operation is needed
 }
 
-#if PDMATH_HAS_AVX
+#if PDMATH_HAS_AVX && PDMATH_HAS_FMA
 /**
  * Indicate if points are inside the closed unit circle \f$[-1, 1]^2\f$.
  *
@@ -142,7 +143,7 @@ inline auto in_unit_circle(__m256 x, __m256 y)
   // check prod <= 1
   return _mm256_cmp_ps(prod, _mm256_set1_ps(1.f), _CMP_LE_OQ);
 }
-#endif  // PDMATH_HAS_AVX
+#endif  // PDMATH_HAS_AVX && PDMATH_HAS_FMA
 
 }  // namespace detail
 
@@ -184,6 +185,7 @@ PDMATH_MSVC_WARNINGS_POP()
   return 4 * (static_cast<T>(n_in) / static_cast<T>(n * n));
 }
 
+// TODO: should we also check for SSE3 and MMX?
 #if PDMATH_HAS_AVX2
 /**
  * Estimate \f$\pi\f$ using a quasi Monte Carlo stratified sampling method.
@@ -216,11 +218,7 @@ PDMATH_MSVC_WARNINGS_DISABLE(5219)
   // packed 1.f / n precomputed for FMA
   auto pn_inv = _mm256_set1_ps(1.f / n);
   // packed step 0.5, ... (stride - 0.5) / n values precomputed for FMA
-  // TODO: we could use a pack expansion to reduce the manual typing here
-  auto pstep = _mm256_mul_ps(
-    pn_inv,
-    _mm256_set_ps(0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f)
-  );
+  auto pstep = _mm256_mul_ps(pn_inv, iota<__m256>(0.5f));
   // outer loop
   for (decltype(n) i = 0u; i < n; i++) {
     // inner loop counter. this is used by both strided and scalar loop
