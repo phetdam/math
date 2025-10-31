@@ -85,6 +85,28 @@
 
 // SIMD features. see https://stackoverflow.com/a/28939692/14227825
 
+// MMX
+// MSVC-specific logic
+#if defined(_MSC_VER)
+// MSVC has no explicit MMX detection so assume SSE implies it. for x86, we
+// have to have _M_IX86_FP of 1 or higher to indicate MMX support
+#if defined(_M_IX86_FP)
+#if _M_IX86_FP >= 1
+#define PDMATH_HAS_MMX 1
+#endif  // _M_IX86_FP >= 1
+// for x64, SSE2 is the default instruction set, so just set to 1
+#elif defined(_M_AMD64)
+#define PDMATH_HAS_MMX 1
+#endif  // !defined(_M_IX86_FP) && !defined(_M_AMD64)
+// GCC/Clang
+#elif defined(__MMX__)
+#define PDMATH_HAS_MMX 1
+#endif  // !defined(_MSC_VER) && !defined(__MMX__)
+
+#ifndef PDMATH_HAS_MMX
+#define PDMATH_HAS_MMX 0
+#endif  // PDMATH_HAS_MMX
+
 // SSE
 // MSVC-specific logic
 #if defined(_MSC_VER)
