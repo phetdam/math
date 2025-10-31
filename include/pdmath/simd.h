@@ -11,6 +11,7 @@
 #include <immintrin.h>
 
 #include <cstddef>
+#include <cstdint>
 #include <type_traits>
 #include <utility>
 
@@ -138,6 +139,22 @@ struct iota_cpo<__m128i, int> {
     return _mm_set_epi32(v + 3, v + 2, v + 1, v);
   }
 };
+
+#ifdef INT64_MAX
+/**
+ * Specialization for `__m128i` and `std::int64_t`.
+ *
+ * Although Intel documentation lists the scalar type as `__int64`, this is of
+ * course a Microsoft-specific extension, so we require a fixed-width type.
+ */
+template <>
+struct iota_cpo<__m128i, std::int64_t> {
+  auto operator()(std::int64_t v) const noexcept
+  {
+    return _mm_set_epi64x(v + 1, v);
+  }
+};
+#endif  // INT64_MAX
 #endif  // PDMATH_HAS_SSE2
 
 #if PDMATH_HAS_AVX
@@ -164,7 +181,7 @@ struct iota_cpo<__m256d, double> {
 };
 
 /**
- * Specialization for `__m256i` and `int.
+ * Specialization for `__m256i` and `int`.
  */
 template <>
 struct iota_cpo<__m256i, int> {
@@ -173,7 +190,63 @@ struct iota_cpo<__m256i, int> {
     return _mm256_set_epi32(v + 7, v + 6, v + 5, v + 4, v + 3, v + 2, v + 1, v);
   }
 };
+
+#ifdef INT_MAX
+/**
+ * Specialization for `__m256i` and `std::int64_t`.
+ *
+ * See the `iota_cpo<__m128i, std::inte64_t>` specialization for details.
+ */
+template <>
+struct iota_cpo<__m256i, std::int64_t> {
+  auto operator()(std::int64_t v) const noexcept
+  {
+    return _mm256_set_epi64x(v + 3, v + 2, v + 1, v);
+  }
+};
+#endif  // INT_MAX
 #endif  // PDMATH_HAS_AVX
+
+#if PDMATH_HAS_AVX512F
+/**
+ * Specialization for `__m512` and `float`.
+ */
+template <>
+struct iota_cpo<__m512, float> {
+  auto operator()(float v) const noexcept
+  {
+    return _mm512_set_ps(
+      v + 15, v + 14, v + 13, v + 12, v + 11, v + 10, v + 9, v + 8,
+      v + 7, v + 6, v + 5, v + 4, v + 3, v + 2, v + 1, v
+    );
+  }
+};
+
+/**
+ * Specialization for `__m512d` and `double`.
+ */
+template <>
+struct iota_cpo<__m512d, double> {
+  auto operator()(double v) const noexcept
+  {
+    return _mm512_set_pd(v + 7, v + 6, v + 5, v + 4, v + 3, v + 2, v + 1, v);
+  }
+};
+
+/**
+ * Specialization for `__m512i` and `int`.
+ */
+template <>
+struct iota_cpo<__m512i, int> {
+  auto operator()(int v) const noexcept
+  {
+    return _mm512_set_epi32(
+      v + 15, v + 14, v + 13, v + 12, v + 11, v + 10, v + 9, v + 8,
+      v + 7, v + 6, v + 5, v + 4, v + 3, v + 2, v + 1, v
+    );
+  }
+};
+#endif  // PDMATH_HAS_AVX512F
 PDMATH_GNU_WARNINGS_POP()
 
 }  // namespace detail
