@@ -82,7 +82,7 @@ namespace detail {
  *  pack indexing required to remove the manual offsets done because intrinsic
  *  functions are *not* "real" C/C++ functions. Although GCC may implement them
  *  in a way that they can be treated as "normal" functions, MSVC will not
- *  recognize as intrinsics if used through a function pointer.
+ *  recognize them as intrinsics if used through a function pointer.
  *
  * @tparam T SIMD type
  * @tparam U Arithmetic type
