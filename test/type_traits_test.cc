@@ -1,7 +1,7 @@
 /**
  * @file type_traits_test.cc
  * @author Derek Huang
- * @brief Tests for the `type_traits` supplements in `type_traits.h`
+ * @brief type_traits.h unit tests
  * @copyright MIT License
  */
 
