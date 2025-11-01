@@ -145,6 +145,25 @@ inline auto in_unit_circle(__m256 x, __m256 y)
 }
 #endif  // PDMATH_HAS_AVX && PDMATH_HAS_FMA
 
+#if PDMATH_HAS_AVX512F
+/**
+ * Indicate if points are inside the closed unit circle \f$[-1, 1]^2\f$.
+ *
+ * This uses AVX-512F intrinsics to return a `__mmask16` bitmask of points in
+ * the circle that can be used with `_mm512_mask_blend_ps`.
+ *
+ * @param x First dimension values
+ * @param y Second dimension values
+ */
+inline auto in_unit_circle(__m512 x, __m512 y)
+{
+  // prod = y * y + x * x
+  auto prod = _mm512_fmadd_ps(y, y, _mm512_mul_ps(x, x));
+  // check prod <= 1
+  return _mm512_cmple_ps_mask(prod, _mm512_set1_ps(1.f));
+}
+#endif  // PDMATH_HAS_AVX512F
+
 }  // namespace detail
 
 /**
