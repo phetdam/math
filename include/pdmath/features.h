@@ -83,6 +83,26 @@
 #define PDMATH_ITANIUM_ABI 0
 #endif  // PDMATH_ITANIUM_ABI
 
+// x86 detection
+#if defined(_MSC_VER) && defined(_M_IX86)
+#define PDMATH_X86 1
+#elif defined(__GNUC__) && defined(__i386__)
+#define PDMATH_X86 1
+#else
+#define PDMATH_X86 0
+#endif  // (!defined(_MSC_VER) || !defined(_M_IX86)) &&
+        // (!defined(__GNUC__) || !defined(__i386__))
+
+// x86-64 detection
+#if defined(_MSC_VER) && defined(_M_AMD64)  // or _M_X64
+#define PDMATH_X86_64 1
+#elif defined(__GNUC__) && defined(__x86_64__)
+#define PDMATH_X86_64 1
+#else
+#define PDMATH_X86_64 0
+#endif  // (!defined(_MSC_VER) || defined(_M_AMD64)) &&
+        // (!defined(__GNUC__) || !defined(__x86_64__))
+
 // SIMD features. see https://stackoverflow.com/a/28939692/14227825
 
 // MMX
