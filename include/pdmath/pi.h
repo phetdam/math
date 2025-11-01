@@ -228,8 +228,8 @@ T qmc_pi(
 PDMATH_MSVC_WARNINGS_PUSH()
 PDMATH_MSVC_WARNINGS_DISABLE(5219)
   // number of elements in an __m256
-  constexpr auto stride = sizeof(__m256) / sizeof(float);
   // TODO: move to SIMD traits header?
+  constexpr auto stride = sizeof(__m256) / sizeof(float);
   // SIMD points inside top-right quadrant of unit circle
   auto pn_in = _mm256_set1_epi32(0);
   // scalar count of points inside top-right quadrant of unit circle
