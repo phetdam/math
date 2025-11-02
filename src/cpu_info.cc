@@ -32,6 +32,7 @@ int main()
     "  POPCNT       " << info.popcnt() << "\n" <<
     "  AES          " << info.aes() << "\n" <<
     "  AVX          " << info.avx() << "\n" <<
+    "  AVX2         " << info.avx2() << "\n" <<
     "  BMI1         " << info.bmi1() << "\n" <<
     "  BMI2         " << info.bmi2() << "\n" <<
     "  AVX-512F     " << info.avx512f()  << "\n" <<
