@@ -43,18 +43,26 @@ namespace pdmath {
 /**
  * Call `cpuid` and fill register info.
  *
- * @param leaf `cpuid` calling parameter (leaf) for eax
+ * This provides a convenient `cpuid` wrapper that always has the value of the
+ * ecx subleaf appropriately set. This prevents confusing results between the
+ * Windows `__cpuid` and the GCC `__get_cpuid` as the Windows `__cpuid` clears
+ * ecx while GCC's `__get_cpuid` doesn't. Therefore, for leaf values that
+ * require ecx be set to a specific value, e.g. 7, `__get_cpuid` incorrectly
+ * appears to not work while `__cpuid` works (since it clears ecx).
+ *
  * @param regs Array representing eax, ebx, ecx, edx in order
+ * @param leaf `cpuid` calling parameter (leaf) for eax
+ * @param sub `cpuid` calling parameter (subleaf) for ecx
  *
  * @returns `true` if `cpuid` is supported, `false` otherwise
  */
-inline bool cpuid(cpuid_int (&regs)[4], cpuid_int leaf = 0)
+inline bool cpuid(cpuid_int (&regs)[4], cpuid_int leaf = 0, cpuid_int sub = 0)
 {
 #if defined(_WIN32)
-  __cpuid(regs, leaf);
+  __cpuidex(regs, leaf, sub);
   return true;
 #elif defined(__GNUC__)
-  return !!__get_cpuid(leaf, &regs[0], &regs[1], &regs[2], &regs[3]);
+  return !!__get_cpuid_count(leaf, sub, &regs[0], &regs[1], &regs[2], &regs[3]);
 #else
   return false;
 #endif  // !defined(_WIN32) && !defined(__GNUC__)
