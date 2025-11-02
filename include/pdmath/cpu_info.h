@@ -52,7 +52,6 @@ namespace pdmath {
  * @param regs Array representing eax, ebx, ecx, edx in order
  * @param leaf `cpuid` calling parameter (leaf) for eax
  * @param sub `cpuid` calling parameter (subleaf) for ecx
- *
  * @returns `true` if `cpuid` is supported, `false` otherwise
  */
 inline bool cpuid(cpuid_int (&regs)[4], cpuid_int leaf = 0, cpuid_int sub = 0)
