@@ -310,13 +310,13 @@ PDMATH_MSVC_WARNINGS_POP()
 private:
   // TODO: maybe just replace with char[13]
   std::array<char, 13u> vendor_;  // vendor string (null-terminated)
-  unsigned max_leaf_;             // max basic eax parameter
-  std::uint32_t eax_1_;           // eax = 1 cpuid eax info
-  std::uint32_t ecx_1_;           // eax = 1 cpuid ecx info
-  std::uint32_t edx_1_;           // eax = 1 cpuid edx info
-  std::uint32_t ebx_7_;           // eax = 7 cpuid ebx info
-  std::uint32_t ecx_7_;           // eax = 7 cpuid ecx info
-  std::uint32_t edx_7_;           // eax = 7 cpuid edx info
+  unsigned max_leaf_{};           // max basic eax parameter
+  std::uint32_t eax_1_{};         // eax = 1 cpuid eax info
+  std::uint32_t ecx_1_{};         // eax = 1 cpuid ecx info
+  std::uint32_t edx_1_{};         // eax = 1 cpuid edx info
+  std::uint32_t ebx_7_{};         // eax = 7 cpuid ebx info
+  std::uint32_t ecx_7_{};         // eax = 7 cpuid ecx info
+  std::uint32_t edx_7_{};         // eax = 7 cpuid edx info
 };
 
 }  // namespace pdmath
