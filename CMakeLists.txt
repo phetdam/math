@@ -249,6 +249,80 @@ else()
     message(STATUS "VTK version: None")
 endif()
 
+# IMPORTED INTERFACE library for cpu_info.h for try_run below
+add_library(pdmath::internal::cpu_info INTERFACE IMPORTED)
+target_include_directories(
+    pdmath::internal::cpu_info INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+# check SIMD features
+try_run(
+    simd_run_res simd_build_res
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/simd.cc
+    LINK_LIBRARIES pdmath::internal::cpu_info
+    # for consistency with the rest of the build
+    CXX_STANDARD ${CMAKE_CXX_STANDARD}
+    CXX_STANDARD_REQUIRED ${CMAKE_CXX_STANDARD_REQUIRED}
+    # need output to check features
+    RUN_OUTPUT_VARIABLE simd_run_out
+)
+# if run succeeded, set values
+if(NOT simd_run_res)
+    # strip whitespace and convert into list
+    string(STRIP "${simd_run_out}" simd_run_out)
+    # on Windows, also need to get rid of the CR
+    if(WIN32)
+        string(REPLACE "\r" "" simd_run_out "${simd_run_out}")
+    endif()
+    string(REPLACE "\n" ";" simd_out_list "${simd_run_out}")
+    unset(simd_run_out)
+    # for each "NAME   (1|0)" value
+    foreach(row ${simd_out_list})
+        # split into name/value list
+        string(REGEX REPLACE "[ ]+" ";" simd_feature "${row}")
+        list(GET simd_feature 0 feature_name)
+        list(GET simd_feature 1 feature_value)
+        unset(simd_feature)
+        # create PDMATH_HAS_* variable and if feature_value is nonzero, append
+        # to PDMATH_SIMD_FEATURES list for future use
+        set(PDMATH_HAS_${feature_name} ${feature_value})
+        if(${feature_value})
+            list(APPEND PDMATH_SIMD_FEATURES ${feature_name})
+        endif()
+    endforeach()
+endif()
+# print SIMD features
+list(JOIN PDMATH_SIMD_FEATURES " " simd_features_str)
+message(STATUS "SIMD features: ${simd_features_str}")
+unset(simd_features_str)
+# clean up
+unset(simd_run_res)
+unset(simd_build_res)
+
+# helper target to indicate "native" architecture. note that for MSVC we need
+# to use the PDMATH_HAS_* variables to check for these features since MSVC
+# doesn't provide the equivalent of -march=native
+add_library(pdmath_native_arch INTERFACE)
+add_library(pdmath::native_arch ALIAS pdmath_native_arch)
+if(MSVC)
+    # note: skip AVX-512 support for now
+    if(PDMATH_HAS_AVX2)
+        target_compile_options(pdmath_native_arch INTERFACE /arch:AVX2)
+    elseif(PDMATH_HAS_AVX)
+        target_compile_options(pdmath_native_arch INTERFACE /arch:AVX)
+    # /arch:SSE4.2 only allowed for x64
+    elseif(CMAKE_SIZEOF_VOID_P EQUAL 8 AND PDMATH_HAS_SSE4_2)
+        target_compile_options(pdmath_native_arch INTERFACE /arch:SSE4.2)
+    # SSE2 is default for x86 and x64
+    # TODO: won't work with ARM but that's a problem for later
+    else()
+        target_compile_options(pdmath_native_arch INTERFACE /arch:SSE2)
+    endif()
+else()
+    target_compile_options(pdmath_native_arch INTERFACE -march=native)
+endif()
+
 # debug and release flags, handle MSVC case specifically
 if(MSVC)
     add_compile_options(

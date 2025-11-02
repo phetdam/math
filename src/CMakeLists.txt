@@ -43,21 +43,19 @@ target_link_libraries(fib_50 PRIVATE pdmath)
 add_test(NAME fib_50 COMMAND fib_50)
 
 # qmc_pi: estimate pi using quasi Monte Carlo
+# note: pdmath::native_arch doesn't help this go any faster
 add_executable(qmc_pi qmc_pi.cc)
 target_link_libraries(qmc_pi PRIVATE pdmath)
 add_test(NAME qmc_pi COMMAND qmc_pi)
 
 # qmc_pi_avx: estimate pi using AVX2 quasi Monte Carlo
-# TODO: conditionally enable only for machines with AVX2
-add_executable(qmc_pi_avx qmc_pi_avx.cc)
-target_link_libraries(qmc_pi_avx PRIVATE pdmath)
-# note: these don't really help qmc_pi go any faster
-if(MSVC)
-    target_compile_options(qmc_pi_avx PRIVATE /arch:AVX2)
+if(PDMATH_HAS_AVX2)
+    add_executable(qmc_pi_avx qmc_pi_avx.cc)
+    target_link_libraries(qmc_pi_avx PRIVATE pdmath pdmath::native_arch)
+    add_test(NAME qmc_pi_avx COMMAND qmc_pi_avx)
 else()
-    target_compile_options(qmc_pi_avx PRIVATE -march=native)
+    message(STATUS "Skipping qmc_pi_avx (requires AVX2 support)")
 endif()
-add_test(NAME qmc_pi_avx COMMAND qmc_pi_avx)
 
 # vtk_trig_plot: plot sin, cos, tan with VTK
 if(VTK_FOUND)
