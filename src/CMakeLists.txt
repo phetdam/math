@@ -134,3 +134,8 @@ if(VTK_FOUND)
 else()
     message(STATUS "Skipping vtk_qmc_pi_grid (requires VTK)")
 endif()
+
+# cpuinfo: print some CPU information
+add_executable(cpuinfo cpuinfo.cc)
+target_link_libraries(cpuinfo PRIVATE pdmath)
+add_test(NAME cpuinfo COMMAND cpuinfo)
