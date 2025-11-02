@@ -1,5 +1,5 @@
 /**
- * @file cpuinfo.h
+ * @file cpu_info.h
  * @author Derek Huang
  * @brief C++ header for CPU feature detection
  * @copyright MIT License

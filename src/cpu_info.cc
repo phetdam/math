@@ -1,5 +1,5 @@
 /**
- * @file cpuinfo.cc
+ * @file cpu_info.cc
  * @author Derek Huang
  * @brief C++ program to print out CPU information
  * @copyright MIT License
@@ -9,7 +9,7 @@
 #include <ios>
 #include <iostream>
 
-#include "pdmath/cpuinfo.h"
+#include "pdmath/cpu_info.h"
 
 int main()
 {
