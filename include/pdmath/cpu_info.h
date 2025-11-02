@@ -23,7 +23,6 @@
 #include <array>
 #include <climits>
 #include <cstdint>
-#include <stdexcept>
 #include <type_traits>
 
 #include "pdmath/warnings.h"
@@ -102,13 +101,16 @@ public:
    *
    * This calls the corresponding `cpuid` instruction if available.
    */
-  cpu_info()
+  cpu_info() noexcept
   {
     // eax, ebx, ecx, edx registers
     cpuid_int regs[4u];
-    // call cpuid with eax = 0 for basic info
-    if (!cpuid(regs))
-      throw std::runtime_error{"cpuid unsupported on this platform"};
+    // call cpuid with eax = 0 for basic info. if unsupported, zero fields
+    if (!cpuid(regs)) {
+      max_leaf_ = 0u;
+      vendor_.front() = '\0';
+      return;
+    }
     // extract vendor string from ebx, edx, ecx + terminate with '\0'
     // note: yes, the order is ebx, edx, ecx
     *reinterpret_cast<cpuid_int*>(vendor_.data()) = regs[1];
