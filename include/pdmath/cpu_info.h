@@ -310,7 +310,6 @@ PDMATH_MSVC_WARNINGS_POP()
   bool avx512vbmi() const noexcept { return detail::test<1>(ecx_7_); }
 
 private:
-  // TODO: maybe just replace with char[13]
   char vendor_[13]{};      // vendor string (null-terminated)
   unsigned max_leaf_{};    // max basic eax parameter
   std::uint32_t eax_1_{};  // eax = 1 cpuid eax info
