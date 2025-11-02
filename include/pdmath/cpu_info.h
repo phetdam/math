@@ -20,7 +20,6 @@
 #define PDMATH_HAS_CPUID 0
 #endif  // !defined(_WIN32) && !defined(__GNUC__)
 
-#include <array>
 #include <climits>
 #include <cstdint>
 #include <type_traits>
@@ -113,18 +112,14 @@ public:
   {
     // eax, ebx, ecx, edx registers
     cpuid_int regs[4u];
-    // call cpuid with eax = 0 for basic info. if unsupported, zero fields
-    if (!cpuid(regs)) {
-      max_leaf_ = 0u;
-      vendor_.front() = '\0';
+    // call cpuid with eax = 0 for basic info. if unsupported, return
+    if (!cpuid(regs))
       return;
-    }
-    // extract vendor string from ebx, edx, ecx + terminate with '\0'
+    // extract vendor string from ebx, edx, ecx
     // note: yes, the order is ebx, edx, ecx
-    *reinterpret_cast<cpuid_int*>(vendor_.data()) = regs[1];
-    *reinterpret_cast<cpuid_int*>(vendor_.data() + 4u) = regs[3];
-    *reinterpret_cast<cpuid_int*>(vendor_.data() + 8u) = regs[2];
-    vendor_.back() = '\0';
+    *reinterpret_cast<cpuid_int*>(vendor_) = regs[1];
+    *reinterpret_cast<cpuid_int*>(vendor_ + 4u) = regs[3];
+    *reinterpret_cast<cpuid_int*>(vendor_ + 8u) = regs[2];
     // update max leaf value from eax
     max_leaf_ = static_cast<unsigned>(regs[0]);
     // if max leaf >= 1, get info
@@ -154,7 +149,7 @@ PDMATH_MSVC_WARNINGS_POP()
   /**
    * Get the null-terminated CPU vendor string.
    */
-  auto vendor() const noexcept { return vendor_.data(); }
+  auto vendor() const noexcept { return vendor_; }
 
   /**
    * Get the maximum basic leaf parameter value.
@@ -317,14 +312,14 @@ PDMATH_MSVC_WARNINGS_POP()
 
 private:
   // TODO: maybe just replace with char[13]
-  std::array<char, 13u> vendor_;  // vendor string (null-terminated)
-  unsigned max_leaf_{};           // max basic eax parameter
-  std::uint32_t eax_1_{};         // eax = 1 cpuid eax info
-  std::uint32_t ecx_1_{};         // eax = 1 cpuid ecx info
-  std::uint32_t edx_1_{};         // eax = 1 cpuid edx info
-  std::uint32_t ebx_7_{};         // eax = 7 cpuid ebx info
-  std::uint32_t ecx_7_{};         // eax = 7 cpuid ecx info
-  std::uint32_t edx_7_{};         // eax = 7 cpuid edx info
+  char vendor_[13]{};      // vendor string (null-terminated)
+  unsigned max_leaf_{};    // max basic eax parameter
+  std::uint32_t eax_1_{};  // eax = 1 cpuid eax info
+  std::uint32_t ecx_1_{};  // eax = 1 cpuid ecx info
+  std::uint32_t edx_1_{};  // eax = 1 cpuid edx info
+  std::uint32_t ebx_7_{};  // eax = 7 cpuid ebx info
+  std::uint32_t ecx_7_{};  // eax = 7 cpuid ecx info
+  std::uint32_t edx_7_{};  // eax = 7 cpuid edx info
 };
 
 }  // namespace pdmath
