@@ -306,8 +306,13 @@ unset(simd_build_res)
 add_library(pdmath_native_arch INTERFACE)
 add_library(pdmath::native_arch ALIAS pdmath_native_arch)
 if(MSVC)
-    # note: skip AVX-512 support for now
-    if(PDMATH_HAS_AVX2)
+    if(PDMATH_HAS_AVX10_2)
+        target_compile_options(pdmath_native_arch INTERFACE /arch:AVX10.2)
+    elseif(PDMATH_HAS_AVX10_1)
+        target_compile_options(pdmath_native_arch INTERFACE /arch:AVX10.1)
+    # note: skip AVX-512 support for now as it is too fragmented and MSVC
+    # doesn't give you a nice way to determine support for each
+    elseif(PDMATH_HAS_AVX2)
         target_compile_options(pdmath_native_arch INTERFACE /arch:AVX2)
     elseif(PDMATH_HAS_AVX)
         target_compile_options(pdmath_native_arch INTERFACE /arch:AVX)
