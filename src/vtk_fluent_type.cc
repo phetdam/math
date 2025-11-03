@@ -81,8 +81,8 @@ auto& operator<<(std::ostream& out, const type_wrapper<T>&)
  * @param expr Expression to print `decltype()` for
  */
 #define PRINT_DECLTYPE(expr) \
-  std::cout << PDMATH_STRINGIFY(expr) << \
-    "\n  -> " << type_wrapper<decltype(expr)>() << std::endl
+  std::cout << PDMATH_STRINGIFY(expr) << "\n  -> " << \
+    type_wrapper<decltype(expr)>{} << std::endl
 
 }  // namespace
 
