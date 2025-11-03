@@ -133,7 +133,6 @@ PDMATH_MSVC_WARNINGS_DISABLE(4365)
 PDMATH_MSVC_WARNINGS_POP()
     }
     // if max leaf >= 7, get info
-    // note: we can use regs[0] to determine the max subleaf value for eax = 7
     if (max_leaf_ >= 7u) {
       // eax = 7, ecx = 0
       cpuid(regs, 7);
@@ -154,6 +153,13 @@ PDMATH_MSVC_WARNINGS_DISABLE(4365)
         edx_7_1_ = regs[3];
 PDMATH_MSVC_WARNINGS_POP()
       }
+    }
+    // if max leaf >= 0x24 (36), get info
+    // note: max supported subleaf for eax = 0x24 is in regs[0]
+    if (max_leaf_ >= 0x24) {
+      cpuid(regs, 0x24);
+      // only lower 8 bits matter in ebx
+      avx10_ver_ = static_cast<unsigned char>(regs[1] & 0xFF);
     }
   }
 
@@ -383,17 +389,28 @@ PDMATH_MSVC_WARNINGS_POP()
    */
   bool avx10() const noexcept { return detail::test<19>(edx_7_1_); }
 
+  /**
+   * Indicate if AVX10.1 instructions are available.
+   */
+  bool avx10_1() const noexcept { return detail::test<0>(avx10_ver_); }
+
+  /**
+   * Indicate if AVX10.2 instructions are available.
+   */
+  bool avx10_2() const noexcept { return detail::test<1>(avx10_ver_); }
+
 private:
-  char vendor_[13]{};        // vendor string (null-terminated)
-  unsigned max_leaf_{};      // max basic eax parameter
-  std::uint32_t eax_1_{};    // eax = 1 cpuid eax info
-  std::uint32_t ecx_1_{};    // eax = 1 cpuid ecx info
-  std::uint32_t edx_1_{};    // eax = 1 cpuid edx info
-  std::uint32_t ebx_7_{};    // eax = 7, ecx = 0 cpuid ebx info
-  std::uint32_t ecx_7_{};    // eax = 7, ecx = 0 cpuid ecx info
-  std::uint32_t edx_7_{};    // eax = 7, ecx = 0 cpuid edx info
-  std::uint32_t eax_7_1_{};  // eax = 7, ecx = 1 cpuid eax info
-  std::uint32_t edx_7_1_{};  // eax = 7, ecx = 1 cpuid edx info
+  char vendor_[13]{};          // vendor string (null-terminated)
+  unsigned max_leaf_{};        // max basic eax parameter
+  std::uint32_t eax_1_{};      // eax = 1 cpuid eax info
+  std::uint32_t ecx_1_{};      // eax = 1 cpuid ecx info
+  std::uint32_t edx_1_{};      // eax = 1 cpuid edx info
+  std::uint32_t ebx_7_{};      // eax = 7, ecx = 0 cpuid ebx info
+  std::uint32_t ecx_7_{};      // eax = 7, ecx = 0 cpuid ecx info
+  std::uint32_t edx_7_{};      // eax = 7, ecx = 0 cpuid edx info
+  std::uint32_t eax_7_1_{};    // eax = 7, ecx = 1 cpuid eax info
+  std::uint32_t edx_7_1_{};    // eax = 7, ecx = 1 cpuid edx info
+  unsigned char avx10_ver_{};  // eax = 0x24, ecx = 0 cpuid AVX10 version
 };
 
 }  // namespace pdmath
