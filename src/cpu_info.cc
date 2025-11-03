@@ -56,6 +56,7 @@ int main()
     "  SHA-512       " << info.sha512() << "\n" <<
     "  AVX-VNNI      " << info.avxvnni() << "\n" <<
     "  AVX-IFMA      " << info.avxifma() << "\n" <<
-    "  AVX10         " << info.avx10() << "\n" << std::flush;
+    "  AVX10.1       " << info.avx10_1() << "\n" <<
+    "  AVX10.2       " << info.avx10_2() << "\n" << std::flush;
   return EXIT_SUCCESS;
 }
