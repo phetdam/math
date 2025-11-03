@@ -30,6 +30,10 @@ int main()
     "AVX         " << info.avx() << "\n" <<
     "FMA         " << info.fma() << "\n" <<
     "AVX2        " << info.avx2() << "\n" <<
-    "AVX512F     " << info.avx512f() << "\n" << std::flush;
+    "AVX_VNNI    " << info.avxvnni() << "\n" <<
+    "AVX_IFMA    " << info.avxifma() << "\n" <<
+    "AVX512F     " << info.avx512f() << "\n" <<
+    "AVX10_1     " << info.avx10_1() << "\n" <<
+    "AVX10_2     " << info.avx10_2() << "\n" << std::flush;
   return EXIT_SUCCESS;
 }
