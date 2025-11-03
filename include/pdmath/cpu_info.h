@@ -135,6 +135,7 @@ PDMATH_MSVC_WARNINGS_POP()
     // if max leaf >= 7, get info
     // note: we can use regs[0] to determine the max subleaf value for eax = 7
     if (max_leaf_ >= 7u) {
+      // eax = 7, ecx = 0
       cpuid(regs, 7);
 PDMATH_MSVC_WARNINGS_PUSH()
 PDMATH_MSVC_WARNINGS_DISABLE(4365)
@@ -142,6 +143,17 @@ PDMATH_MSVC_WARNINGS_DISABLE(4365)
       ecx_7_ = regs[2];
       edx_7_ = regs[3];  // TODO: unused for now
 PDMATH_MSVC_WARNINGS_POP()
+      // save max eax = 7 subleaf value
+      auto max_subleaf_7 = static_cast<unsigned>(regs[0]);
+      // eax = 7, ecx = 1
+      if (max_subleaf_7 >= 1u) {
+        cpuid(regs, 7, 1);
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(4365)
+        eax_7_1_ = regs[0];
+        edx_7_1_ = regs[3];
+PDMATH_MSVC_WARNINGS_POP()
+      }
     }
   }
 
@@ -297,7 +309,7 @@ PDMATH_MSVC_WARNINGS_POP()
   /**
    * `avx512-bw` flag indicating if AVX-512BW instructions are available.
    */
-  bool avx512bf() const noexcept { return detail::test<30>(ebx_7_); }
+  bool avx512bw() const noexcept { return detail::test<30>(ebx_7_); }
 
   /**
    * `avx512-vl` flag indicating if AVX-512VL instructions are available.
@@ -309,15 +321,79 @@ PDMATH_MSVC_WARNINGS_POP()
    */
   bool avx512vbmi() const noexcept { return detail::test<1>(ecx_7_); }
 
+  /**
+   * `avx512-vbmi2` flag indicating if AVX-512VBMI2 instructions are available.
+   */
+  bool avx512vbmi2() const noexcept { return detail::test<6>(ecx_7_); }
+
+  /**
+   * `vaes` feature flag indicating if vector AES instructions are available.
+   */
+  bool vaes() const noexcept { return detail::test<9>(ecx_7_); }
+
+  /**
+   * `vpclmulqdq` flag to check if `VPCLMULQDQ` is available.
+   */
+  bool vpclmulqdq() const noexcept { return detail::test<10>(ecx_7_); }
+
+  /**
+   * `avx512-vnni` flag indicating if AVX-512VNNI instructions are available.
+   */
+  bool avx512vnni() const noexcept { return detail::test<11>(ecx_7_); }
+
+  // TODO: add more AVX-512 testers here, e.g. for BITALG and VPOPCOUNTDQ
+
+  /**
+   * `amx-bf16` flag indicating if AMX bfloat16 support is available.
+   */
+  bool amxbf16() const noexcept { return detail::test<22>(edx_7_); }
+
+  /**
+   * `avx512-fp16` flag indicating if AVX-512FP16 instructions are present.
+   */
+  bool avx512fp16() const noexcept { return detail::test<23>(edx_7_); }
+
+  /**
+   * `amx-tile` flag indicating if AMX tile load/store is available.
+   */
+  bool amxtile() const noexcept { return detail::test<24>(edx_7_); }
+
+  /**
+   * `amx-int8` flag indicatinf if AMX int8 support is available.
+   */
+  bool amxint8() const noexcept { return detail::test<25>(edx_7_); }
+
+  /**
+   * `sha512` feature flag indicating if SHA-512 instructions are available.
+   */
+  bool sha512() const noexcept { return detail::test<0>(eax_7_1_); }
+
+  /**
+   * `avx-vnni` flag indicating if AVX-VNNI instructions are available.
+   */
+  bool avxvnni() const noexcept { return detail::test<4>(eax_7_1_); }
+
+  /**
+   * `avx-ifma` flag indicating if AVX-IFMA instructions are available.
+   */
+  bool avxifma() const noexcept { return detail::test<23>(eax_7_1_); }
+
+  /**
+   * `avx10` feature flag indicating if AVX10 instructions are available.
+   */
+  bool avx10() const noexcept { return detail::test<19>(edx_7_1_); }
+
 private:
-  char vendor_[13]{};      // vendor string (null-terminated)
-  unsigned max_leaf_{};    // max basic eax parameter
-  std::uint32_t eax_1_{};  // eax = 1 cpuid eax info
-  std::uint32_t ecx_1_{};  // eax = 1 cpuid ecx info
-  std::uint32_t edx_1_{};  // eax = 1 cpuid edx info
-  std::uint32_t ebx_7_{};  // eax = 7 cpuid ebx info
-  std::uint32_t ecx_7_{};  // eax = 7 cpuid ecx info
-  std::uint32_t edx_7_{};  // eax = 7 cpuid edx info
+  char vendor_[13]{};        // vendor string (null-terminated)
+  unsigned max_leaf_{};      // max basic eax parameter
+  std::uint32_t eax_1_{};    // eax = 1 cpuid eax info
+  std::uint32_t ecx_1_{};    // eax = 1 cpuid ecx info
+  std::uint32_t edx_1_{};    // eax = 1 cpuid edx info
+  std::uint32_t ebx_7_{};    // eax = 7, ecx = 0 cpuid ebx info
+  std::uint32_t ecx_7_{};    // eax = 7, ecx = 0 cpuid ecx info
+  std::uint32_t edx_7_{};    // eax = 7, ecx = 0 cpuid edx info
+  std::uint32_t eax_7_1_{};  // eax = 7, ecx = 1 cpuid eax info
+  std::uint32_t edx_7_1_{};  // eax = 7, ecx = 1 cpuid edx info
 };
 
 }  // namespace pdmath
