@@ -9,6 +9,7 @@
 \usepackage{hyperref}
 % make the link colors blue, as well as cite colors
 \hypersetup{colorlinks, linkcolor=blue, citecolor=blue, urlcolor=magenta}
+\usepackage{pgfplots}
 % text tilde. see https://tex.stackexchange.com/a/9372/234752
 % note: pdflatex complains that \texttilde already defined
 % note: unused because this is just too much work
@@ -93,22 +94,68 @@ centroid of the points $ \left(\frac{i}{\nu}, \frac{j}{\nu}\right) $,
 $ \left(\frac{i}{\nu}, \frac{j + 1}{\nu}\right) $,
 $ \left(\frac{i + 1}{\nu}, \frac{j}{\nu}\right) $,
 $ \left(\frac{i + 1}{\nu}, \frac{j + 1}{\nu}\right) $.
+As shown in Figure \ref{stratified_qmc_pi}, this scheme is essentially the
+rectangle rule in two dimensions, constructed such that all points in
+$ \tilde{S}_{\nu^2} $ are strictly within $ (0, 1)^2 $ and are centroids of the
+``natural'' rectangle rule points whose coordinate values are multiples of
+$ \frac{1}{\nu} $.
+
+\begin{figure}
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=10cm,
+            % fix axis ranges
+            xmin=-0.1,
+            xmax=1.1,
+            ymin=-0.1,
+            ymax=1.1,
+            % only want endpoints
+            xtick={0, 1},
+            ytick={0, 1},
+            % by default you'd need to tilt your head to read the y label
+            y label style={rotate=-90},
+            % ensure axis aspect ratio is 1:1
+            axis equal image,
+            clip=false
+        ]
+        % plot of upper right quadrant of unit circle on [0, 1]
+        % note: need more samples otherwise graph doesn't touch x=1 enough
+        \addplot[domain=0:1, samples=500, color=red, smooth]{sqrt(1 - x^2)};
+        % plot the rectangle rule grid points
+        % note: tried 50 x 50 points and that resulted in very slow compile
+        \foreach \xvalue in {0.0, 0.1, ..., 1.0} {
+            \foreach \yvalue in {0.0, 0.1, ..., 1.0} {
+                % use \edef trick to expand loop variables but not \addplot
+                % see https://tex.stackexchange.com/a/71199/234752
+                \edef\gridpoint{
+                    \noexpand\addplot[color=blue, mark=+] coordinates {
+                        (\xvalue + 0.05, \yvalue + 0.05)
+                    };
+                }
+                % invoke macro
+                \gridpoint;
+            }
+        }
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Points of $ \tilde{S}_{10^2} $ plotted with $ \sqrt{1 - x^2} $.}
+    \label{stratified_qmc_pi}
+\end{figure}
 
 \medskip
 
-This is essentially the rectangle rule in two dimensions, constructed such that
-all points in $ \tilde{S}_{\nu^2} $ are strictly within $ (0, 1)^2 $ and are
-centroids of the natural rectangle rule points. More importantly, constructing
-$ \tilde{S}_{\nu^2} $ is incredibly cheap compared to other methods of
-constructing $ S_n $, whether it be via psuedorandom or quasirandom sequences
-of points sampled from $ [0, 1]^2 $. For example, a straightforward \CXX{}
-implementation that uses this method of constructing $ \tilde{S}_{\nu^2} $,
-where $ \nu \triangleq 10^3 $, i.e. $ n \triangleq 10^6 $, ran in only 2 ms. In
-comparison, a cuRAND implementation using the provided 32-bit Mersenne Twister
-implementation took around 141 ms. Of course, the estimator accuracy left much
-to be desired, but since the rectangle rule sampling approach is very cheap,
-even sampling 25 million points, i.e. with $ \nu \triangleq 5 \times 10^3 $,
-took only around 66 ms, and with compiler%
+Of practical importance is the fact that constructing $ \tilde{S}_{\nu^2} $ is
+incredibly cheap compared to other methods of constructing $ S_n $, whether it
+be via psuedorandom or quasirandom sequences of points sampled from
+$ [0, 1]^2 $. For example, a straightforward \CXX{} implementation that uses
+the points of  $ \tilde{S}_{\nu^2} $, where $ \nu \triangleq 10^3 $, i.e.
+$ n \triangleq 10^6 $, ran in only 2 ms. In comparison, a cuRAND implementation
+using the provided 32-bit Mersenne Twister implementation took around 141 ms.
+Of course, the estimator accuracy left much to be desired, but since the
+rectangle rule sampling approach is very cheap, even sampling 25 million
+points, i.e. with $ \nu \triangleq 5 \times 10^3 $, took only around 66 ms, and
+with compiler%
 \footnote{Compiler used is GCC 11.3.0 on WSL1 Ubuntu 22.04.2 LTS.}
 optimization, took only 22 ms or so to complete.
 
