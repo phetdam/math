@@ -9,14 +9,14 @@
 \usepackage{hyperref}
 % make the link colors blue, as well as cite colors
 \hypersetup{colorlinks, linkcolor=blue, citecolor=blue, urlcolor=magenta}
-
-% C++ command. use typewriter text to make the + not so big
-\newcommand{\CXX}{C\texttt{++}}
 % text tilde. see https://tex.stackexchange.com/a/9372/234752
 % note: pdflatex complains that \texttilde already defined
 % note: unused because this is just too much work
 \usepackage{textcomp}
 \newcommand{\mytexttilde}{\raisebox{0.5ex}{\texttildelow}}
+
+% C++ command. use typewriter text to make the + not so big
+\newcommand{\CXX}{C\texttt{++}}
 
 \title{Estimating $ \pi $ with quasi-Monte Carlo}
 \author{Derek Huang}
@@ -37,7 +37,7 @@ the following integral over $ [0, 1] $:
 \end{equation}
 
 This integral is exactly $ \frac{1}{4} $ the area of the unit-radius circle and
-can be estimated as follows:
+so $ \pi $ can be estimated as follows:
 
 \begin{enumerate}
     \item
