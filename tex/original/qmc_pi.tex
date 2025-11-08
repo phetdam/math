@@ -102,9 +102,12 @@ $ \frac{1}{\nu} $.
 
 \begin{figure}
     \centering
+    % nu = 10
+    % TODO: could be a macro but i don't know how to do that
     \begin{tikzpicture}
         \begin{axis}[
-            width=10cm,
+            title=$ \tilde{S}_{10^2} $,
+            width=8cm,
             % fix axis ranges
             xmin=-0.1,
             xmax=1.1,
@@ -123,7 +126,6 @@ $ \frac{1}{\nu} $.
         % note: need more samples otherwise graph doesn't touch x=1 enough
         \addplot[domain=0:1, samples=500, color=red, smooth]{sqrt(1 - x^2)};
         % plot the rectangle rule grid points
-        % note: tried 50 x 50 points and that resulted in very slow compile
         \foreach \xvalue in {0.0, 0.1, ..., 1.0} {
             \foreach \yvalue in {0.0, 0.1, ..., 1.0} {
                 % use \edef trick to expand loop variables but not \addplot
@@ -139,7 +141,49 @@ $ \frac{1}{\nu} $.
         }
         \end{axis}
     \end{tikzpicture}
-    \caption{Points of $ \tilde{S}_{10^2} $ plotted with $ \sqrt{1 - x^2} $.}
+    % nu = 20
+    \begin{tikzpicture}
+        \begin{axis}[
+            title=$ \tilde{S}_{20^2} $,
+            width=8cm,
+            % fix axis ranges
+            xmin=-0.1,
+            xmax=1.1,
+            ymin=-0.1,
+            ymax=1.1,
+            % only want endpoints
+            xtick={0, 1},
+            ytick={0, 1},
+            % by default you'd need to tilt your head to read the y label
+            y label style={rotate=-90},
+            % ensure axis aspect ratio is 1:1
+            axis equal image,
+            clip=false
+        ]
+        % plot of upper right quadrant of unit circle on [0, 1]
+        % note: need more samples otherwise graph doesn't touch x=1 enough
+        \addplot[domain=0:1, samples=500, color=red, smooth]{sqrt(1 - x^2)};
+        % plot the rectangle rule grid points
+        % note: tried 50 x 50 points and that resulted in very slow compile.
+        % the 20 x 20 points already slows down compile a lot
+        \foreach \xvalue in {0.0, 0.05, ..., 1.0} {
+            \foreach \yvalue in {0.0, 0.05, ..., 1.0} {
+                % use \edef trick to expand loop variables but not \addplot
+                \edef\gridpoint{
+                    \noexpand\addplot[color=blue, mark=+] coordinates {
+                        (\xvalue + 0.025, \yvalue + 0.025)
+                    };
+                }
+                % invoke macro
+                \gridpoint;
+            }
+        }
+        \end{axis}
+    \end{tikzpicture}
+    \caption{
+        Points of $ \tilde{S}_{\nu^2} $ and plotted over $ \sqrt{1 - x^2} $ for
+        $ \nu = 10 $ and $ \nu = 20 $.
+    }
     \label{stratified_qmc_pi}
 \end{figure}
 
