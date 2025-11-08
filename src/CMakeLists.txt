@@ -14,7 +14,7 @@ add_test(NAME fpi COMMAND fpi)
 if(VTK_FOUND)
     add_executable(vtk_normal_plot vtk_normal_plot.cc)
     # note: too many modules to keep track of so just use VTK_LIBRARIES
-    target_link_libraries(vtk_normal_plot PRIVATE ${VTK_LIBRARIES})
+    target_link_libraries(vtk_normal_plot PRIVATE ${VTK_LIBRARIES} pdmath)
     vtk_module_autoinit(TARGETS vtk_normal_plot MODULES ${VTK_LIBRARIES})
     # on Windows, we copy the runtime DLLs into the build directory
     pdmath_copy_runtime_dlls(vtk_normal_plot)
@@ -60,7 +60,7 @@ endif()
 # vtk_trig_plot: plot sin, cos, tan with VTK
 if(VTK_FOUND)
     add_executable(vtk_trig_plot vtk_trig_plot.cc)
-    target_link_libraries(vtk_trig_plot PRIVATE ${VTK_LIBRARIES})
+    target_link_libraries(vtk_trig_plot PRIVATE ${VTK_LIBRARIES} pdmath)
     vtk_module_autoinit(TARGETS vtk_trig_plot MODULES ${VTK_LIBRARIES})
     pdmath_copy_runtime_dlls(vtk_trig_plot)
     # note: see above. skip if using GLX and no X server is available
@@ -81,7 +81,7 @@ endif()
 # vtk_qmc_pi: plot quasi Monte Carlo estimates of pi
 if(VTK_FOUND)
     add_executable(vtk_qmc_pi vtk_qmc_pi.cc)
-    target_link_libraries(vtk_qmc_pi PRIVATE ${VTK_LIBRARIES})
+    target_link_libraries(vtk_qmc_pi PRIVATE ${VTK_LIBRARIES} pdmath)
     vtk_module_autoinit(TARGETS vtk_qmc_pi MODULES ${VTK_LIBRARIES})
     pdmath_copy_runtime_dlls(vtk_qmc_pi)
     # note: see above. skip if using GLX and no X server is available
@@ -102,7 +102,7 @@ endif()
 # vtk_fluent_type: print VTK helper pseudo-expression template types
 if(VTK_FOUND)
     add_executable(vtk_fluent_type vtk_fluent_type.cc)
-    target_link_libraries(vtk_fluent_type PRIVATE ${VTK_LIBRARIES})
+    target_link_libraries(vtk_fluent_type PRIVATE ${VTK_LIBRARIES} pdmath)
     vtk_module_autoinit(TARGETS vtk_fluent_type MODULES ${VTK_LIBRARIES})
     pdmath_copy_runtime_dlls(vtk_fluent_type)
     # note: doesn't need the skipping logic since all expressions involving
@@ -115,7 +115,7 @@ endif()
 # vtk_qmc_pi_grid: plot the unit circle boundary and the QMC pi grid points
 if(VTK_FOUND)
     add_executable(vtk_qmc_pi_grid vtk_qmc_pi_grid.cc)
-    target_link_libraries(vtk_qmc_pi_grid PRIVATE ${VTK_LIBRARIES})
+    target_link_libraries(vtk_qmc_pi_grid PRIVATE ${VTK_LIBRARIES} pdmath)
     vtk_module_autoinit(TARGETS vtk_qmc_pi_grid MODULES ${VTK_LIBRARIES})
     pdmath_copy_runtime_dlls(vtk_qmc_pi_grid)
     # note: see above. skip if using GLX and no X server is available
@@ -137,3 +137,7 @@ endif()
 add_executable(cpu_info cpu_info.cc)
 target_link_libraries(cpu_info PRIVATE pdmath)
 add_test(NAME cpu_info COMMAND cpu_info)
+
+# qmc_pi_grid: write the QMC pi grid points
+# add_executable(qmc_pi_grid qmc_pi_grid.cc)
+# target_link_libraries(qmc_pi_grid PRIVATE pdmath)

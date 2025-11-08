@@ -439,16 +439,13 @@ message(STATUS "Generated ${pdmath_version_h}")
 # relevant targets should be linked as INTERFACE requirements. however, in the
 # future we want to make the dependency optional, so we exclude for now
 add_library(pdmath INTERFACE)
+add_library(pdmath::pdmath ALIAS pdmath)
 target_include_directories(
     pdmath INTERFACE
     $<BUILD_INTERFACE:${PDMATH_INCLUDE}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
-
-# TODO: create pdmath::pdmath INTERFACE target. if you don't do this, every
-# time include directories are updated, all targets will rebuild
-include_directories(${PDMATH_INCLUDE} ${CMAKE_CURRENT_BINARY_DIR}/include)
 
 add_subdirectory(examples)
 add_subdirectory(src)
