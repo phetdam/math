@@ -21,13 +21,27 @@ namespace {
 // program name and help text
 const auto progname = std::filesystem::path{__FILE__}.stem().string();
 const std::string program_usage{
-  "Usage: " + progname + " [-h] -n NU [-f FMT] [-o OUTPUT]\n"
+  "Usage: " + progname + " [-h] -n NU [-f (auto|csv|tsv)] [-o OUTPUT]\n"
   "\n"
   "Write the rectangle rule quasi Monte Carlo pi estimation grid points.\n"
   "\n"
   "The points are written as single-precision floats to the default precision.\n"
-  "If no output file is provided values are written to standard output."
-  // TODO: add option description
+  "If no output file is provided values are written to standard output.\n"
+  "\n"
+  "Options:\n"
+  "  -h, --help        Print this usage\n"
+  "  -n NU             Number of points per dimension. The total number of\n"
+  "                    sampled points in [0, 1] x [0, 1] will be NU x NU.\n"
+  "\n"
+  "  -f (auto|csv|tsv), --format (auto|csv|tsv)\n"
+  "                    Output file format. \"csv\" forces comma-separated\n"
+  "                    values, \"tsv\" forces tab-separated values, while\n"
+  "                    \"auto\" will select based on file extension if an\n"
+  "                    output file is specified but will choose tab-separated\n"
+  "                    if writing to standard output. \"auto\" is default.\n"
+  "\n"
+  "  -o OUTPUT, --output OUTPUT\n"
+  "                    Output file to write to instead of standard output"
 };
 
 /**
