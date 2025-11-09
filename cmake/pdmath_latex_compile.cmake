@@ -269,12 +269,13 @@ endfunction()
 # assumed that PDFLATEX_COMPILER and BIBTEX_COMPILER are defined.
 #
 # Arguments:
-#   input           TeX input file relative to CMAKE_CURRENT_SOURCE_DIR
+#   input                   TeX input file relative to CMAKE_CURRENT_SOURCE_DIR
+#   DEPENDS targets...      Target dependencies
 #
 function(pdmath_latex_compile input)
     # parse options
     # TODO: accept a VERBOSE option that is passed to the script
-    cmake_parse_arguments(ARG "VERBOSE" "" "" ${ARGN})
+    cmake_parse_arguments(ARG "VERBOSE" "" "DEPENDS" ${ARGN})
     # strip extension for BibTeX
     string(REGEX REPLACE "\.tex$" "" input_noext "${input}")
     # target for all PDF targets
@@ -306,6 +307,10 @@ function(pdmath_latex_compile input)
         #         ${CMAKE_CURRENT_SOURCE_DIR}/${input_noext}.pdf
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${input_noext}.pdf
     )
+    # if target dependencies are provided add them to the PDF target
+    if(ARG_DEPENDS)
+        add_dependencies(${pdf_target} ${ARG_DEPENDS})
+    endif()
     # add dependency to top-level target
     add_dependencies(pdmath_tex ${pdf_target})
 endfunction()
