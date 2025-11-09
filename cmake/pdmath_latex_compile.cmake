@@ -270,7 +270,10 @@ endfunction()
 #
 # Arguments:
 #   input                   TeX input file relative to CMAKE_CURRENT_SOURCE_DIR
-#   DEPENDS targets...      Target dependencies
+#   DEPENDS targets...      Target dependencies. These do *not* affect the
+#                           actual PDF generation but simply ensure that the
+#                           mentioned targets will also be driven by the dummy
+#                           custom target used to drive PDF generation.
 #
 function(pdmath_latex_compile input)
     # parse options
@@ -282,10 +285,11 @@ function(pdmath_latex_compile input)
     if(NOT TARGET pdmath_tex)
         add_custom_target(pdmath_tex ALL COMMENT "Compiling .tex files to .pdf")
     endif()
-    # create custom command for .tex file
+    # create custom command for PDF from .tex file
+    set(pdf_output ${CMAKE_CURRENT_SOURCE_DIR}/${input_noext}.pdf)
     add_custom_command(
         # note: other pdflatex outputs are ignored
-        OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/${input_noext}.pdf
+        OUTPUT ${pdf_output}
         COMMAND ${CMAKE_COMMAND}
                 -DPDFLATEX_COMPILER=${PDFLATEX_COMPILER}
                 -DBIBTEX_COMPILER=${BIBTEX_COMPILER}
@@ -304,10 +308,22 @@ function(pdmath_latex_compile input)
         ${pdf_target}
         # note: no more copy_if_different necessary as build in source tree
         # COMMAND ${CMAKE_COMMAND} -E copy_if_different ${input_noext}.pdf
-        #         ${CMAKE_CURRENT_SOURCE_DIR}/${input_noext}.pdf
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${input_noext}.pdf
+        #         ${pdf_output}
+        DEPENDS ${pdf_output}
     )
     # if target dependencies are provided add them to the PDF target
+    #
+    # TODO:
+    #
+    # remove as this doesn't actually affect PDF generation. what we need to do
+    # is ensure that -recorder is passed to the pdflatex invocations in
+    # pdmath_latex_compile_impl and then after all the pdfTeX and BibTeX
+    # invocations we use the .fls file output to construct the .d depfile. we
+    # will need to de-duplicate some paths and ensure paths like ./file and
+    # changed to just file for propert path de-duplication. this has the
+    # downside of including TeX package files in the .d depfile but there is
+    # no option like with GCC's -MMD where system stuff is excluded.
+    #
     if(ARG_DEPENDS)
         add_dependencies(${pdf_target} ${ARG_DEPENDS})
     endif()
