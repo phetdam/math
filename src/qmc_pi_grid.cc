@@ -14,6 +14,8 @@
 #include <string>
 #include <string_view>
 
+#include "pdmath/warnings.h"
+
 namespace {
 
 // program name and help text
@@ -251,7 +253,7 @@ bool parse_args(cli_options& opts, argv_view& args)
   // consume all arguments
   while (args) {
     // assign parse function pointer
-    auto action = [&opts, &args]() -> decltype(&parse_args)
+    auto action = [&args]() -> decltype(&parse_args)
     {
       // -h, --help
       if (*args == "-h" || *args == "--help")
@@ -326,9 +328,12 @@ void write_points(std::ostream& out, unsigned nu, char delim = ',')
   // write header
   out << 'x' << delim << 'y' << '\n';
   // write values
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(5219)
   for (auto i = 0u; i < nu; i++)
     for (auto j = 0u; j < nu; j++)
       out << ((i + 0.5f) / nu) << delim << ((j + 0.5f) / nu) << '\n';
+PDMATH_MSVC_WARNINGS_POP()
   // flush to finish write
   out << std::flush;
 }
