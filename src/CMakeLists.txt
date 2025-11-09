@@ -138,6 +138,15 @@ add_executable(cpu_info cpu_info.cc)
 target_link_libraries(cpu_info PRIVATE pdmath)
 add_test(NAME cpu_info COMMAND cpu_info)
 
-# qmc_pi_grid: write the QMC pi grid points
-# add_executable(qmc_pi_grid qmc_pi_grid.cc)
-# target_link_libraries(qmc_pi_grid PRIVATE pdmath)
+# qmc_pi_grid: write the QMC pi grid points to stdout or a file
+add_executable(qmc_pi_grid qmc_pi_grid.cc)
+target_link_libraries(qmc_pi_grid PRIVATE pdmath)
+# CLI option tests
+add_test(NAME qmc_pi_grid_h COMMAND qmc_pi_grid -h)
+add_test(NAME qmc_pi_grid_help COMMAND qmc_pi_grid --help)
+set_tests_properties(
+    qmc_pi_grid_h
+    qmc_pi_grid_help PROPERTIES
+    PASS_REGULAR_EXPRESSION "Usage: qmc_pi_grid"
+)
+# TODO: add more CLI option tests
