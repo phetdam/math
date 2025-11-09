@@ -92,9 +92,10 @@ endfunction()
 #
 # Furthermore, to support add_custom_command, given a TeX input file input.tex
 # in the current source directory, the current build directory will have a
-# dependency file input.tex.d that will also include any .bib files used or
-# other .tex files that are being included with \include or \input. This
-# ensures that rebuilding is optimally triggered.
+# dependency file input.tex.d that includes the list of INPUT files retrieved
+# from the .fls file generated when running pdfTeX with the -recorder option.
+# This ensures that rebuilding is optimally triggered (although the .d file
+# will contain the names of TeX files from the TeX distribution itself too).
 #
 # The following externally defined variables are required:
 #
@@ -105,7 +106,7 @@ endfunction()
 # The default pdflatex options are:
 #       -interaction=nonstopmode
 #       -halt-on-error
-#       -output-directory <directory of input>
+#       -recorder
 #
 # There is special handling for old-ish versions of the minted package where
 # the -shell-escape option is added for .tex files requiring minted.
@@ -143,32 +144,6 @@ function(pdmath_latex_compile_impl input)
     endif()
     # strip extension for BibTeX
     string(REGEX REPLACE "\.tex$" "" input_noext "${input}")
-    # regex for a path pattern
-    set(path_char "[a-zA-Z0-9_./\\-]")
-    # regex for a \bibliography, \input, or \include directive. capture groups
-    # are already set for later referencing
-    set(dep_regex "[ \t]*\\\\(bibliography|input|include){(${path_char}+)}")
-    # scan file for \bibliography, \input, \include commands. these will be
-    # additional deps that we will output into the dependency file
-    file(STRINGS ${input} tex_lines REGEX "${dep_regex}")
-    # remove \bibliography directives from file names and replace with .bib
-    list(
-        TRANSFORM tex_lines
-        REPLACE "[ \t]*\\\\bibliography{(${path_char}+)}" "\\1.bib"
-    )
-    # remove \input and \include directives and replace with .tex
-    list(
-        TRANSFORM tex_lines
-        REPLACE "[ \t]*\\\\(input|include){(${path_char}+)}" "\\2.tex"
-    )
-    # build depfile content
-    set(depfile_content "${CMAKE_CURRENT_SOURCE_DIR}/${input_noext}.pdf:")
-    foreach(dep ${tex_lines})
-        string(APPEND depfile_content " \\\n  ${CMAKE_CURRENT_SOURCE_DIR}/${dep}")
-    endforeach()
-    string(APPEND depfile_content " \\\n  ${CMAKE_CURRENT_SOURCE_DIR}/${input}")
-    # generate depfile content
-    file(WRITE ${PDMATH_CURRENT_BINARY_DIR}/${input}.d "${depfile_content}\n")
     # special handling for minted, which requires -shell-escape. check if a
     # \usepackage{minted} directive is available
     file(
@@ -177,12 +152,14 @@ function(pdmath_latex_compile_impl input)
     )
     list(LENGTH minted_lines have_minted)
     # pdflatex options
-    set(pdflatex_opts -interaction=nonstopmode -halt-on-error)
+    set(pdflatex_opts -interaction=nonstopmode -halt-on-error -recorder)
     if(have_minted)
         list(APPEND pdflatex_opts -shell-escape)
     endif()
     # run pdflatex for the first time
     pdmath_invoke_pdflatex(${input} OPTIONS ${pdflatex_opts} ORDINAL 1)
+    # regex for a path pattern
+    set(path_char "[a-zA-Z0-9_./\\-]")
     # read .aux file to determine if BibTeX needs to be run. that is, we just
     # check for the presence of a single \bibdata command
     file(
@@ -258,6 +235,22 @@ function(pdmath_latex_compile_impl input)
     if(bibdata_line_count)
         pdmath_invoke_pdflatex(${input} OPTIONS ${pdflatex_opts} ORDINAL 3)
     endif()
+    # after all the pdflatex invocations we can scan the .fls file generated
+    # for the INPUT lines as a source of file names for our depfile.
+    file(STRINGS ${input_noext}.fls input_files REGEX "^INPUT[ ]+(${path_char}+)")
+    # strip ./ from relative paths and INPUT prefix + remove duplicates
+    list(TRANSFORM input_files REPLACE "^INPUT[ ]+\\./(${path_char}+)" "\\1")
+    list(TRANSFORM input_files REPLACE "^INPUT[ ]+(${path_char}+)" "\\1")
+    list(REMOVE_DUPLICATES input_files)
+    # build depfile content. this will contain the ${input} file already
+    set(depfile_content "${CMAKE_CURRENT_SOURCE_DIR}/${input_noext}.pdf:")
+    foreach(dep ${input_files})
+        # use absolute paths for all files
+        cmake_path(ABSOLUTE_PATH dep OUTPUT_VARIABLE abs_dep)
+        string(APPEND depfile_content " \\\n  ${abs_dep}")
+    endforeach()
+    # write depfile content
+    file(WRITE ${PDMATH_CURRENT_BINARY_DIR}/${input}.d "${depfile_content}\n")
 endfunction()
 
 ##
@@ -270,10 +263,10 @@ endfunction()
 #
 # Arguments:
 #   input                   TeX input file relative to CMAKE_CURRENT_SOURCE_DIR
-#   DEPENDS targets...      Target dependencies. These do *not* affect the
-#                           actual PDF generation but simply ensure that the
-#                           mentioned targets will also be driven by the dummy
-#                           custom target used to drive PDF generation.
+#   DEPENDS targets...      Target dependencies to rebuild as necessary as part
+#                           of the PDF generation process. If these targets
+#                           modify files that the PDF depends on then the PDF
+#                           is appropriately recompiled.
 #
 function(pdmath_latex_compile input)
     # parse options
@@ -311,19 +304,9 @@ function(pdmath_latex_compile input)
         #         ${pdf_output}
         DEPENDS ${pdf_output}
     )
-    # if target dependencies are provided add them to the PDF target
-    #
-    # TODO:
-    #
-    # remove as this doesn't actually affect PDF generation. what we need to do
-    # is ensure that -recorder is passed to the pdflatex invocations in
-    # pdmath_latex_compile_impl and then after all the pdfTeX and BibTeX
-    # invocations we use the .fls file output to construct the .d depfile. we
-    # will need to de-duplicate some paths and ensure paths like ./file and
-    # changed to just file for propert path de-duplication. this has the
-    # downside of including TeX package files in the .d depfile but there is
-    # no option like with GCC's -MMD where system stuff is excluded.
-    #
+    # if target dependencies are provided add them to the PDF target. this
+    # ensures that any targets are also run as part of the build. any targets
+    # added with add_custom_target won't need to be tagged with ALL
     if(ARG_DEPENDS)
         add_dependencies(${pdf_target} ${ARG_DEPENDS})
     endif()
