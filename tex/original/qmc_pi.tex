@@ -125,20 +125,36 @@ $ \frac{1}{\nu} $.
         % plot of upper right quadrant of unit circle on [0, 1]
         % note: need more samples otherwise graph doesn't touch x=1 enough
         \addplot[domain=0:1, samples=500, color=red, smooth]{sqrt(1 - x^2)};
-        % plot the rectangle rule grid points
-        \foreach \xvalue in {0.0, 0.1, ..., 1.0} {
-            \foreach \yvalue in {0.0, 0.1, ..., 1.0} {
-                % use \edef trick to expand loop variables but not \addplot
-                % see https://tex.stackexchange.com/a/71199/234752
-                \edef\gridpoint{
-                    \noexpand\addplot[color=blue, mark=+] coordinates {
-                        (\xvalue + 0.05, \yvalue + 0.05)
-                    };
-                }
-                % invoke macro
-                \gridpoint;
-            }
-        }
+        % plot the generated rectangle rule grid points
+        %
+        % note:
+        %
+        % originally the grid points were directly plotted in TeX but 20 points
+        % per axis (400 total) compile slowed down a lot. e.g. using this
+        % similar loop also for the case of 20 points per axis meant running
+        % the build to compile this .tex file took ~17.8s while using
+        % qmc_pi_grid to write the points to CSV files and reading those files
+        % would instead take only ~3.9s in comparison.
+        %
+        % \foreach \xvalue in {0.0, 0.1, ..., 1.0} {
+        %     \foreach \yvalue in {0.0, 0.1, ..., 1.0} {
+        %         % use \edef trick to expand loop variables but not \addplot
+        %         % see https://tex.stackexchange.com/a/71199/234752
+        %         \edef\gridpoint{
+        %             \noexpand\addplot[color=blue, mark=+] coordinates {
+        %                 (\xvalue + 0.05, \yvalue + 0.05)
+        %             };
+        %         }
+        %         % invoke macro
+        %         \gridpoint;
+        %     }
+        % }
+        %
+        % the only problem is that the CMake build integration isn't smart
+        % enough to scan the input table files as part of the dependency graph.
+        %
+        \addplot[only marks, color=blue, mark=+]
+            table [x=x, y=y, col sep=comma] {qmc_pi_grid_10.csv};
         \end{axis}
     \end{tikzpicture}
     % nu = 20
@@ -163,21 +179,9 @@ $ \frac{1}{\nu} $.
         % plot of upper right quadrant of unit circle on [0, 1]
         % note: need more samples otherwise graph doesn't touch x=1 enough
         \addplot[domain=0:1, samples=500, color=red, smooth]{sqrt(1 - x^2)};
-        % plot the rectangle rule grid points
-        % note: tried 50 x 50 points and that resulted in very slow compile.
-        % the 20 x 20 points already slows down compile a lot
-        \foreach \xvalue in {0.0, 0.05, ..., 1.0} {
-            \foreach \yvalue in {0.0, 0.05, ..., 1.0} {
-                % use \edef trick to expand loop variables but not \addplot
-                \edef\gridpoint{
-                    \noexpand\addplot[color=blue, mark=+] coordinates {
-                        (\xvalue + 0.025, \yvalue + 0.025)
-                    };
-                }
-                % invoke macro
-                \gridpoint;
-            }
-        }
+        % plot the generated rectangle rule grid points
+        \addplot[only marks, color=blue, mark=+]
+            table [x=x, y=y, col sep=comma] {qmc_pi_grid_20.csv};
         \end{axis}
     \end{tikzpicture}
     \caption{
