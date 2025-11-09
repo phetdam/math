@@ -148,7 +148,7 @@ function(pdmath_latex_compile_impl input)
     # \usepackage{minted} directive is available
     file(
         STRINGS ${input} minted_lines
-        REGEX "[ \t]*\\\\usepackage(\\[.+\\])?{[a-zA-Z0-9_,]*minted[a-zA-Z0-9_,]*}"
+        REGEX "[ \t]*\\\\usepackage(\\[.+\\])?{[a-zA-Z0-9_, ]*minted[a-zA-Z0-9_, ]*}"
     )
     list(LENGTH minted_lines have_minted)
     # pdflatex options
