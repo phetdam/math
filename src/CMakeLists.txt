@@ -149,4 +149,10 @@ set_tests_properties(
     qmc_pi_grid_help PROPERTIES
     PASS_REGULAR_EXPRESSION "Usage: qmc_pi_grid"
 )
+add_test(NAME qmc_pi_grid_n6 COMMAND qmc_pi_grid -n 6)
+add_test(NAME qmc_pi_grid_n4_csv COMMAND qmc_pi_grid -n 4 -f csv)
+add_test(
+    NAME qmc_pi_grid_n10_csv_out
+    COMMAND qmc_pi_grid -n 10 -o qmc_pi_grid_10.csv
+)
 # TODO: add more CLI option tests
