@@ -1,6 +1,11 @@
 \documentclass{article}
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath, amssymb, amsfonts}
+% use T1 instead of OT1 font encoding otherwise $ displays as pound sign. in
+% addition we have to use lmodern (Latin Modern) otherwise the T1-encoded
+% Computer Modern font displays at a lower quality
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
 % change equation numbering to section.eq_num
 \numberwithin{equation}{section}
 % set paragraph indent
@@ -9,6 +14,8 @@
 \usepackage{hyperref}
 % make the link colors blue, as well as cite colors
 \hypersetup{colorlinks, linkcolor=blue, citecolor=blue, urlcolor=magenta}
+\usepackage{minted}
+\usemintedstyle{pastie}
 \usepackage{pgfplots}
 % text tilde. see https://tex.stackexchange.com/a/9372/234752
 % note: pdflatex complains that \texttilde already defined
@@ -205,7 +212,64 @@ rectangle rule sampling approach is very cheap, even sampling 25 million
 points, i.e. with $ \nu \triangleq 5 \times 10^3 $, took only around 66 ms, and
 with compiler%
 \footnote{Compiler used is GCC 11.3.0 on WSL1 Ubuntu 22.04.2 LTS.}
-optimization, took only 22 ms or so to complete.
+optimization, took only 22 ms or so to complete. Therefore, compared to other
+quasirandom Monte Carlo methods that may use low-discrepancy sequences, this
+na\"ive rectangle rule method has the advantage of extremely fast sampling.
+
+\section{Adding SIMD}
+
+In the age of big data more and more engineering work has been put into
+accelerating the execution of low-level primitive operations, e.g. fused
+multiply-add, as computational demand has exploded. More and more programs are
+increasingly CPU-bound, with heavy FPU usage, and so use of accelerator devices
+such as GPUs and FPGAs, especially for reduced or mixed-precision floating
+point operations, has begun to dominate the HPC/ML/AI application landscape.
+Part of this engineering effort focuses on CPUs themselves and is made possible
+by the increased availability of SIMD instructions in x86-64 and ARM chips.
+
+\medskip
+
+With this in mind, let's consider the simplest \CXX{} implementation of using
+$ \tilde{S}_{\nu^2} $ to estimate $ \pi $ via quasi-Monte Carlo. This
+implementation simply uses a plain double \mintinline{cpp}{for} loop to sample
+and count the number of points in $ \tilde{S}_{\nu^2} $ that lie within the
+unit circle, or in other words, have $ \ell^2 $ norm $ \le 1 $. Letting
+\mintinline{cpp}{n} be a \mintinline{cpp}{std::size_t} input parameter
+representing $ \nu $, the double-loop logic would be as follows:
+
+\begin{minted}[fontsize=\small]{cpp}
+  // number of points inside upper right quadrant of unit circle
+  decltype(n) n_in = 0u;
+  // count sampled points
+  for (decltype(n) i = 0u; i < n; i++) {
+    for (decltype(n) j = 0u; j < n; j++) {
+      auto x = (i + 0.5f) / n;
+      auto y = (j + 0.5f) / n;
+      // use implicit conversion from bool to avoid branch
+      n_in += (x * x + y * y <= 1.f);
+    }
+  }
+\end{minted}
+
+To then get our final estimate of $ \pi $ using \mintinline{cpp}{n_in} and
+\mintinline{cpp}{n}, the \mintinline{cpp}{return} statement of the function
+would be:
+
+\begin{minted}[fontsize=\small]{cpp}
+  // compute 4 * n_in / (n * n) to get pi estimate. to avoid any scaling
+  // issues we ensure that n * n has higher precedence
+  return 4.f * n_in / (n * n);
+\end{minted}
+
+This logic is very simple and fast to execute. However, if we want to make this
+run even faster, for example when the input parameter \mintinline{cpp}{n}
+representing $ \nu $ is $ 5 \times 10^3 $ or larger, using SIMD instructions to
+implement the double-\mintinline{cpp}{for} loop is very attractive. We can
+avoid the startup and context switching cost of using threads and the
+complications of deciding how many threads to use, whether to [re]use a thread
+pool, etc. SIMD is also much more feasible on modern CPUs as even the typical
+commodity Intel Core i7-12800H one can find on a decent laptop will support
+AVX, AVX2, and FMA3 SIMD instructions.
 
 \medskip
 
