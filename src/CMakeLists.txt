@@ -142,6 +142,7 @@ add_test(NAME cpu_info COMMAND cpu_info)
 add_executable(qmc_pi_grid qmc_pi_grid.cc)
 target_link_libraries(qmc_pi_grid PRIVATE pdmath)
 # CLI option tests
+# -h, --help
 add_test(NAME qmc_pi_grid_h COMMAND qmc_pi_grid -h)
 add_test(NAME qmc_pi_grid_help COMMAND qmc_pi_grid --help)
 set_tests_properties(
@@ -149,10 +150,35 @@ set_tests_properties(
     qmc_pi_grid_help PROPERTIES
     PASS_REGULAR_EXPRESSION "Usage: qmc_pi_grid"
 )
+# basic tests
 add_test(NAME qmc_pi_grid_n6 COMMAND qmc_pi_grid -n 6)
+set_tests_properties(qmc_pi_grid_n6 PROPERTIES PASS_REGULAR_EXPRESSION "\t")
 add_test(NAME qmc_pi_grid_n4_csv COMMAND qmc_pi_grid -n 4 -f csv)
+set_tests_properties(qmc_pi_grid_n4_csv PROPERTIES PASS_REGULAR_EXPRESSION ",")
 add_test(
     NAME qmc_pi_grid_n10_csv_out
     COMMAND qmc_pi_grid -n 10 -o qmc_pi_grid_10.csv
 )
-# TODO: add more CLI option tests
+# -f, --format
+add_test(NAME qmc_pi_grid_n4_fbad COMMAND qmc_pi_grid -n 4 -f bad_format_value)
+set_tests_properties(
+    qmc_pi_grid_n4_fbad PROPERTIES
+    PASS_REGULAR_EXPRESSION "Error: Unknown -f, --format value"
+)
+# bad option
+add_test(NAME qmc_pi_grid_n4_badopt COMMAND qmc_pi_grid -n 4 -invalid-option)
+set_tests_properties(
+    qmc_pi_grid_n4_badopt PROPERTIES
+    PASS_REGULAR_EXPRESSION "Error: Unknown option"
+)
+# missing/unknown file extension with auto format
+add_test(NAME qmc_pi_grid_n4_out_noext COMMAND qmc_pi_grid -n 4 -o weird_file)
+set_tests_properties(
+    qmc_pi_grid_n4_out_noext PROPERTIES
+    PASS_REGULAR_EXPRESSION "Error: Cannot deduce output format"
+)
+add_test(NAME qmc_pi_grid_n4_out_badext COMMAND qmc_pi_grid -n 4 -o bad.badext)
+set_tests_properties(
+    qmc_pi_grid_n4_out_badext PROPERTIES
+    PASS_REGULAR_EXPRESSION "Error: Unknown file format extension"
+)

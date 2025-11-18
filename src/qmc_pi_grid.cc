@@ -311,16 +311,21 @@ bool parse_args(cli_options& opts, argv_view& args)
     // if file is empty, use TSV
     if (opts.out.empty())
       opts.fmt = output_format::tsv;
-    // otherwise, look at file extension
+    // otherwise, look at file extension. if empty, can't use auto
+    else if (ext.empty()) {
+      std::cerr << "Error: Cannot deduce output format from file without a " <<
+        "file extension" << std::endl;
+      return false;
+    }
     else if (ext == ".csv")
       opts.fmt = output_format::csv;
     else if (ext == ".tsv")
       opts.fmt = output_format::tsv;
     // unknown extension
+    // note: already checked ext.empty() case so substr() will not errir
     else {
-      std::cerr << "Error: Unknown file format extension " <<
-        (ext.empty() ? ext : ext.substr(1u)) << " not one of csv, tsv" <<
-        std::endl;
+      std::cerr << "Error: Unknown file format extension " << ext.substr(1u) <<
+        " not one of csv, tsv" << std::endl;
       return false;
     }
   }
