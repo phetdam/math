@@ -239,15 +239,20 @@ function(pdmath_latex_compile_impl input)
     # for the INPUT lines as a source of file names for our depfile.
     file(STRINGS ${input_noext}.fls input_files REGEX "^INPUT[ ]+(${path_char}+)")
     # strip ./ from relative paths and INPUT prefix + remove duplicates
-    list(TRANSFORM input_files REPLACE "^INPUT[ ]+\\./(${path_char}+)" "\\1")
-    list(TRANSFORM input_files REPLACE "^INPUT[ ]+(${path_char}+)" "\\1")
+    list(TRANSFORM input_files REPLACE "^INPUT[ ]+(\\./)?(${path_char}+)" "\\2")
     list(REMOVE_DUPLICATES input_files)
     # build depfile content. this will contain the ${input} file already
     set(depfile_content "${CMAKE_CURRENT_SOURCE_DIR}/${input_noext}.pdf:")
     foreach(dep ${input_files})
         # use absolute paths for all files
         cmake_path(ABSOLUTE_PATH dep OUTPUT_VARIABLE abs_dep)
-        string(APPEND depfile_content " \\\n  ${abs_dep}")
+        # only add INPUT files that exist to the depfile content. any files
+        # that don't exist likely intermediate results that are later cleaned
+        # up and if they are not removed from the depfile content the rule will
+        # always rebuild, making it worse than a dumb shell script
+        if(EXISTS "${abs_dep}")
+            string(APPEND depfile_content " \\\n  ${abs_dep}")
+        endif()
     endforeach()
     # write depfile content
     file(WRITE ${PDMATH_CURRENT_BINARY_DIR}/${input}.d "${depfile_content}\n")
