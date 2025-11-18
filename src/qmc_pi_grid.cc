@@ -222,7 +222,7 @@ bool parse_fmt(cli_options& opts, argv_view& args)
   // unknown
   else {
     std::cerr << "Error: Unknown -f, --format value " << *args <<
-      "not one of csv, tsv, auto" << std::endl;
+      " not one of csv, tsv, auto" << std::endl;
     return false;
   }
   return true;
