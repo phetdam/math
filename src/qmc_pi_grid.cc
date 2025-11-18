@@ -31,7 +31,7 @@ const std::string program_usage{
   "Options:\n"
   "  -h, --help        Print this usage\n"
   "  -n NU             Number of points per dimension. The total number of\n"
-  "                    sampled points in [0, 1] x [0, 1] will be NU x NU.\n"
+  "                    sampled points in [0, 1] x [0, 1] will be NU * NU.\n"
   "\n"
   "  -f (auto|csv|tsv), --format (auto|csv|tsv)\n"
   "                    Output file format. \"csv\" forces comma-separated\n"
