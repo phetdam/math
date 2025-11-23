@@ -5,12 +5,15 @@
  * @copyright MIT License
  */
 
+#include <cstdint>
 #include <cstdlib>
+#include <exception>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <limits>
-#include <exception>
+#include <memory>
+#include <random>
 #include <string>
 #include <string_view>
 
@@ -18,20 +21,34 @@
 
 namespace {
 
-// program name and help text
+// program name, program name padding as spaces, and help text
 const auto progname = std::filesystem::path{__FILE__}.stem().string();
+const std::string progname_ws(progname.size(), ' ');
 const std::string program_usage{
-  "Usage: " + progname + " [-h] -n NU [-f (auto|csv|tsv)] [-o OUTPUT]\n"
+  "Usage: " + progname + " [-h] -n NU [-m (mt32|rect)] [-f (auto|csv|tsv)]\n"
+  "       " + progname_ws + " [-f(mt32|rect)-[OPTION] [VALUE...] ...]\n"
+  "       " + progname_ws + " [-o OUTPUT]\n"
   "\n"
   "Write the rectangle rule quasi Monte Carlo pi estimation grid points.\n"
   "\n"
   "The points are written as single-precision floats to the default precision.\n"
   "If no output file is provided values are written to standard output.\n"
   "\n"
+  "To facilitate comparison of the rectangle rule points with other typical\n"
+  "sampling methods the -m, --method sampling option can be used. The\n"
+  "corresponding -f[METHOD]-[OPTION] options can be used to pass method-\n"
+  "specific options as required by a particular sampling method.\n"
+  "\n"
   "Options:\n"
   "  -h, --help        Print this usage\n"
   "  -n NU             Number of points per dimension. The total number of\n"
   "                    sampled points in [0, 1] x [0, 1] will be NU * NU.\n"
+  "\n"
+  "  -m (mt32|rect), --method (mt32|rect)\n"
+  "                    Point sampling method. \"mt32\" selects the 32-bit\n"
+  "                    Mersenne Twister PRNG as implemented in std::mt19937\n"
+  "                    while \"rect\" uses the rectangle rule. If not specified\n"
+  "                    explicitly the default is \"rect\".\n"
   "\n"
   "  -f (auto|csv|tsv), --format (auto|csv|tsv)\n"
   "                    Output file format. \"csv\" forces comma-separated\n"
@@ -39,6 +56,11 @@ const std::string program_usage{
   "                    \"auto\" will select based on file extension if an\n"
   "                    output file is specified but will choose tab-separated\n"
   "                    if writing to standard output. \"auto\" is default.\n"
+  "\n"
+  "  -f(mt32|rect)-[OPTION] [VALUE...]\n"
+  "                    Additional options specific to a particular sampling\n"
+  "                    method. For example, -fmt32-seed can be used to give a\n"
+  "                    starting seed value to std::mt19937.\n"
   "\n"
   "  -o OUTPUT, --output OUTPUT\n"
   "                    Output file to write to instead of standard output"
@@ -54,22 +76,12 @@ enum output_format {
 };
 
 /**
- * Command-line argument structure.
- *
- * @param print_usage `true` to print usage
- * @param nu Number of points per axis
- * @param fmt Output format
- * @param out Output file path
+ * Point sampling method enum.
  */
-struct cli_options {
-  bool print_usage = false;
-  unsigned nu = 0u;
-  output_format fmt = output_format::auto_;
-  std::filesystem::path out;
+enum sample_method {
+  rect,  // rectangle rule
+  mt32   // 32-bit Mersenne Twister
 };
-
-// limit on nu
-constexpr auto nu_max = std::numeric_limits<decltype(cli_options::nu)>::max();
 
 /**
  * `main()` argument iterator.
@@ -147,9 +159,229 @@ private:
 };
 
 /**
+ * Sampling method `argv_view` visitor.
+ *
+ * This provides a polymorphic interface for handling sampling method specific
+ * command-line options, encapsulating the corresponding state, and
+ * implementing the `write()` method required to write the grid points.
+ */
+class point_sampler {
+public:
+  /**
+   * Dtor.
+   */
+  virtual ~point_sampler() = default;
+
+  /**
+   * Return the associated sampling method enumeration value.
+   */
+  virtual sample_method type() const = 0;
+
+  /**
+   * Check if the current command-line argument is a sampler-specific option.
+   *
+   * This is used in `parse_args()` to determine if any sampler-specific
+   * parsing needs to be done before `parse()` is called.
+   *
+   * @returns `true` if current argument is sampler-specific, `false` otherwise
+   */
+  virtual bool can_parse(argv_view& /*args*/) const
+  {
+    return false;
+  }
+
+  /**
+   * Parse a sampler-specific option and its values.
+   *
+   * `can_parse()` *must* already return `true` on args and at least one
+   * `-f[METHOD]-[OPTION]` argument and value(s) should be consumed. This
+   * function can populate internal state.
+   *
+   * @returns `true` on success, `false` on error
+   */
+  virtual bool parse(argv_view& /*args*/)
+  {
+    std::cerr << "Error: Point sampler does not implement parse()" << std::endl;
+    return false;
+  }
+
+  /**
+   * Write the points sampled from `[0, 1] x [0, 1]` to the output stream.
+   *
+   * This non-virtual function calls `write_points()` after writing the header
+   * labels of `x` and `y` to the given output stream.
+   *
+   * @note This function is non-const as some RNGs may need to update state.
+   *
+   * @param out Output stream to write to
+   * @param nu Number of points per axis
+   * @param delim Delimiter character
+   */
+  void write(std::ostream& out, unsigned nu, char delim)
+  {
+    // write header
+    out << 'x' << delim << 'y' << '\n';
+    // write values + ensure flush
+    write_points(out, nu, delim);
+    out << std::flush;
+  }
+
+private:
+  /**
+   * Write points sampled from `[0, 1] x [0, 1]` to the output stream.
+   *
+   * This must be implemented by derived types and has few restrictions.
+   *
+   * @param out Output stream to write to
+   * @param nu Number of points per axis
+   * @param delim Delimiter character
+   */
+  virtual void write_points(std::ostream& out, unsigned nu, char delim) = 0;
+};
+
+/**
+ * Point sampler implementation for the rectangle rule.
+ */
+class rect_sampler : public point_sampler {
+public:
+  /**
+   * Return the corresponding sampling method enum value.
+   */
+  sample_method type() const /* noexcept */ override
+  {
+    return sample_method::rect;
+  }
+
+private:
+  /**
+   * Write float rectangle rule grid points to the output stream.
+   *
+   * @param out Output stream to write to
+   * @param nu Number of points per axis
+   * @param delim Delimiter character
+   */
+  void write_points(std::ostream& out, unsigned nu, char delim) override
+  {
+    // write values
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(5219)
+    for (auto i = 0u; i < nu; i++)
+      for (auto j = 0u; j < nu; j++)
+        out << ((i + 0.5f) / nu) << delim << ((j + 0.5f) / nu) << '\n';
+PDMATH_MSVC_WARNINGS_POP()
+  }
+};
+
+/**
+ * Point sampler implementation for the 32-bit Mersenne Twister.
+ */
+class mt32_sampler : public point_sampler {
+public:
+  /**
+   * Return the corresponding sampling method enum value.
+   */
+  sample_method type() const /* noexcept */ override
+  {
+    return sample_method::mt32;
+  }
+
+  /**
+   * Check if the current command-line argument is a sampler-specific option.
+   *
+   * The only option that is accepted is `-fmt32-seed`.
+   *
+   * @param args Command-line arguments to parse
+   * @returns `true` if current argument is sampler-specific, `false` otherwise
+   */
+  bool can_parse(argv_view& args) const override
+  {
+    return *args == "-fmt32-seed";
+  }
+
+  /**
+   * Parse a sampler-specific option and its values.
+   *
+   * This consumes the `-fmt32-seed` option's argument from args if possible.
+   *
+   * @param args Command-line arguments to parse
+   * @returns `true` on success, `false` on error
+   */
+  bool parse(argv_view& args) override
+  {
+    // option name
+    constexpr auto opt = "-fmt32-seed";
+    // advance and check if arg is available
+    if (!++args) {
+      std::cerr << "Error: Missing required argument for " << opt << std::endl;
+      return false;
+    }
+    // if available, try to convert to unsigned
+    try {
+      // seed max limit
+      constexpr auto seed_max = std::numeric_limits<std::uint_fast32_t>::max();
+      auto seed = std::stoul(std::string{*args});
+      // too large
+      if (seed >= seed_max) {
+        std::cerr << "Error: " << opt << " given value " << seed <<
+          " that exceeds allowed maximum " << seed_max << std::endl;
+        return false;
+      }
+      // ok, copy-assign RNG
+      rng_ = std::mt19937{seed};
+    }
+    // handle exceptions
+    catch (const std::exception& exc) {
+      std::cerr << "Error: " << opt << " value " << *args <<
+        " conversion failed: " << exc.what() << std::endl;
+      return false;
+    }
+    // success
+    return true;
+  }
+
+private:
+  std::uniform_real_distribution<float> dist_;
+  std::mt19937 rng_;
+
+  /**
+   * Write float uniformly-sampled grid points to the output stream.
+   *
+   * @param out Output stream to write to
+   * @param nu Number of points per axis
+   * @param delim Delimiter character
+   */
+  void write_points(std::ostream& out, unsigned nu, char delim) override
+  {
+    for (auto i = 0u; i < nu; i++)
+      for (auto j = 0u; j < nu; j++)
+        out << dist_(rng_) << delim << dist_(rng_) << '\n';
+  }
+};
+
+/**
+ * Command-line argument structure.
+ *
+ * @param help `true` to print usage
+ * @param nu Number of points per axis
+ * @param fmt Output format
+ * @param smp Polymorphic point sampler
+ * @param out Output file path
+ */
+struct cli_options {
+  bool help = false;
+  unsigned nu = 0u;
+  output_format fmt = output_format::auto_;
+  std::unique_ptr<point_sampler> smp = std::make_unique<rect_sampler>();
+  std::filesystem::path out;
+};
+
+// limit on nu
+constexpr auto nu_max = std::numeric_limits<decltype(cli_options::nu)>::max();
+
+/**
  * Parse action to call when help option is specified.
  *
- * This simply sets `opts.print_usage` to `true`.
+ * This simply sets `opts.help` to `true`.
  *
  * @param opts Command-line options to fill
  * @param args View of `main()` args
@@ -157,7 +389,7 @@ private:
  */
 bool parse_help(cli_options& opts, argv_view& /*args*/)
 {
-  opts.print_usage = true;
+  opts.help = true;
   return true;
 }
 
@@ -198,6 +430,37 @@ bool parse_nu(cli_options& opts, argv_view& args)
 }
 
 /**
+ * Parse the sampling method string from the command-line options.
+ *
+ * @param opts Command-line options to fill
+ * @param args View of `main()` args
+ * @returns `true` on success, `false` on error
+ */
+bool parse_method(cli_options& opts, argv_view& args)
+{
+  // option name
+  constexpr auto opt = "-m, --method";
+  // advance and check if arg is available
+  if (!++args) {
+    std::cerr << "Error: Missing required argument for " << opt << std::endl;
+    return false;
+  }
+  // if available, update sampler as appropriate
+  if (*args == "rect") {
+    opts.smp = std::make_unique<rect_sampler>();
+    return true;
+  }
+  if (*args == "mt32") {
+    opts.smp = std::make_unique<mt32_sampler>();
+    return true;
+  }
+  // unknown, so just error
+  std::cerr << "Error: Invalid sampler type " << *args << " provided for " <<
+    opt << std::endl;
+  return false;
+}
+
+/**
  * Parse format value for the command-line options.
  *
  * @param opts Command-line options to fill
@@ -226,6 +489,18 @@ bool parse_fmt(cli_options& opts, argv_view& args)
     return false;
   }
   return true;
+}
+
+/**
+ * Parse a sampling method specific option from the command-line options.
+ *
+ * @param opts Command-line options to fill
+ * @param args View of `main()` args
+ * @returns `true` on success, `false` on error
+ */
+bool parse_fmethod_option(cli_options& opts, argv_view& args)
+{
+  return opts.smp->parse(args);
 }
 
 /**
@@ -267,7 +542,7 @@ bool parse_args(cli_options& opts, argv_view& args)
   // consume all arguments
   while (args) {
     // assign parse function pointer
-    auto action = [&args]() -> decltype(&parse_args)
+    auto action = [&args, &opts]() -> decltype(&parse_args)
     {
       // -h, --help
       if (*args == "-h" || *args == "--help")
@@ -275,9 +550,15 @@ bool parse_args(cli_options& opts, argv_view& args)
       // -n
       else if (*args == "-n")
         return parse_nu;
+      // -m, --method
+      else if (*args == "-m" || *args == "--method")
+        return parse_method;
       // -f, --format
       else if (*args == "-f" || *args == "--format")
         return parse_fmt;
+      // -f[METHOD]-[OPTION]
+      else if (opts.smp->can_parse(args))
+        return parse_fmethod_option;
       // -o, --output
       else if (*args == "-o" || *args == "--output")
         return parse_output;
@@ -294,7 +575,7 @@ bool parse_args(cli_options& opts, argv_view& args)
     if (!action(opts, args))
       return false;
     // special case: break early if help option seen
-    if (opts.print_usage)
+    if (opts.help)
       return true;
     // advance
     args++;
@@ -333,30 +614,6 @@ bool parse_args(cli_options& opts, argv_view& args)
   return true;
 }
 
-/**
- * Write float rectangle rule grid points to the output stream.
- *
- * The header labels written are simply `x` and `y`.
- *
- * @param out Output stream to write to
- * @param nu Number of points per axis
- * @param delim Delimiter character
- */
-void write_points(std::ostream& out, unsigned nu, char delim = ',')
-{
-  // write header
-  out << 'x' << delim << 'y' << '\n';
-  // write values
-PDMATH_MSVC_WARNINGS_PUSH()
-PDMATH_MSVC_WARNINGS_DISABLE(5219)
-  for (auto i = 0u; i < nu; i++)
-    for (auto j = 0u; j < nu; j++)
-      out << ((i + 0.5f) / nu) << delim << ((j + 0.5f) / nu) << '\n';
-PDMATH_MSVC_WARNINGS_POP()
-  // flush to finish write
-  out << std::flush;
-}
-
 }  // namespace
 
 int main(int argc, char** argv)
@@ -367,7 +624,7 @@ int main(int argc, char** argv)
   if (!parse_args(opts, args))
     return EXIT_FAILURE;
   // print usage if requested
-  if (opts.print_usage) {
+  if (opts.help) {
     std::cout << program_usage << std::endl;
     return EXIT_SUCCESS;
   }
@@ -375,11 +632,11 @@ int main(int argc, char** argv)
   char delim = (opts.fmt == output_format::csv) ? ',' : '\t';
   // if path is empty, write to stdout
   if (opts.out.empty())
-    write_points(std::cout, opts.nu, delim);
+    opts.smp->write(std::cout, opts.nu, delim);
   // otherwise write to file
   else {
     std::ofstream out{opts.out};
-    write_points(out, opts.nu, delim);
+    opts.smp->write(out, opts.nu, delim);
   }
   return EXIT_SUCCESS;
 }

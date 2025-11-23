@@ -182,3 +182,32 @@ set_tests_properties(
     qmc_pi_grid_n4_out_badext PROPERTIES
     PASS_REGULAR_EXPRESSION "Error: Unknown file format extension"
 )
+# -m --method
+add_test(NAME qmc_pi_grid_n4_mmt32 COMMAND qmc_pi_grid -n 4 -m mt32)
+add_test(NAME qmc_pi_grid_n4_mrect COMMAND qmc_pi_grid -n 4 -m rect)
+add_test(NAME qmc_pi_grid_n4_mbad COMMAND qmc_pi_grid -n 4 -m invalid_method)
+set_tests_properties(
+    qmc_pi_grid_n4_mbad PROPERTIES
+    PASS_REGULAR_EXPRESSION "Error: Invalid sampler type"
+)
+# -fmt32-seed
+add_test(
+    NAME qmc_pi_grid_n4_mmt32_seed
+    COMMAND qmc_pi_grid -n 4 -m mt32 -fmt32-seed 8888
+)
+add_test(
+    NAME qmc_pi_grid_n4_mmt32_no_seed
+    COMMAND qmc_pi_grid -n 4 -m mt32 -fmt32-seed
+)
+set_tests_properties(
+    qmc_pi_grid_n4_mmt32_no_seed PROPERTIES
+    PASS_REGULAR_EXPRESSION "Missing required argument"
+)
+add_test(
+    NAME qmc_pi_grid_n4_mmt32_bad_seed
+    COMMAND qmc_pi_grid -n 4 -m mt32 -fmt32-seed not_a_seed
+)
+set_tests_properties(
+    qmc_pi_grid_n4_mmt32_bad_seed PROPERTIES
+    PASS_REGULAR_EXPRESSION "conversion failed"
+)
