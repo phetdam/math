@@ -157,8 +157,11 @@ $ \frac{1}{\nu} $.
         %     }
         % }
         %
-        % the only problem is that the CMake build integration isn't smart
-        % enough to scan the input table files as part of the dependency graph.
+        % originally, there was the issue of the CMake buld integration not
+        % being smart enough to scan the input table files as part of the build
+        % dependency graph, but by using the -recorder option with pdfTeX and
+        % stripping out duplicate and temporary input files, CMake can now
+        % optimally recompile the PDF whenever any PDF input files change.
         %
         \addplot[only marks, color=blue, mark=+]
             table [x=x, y=y, col sep=comma] {qmc_pi_grid_10.csv};
