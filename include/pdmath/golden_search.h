@@ -26,6 +26,9 @@ namespace pdmath {
  * mostly an interpretation of the golden-section search described in Xin Li's
  * notes for Lecture 15 of CMU's 18-660 optimization course.
  *
+ * @todo `lbound` and `ubound` should be non-deduced contexts and the final
+ *  return type should be based on `std::invoke_result_t<F, int>`.
+ *
  * @tparam F Unary callable
  * @tparam T Floating-point type
  *
