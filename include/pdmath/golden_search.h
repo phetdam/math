@@ -51,7 +51,7 @@ optimize_result<T> golden_search(
   // larger fraction of bracketing interval that is golden ratio times the
   // smaller fraction of the bracketing interval (hence the name). this is
   // usually called 'w' and is also from Numerical Recipes in C.
-  T w(1.5 - std::sqrt(5.) / 2.);
+  T w = static_cast<T>(1.5 - std::sqrt(5.) / 2.);
   // lower and upper guesses, lbound < lguess < uguess < ubound, and shift
   T gshift = w * (ubound - lbound);
   T lguess(lbound + gshift);
@@ -92,9 +92,9 @@ optimize_result<T> golden_search(
     n_iter++;
     n_fev += 2;
   }
-  // choose midpoint of lbound, ubound as result. note we multiply individually
+  // choose midpoint of lbound, ubound as result. note we divide individually
   // to prevent overflow or rounding error from subtraction.
-  T res(0.5 * lbound + 0.5 * ubound);
+  T res = lbound / 2 + ubound / 2;
   return {
     res,
     true,
