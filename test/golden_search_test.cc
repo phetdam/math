@@ -13,34 +13,10 @@
 
 #include <gtest/gtest.h>
 
-#include "pdmath/bases.h"
 #include "pdmath/optimize_result.h"
 #include "pdmath/pi.h"
 
 namespace {
-
-template <typename T>
-class scalar_quadratic : public pdmath::functor_base<T> {
-public:
-  /**
-   * Constructor for the functor.
-   *
-   * @param a Value scaling the quadratic term
-   * @param b Value scaling the linear term
-   * @param c Offset
-   */
-  scalar_quadratic(const T& a, const T& b, const T& c) : a_(a), b_(b), c_(c) {}
-
-  /**
-   * Evaluate for a given value.
-   */
-  T operator()(const T& x) override { return a_ * x * x + b_ * x + c_; }
-
-private:
-  T a_;
-  T b_;
-  T c_;
-};
 
 /**
  * Traits to indicate a type has a `lower()` member function.
@@ -289,7 +265,8 @@ using GoldenSearchTestTypes = ::testing::Types<
   concave_x2_input<float>,
   linear_input<double>,
   linear_input<float>,
-  sine_input<double>
+  sine_input<double>,
+  sine_input<float>
 >;
 TYPED_TEST_SUITE(GoldenSearchTest, GoldenSearchTestTypes);
 
@@ -299,7 +276,7 @@ TYPED_TEST_SUITE(GoldenSearchTest, GoldenSearchTestTypes);
 TYPED_TEST(GoldenSearchTest, Test)
 {
   TypeParam in{};
-  auto res = pdmath::golden_search(in, in.lower(), in.upper(), in.tol());
+  auto res = pdmath::golden_search(in, in.lower(), in.upper());
   // check convergence
   EXPECT_TRUE(res.converged());
   EXPECT_NEAR(in.expected(), res.res(), in.tol());
