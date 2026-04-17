@@ -57,6 +57,11 @@ include(pdmath_termcolor)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
+# use flat build output layout with per-config subdirectories
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
 # TODO: consider making Boost and Eigen functionality optional
 
 # FindBoost.cmake policy
@@ -249,6 +254,40 @@ else()
     message(STATUS "VTK version: None")
 endif()
 
+# pdmath_vtk_dlls: custom target to copy VTK DLLs to runtime output directory
+# on Windows. this is provided because if multiple targets have post-build
+# commands copying the VTK DLLs on top of each other the files get clobbered.
+# however, having the VTK DLLs copied from IMPORTED_LOCATION[_<CONFIG>] by a
+# single target fixes this problem and we can ensure the copying is ordered
+# before or after VTK targets are built as necessary (by convention before).
+# note that if we are on Windows, then the target is a no-op.
+if(VTK_FOUND)
+    if(WIN32)
+        # runtime output directory
+        set(vtk_dll_outdir "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+        # need per-config subdirectory for multi-config generators
+        if(PDMPMT_IS_MULTI_CONFIG)
+            string(APPEND vtk_dll_outdir "$<CONFIG>")
+        endif()
+        # get list of VTK DLLs (may contain generator expressions)
+        pdmath_get_vtk_dlls(vtk_lib_dlls)
+        # add target to copy the DLLs
+        add_custom_target(
+            pdmath_vtk_dlls
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${vtk_lib_dlls}
+                    "${vtk_dll_outdir}"
+            COMMENT "Copying VTK DLLs to ${vtk_dll_outdir}"
+            VERBATIM
+            COMMAND_EXPAND_LISTS
+        )
+        # clean up
+        unset(vtk_dll_outdir)
+    else()
+        # dummy target
+        add_custom_target(pdmath_vtk_dlls)
+    endif()
+endif()
+
 # IMPORTED INTERFACE library for cpu_info.h for try_run below
 add_library(pdmath::internal::cpu_info INTERFACE IMPORTED)
 target_include_directories(
@@ -370,11 +409,6 @@ else()
         add_compile_options(-O0 -ggdb)
     endif()
 endif()
-
-# use flat build output layout with per-config subdirectories
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 # base include for this repo
 set(PDMATH_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/include")
