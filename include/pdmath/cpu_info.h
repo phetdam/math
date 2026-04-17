@@ -365,7 +365,7 @@ PDMATH_MSVC_WARNINGS_POP()
   bool amxtile() const noexcept { return detail::test<24>(edx_7_); }
 
   /**
-   * `amx-int8` flag indicatinf if AMX int8 support is available.
+   * `amx-int8` flag indicating if AMX int8 support is available.
    */
   bool amxint8() const noexcept { return detail::test<25>(edx_7_); }
 
