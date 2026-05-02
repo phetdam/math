@@ -186,7 +186,7 @@
 #endif  // !defined(__SSE4_1__) && !(defined(_MSC_VER) && defined(__AVX__))
 
 // SSE4.2
-// MSVC has no explicit SSE4.1 detection so assume AVX implies it
+// MSVC has no explicit SSE4.2 detection so assume AVX implies it
 #if defined(__SSE4_2__) || (defined(_MSC_VER) && defined(__AVX__))
 #define PDMATH_HAS_SSE4_2 1
 #else
