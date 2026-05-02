@@ -233,7 +233,7 @@
 #if defined(__AVX512DQ__)
 #define PDMATH_HAS_AVX512DQ 1
 #else
-#define PDMATRH_HAS_AVX512DQ 0
+#define PDMATH_HAS_AVX512DQ 0
 #endif  // !defined(__AVX512DQ__)
 
 // AVX-512F
