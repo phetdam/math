@@ -208,12 +208,12 @@
 #endif  // !defined(__AVX2__)
 
 // FMA
-// MSVC has no explicit FMA detection so assume AVX implies it
-#if defined(__FMA__) || (defined(_MSC_VER) && defined(__AVX__))
+// MSVC has no explicit FMA detection so assume AVX2 implies it
+#if defined(__FMA__) || (defined(_MSC_VER) && defined(__AVX2__))
 #define PDMATH_HAS_FMA 1
 #else
 #define PDMATH_HAS_FMA 0
-#endif  // !defined(__FMA__) && !(defined(_MSC_VER) && defined(__AVX__))
+#endif  // !defined(__FMA__) && !(defined(_MSC_VER) && defined(__AVX2__))
 
 // AVX-512BW
 #if defined(__AVX512BW__)
