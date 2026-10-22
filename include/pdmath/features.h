@@ -38,6 +38,10 @@
 #define PDMATH_HAS_CXX23 0
 #endif  // PDMATH_HAS_CXX23
 
+// TODO: do *not* auto-define feature macros for external libraries as if there
+// are copies of headers in both system and non-system locations results can be
+// inconsistent across builds. let the build system define to 1 as necessary
+
 // Eigen 3
 #ifdef __has_include
 // check Eigen 3 signature for surest check
