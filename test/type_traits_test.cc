@@ -18,6 +18,7 @@
 #include <type_traits>
 #include <typeinfo>
 #include <variant>
+#include <vector>
 
 #include <Eigen/Core>
 #include <gtest/gtest.h>
@@ -231,11 +232,13 @@ using IsIndirectlyReadableTestTypes = ::testing::Types<
   pdmath::testing::type_value_pair<int, false>,
   pdmath::testing::type_value_pair<std::unique_ptr<std::vector<double>>, true>,
   pdmath::testing::type_value_pair<std::shared_ptr<std::string>, true>,
-  pdmath::testing::type_value_pair<std::string, false>
+  pdmath::testing::type_value_pair<std::string, false>,
+  pdmath::testing::type_value_pair<std::vector<int>::iterator, true>,
+  pdmath::testing::type_value_pair<std::string::iterator, true>
 >;
 TYPED_TEST_SUITE(IsIndirectlyReadableTest, IsIndirectlyReadableTestTypes);
 
-// define teste for is_indirectly_readable
+// define tests for is_indirectly_readable
 PDMATH_TRAITS_TEST(IsIndirectlyReadableTest);
 
 /**

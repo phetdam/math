@@ -220,8 +220,10 @@ constexpr bool is_range_v = is_range<T>::value;
 /**
  * Traits type for an indirectly readable type.
  *
- * That is, the type of an object `x` that supports the `*x` expression that
- * yields a reference that can be cv-qualified.
+ * That is, the type of an object `x` that supports the `*x` expression. Note
+ * that `*x` need not yield a reference, but that `x` itself must be an lvalue.
+ * This satisfies the definition of `std::iter_reference_t<T>` as used in the
+ * definition of the `std::indirectly_readable` concept.
  *
  * @tparam T type
  */
@@ -234,8 +236,7 @@ struct is_indirectly_readable : std::false_type {};
  * @tparam T type
  */
 template <typename T>
-struct is_indirectly_readable<
-  T, std::enable_if_t<std::is_reference_v<decltype(*std::declval<T>())>> >
+struct is_indirectly_readable<T, std::void_t<decltype(*std::declval<T&>())> >
   : std::true_type {};
 
 /**
