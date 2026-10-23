@@ -26,7 +26,7 @@ class FibonacciTest : public ::testing::Test {
 protected:
   // number of Fibonacci numbers
   static constexpr auto n_fib_ = 50u;
-// MSVC emits 5246 erroneously even in C++17 mode
+// MSVC emits C5246 erroneously even in C++17 mode
 PDMATH_MSVC_WARNINGS_PUSH()
 PDMATH_MSVC_WARNINGS_DISABLE(5246)
   // n_fib_ numbers from OEIS list https://oeis.org/A000045/b000045.txt
@@ -100,7 +100,7 @@ TEST_F(FibonacciTest, GeneratorTest)
   pdmath::fibonacci_generator gen;
   // generate n_fib_ sequence into vector
   std::vector<std::uint_fast64_t> seq(n_fib_);
-  std::for_each(seq.begin(), seq.end(), [&gen](auto& v) { v = *gen++; });
+  std::for_each(seq.begin(), seq.end(), gen);
   // compare elementwise for equality
   EXPECT_THAT(seq, AllEq());
 }

@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <ostream>
+#include <type_traits>
 #include <utility>
 
 #include "pdmath/features.h"
@@ -70,7 +71,9 @@ protected:
  * This models the Fibonacci sequence 0, 1, 1, 2, 3, 5, ... and satisfies the
  * named requirements for a *LegacyInputIterator*. Although still of limited
  * practical use, this should be preferred over `basic_fibonacci_generator`,
- * which was originally intended for type traits testing.
+ * which was originally intended for type traits testing. Furthermore, the
+ * `fibonacci_generator` provides `operator()`, which makes it convenient for
+ * use as the unary invocable passed to `std::for_each`.
  */
 class fibonacci_generator : public basic_fibonacci_generator {
 public:
@@ -124,6 +127,32 @@ public:
   constexpr auto operator->() const noexcept
   {
     return &cur_;
+  }
+
+private:
+  /**
+   * Traits helper for `operator()` used as a SFINAE constraint.
+   *
+   * @tparam T type
+   */
+  template <typename T>
+  using output_convertible_t =
+    std::enable_if_t<std::is_convertible_v<std::uint_fast64_t, T>, int>;
+
+public:
+  /**
+   * Write the current Fibonacci number to the reference and advance state.
+   *
+   * This can be used with `std::for_each` to populate the elements of a range.
+   *
+   * @tparam T Output type
+   *
+   * @param out Output reference
+   */
+  template <typename T>
+  void operator()(T& out, output_convertible_t<T> = 0) noexcept
+  {
+    out = *(*this)++;
   }
 };
 
