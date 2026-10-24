@@ -287,6 +287,14 @@ if(VTK_FOUND)
     endif()
 endif()
 
+# find the Linux NUMA support library
+find_package(numa)
+if(numa_FOUND)
+    message(STATUS "numa version: ${numa_VERSION}")
+else()
+    message(STATUS "numa version: None")
+endif()
+
 # find GCC's libquadmath library (for fpi program)
 find_package(quadmath)
 if(quadmath_FOUND)
