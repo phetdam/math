@@ -34,9 +34,9 @@ namespace pdmath {
  * Windows uses plain `int` while GCC uses `unsigned`.
  */
 #if defined(_WIN32)
-    using cpuid_int = int;
+using cpuid_int = int;
 #else
-    using cpuid_int = unsigned;
+using cpuid_int = unsigned;
 #endif  // !defined(_WIN32)
 
 /**
@@ -92,9 +92,9 @@ constexpr bool test(
  * This holds the feature flags returned by `cpuid` for both basic and extended
  * features. Currently, the following is provided if possible:
  *
- *  1.  %eax = 0 info (vendor, highest cpuid %eax parameter value)
- *  2.  %eax = 1 %ecx, %edx info
- *  2.  %eax = 7 %ebx, %ecx, %edx info (more features, e.g. AVX support, etc)
+ * 1. %eax = 0 info (vendor, highest cpuid %eax parameter value)
+ * 2. %eax = 1 %ecx, %edx info
+ * 2. %eax = 7 %ebx, %ecx, %edx info (more features, e.g. AVX support, etc)
  *
  * @note CPU feature detection only supported for x86-64 systems. On ARM
  *  systems all the features flags will be empty and no vendor name is
