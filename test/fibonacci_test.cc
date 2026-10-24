@@ -15,6 +15,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include "pdmath/common.h"
 #include "pdmath/warnings.h"
 
 namespace {
@@ -117,8 +118,12 @@ TEST_F(FibonacciTest, ConstexprGeneratorTest)
     std::array<std::uint64_t, n_fib_> ar{};
     pdmath::fibonacci_generator gen;
     // note: std::for_each() only constexpr in C++20
+#if PDMATH_HAS_CXX20
+    std::for_each(ar.begin(), ar.end(), gen);
+#else
     for (auto& x : ar)
       x = gen();
+#endif  // !PDMATH_HAS_CXX20
     return ar;
   };
   // initialize std::array
