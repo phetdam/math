@@ -73,7 +73,8 @@ protected:
  * practical use, this should be preferred over `basic_fibonacci_generator`,
  * which was originally intended for type traits testing. Furthermore, the
  * `fibonacci_generator` provides `operator()`, which makes it convenient for
- * use as the unary invocable passed to `std::for_each`.
+ * use as the unary invocable passed to `std::for_each`, or as a generator that
+ * returns a new Fibonacci sequence value on every invocation.
  */
 class fibonacci_generator : public basic_fibonacci_generator {
 public:
