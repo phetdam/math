@@ -9,6 +9,9 @@
  * Feature flag identifiers are formatted for CMake's convenience.
  *
  * @note This is a work-in-progress because we aren't using all SIMD features.
+ *  Furthermore, this program is also NUMA-unaware and just runs on whichever
+ *  processor it was scheduled on. We will try to change this later to have it
+ *  run on the lowest-numbered logical CPU on the lowest-numbered NUMA node.
  */
 
 #include <cstdlib>
