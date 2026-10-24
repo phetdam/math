@@ -19,7 +19,16 @@ cmake_minimum_required(VERSION 3.20)
 
 include(FindPackageHandleStandardArgs)
 
-# try-compile a source file that uses an extern libquadmath function
+# locate quadmath library
+# note: we have to explicitly specify the .0 suffix here on the SO
+find_library(quadmath_LIBRARY NAMES libquadmath libquadmath.so.0)
+if(NOT quadmath_LIBRARY)
+    find_package_handle_standard_args(quadmath REQUIRED_VARS quadmath_LIBRARY)
+    return()
+endif()
+
+# try-compile a source file that uses an extern libquadmath function. GCC must
+# be able to locate quadmath.h in its own system directory
 try_compile(
     quadmath_FOUND
     ${CMAKE_CURRENT_BINARY_DIR}
@@ -40,7 +49,7 @@ set(quadmath_VERSION ${CMAKE_CXX_COMPILER_VERSION})
 
 # create imported INTERFACE target for usage requirements
 add_library(quadmath::quadmath IMPORTED INTERFACE)
-target_link_libraries(quadmath::quadmath INTERFACE quadmath)
+target_link_libraries(quadmath::quadmath INTERFACE ${quadmath_LIBRARY})
 
 # validate version
 find_package_handle_standard_args(
