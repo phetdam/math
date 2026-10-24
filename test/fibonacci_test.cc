@@ -106,6 +106,27 @@ TEST_F(FibonacciTest, GeneratorTest)
 }
 
 /**
+ * Test that the Fibonacci generator produces the correct compile-time values.
+ */
+TEST_F(FibonacciTest, ConstexprGeneratorTest)
+{
+  // constexpr lambda returning a `std::array`
+  auto init = []() constexpr
+  {
+    // note: need explicit list-init to zero out
+    std::array<std::uint64_t, n_fib_> ar{};
+    pdmath::fibonacci_generator gen;
+    // note: std::for_each() only constexpr in C++20
+    for (auto& x : ar)
+      x = gen();
+    return ar;
+  };
+  // initialize std::array
+  constexpr auto ar = init();
+  EXPECT_THAT(ar, AllEq());
+}
+
+/**
  * Test that the compile-time Fibonacci sequence produces the correct values.
  */
 TEST_F(FibonacciTest, TemplateTest)

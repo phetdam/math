@@ -150,9 +150,19 @@ public:
    * @param out Output reference
    */
   template <typename T>
-  void operator()(T& out, output_convertible_t<T> = 0) noexcept
+  constexpr void operator()(T& out, output_convertible_t<T> = 0) noexcept
   {
     out = *(*this)++;
+  }
+
+  /**
+   * Return the current Fibonacci number to the reference and advance state.
+   *
+   * This is useful when used to assign to references in a range-for loop.
+   */
+  constexpr auto operator()() noexcept
+  {
+    return *(*this)++;
   }
 };
 
