@@ -5,7 +5,7 @@ add_executable(fpi fpi.cc)
 target_link_libraries(fpi PRIVATE pdmath)
 # if using GCC then quadmath is also required
 if(quadmath_FOUND)
-    target_link_libraries(fpi PRIVATE quadmath)
+    target_link_libraries(fpi PRIVATE quadmath::quadmath)
 endif()
 # simple smoke test
 add_test(NAME fpi COMMAND fpi)
