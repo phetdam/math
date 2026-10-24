@@ -200,13 +200,16 @@ struct is_range : std::false_type {};
 /**
  * True specialization for a type that provides begin + end iterators.
  *
+ * @note We force use of lvalue references here because a range technically
+ *  needs to be in scope for its iterators to work.
+ *
  * @tparam T type
  */
 template <typename T>
 struct is_range<
   T,
-  std::void_t<decltype(std::begin(std::declval<T>()))>,
-  std::void_t<decltype(std::end(std::declval<T>()))>
+  std::void_t<decltype(std::begin(std::declval<T&>()))>,
+  std::void_t<decltype(std::end(std::declval<T&>()))>
 > : std::true_type {};
 
 /**
