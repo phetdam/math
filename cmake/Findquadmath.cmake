@@ -31,6 +31,7 @@ try_compile(
 )
 # if not found exit early
 if(NOT quadmath_FOUND)
+    find_package_handle_standard_args(quadmath REQUIRED_VARS quadmath_FOUND)
     return()
 endif()
 
