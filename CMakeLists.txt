@@ -168,32 +168,23 @@ else()
     message(STATUS "Doxygen version: None")
 endif()
 
-# find GCC's libquadmath library (for fpi program)
-message(CHECK_START "Looking for libquadmath")
-# quadmath.h is located in GCC's own include tree so we cannot locate it via
-# find_path or find_file. we therefore need to try compiling and linking a
-# program that includes quadmath.h and requires -lquadmath
-try_compile(
-    quadmath_FOUND
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/quadmath.cc
-    LINK_LIBRARIES quadmath
-    CXX_STANDARD ${CMAKE_CXX_STANDARD}
-    CXX_STANDARD_REQUIRED ${CMAKE_CXX_STANDARD_REQUIRED}
-)
-if(quadmath_FOUND)
-    message(CHECK_PASS "found")
-else()
-    message(CHECK_FAIL "not found")
-endif()
-
 # find X11
-message(CHECK_START "Looking for X11")
 find_package(X11)
 if(X11_FOUND)
-    message(CHECK_PASS "found")
+    # parse X.h header for X_PROTOCOL and X_PROTOCOL_REVISION
+    file(
+        STRINGS "${X11_X11_INCLUDE_PATH}/X11/X.h" pdmath_X_VERSION
+        REGEX "^#define[ ]+X_PROTOCOL(_REVISION)?[ \t]+[0-9]+.*"
+    )
+    # keep only version number and transform into version string
+    list(
+        TRANSFORM pdmath_X_VERSION
+        REPLACE "^#define[ ]+X_PROTOCOL(_REVISION)?[ \t]+([0-9]+).*" "\\2"
+    )
+    list(JOIN pdmath_X_VERSION "." pdmath_X_VERSION)
+    message(STATUS "X version: ${pdmath_X_VERSION}")
 else()
-    message(CHECK_FAIL "not found")
+    message(STATUS "X version: None")
 endif()
 
 # if X11 found use try_run to build + try to connect to the default display
@@ -221,9 +212,9 @@ if(X11_FOUND)
 endif()
 # indicate if there is a default X display to connect to
 if(PDMATH_HAS_X_DISPLAY)
-    message(STATUS "X default display: Yes")
+    message(STATUS "X display: Yes")
 else()
-    message(STATUS "X default display: No")
+    message(STATUS "X display: No")
 endif()
 
 # find VTK for visualization
@@ -294,6 +285,14 @@ if(VTK_FOUND)
         # dummy target
         add_custom_target(pdmath_vtk_dlls)
     endif()
+endif()
+
+# find GCC's libquadmath library (for fpi program)
+find_package(quadmath)
+if(quadmath_FOUND)
+    message(STATUS "quadmath version: ${quadmath_VERSION}")
+else()
+    message(STATUS "quadmath version: None")
 endif()
 
 # IMPORTED INTERFACE library for cpu_info.h for try_run below
