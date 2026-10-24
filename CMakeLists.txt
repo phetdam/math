@@ -73,6 +73,10 @@ endif()
 # Boost
 find_package(Boost 1.71.0 REQUIRED)
 message(STATUS "Boost version: ${Boost_VERSION}")
+# define our own custom IMPORTED target for feature macro support
+add_library(pdmath::Boost IMPORTED INTERFACE)
+target_compile_definitions(pdmath::Boost INTERFACE PDMATH_USE_BOOST)
+target_link_libraries(pdmath::Boost INTERFACE Boost::headers)
 
 # FindBoost.cmake policy
 if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.30)
@@ -84,6 +88,10 @@ endif()
 # (equivalent to CONFIG) should be specified
 find_package(Eigen3 3.4 REQUIRED CONFIG)
 message(STATUS "Eigen version: ${Eigen3_VERSION}")
+# define our own custom IMPORTED target for feature macro support
+add_library(pdmath::Eigen3 IMPORTED INTERFACE)
+target_compile_definitions(pdmath::Eigen3 INTERFACE PDMATH_USE_EIGEN3)
+target_link_libraries(pdmath::Eigen3 INTERFACE Eigen3::Eigen)
 
 # Google Test
 set(GTEST_MIN_VERSION 1.10.0)

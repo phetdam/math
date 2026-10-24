@@ -38,34 +38,37 @@
 #define PDMATH_HAS_CXX23 0
 #endif  // PDMATH_HAS_CXX23
 
-// TODO: do *not* auto-define feature macros for external libraries as if there
-// are copies of headers in both system and non-system locations results can be
-// inconsistent across builds. let the build system define to 1 as necessary
+// note: we don't have "automatic" detection of external library support via
+// __has_include(), excluding some compiler-specific internal headers. if there
+// are multiple library versions, one or more of which are located in a system
+// include location, but may not be of the appropriate version, __has_include()
+// would locate headers for the version(s) in the system location(s), which
+// may not be in a range of versions that the target application desires. to
+// prevent this "accidental" enablement, we delegate to the build system, which
+// must define PDMATH_USE_<feature> to enable, and PDMATH_HAS_<feature> will be
+// defined by this header to be 1 or 0 as appropriate.
 
 // Eigen 3
-#ifdef __has_include
-// check Eigen 3 signature for surest check
-#if __has_include(<eigen3/signature_of_eigen3_matrix_library>)
+#ifdef PDMATH_USE_EIGEN3
+#undef PDMATH_HAS_EIGEN3
 #define PDMATH_HAS_EIGEN3 1
-#endif  // __has_include(<eigen3/signature_of_eigen3_matrix_library>)
-#endif  // __has_include
+#endif  // PDMATH_USE_EIGEN3
 
 #ifndef PDMATH_HAS_EIGEN3
 #define PDMATH_HAS_EIGEN3 0
 #endif  // PDMATH_HAS_EIGEN3
 
 // Boost headers
-#ifdef __has_include
-#if __has_include(<boost/version.hpp>)
+#ifdef PDMATH_USE_BOOST
+#undef PDMATH_HAS_BOOST
 #define PDMATH_HAS_BOOST 1
-#endif  // __has_include(<boost/version.hpp>)
-#endif  // __has_include
+#endif  // PDMATH_USE_BOOST
 
 #ifndef PDMATH_HAS_BOOST
 #define PDMATH_HAS_BOOST 0
 #endif  // PDMATH_HAS_BOOST
 
-// libquadmath
+// libquadmath (GCC internal header)
 #ifdef __has_include
 #if __has_include(<quadmath.h>)
 #define PDMATH_HAS_QUADMATH 1
