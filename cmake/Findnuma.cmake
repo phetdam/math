@@ -66,7 +66,7 @@ endif()
 # create IMPORTED target for libnuma
 add_library(numa::numa IMPORTED INTERFACE)
 target_include_directories(numa::numa INTERFACE "${numa_INCLUDE_DIRS}")
-target_link_libraries(numa::numa INTERFACE numa)
+target_link_libraries(numa::numa INTERFACE "${numa_LIBRARY}")
 
 # check required variables and verison
 find_package_handle_standard_args(
