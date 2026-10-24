@@ -112,7 +112,7 @@ TEST_F(FibonacciTest, GeneratorTest)
 TEST_F(FibonacciTest, ConstexprGeneratorTest)
 {
   // constexpr lambda returning a `std::array`
-  auto init = []() constexpr
+  auto init = []() constexpr noexcept
   {
     // note: need explicit list-init to zero out
     std::array<std::uint64_t, n_fib_> ar{};
