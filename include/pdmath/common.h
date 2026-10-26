@@ -45,4 +45,15 @@
  */
 #define PDMATH_CONCAT(a, b) PDMATH_CONCAT_I(a, b)
 
+/**
+ * Return macro arguments as-is.
+ *
+ * This is use when an entity that includes commas, e.g. some template
+ * specialization, needs to be passed as a single macro parameter, but without
+ * extra parentheses being added as a side effect.
+ *
+ * @param ... Arguments
+ */
+#define PDMATH_IDENTITY(...) __VA_ARGS__
+
 #endif  // PDMATH_COMMON_H_
