@@ -53,6 +53,20 @@ public:
       {2., 5., 6., 4., 5.}
     };
   }
+
+  /**
+   * Return an Akima spline over 7 knot points.
+   *
+   * This is a slightly more involved testnig spline.
+   */
+  static auto spline_2()
+  {
+    // note: initializer lists need not have floating-poiny vakue
+    return pdmath::akima_spline{
+      {-3, -2, -1, 0, 1, 2, 3},
+      {1.5, 4.5, -1., -2., 0.2, 3.4, 2.3}
+    };
+  }
 };
 
 // note: MSVC emits C5246 in C++17 mode due to old interpretation of std::array
@@ -75,27 +89,23 @@ PDMATH_MSVC_WARNINGS_DISABLE(5246)
 // GoogleMock matcher. the GoogleMock matchers are not constexpr so we cannot
 // use them directly; the type_wrapper<T> provides the needed type information.
 //
+// all expected values were computed using SciPy's Akima1DInterpolator. note
+// that numpy.set_printoptions(floatmode="unique") should be used when printing
+// the numpy.ndarray results in order to get maximum precision.
+//
 constexpr auto akima_spline_test_inputs = std::make_tuple(
   // interpolation only
   std::tuple{
     &AkimaSplineTest<>::spline_1,
     std::array{1.5, 2.5, 3.5, 4.5},
-    // note: all values computed using SciPy's Akima1DInterpolator
     std::tuple{
       std::array{3.725, 5.8, 5.0375, 4.125},
       std::array{2.95, 1., -2.825, 1.},
-      // note: using DoubleEq() causes the test to fail because f_.d<2>()(3.5)
-      // computes a slightly different value of -0.3 that fails the ULP test
-      std::pair{
-        std::array{-1.8, -2.4, -0.3, 3.},
-        pdmath::testing::type_wrapper<float>{}
+      std::array{
+        -1.7999999999999998, -2.4000000000000004,
+        -0.3000000000000007, 3.
       },
-      // note: using DoubleEq() causes the test to fail because f_.d<3>()(1.5)
-      // computes a slightly different value of 1.2 that fails the ULP test
-      std::pair{
-        std::array{1.2, 0., 19.8, 0.},
-        pdmath::testing::type_wrapper<float>{}
-      },
+      std::array{1.200000000000001, 0., 19.799999999999997, 0.},
       std::array{0., 0., 0., 0.}
     }
   },
@@ -103,23 +113,36 @@ constexpr auto akima_spline_test_inputs = std::make_tuple(
   std::tuple{
     &AkimaSplineTest<>::spline_1,
     std::array{0.5, 2.2, 4.4, 5.5},
-    // note: all values computed using SciPy's Akima1DInterpolator
     std::tuple{
-      std::array{-0.325, 5.392, 4.04, 6.625},
-      // note: using DoubleEq() causes the test to fail because f_.d<1>()(4.4)
-      // computes a slightly different value of 0.7 that fails the ULP test
-      std::pair{
-        std::array{5.35, 1.72, 0.7, 4.},
-        pdmath::testing::type_wrapper<float>{}
-      },
-      std::array{-3., -2.4, 3., 3.},
-      // note: using DoubleEq() causes the test to fail because f_.d<3>()(0.5)
-      // computes a slightly different value of 1.2 that fails the ULP test
-      std::pair{
-        std::array{1.2, 0., 0., 0.},
-        pdmath::testing::type_wrapper<float>{}
-      },
+      std::array{-0.32500000000000007, 5.392, 4.04, 6.625},
+      std::array{5.3500000000000005, 1.7199999999999998, 0.7000000000000011, 4.},
+      std::array{-3.000000000000001, -2.4000000000000004, 3., 3.},
+      std::array{1.200000000000001, 0., 0., 0.},
       std::array{0., 0., 0., 0.}
+    }
+  },
+  // more complex interpolation
+  std::tuple{
+    &AkimaSplineTest<>::spline_2,
+    std::array{-2.5, -1.5, -0.5, 0.5, 1.5, 2.5},
+    std::tuple{
+      std::array{
+        4.225961538461538, 1.7091346153846156, -1.981118881118881,
+        -1.026060606060606, 1.8297484276729556, 3.5548349056603774
+      },
+      std::array{
+        3.3269230769230766, -7.052884615384613, -1.3468531468531468,
+        2.238787878787879, 3.546163522012579, -1.434669811320755
+      },
+      std::array{
+        -9.807692307692307, 0.3269230769230802, 3.848951048951049,
+        1.0084848484848488, -0.23798742138364837, -5.638679245283019
+      },
+      std::array{
+        -7.846153846153845, 37.269230769230774, 8.324475524475524,
+        -0.9309090909090916, -8.307924528301884, 8.032075471698118
+      },
+      std::array{0., 0., 0., 0., 0., 0.}
     }
   }
 );
