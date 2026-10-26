@@ -61,7 +61,7 @@ public:
    */
   static auto spline_2()
   {
-    // note: initializer lists need not have floating-poiny vakue
+    // note: initializer lists need not have floating-point value types
     return pdmath::akima_spline{
       {-3, -2, -1, 0, 1, 2, 3},
       {1.5, 4.5, -1., -2., 0.2, 3.4, 2.3}
