@@ -57,7 +57,7 @@ public:
   /**
    * Return an Akima spline over 7 knot points.
    *
-   * This is a slightly more involved testnig spline.
+   * This is a slightly more involved testing spline.
    */
   static auto spline_2()
   {
