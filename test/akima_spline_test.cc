@@ -9,106 +9,266 @@
 
 #include <algorithm>
 #include <array>
+#include <cstddef>
+#include <tuple>
+#include <type_traits>
 #include <vector>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include "pdmath/common.h"
+#include "pdmath/testing/utils.h"
+#include "pdmath/type_traits.h"
+#include "pdmath/warnings.h"
+
 namespace {
 
 /**
- * Akima spline base test case fixture.
+ * Akima spline template test case fixture.
  *
- * @todo Add more tests beyond this simple comparison test with SciPy results.
+ * @tparam T Input type
  */
-class AkimaSplineTest : public ::testing::Test {
+template <typename T = void>
+class AkimaSplineTest : public ::testing::Test {};
+
+/**
+ * Base specialization for the `AkimaSplineTest`.
+ *
+ * This is used to hold some shared static members such as spline creation
+ * functions, etc., that could be shared by multiple test cases.
+ */
+template <>
+class AkimaSplineTest<void> : public ::testing::Test {
+public:
+  /**
+   * Return an Akima spline over 5 knot points.
+   *
+   * This was the original and first test spline used.
+   */
+  static auto spline_1()
+  {
+    return pdmath::akima_spline{
+      {1., 2., 3., 4., 5.},
+      {2., 5., 6., 4., 5.}
+    };
+  }
+};
+
+// note: MSVC emits C5246 in C++17 mode due to old interpretation of std::array
+// of aggregate without brace elision; see the CWG defect report:
+// https://www.open-std.org/JTC1/SC22/WG21/docs/papers/2012/n3367.html#1270
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(5246)
+// Akima spline test case inputs. each input is a std::tuple with the elements:
+//
+// 1. nullary invocable returning an akima_spline (flexible initialization)
+// 2. std::array evaluation points (note: because std::array is constexpr)
+// 3. result specification std::tuple<T0, T1, T2, T3, T4>
+//
+// each Tk in the result std::tuple corresponds to the result for the kth
+// derivative of the spline, i.e. T0 are the spline values, T1 are the spline
+// first derivative values, etc., and Tk can be either a std::array of the same
+// size as the evaluation points, or a std::pair or said std::array and a
+// pdmath::testing::type_wrapper<T> instance that is used to tell GoogleTest
+// whether ::testing::DoubleEq() or ::testing::FloatEq() should be used in the
+// GoogleMock matcher. the GoogleMock matchers are not constexpr so we cannot
+// use them directly; the type_wrapper<T> provides the needed type information.
+//
+constexpr auto akima_spline_test_inputs = std::make_tuple(
+  // interpolation only
+  std::tuple{
+    &AkimaSplineTest<>::spline_1,
+    std::array{1.5, 2.5, 3.5, 4.5},
+    // note: all values computed using SciPy's Akima1DInterpolator
+    std::tuple{
+      std::array{3.725, 5.8, 5.0375, 4.125},
+      std::array{2.95, 1., -2.825, 1.},
+      // note: using DoubleEq() causes the test to fail because f_.d<2>()(3.5)
+      // computes a slightly different value of -0.3 that fails the ULP test
+      std::pair{
+        std::array{-1.8, -2.4, -0.3, 3.},
+        pdmath::testing::type_wrapper<float>{}
+      },
+      // note: using DoubleEq() causes the test to fail because f_.d<3>()(1.5)
+      // computes a slightly different value of 1.2 that fails the ULP test
+      std::pair{
+        std::array{1.2, 0., 19.8, 0.},
+        pdmath::testing::type_wrapper<float>{}
+      },
+      std::array{0., 0., 0., 0.}
+    }
+  },
+  // interpolation + extrapolation
+  std::tuple{
+    &AkimaSplineTest<>::spline_1,
+    std::array{0.5, 2.2, 4.4, 5.5},
+    // note: all values computed using SciPy's Akima1DInterpolator
+    std::tuple{
+      std::array{-0.325, 5.392, 4.04, 6.625},
+      // note: using DoubleEq() causes the test to fail because f_.d<1>()(4.4)
+      // computes a slightly different value of 0.7 that fails the ULP test
+      std::pair{
+        std::array{5.35, 1.72, 0.7, 4.},
+        pdmath::testing::type_wrapper<float>{}
+      },
+      std::array{-3., -2.4, 3., 3.},
+      // note: using DoubleEq() causes the test to fail because f_.d<3>()(0.5)
+      // computes a slightly different value of 1.2 that fails the ULP test
+      std::pair{
+        std::array{1.2, 0., 0., 0.},
+        pdmath::testing::type_wrapper<float>{}
+      },
+      std::array{0., 0., 0., 0.}
+    }
+  }
+);
+PDMATH_MSVC_WARNINGS_POP()
+
+/**
+ * Partial specialization for an Akima spline test.
+ *
+ * @tparam I Test input index
+ */
+template <std::size_t I>
+class AkimaSplineTest<pdmath::testing::index<I>> : public ::testing::Test {
 protected:
-  // knot points + knot values
-  static constexpr std::array xs_{1., 2., 3., 4., 5.};
-  static constexpr std::array ys_{2., 5., 6., 4., 5.};
-  // evaluation points
-  static constexpr std::array vs_{1.5, 2.5, 3.5, 4.5};
+  // bounds check
+  static_assert(I < std::tuple_size_v<decltype(akima_spline_test_inputs)>);
+  // input tuple, spline factory, evaluation points, expected results tuple
+  // note: although we could use auto& instead versions of MSVC before VS 2026
+  // tend to materialize the value too late which leads to access violations
+  static constexpr auto input_ = std::get<I>(akima_spline_test_inputs);
+  static constexpr auto make_f_ = std::get<0>(input_);
+  static constexpr auto xs_ = std::get<1>(input_);
+  static constexpr auto res_ = std::get<2>(input_);
+
+  /**
+   * Return the range values as-is via forwarding.
+   *
+   * @tparam R Range type
+   */
+  template <typename R>
+  static constexpr R&& values(
+    R&& v,
+    pdmath::constraint_t<pdmath::is_range_v<R>> = 0)
+  {
+    return std::forward<R>(v);
+  }
+
+  /**
+   * Return the first element of the range-tag pair.
+   *
+   * @tparam R Range type
+   * @tparam T Floating-point type
+   */
+  template <typename R, typename T>
+  static constexpr auto& values(
+    const std::pair<R, pdmath::testing::type_wrapper<T>>& v,
+    pdmath::constraint_t<pdmath::is_range_v<R>> = 0)
+  {
+    return v.first;
+  }
+
+  /**
+   * Return the default float matcher given a range.
+   *
+   * @tparam R Range type
+   */
+  template <typename R>
+  static auto matcher(R&& /*v*/, pdmath::constraint_t<pdmath::is_range_v<R>> = 0)
+  {
+    return ::testing::DoubleEq();
+  }
+
+  /**
+   * Return the matcher corresponding to the range-tag pair.
+   *
+   * @tparam R Range type
+   * @tparam T Floating-point type
+   */
+  template <typename R, typename T>
+  static auto matcher(
+    const std::pair<R, pdmath::testing::type_wrapper<T>>& /*v*/,
+    pdmath::constraint_t<
+      pdmath::is_range_v<R> && std::is_floating_point_v<T> > = 0)
+  {
+    if constexpr (std::is_same_v<T, float>)
+      return ::testing::FloatEq();
+    else
+      return ::testing::DoubleEq();
+  }
 
   /**
    * Ctor.
    *
-   * Constructs a new Akima spline from the static points and knot values.
+   * Constructs the Akima spline object used by the test case.
    */
-  AkimaSplineTest() : f_{xs_, ys_} {}
+  AkimaSplineTest() : f_{make_f_()} {}
 
-  pdmath::akima_spline<double> f_;
+  /**
+   * Test that spline evaluations or derivatives match the expected values.
+   *
+   * `I = 0` gives spline evaluations and others are for higher derivatives.
+   *
+   * @tparam J Order of the derivative
+   */
+  template <std::size_t J>
+  void test(pdmath::constraint_t<(J >= 0) && (J <= 4)> = 0) const
+  {
+    // expected values + matcher
+    // note: could also be constexpr but see above for comment on MSVC bugs
+    auto& v0s = values(std::get<J>(res_));
+    auto m = matcher(std::get<J>(res_));
+    // compute "projection" for std::transform
+    // note: using decltype(auto) here for value-decay instead of reference
+    decltype(auto) f = [this]() -> decltype(auto)
+    {
+      if constexpr (J == 0)
+        return f_;
+      // note: f_ is template type dependent so template keyword needed
+      else
+        return f_.template d<J>();
+    }();
+    // fill values and compare
+    // note: using std::vector here for variety in ranges
+    std::vector<decltype(f_(0))> vs(xs_.size());
+    std::transform(xs_.begin(), xs_.end(), vs.begin(), f);
+    EXPECT_THAT(vs, ::testing::Pointwise(m, v0s));
+  }
+
+  // spline object (member type deduced from input)
+  decltype(make_f_()) f_;
 };
 
-/**
- * Test that spline evaluations match SciPy values.
- */
-TEST_F(AkimaSplineTest, D0Test)
-{
-  // Akima1DInterpolator computed values
-  constexpr std::array exp = {3.725, 5.8, 5.0375, 4.125};
-  // fill values and compare
-  // note: using std::vector here for variety in ranges
-  std::vector<double> act(vs_.size());
-  std::transform(vs_.begin(), vs_.end(), act.begin(), f_);
-  EXPECT_THAT(act, ::testing::Pointwise(::testing::DoubleEq(), exp));
-}
+// test input types
+TYPED_TEST_SUITE(
+  AkimaSplineTest,
+  pdmath::testing::index_types_from_t<decltype(akima_spline_test_inputs)>
+);
 
 /**
- * Test that spline first derivatives match SciPy values.
+ * Macro for defining a `TYPED_TEST(AkimaSplineTest, ...)` for the given order.
+ *
+ * If `i` is 0, spline evaluations are tested, otherwise derivatives.
+ *
+ * @param i Order of the derivative
  */
-TEST_F(AkimaSplineTest, D1Test)
-{
-  // Akima1DInterpolator computed values
-  constexpr std::array exp = {2.95, 1., -2.825, 1.};
-  // fill values and compare
-  std::vector<double> act(vs_.size());
-  std::transform(vs_.begin(), vs_.end(), act.begin(), f_.d());
-  EXPECT_THAT(act, ::testing::Pointwise(::testing::DoubleEq(), exp));
-}
+#define PDMATH_AKIMA_SPLINE_TEST(i) \
+  /* note: cannot use macro expansion in TYPED_TEST() */ \
+  TYPED_TEST(AkimaSplineTest, F ## i ## Test) \
+  { \
+      this->template test<i>(); \
+  } \
+  /* enforce semicolon usage */ \
+  static_assert(true)
 
-/**
- * Test that spline second derivatives match SciPy values.
- */
-TEST_F(AkimaSplineTest, D2Test)
-{
-  // Akima1DInterpolator computed values
-  constexpr std::array exp = {-1.8, -2.4, -0.3, 3.};
-  // fill values and compare
-  std::vector<double> act(vs_.size());
-  // note: testing chaining of the d() member functions
-  std::transform(vs_.begin(), vs_.end(), act.begin(), f_.d().d());
-  // note: using DoubleEq() causes the test to fail because f_.d<2>()(3.5)
-  // computes a slightly different value of -0.3 that fails the ULP test
-  EXPECT_THAT(act, ::testing::Pointwise(::testing::FloatEq(), exp));
-}
+PDMATH_AKIMA_SPLINE_TEST(0);
+PDMATH_AKIMA_SPLINE_TEST(1);
+PDMATH_AKIMA_SPLINE_TEST(2);
+PDMATH_AKIMA_SPLINE_TEST(3);
+PDMATH_AKIMA_SPLINE_TEST(4);
 
-/**
- * Test that spline third derivatives match SciPy values.
- */
-TEST_F(AkimaSplineTest, D3Test)
-{
-  // Akima1DInterpolator computed values
-  constexpr std::array exp = {1.2, 0., 19.8, 0.};
-  // fill values and compare
-  std::vector<double> act(vs_.size());
-  std::transform(vs_.begin(), vs_.end(), act.begin(), f_.d<3>());
-  // note: using DoubleEq() causes the test to fail because f_.d<3>()(1.5)
-  // computes a slightly different value of 1.2 that fails the ULP test
-  EXPECT_THAT(act, ::testing::Pointwise(::testing::FloatEq(), exp));
-}
-
-/**
- * Test that spline thourth derivatives match SciPy values.
- */
-TEST_F(AkimaSplineTest, D4Test)
-{
-  // Akima1DInterpolator computed values
-  constexpr std::array exp = {0., 0., 0., 0.};
-  // fill values and compare
-  std::vector<double> act(vs_.size());
-  // note: testing chaining of the d() member functions
-  std::transform(vs_.begin(), vs_.end(), act.begin(), f_.d<2>().d<2>());
-  EXPECT_THAT(act, ::testing::Pointwise(::testing::DoubleEq(), exp));
-}
+#undef PDMATH_AKIMA_SPLINE_TEST
 
 }  // namespace
