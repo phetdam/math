@@ -6,6 +6,7 @@ link_libraries(GTest::Main)
 # pdmath_test: general unit test runner
 add_executable(
     pdmath_test
+        akima_spline_test.cc
         fibonacci_test.cc
         golden_search_test.cc
         helpers_test.cc
