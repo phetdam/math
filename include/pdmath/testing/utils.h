@@ -9,7 +9,10 @@
 #define PDMATH_TESTING_UTILS_H_
 
 #include <cassert>
+#include <cstddef>
+#include <tuple>
 #include <type_traits>
+#include <utility>
 
 #include <gmock/gmock.h>
 
@@ -270,6 +273,88 @@ protected:
   TYPED_TEST_SUITE(test, PDMATH_CONCAT(test, Types)); \
   PDMATH_TRAITS_TEST(test)
 #endif  // 0
+
+/**
+ * Template type index.
+ *
+ * This is used as an alternative to `std::integral_constant` or a single-
+ * element version of `std::index_sequence` for brevity in CTest output. The
+ * index value can be accessed via `value` or via the constexpr `operator()`.
+ *
+ * @tparam I Index value
+ */
+template <std::size_t I>
+struct index {
+  static constexpr auto value = I;
+  constexpr auto operator()() const noexcept { return I; }
+};
+
+/**
+ * Construct `::testing::Types<...>` from the given type.
+ *
+ * For example, `T` can be a `std::index_sequence<Is...>`, with an appropriate
+ * partial specialization for `::testing::Types<index<Is>...>` as the type.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct test_types {};
+
+/**
+ * SFINAE helper to get the `::testing::Types<...>` from `test_types<T>`.
+ *
+ * @tparam T type
+ */
+template <typename T>
+using test_types_t = typename test_types<T>::type;
+
+/**
+ * Partial specialization for a `std::index_sequence<Is...>`.
+ *
+ * This is useful when instantiating each GoogleTest test template with
+ * `index<Is>` for indexing into an array or tuple of test inputs.
+ *
+ * @tparam Is Indices 0 through the size of the input range - 1
+ */
+template <std::size_t... Is>
+struct test_types<std::index_sequence<Is...>> {
+  using type = ::testing::Types<index<Is>...>;
+};
+
+/**
+ * SFINAE helper for the `::testing::Types<index<Is>...>` from a size.
+ *
+ * @tparam N Number of test inputs
+ */
+template <std::size_t N>
+using index_types = test_types_t<std::make_index_sequence<N>>;
+
+/**
+ * Traits type for `::testing::Types<index<Is>...>` from sized types.
+ *
+ * This is for ranges that have compile-time sizing or tuples.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct index_types_from {};
+
+/**
+ * SFINAE helper for `::testing::Types<index<Ts>...>` from sized types.
+ *
+ * @tparam T type
+ */
+template <typename T>
+using index_types_from_t = typename index_types_from<std::decay_t<T>>::type;
+
+/**
+ * Partial specialization for `std::tuple<...>`.
+ *
+ * @tparam Ts types
+ */
+template <typename... Ts>
+struct index_types_from<std::tuple<Ts...>>
+  : test_types<std::index_sequence_for<Ts...>> {};
 
 }  // namespace testing
 }  // namespace pdmath
