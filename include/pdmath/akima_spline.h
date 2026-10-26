@@ -13,8 +13,8 @@
 #include <limits>
 #include <stdexcept>
 #include <string>
-#include <vector>
 #include <type_traits>
+#include <vector>
 
 #include "pdmath/type_traits.h"
 
@@ -37,6 +37,21 @@ namespace pdmath {
 template <typename T, typename = constraint_t<std::is_floating_point_v<T>>>
 class akima_spline {
 private:
+  /**
+   * Empty tag type for ctor overload disambiguation.
+   *
+   * @note We define our own tag type to avoid including `<variant>`.
+   */
+  struct range_ctor_tag {};
+
+  /**
+   * Indicate that a type can be used as a ctor input range value type.
+   *
+   * @tparam U type
+   */
+  template <typename U>
+  static constexpr bool valid_type = std::is_convertible_v<U, T>;
+
   /**
    * Indicate that a range can be used as a ctor input.
    *
@@ -130,6 +145,24 @@ public:
   /**
    * Ctor.
    *
+   * Constructs from two initializer lists with convertible values.
+   *
+   * @param xs Knot points
+   * @param ys Knot values
+   */
+  template <typename T1, typename T2>
+  akima_spline(
+    std::initializer_list<T1> xs,
+    std::initializer_list<T2> ys,
+    constraint_t<valid_type<T1> && valid_type<T2>> = 0)
+    : akima_spline{xs, ys, range_ctor_tag{}}
+  {}
+
+  /**
+   * Ctor.
+   *
+   * Constructs from two ranges of the same length with convertible values.
+   *
    * @param xs Knot points
    * @param ys Knot values
    */
@@ -137,6 +170,7 @@ public:
   akima_spline(
     R1&& xs,
     R2&& ys,
+    range_ctor_tag = {},
     constraint_t<valid_range<R1> && valid_range<R2>> = 0)
   {
     // need at least 4 knot points
@@ -244,6 +278,20 @@ template <typename R1, typename R2>
 akima_spline(R1&&, R2&&) -> akima_spline<
   std::common_type_t<range_value_t<R1>, range_value_t<R2>>
 >;
+
+/**
+ * User-defined deduction guide for the `akima_spline`.
+ *
+ * This deduces the template parameter to the wider of the initializer list
+ * value types and is provided separately due to template deduction rules.
+ *
+ * @tparam T1 Floating-point type
+ * @tparam T2 Floating-point type
+ */
+template <typename T1, typename T2>
+akima_spline(
+  std::initializer_list<T1>,
+  std::initializer_list<T2>) -> akima_spline<std::common_type_t<T1, T2>>;
 
 }  // namespace pdmath
 
