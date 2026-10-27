@@ -195,7 +195,7 @@ PDMATH_MSVC_WARNINGS_POP()
     ()
     // bottom renderer with normal CDF plots
     .renderer()
-      .viewport({0., 1.}, {0., 0.5})   // render on top half of window
+      .viewport({0., 1.}, {0., 0.5})   // render on bottom half of window
       .color(nc("Lavender"_3d), 0.5)   // 0 by default for transparency
       .add<vtkContextActor>()
         .scene()
