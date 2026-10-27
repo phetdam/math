@@ -168,6 +168,14 @@ else()
     message(STATUS "Doxygen version: None")
 endif()
 
+# find GCC's libquadmath library (for fpi program)
+find_package(quadmath)
+if(quadmath_FOUND)
+    message(STATUS "quadmath version: ${quadmath_VERSION}")
+else()
+    message(STATUS "quadmath version: None")
+endif()
+
 # find X11
 find_package(X11)
 if(X11_FOUND)
@@ -285,22 +293,6 @@ if(VTK_FOUND)
         # dummy target
         add_custom_target(pdmath_vtk_dlls)
     endif()
-endif()
-
-# find the Linux NUMA support library
-find_package(numa)
-if(numa_FOUND)
-    message(STATUS "numa version: ${numa_VERSION}")
-else()
-    message(STATUS "numa version: None")
-endif()
-
-# find GCC's libquadmath library (for fpi program)
-find_package(quadmath)
-if(quadmath_FOUND)
-    message(STATUS "quadmath version: ${quadmath_VERSION}")
-else()
-    message(STATUS "quadmath version: None")
 endif()
 
 # IMPORTED INTERFACE library for cpu_info.h for try_run below
