@@ -210,3 +210,25 @@ set_tests_properties(
     qmc_pi_grid_n4_mmt32_bad_seed PROPERTIES
     PASS_REGULAR_EXPRESSION "conversion failed"
 )
+
+# vtk_akima_plot: plot Akima spline interpolations using the same input data as
+# on the MATLAB page https://www.mathworks.com/help/matlab/ref/makima.html
+if(VTK_FOUND)
+    add_executable(vtk_akima_plot vtk_akima_plot.cc)
+    target_link_libraries(vtk_akima_plot PRIVATE ${VTK_LIBRARIES} pdmath)
+    vtk_module_autoinit(TARGETS vtk_akima_plot MODULES ${VTK_LIBRARIES})
+    add_dependencies(vtk_qmc_pi_grid pdmath_vtk_dlls)
+    # note: see above. skip if using GLX and no X server is available
+    add_test(
+        NAME vtk_akima_plot
+        COMMAND ${CMAKE_COMMAND} -E env $<TARGET_FILE:vtk_akima_plot>
+    )
+    if(X11_FOUND)
+        set_tests_properties(
+            vtk_akima_plot PROPERTIES
+            SKIP_REGULAR_EXPRESSION "bad X server"
+        )
+    endif()
+else()
+    message(STATUS "Skipping vtk_akima_plot (requires VTK)")
+endif()
