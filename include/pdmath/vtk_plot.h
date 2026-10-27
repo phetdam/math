@@ -35,8 +35,6 @@ template <int V, typename T = void>
 class vtk_plot : public vtk_skeleton<vtk_plot<V, T>, vtkPlot, T> {
 public:
   PDMATH_USING_VTK_SKELETON(vtk_plot<V, T>, vtkPlot, T);
-  // plot type from the vtkChart plot type constants, e.g. vtkChart::LINE
-  static constexpr auto type = V;
 
   /**
    * Return the RGB plotting color.
