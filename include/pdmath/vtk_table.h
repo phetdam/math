@@ -213,6 +213,49 @@ public:
   }
 
   /**
+   * Append a new row to the table containing the given values.
+   *
+   * This is a convenience method that allows building a `vtk_table` row-by-row
+   * without needing to first set the size before initializing. For example:
+   *
+   * @code{.cc}
+   * auto pp_data = pdmath::vtk_table{}
+   *   .column<vtkFloatArray>("x")
+   *   .column<vtkFloatArray>("y")
+   *   .row({-5.f, 1.f})
+   *   .row({-4.f, 1.f})
+   *   .row({-3.f, 1.f})
+   *   .row({-2.f, 0.f})
+   *   .row({-1.f, 0.f})
+   *   .row({0.f, 1.f})
+   *   .row({1.f, 1.f})
+   *   .row({2.f, 2.f})
+   *   .row({3.f, 2.f})
+   *   .row({4.f, 2.f})
+   *   .row({5.f, 2.f})
+   *   ();
+   * @endcode
+   *
+   * Although less performant than allocating and then initializing using this
+   * member function enables simpler setup of tabular data.
+   *
+   * @param vals Values to set row with
+   */
+  auto& row(std::initializer_list<vtkVariant> vals)
+  {
+    // safety check
+    assert(vals.size() == columns());
+    // add new row + get row index
+    auto i = object()->InsertNextBlankRow();
+    // set the row values from the initializer list + return
+    // note: initializer_list has no operator() so we dereference the iterator
+    auto it = vals.begin();
+    for (auto j = 0; j < vals.size(); j++)
+      object()->SetValue(i, j, it[j]);
+    return *this;
+  }
+
+  /**
    * Fill the table rows using the provided invocable.
    *
    * This should be called after `rows(vtkIdType)` is called. `f` takes the row
