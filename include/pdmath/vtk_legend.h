@@ -69,7 +69,7 @@ public:
    * If the alignment value is only for horizontal alignment then only the
    * horizontal alignment is updated and the same is true for vertical
    * alignment. However, if the alignment is `vtkChartLegend::CENTER` or
-   * `vtkChartLegend::CUSTOM`, values which apply for both horitzontal and
+   * `vtkChartLegend::CUSTOM`, values which apply for both horizontal and
    * vertical alignment, both horizontal and vertical alignment are updated.
    *
    * @tparam v Horizontal or vertical alignment value
