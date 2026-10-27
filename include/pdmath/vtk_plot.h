@@ -116,6 +116,37 @@ public:
   }
 
   /**
+   * Return the line type used by the plot's `vtkPen`.
+   */
+  auto line() const
+  {
+    return object()->GetPen()->GetLineType();
+  }
+
+  /**
+   * Update the line type used by the plot's `vtkPen`.
+   *
+   * @param type Line type, e.g. `vtkPen::SOLID_LINE`, `vtkPen::DASH_LINE`
+   */
+  auto& line(int type)
+  {
+    object()->GetPen()->SetLineType(type);
+    return *this;
+  }
+
+  /**
+   * Return the marker style used by the plot.
+   *
+   * This member function is conditionally available for point/line plots.
+   */
+  template <constraint_t<vtkChart::POINTS == V || vtkChart::LINE == V> = 0>
+  auto marker() const
+  {
+    // vtkPlotLine inherits vtkPlotPoints so casting to base is enough
+    return dynamic_cast<vtkPlotPoints*>(object())->GetMarkerStyle();
+  }
+
+  /**
    * Update the marker style used by the plot.
    *
    * This member function is conditionally available for point/line plots.
