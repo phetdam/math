@@ -10,6 +10,87 @@ endif()
 # simple smoke test
 add_test(NAME fpi COMMAND fpi)
 
+##
+# Add a CTest test for a VTK application.
+#
+# This is the same as add_test() except for the fact that the first argument of
+# the test command-line is wrapped in a cmake -E env call to handle aborts. In
+# particular, when VTK is using the vtkXOpenGLRenderWindow as the concrete type
+# for its vtkRenderWindow, if there is no X server running, VTK will log an
+# error saying that the X server connection is bad and then abort. We modify
+# SKIP_REGULAR_EXPRESSION appropriately to handle this case, relying on if X11
+# has been located via find_package(). The reason we do this is because there
+# it is hard to directly determine what rendering implementation VTK will use.
+# Although we know that typically vtkXOpenGLRenderWindow is the default on
+# Linux, due to VTK's auto-init system, it's hard to automatically probe this
+# using try_run() since we can't use the auto-init with try_run().
+#
+# Also note that only VTK applications that render offscreen should be added as
+# tests; ones that require interaction and thus block the main thread because
+# the GUI event loop is running are obviously unsuitable for batch testing.
+#
+# Arguments:
+#
+#   [name_and_cmd]              Test name and test command-line. If specified,
+#                               NAME and COMMAND cannot be specified.
+#
+#   [NAME name]                 Test name. If specified, name_and_cmd cannot be
+#                               specified and COMMAND is required.
+#
+#   [COMMAND cmd [args...]]     Test command-line. If specified, name_and_cmd
+#                               cannot be specified and NAME is required.
+#
+function(pdmath_add_vtk_test)
+    # parse arguments
+    cmake_parse_arguments(ARG "" "NAME" "COMMAND" ${ARGN})
+    # check unparsed arguments for name_and_cmd
+    if(ARG_UNPARSED_ARGUMENTS)
+        # if length is not 1 this is an invalid call signature
+        list(LENGTH ARG_UNPARSED_ARGUMENTS n_unparsed)
+        if(NOT n_unparsed EQUAL 1)
+            message(FATAL_ERROR "Only one positional argument allowed")
+        endif()
+        # cannot specify with NAME or COMMAND together
+        if(ARG_NAME)
+            message(FATAL_ERROR "Cannot specify NAME with name_and_cmd")
+        endif()
+        if(ARG_COMMAND)
+            message(FATAL_ERROR "Cannot specify COMMAND with name_and_cmd")
+        endif()
+        # update NAME and COMMAND with name_and_cmd
+        set(ARG_NAME ${ARG_UNPARSED_ARGUMENTS})
+        set(ARG_COMMAND ${ARG_UNPARSED_ARGUMENTS})
+    # otherwise NAME, COMMAND required
+    else()
+        if(NOT ARG_NAME)
+            message(FATAL_ERROR "NAME argument required")
+        endif()
+        if(NOT ARG_COMMAND)
+            message(FATAL_ERROR "COMMAND argument required")
+        endif()
+    endif()
+    # pop first element of command
+    list(POP_FRONT ARG_COMMAND test_exe)
+    # if a target, wrap in a TARGET_FILE generator expression, then update list
+    if(TARGET ${test_exe})
+        set(test_exe "$<TARGET_FILE:${test_exe}>")
+    endif()
+    list(PREPEND ARG_COMMAND "${test_exe}")
+    # add test
+    # note: VTK will hard abort if there is no display so we use the suggested
+    # method of using cmake -E env to run the VTK program
+    add_test(NAME ${ARG_NAME} COMMAND ${CMAKE_COMMAND} -E env ${ARG_COMMAND})
+    # if using X Windows, the VTK render Window should be using GLX, so if we
+    # see this message (no X server) we should skip the test
+    find_package(X11 QUIET)
+    if(X11_FOUND)
+        set_tests_properties(
+            ${ARG_NAME} PROPERTIES
+            SKIP_REGULAR_EXPRESSION "bad X server"
+        )
+    endif()
+endfunction()
+
 # vtk_normal_plot: plot multiple normal PDFs and CDFs with VTK
 if(VTK_FOUND)
     add_executable(vtk_normal_plot vtk_normal_plot.cc)
@@ -18,20 +99,7 @@ if(VTK_FOUND)
     vtk_module_autoinit(TARGETS vtk_normal_plot MODULES ${VTK_LIBRARIES})
     add_dependencies(vtk_normal_plot pdmath_vtk_dlls)
     # note: can add as test since we render offscreen
-    # note: VTK will hard abort if there is no display so we use the suggested
-    # method of using cmake -E env to run the VTK program
-    add_test(
-        NAME vtk_normal_plot
-        COMMAND ${CMAKE_COMMAND} -E env $<TARGET_FILE:vtk_normal_plot>
-    )
-    # if using X Windows, the VTK render Window should be using GLX, so if we
-    # see this message (no X server) we should skip the test
-    if(X11_FOUND)
-        set_tests_properties(
-            vtk_normal_plot PROPERTIES
-            SKIP_REGULAR_EXPRESSION "bad X server"
-        )
-    endif()
+    pdmath_add_vtk_test(vtk_normal_plot)
 else()
     message(STATUS "Skipping vtk_normal_plot (requires VTK)")
 endif()
@@ -62,17 +130,8 @@ if(VTK_FOUND)
     target_link_libraries(vtk_trig_plot PRIVATE ${VTK_LIBRARIES} pdmath)
     vtk_module_autoinit(TARGETS vtk_trig_plot MODULES ${VTK_LIBRARIES})
     add_dependencies(vtk_trig_plot pdmath_vtk_dlls)
-    # note: see above. skip if using GLX and no X server is available
-    add_test(
-        NAME vtk_trig_plot
-        COMMAND ${CMAKE_COMMAND} -E env $<TARGET_FILE:vtk_trig_plot>
-    )
-    if(X11_FOUND)
-        set_tests_properties(
-            vtk_trig_plot PROPERTIES
-            SKIP_REGULAR_EXPRESSION "bad X server"
-        )
-    endif()
+    # note: can add as test since we render offscreen
+    pdmath_add_vtk_test(vtk_trig_plot)
 else()
     message(STATUS "Skipping vtk_trig_plot (requires VTK)")
 endif()
@@ -83,17 +142,8 @@ if(VTK_FOUND)
     target_link_libraries(vtk_qmc_pi PRIVATE ${VTK_LIBRARIES} pdmath)
     vtk_module_autoinit(TARGETS vtk_qmc_pi MODULES ${VTK_LIBRARIES})
     add_dependencies(vtk_qmc_pi pdmath_vtk_dlls)
-    # note: see above. skip if using GLX and no X server is available
-    add_test(
-        NAME vtk_qmc_pi
-        COMMAND ${CMAKE_COMMAND} -E env $<TARGET_FILE:vtk_qmc_pi>
-    )
-    if(X11_FOUND)
-        set_tests_properties(
-            vtk_qmc_pi PROPERTIES
-            SKIP_REGULAR_EXPRESSION "bad X server"
-        )
-    endif()
+    # note: can add as test since we render offscreen
+    pdmath_add_vtk_test(vtk_qmc_pi)
 else()
     message(STATUS "Skipping vtk_qmc_cpi (requires VTK)")
 endif()
@@ -117,17 +167,8 @@ if(VTK_FOUND)
     target_link_libraries(vtk_qmc_pi_grid PRIVATE ${VTK_LIBRARIES} pdmath)
     vtk_module_autoinit(TARGETS vtk_qmc_pi_grid MODULES ${VTK_LIBRARIES})
     add_dependencies(vtk_qmc_pi_grid pdmath_vtk_dlls)
-    # note: see above. skip if using GLX and no X server is available
-    add_test(
-        NAME vtk_qmc_pi_grid
-        COMMAND ${CMAKE_COMMAND} -E env $<TARGET_FILE:vtk_qmc_pi_grid>
-    )
-    if(X11_FOUND)
-        set_tests_properties(
-            vtk_qmc_pi_grid PROPERTIES
-            SKIP_REGULAR_EXPRESSION "bad X server"
-        )
-    endif()
+    # note: can add as test since we render offscreen
+    pdmath_add_vtk_test(vtk_qmc_pi_grid)
 else()
     message(STATUS "Skipping vtk_qmc_pi_grid (requires VTK)")
 endif()
@@ -218,17 +259,8 @@ if(VTK_FOUND)
     target_link_libraries(vtk_akima_plot PRIVATE ${VTK_LIBRARIES} pdmath)
     vtk_module_autoinit(TARGETS vtk_akima_plot MODULES ${VTK_LIBRARIES})
     add_dependencies(vtk_qmc_pi_grid pdmath_vtk_dlls)
-    # note: see above. skip if using GLX and no X server is available
-    add_test(
-        NAME vtk_akima_plot
-        COMMAND ${CMAKE_COMMAND} -E env $<TARGET_FILE:vtk_akima_plot>
-    )
-    if(X11_FOUND)
-        set_tests_properties(
-            vtk_akima_plot PROPERTIES
-            SKIP_REGULAR_EXPRESSION "bad X server"
-        )
-    endif()
+    # note: can add as test since we render offscreen
+    pdmath_add_vtk_test(vtk_akima_plot)
 else()
     message(STATUS "Skipping vtk_akima_plot (requires VTK)")
 endif()
