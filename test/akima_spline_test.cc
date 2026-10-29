@@ -67,6 +67,20 @@ public:
       {1.5, 4.5, -1., -2., 0.2, 3.4, 2.3}
     };
   }
+
+  /**
+   * Return an Akima spline over the MATLAB example piecewise polynomial.
+   *
+   * Knot data is from https://www.mathworks.com/help/matlab/ref/makima.html.
+   */
+  static auto spline_3()
+  {
+    // note: initializer lists need not have floating-point value types
+    return pdmath::akima_spline{
+      {-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5},
+      {1., 1., 1., 0., 0., 1., 1., 2., 2., 2., 2.}
+    };
+  }
 };
 
 // note: MSVC emits C5246 in C++17 mode due to old interpretation of std::array
@@ -143,6 +157,25 @@ constexpr auto akima_spline_test_inputs = std::make_tuple(
         -0.9309090909090916, -8.307924528301884, 8.032075471698118
       },
       std::array{0., 0., 0., 0., 0., 0.}
+    }
+  },
+  // piecewise polynomial interpolation using the knots points and data from
+  // https://www.mathworks.com/help/matlab/ref/makima.html
+  std::tuple{
+    &AkimaSplineTest<>::spline_3,
+    std::array{-4.5, -3.5, -2.5, -1.5, -0.5, 0.4, 1.4, 2.4, 3.4, 4.4},
+    std::tuple{
+      std::array{1., 1., 0.5625, -0.125, 0.5, 1.024, 1.424, 2.,  2., 2.},
+      std::array{
+        0., 0., -1.375, 0., 1.25,
+        -0.22000000000000008, 1.38, 0., 0., 0.
+      },
+      std::array{
+        0., 0., -0.5, 1., 0.,
+        -0.5999999999999996, 0.4000000000000008, 0., 0., 0.
+      },
+      std::array{0., 0., 9., 0., -6., 6., -9., 0., 0., 0.},
+      std::array{0., 0., 0., 0., 0., 0., 0., 0., 0., 0.}
     }
   }
 );
