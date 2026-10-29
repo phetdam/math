@@ -372,9 +372,9 @@ template <typename T>
 struct range_value<
   T,
   std::enable_if_t<is_range_v<T>>,
-  std::void_t<iter_value_t<decltype(std::begin(std::declval<T>()))>>
+  std::void_t<iter_value_t<decltype(std::begin(std::declval<T&>()))>>
 > {
-  using type = iter_value_t<decltype(std::begin(std::declval<T>()))>;
+  using type = iter_value_t<decltype(std::begin(std::declval<T&>()))>;
 };
 
 /**
