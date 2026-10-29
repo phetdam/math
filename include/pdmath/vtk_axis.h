@@ -29,6 +29,38 @@ public:
   PDMATH_USING_VTK_SKELETON(vtk_axis<T>, vtkAxis, T);
 
   /**
+   * Class representing a real interval.
+   *
+   * This is used to represent the minimum and maximum of an axis.
+   */
+  class interval {
+  public:
+    /**
+     * Ctor.
+     *
+     * @param lower Lower endpoint
+     * @param upper Upper endpoint
+     */
+    interval(double lower, double upper) noexcept
+      : lower_{lower}, upper_{upper}
+    {}
+
+    /**
+     * Return the lower endpoint.
+     */
+    auto lower() const noexcept { return lower_; }
+
+    /**
+     * Return the upper endpoint.
+     */
+    auto upper() const noexcept { return upper_; }
+
+  private:
+    double lower_;
+    double upper_;
+  };
+
+  /**
    * Get the RGBA axis grid color object.
    */
   auto grid_color() const
@@ -174,6 +206,120 @@ public:
   {
     object()->SetNumberOfTicks(n);
     return *this;
+  }
+
+  /**
+   * Set the logical minimum value of the axis in plot coordinates.
+   *
+   * @note To render with the set range remember to also call `fixed()`.
+   *
+   * @param lo Minimum axis value
+   */
+  auto& lower(double lo)
+  {
+    object()->SetMinimum(lo);
+    return *this;
+  }
+
+  /**
+   * Return the logical minimum value of the axis in plot coordinates.
+   */
+  auto lower() const
+  {
+    return object()->GetMinimum();
+  }
+
+  /**
+   * Set the logical maximum value of the axis in plot coordinates.
+   *
+   * @note To render with the set range remember to also call `fixed()`.
+   *
+   * @param hi Maximum axis value
+   */
+  auto& upper(double hi)
+  {
+    object()->SetMaximum(hi);
+    return *this;
+  }
+
+  /**
+   * Return the logical maximum value of the axis in plot coordinates.
+   */
+  auto upper() const
+  {
+    return object()->GetMaximum();
+  }
+
+  /**
+   * Set the axis behavior.
+   *
+   * By default, the axis auto-scales, so calling `lower()`, `upper()`, or
+   * `range()` will not have any effect. Ensure that this member is called with
+   * `vtkAxis::FIXED` before rendering so the axis limits are respected.
+   *
+   * @param kind Axis behavior, e.g. `vtkAxis::FIXED` or `vtkAxis::AUTO`
+   */
+  auto& behavior(int kind)
+  {
+    object()->SetBehavior(kind);
+    return *this;
+  }
+
+  /**
+   * Return the axis behavior.
+   */
+  auto behavior() const
+  {
+    return object()->GetBehavior();
+  }
+
+  /**
+   * Set the logical range of the axis in plot coordinates.
+   *
+   * @note To render with the set range remember to also call `fixed()` or use
+   *  the overload of `fixed()` that also calls `range()`.
+   *
+   * @param lo Minimum axis value
+   * @param hi Maximum axis value
+   */
+  auto& range(double lo, double hi)
+  {
+    object()->SetRange(lo, hi);
+    return *this;
+  }
+
+  /**
+   * Return the logical range of the axis in plot coordinates.
+   */
+  auto range() const
+  {
+    double bounds[2];
+    object()->GetRange(bounds);
+    return interval{bounds[0], bounds[1]};
+  }
+
+  /**
+   * Set the axis behavior as fixed.
+   *
+   * A fixed axis respects custom minimum and maximum axis values.
+   */
+  auto& fixed()
+  {
+    return behavior(vtkAxis::FIXED);
+  }
+
+  /**
+   * Set the axis behavior as fixed and set the axis range.
+   *
+   * This ensures that the fixed axis range is rendered correctly.
+   *
+   * @param lo Minimum axis value
+   * @param hi Maximum axis value
+   */
+  auto& fixed(double lo, double hi)
+  {
+    fixed();
+    return range(lo, hi);
   }
 
   /**
