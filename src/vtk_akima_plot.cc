@@ -380,7 +380,7 @@ PDMATH_MSVC_WARNINGS_POP()
   // x + y dimension of each plot
   constexpr auto x_dim = 640u;
   constexpr auto y_dim = 480u;
-  // create VTK rendering window that writes to framebuffer instead of scren
+  // create VTK rendering window that writes to framebuffer instead of screen
   auto win = pdmath::vtk_window{}
     .name("Akima splines")
     .size(2 * x_dim, 2 * y_dim)
