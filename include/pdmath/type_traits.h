@@ -327,10 +327,74 @@ template <typename T>
 constexpr bool is_legacy_iterator_v = is_legacy_iterator<T>::value;
 
 /**
+ * Traits type for the reference type of an iterator-like type.
+ *
+ * This can be used for non-iterator types as well as the minimum requirement
+ * is that `is_indirectly_readable_v<T>` is `true`.
+ *
+ * @tparam T type
+ */
+template <typename T, typename = void>
+struct iter_reference {};
+
+/**
+ * True specialization for an iterator-like type.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct iter_reference<T, std::enable_if_t<is_indirectly_readable_v<T>> > {
+  using type = decltype(*std::declval<T>());
+};
+
+/**
+ * SFINAE helper for the reference type of an iterator-like type.
+ *
+ * @note `iter_reference_t<T>` need *not* be a reference type. For example,
+ *  some constructs implement `operator*()` that returns a value type.
+ *
+ * @tparam T type
+ */
+template <typename T>
+using iter_reference_t = typename iter_reference<T>::type;
+
+/**
+ * Traits type for the reference type of a range-like type.
+ *
+ * @tparam T type
+ */
+template <typename T, typename = void, typename = void>
+struct range_reference {};
+
+/**
+ * True specialization for a range-like type.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct range_reference<
+  T,
+  std::enable_if_t<is_range_v<T>>,
+  std::void_t<iter_reference_t<decltype(std::begin(std::declval<T&>()))>>
+> {
+  using type = iter_reference_t<decltype(std::begin(std::declval<T&>()))>;
+};
+
+/**
+ * SFINAE helper for the reference type of a range-like type.
+ *
+ * @note `range_reference_t<T>` need *not* be a reference type.
+ *
+ * @tparam T type
+ */
+template <typename T>
+using range_reference_t = typename range_reference<T>::type;
+
+/**
  * Traits type for the value type of an iterator-like type.
  *
  * This can be used for non-iterator types as well as the minimum requirement
- * is that `is_indirectly_readable<T>::value` is `true`.
+ * is that `is_indirectly_readable_v<T>` is `true`.
  *
  * @tparam T type
  */
@@ -378,7 +442,7 @@ struct range_value<
 };
 
 /**
- * SFINAE helper for the value type of an range-like type.
+ * SFINAE helper for the value type of a range-like type.
  *
  * @tparam T type
  */
