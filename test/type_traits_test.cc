@@ -23,6 +23,7 @@
 #include <Eigen/Core>
 #include <gtest/gtest.h>
 
+#include "pdmath/common.h"
 #include "pdmath/fibonacci.h"
 #include "pdmath/types.h"
 #include "pdmath/testing/utils.h"
@@ -344,6 +345,60 @@ TYPED_TEST_SUITE(IsEqualityComparableTest, IsEqualityComparableTestTypes);
 
 // define is_equality_comparable test
 PDMATH_TRAITS_TEST(IsEqualityComparableTest);
+
+/**
+ * Helper traits to apply `is_equality_comparable_with<T, U>` to a type pair.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct is_equality_comparable_with {};
+
+/**
+ * Partial specialization for the `type_pair_wrapper<T, U>`.
+ *
+ * @tparam T First type
+ * @tparam U Second type
+ */
+template <typename T, typename U>
+struct is_equality_comparable_with<pdmath::testing::type_pair_wrapper<T, U>>
+  : pdmath::is_equality_comparable_with<T, U> {};
+
+/**
+ * Test fixture template for testing `is_equality_comparable_with`.
+ *
+ * @tparam T `type_value_pair` specialization
+ */
+template <typename T>
+class IsEqualityComparableWithTest
+  : public pdmath::testing::traits_test<is_equality_comparable_with, T> {};
+
+/**
+ * Template type alias for a `type_value_pair<type_pair_wrapper<T, U>, bool>`.
+ *
+ * @tparam T First type
+ * @tparam U Second type
+ * @tparam B Boolean value
+ */
+template <typename T, typename U, bool B>
+using type_pair_case = pdmath::testing::type_value_pair<
+  pdmath::testing::type_pair_wrapper<T, U>, B
+>;
+
+TYPED_TEST_SUITE(
+  IsEqualityComparableWithTest,
+  PDMATH_IDENTITY(
+    ::testing::Types<
+      type_pair_case<int, double, true>,
+      type_pair_case<int, std::string, false>,
+      type_pair_case<std::mutex, int, false>,
+      type_pair_case<std::string, const std::string&, true>,
+      type_pair_case<float, double, true>,
+      type_pair_case<void*, void*, true>,
+      type_pair_case<char, std::variant<int, double>, false>
+    >
+  )
+);
 
 /**
  * Test fixture template for testing `is_inequality_comparable`.

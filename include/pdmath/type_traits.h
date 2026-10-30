@@ -416,6 +416,40 @@ template <typename T>
 constexpr bool is_equality_comparable_v = is_equality_comparable<T>::value;
 
 /**
+ * Traits type for testing that two types are equality-comparable.
+ *
+ * @tparam T First type
+ * @tparam U Second type
+ */
+template <typename T, typename U, typename = void>
+struct is_equality_comparable_with : std::false_type {};
+
+/**
+ * True specialization for two types that are equality-comparable.
+ *
+ * @tparam T First type
+ * @tparam U Second type
+ */
+template <typename T, typename U>
+struct is_equality_comparable_with<
+  T,
+  U,
+  std::enable_if_t<
+    std::is_convertible_v<
+      decltype(std::declval<T>() == std::declval<U>()), bool>> >
+  : std::true_type {};
+
+/**
+ * Indicate that two types are equality-comparable.
+ *
+ * @tparam T First type
+ * @tparam U Second type
+ */
+template <typename T, typename U>
+constexpr bool
+is_equality_comparable_with_v = is_equality_comparable_with<T, U>::value;
+
+/**
  * Traits type for a type that is inequality comparable.
  *
  * This simply tests that `a != b` is convertible to `bool`.
