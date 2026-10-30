@@ -54,6 +54,12 @@ private:
   static constexpr bool is_value_addressable_v = is_value_addressable<I>::value;
 
 public:
+  // note: type members are for compatibility with GoogleMock 1.11.0 which uses
+  // value_type and const_iterator when using EXPECT_THAT() with containers
+  using value_type = T;
+  using iterator = T*;
+  using const_iterator = T*;
+
   /**
    * Default ctor.
    *

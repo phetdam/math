@@ -13,6 +13,7 @@
 #include <utility>
 #include <vector>
 
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "pdmath/testing/utils.h"
@@ -76,7 +77,7 @@ protected:
   static_assert(I < std::tuple_size_v<decltype(span_init_test_inputs)>);
 
   /**
-   * Check that the initialized span has the correct value type + size.
+   * Check that the initialized span has the correct referenced type + values.
    */
   void operator()() const
   {
@@ -86,7 +87,7 @@ protected:
     // note: need decltype(auto) to ensure prvalues are values, not references
     decltype(auto) v = make_v();
     auto s = make_s(v);
-    // check type
+    // check referenced sequence type
     EXPECT_TRUE(
       (
         std::is_same_v<
@@ -95,8 +96,8 @@ protected:
         >
       )
     );
-    // check size
-    EXPECT_EQ(std::size(v), std::size(s));
+    // check values
+    EXPECT_THAT(s, ::testing::Pointwise(::testing::Eq(), v));
   }
 };
 
