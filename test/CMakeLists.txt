@@ -16,6 +16,7 @@ add_executable(
         program_banner_test.cc
         norms_test.cc
         simd_test.cc
+        span_test.cc
         type_traits_test.cc
 )
 # TODO: need build-time CPU feature detection so we can determine what the
