@@ -16,6 +16,31 @@
 
 namespace pdmath {
 
+// forward decl for traits
+template <typename T>
+class span;
+
+// TODO: not yet sure if is_span<T> should be exposed in top-level namespace
+namespace detail {
+
+/**
+ * Traits to check if the type is a `span<T>`.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct is_span : std::false_type {};
+
+/**
+ * True specialization for `span<T>`.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct is_span<span<T>> : std::true_type {};
+
+}  // namespace detail
+
 /**
  * Class representing a view over a contiguous buffer.
  *
@@ -53,6 +78,43 @@ private:
   template <typename I>
   static constexpr bool is_value_addressable_v = is_value_addressable<I>::value;
 
+  /**
+   * Traits indicating a reference type is compatible with `T`.
+   *
+   * The value type must either be `T` or `T` without `const`, or in the case of
+   * pointers, be a pointer with or without the const-qualification of `T`.
+   *
+   * @tparam U type
+   */
+  template <typename U, typename = void>
+  struct is_compatible_reference : std::false_type {};
+
+  /**
+   * True specialization for a reference type compatible with `T`.
+   *
+   * @tparam U type
+   */
+  template <typename U>
+  struct is_compatible_reference<
+    U,
+    std::enable_if_t<
+      std::is_same_v<T, std::remove_reference_t<U>> ||
+      std::is_same_v<std::remove_const_t<T>, std::remove_reference_t<U>> ||
+      std::is_same_v<
+        std::remove_const_t<std::remove_pointer_t<T>>,
+        std::remove_pointer_t<std::remove_reference_t<U>>
+      >
+    > > : std::true_type {};
+
+  /**
+   * Indicate that a reference type is compatible with `T`.
+   *
+   * @tparam U type
+   */
+  template <typename U>
+  static constexpr bool
+  is_compatible_reference_v = is_compatible_reference<U>::value;
+
 public:
   // note: type members are for compatibility with GoogleMock 1.11.0 which uses
   // value_type and const_iterator when using EXPECT_THAT() with containers
@@ -79,7 +141,9 @@ public:
   constexpr span(
     I it,
     std::size_t size,
-    constraint_t<is_value_addressable_v<I>> = 0) noexcept
+    constraint_t<
+      is_value_addressable_v<I> &&
+      is_compatible_reference_v<iter_reference_t<I>> > = 0)
     : data_{&*it}, size_{size}
   {}
 
@@ -99,7 +163,8 @@ public:
     constraint_t<
       is_legacy_iterator_v<I1> &&
       is_value_addressable_v<I1> &&
-      is_equality_comparable_with_v<I1, I2> > = 0) noexcept
+      is_compatible_reference_v<iter_reference_t<I1>> &&
+      is_equality_comparable_with_v<I1, I2> > = 0)
     : data_{&*it}, size_{}
   {
     // if end - it is supported use that to compute size
@@ -108,11 +173,45 @@ public:
     // otherwise advance it until end to compute size_
     else {
       while (!(it == end)) {
-        it++;
+        ++it;
         size_++;
       }
     }
   }
+
+  /**
+   * Ctor.
+   *
+   * Construct from a range that is not another span.
+   *
+   * @tparam R Range type
+   *
+   * @param r Range object
+   */
+  template <typename R>
+  constexpr span(
+    R&& r,
+    constraint_t<
+      !detail::is_span<R>::value &&
+      is_range_v<R> &&
+      is_compatible_reference_v<range_reference_t<R>> > = 0)
+    : span{std::begin(r), std::end(r)}
+  {}
+
+  /**
+   * Ctor.
+   *
+   * Construct from a reference to a C array.
+   *
+   * @note Unlike `std::span` we allow CTAD and don't require that the array's
+   *  value type be in a non-deduced context as `span<T>` has no fixed size.
+   *
+   * @tparam N Number of elements in array
+   *
+   * @param ar Array
+   */
+  template <std::size_t N>
+  constexpr span(T (&ar)[N]) noexcept : span{&*ar, N} {}
 
   /**
    * Ctor.
@@ -189,6 +288,16 @@ span(I, std::size_t) -> span<std::remove_reference_t<iter_reference_t<I>>>;
  */
 template <typename I1, typename I2>
 span(I1, I2) -> span<std::remove_reference_t<iter_reference_t<I1>>>;
+
+/**
+ * User-defined deduction guide.
+ *
+ * This ensures that we deduce the correct value type from the range.
+ *
+ * @tparam R Range type
+ */
+template <typename R>
+span(R&&) -> span<std::remove_reference_t<range_reference_t<R>>>;
 
 }  // namespace pdmath
 

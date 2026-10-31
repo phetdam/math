@@ -67,6 +67,20 @@ constexpr auto span_init_test_inputs = std::tuple{
       return v;
     },
     [](auto& v) { return pdmath::span{std::begin(v), std::end(v)}; }
+  },
+  // init from vector directly
+  std::pair{
+    [] { return std::vector{2, 4, 6, 8, 10}; },
+    [](auto& v) { return pdmath::span{v}; }
+  },
+  // init from static array directly
+  std::pair{
+    []() -> auto&
+    {
+      static constexpr int v[] = {8, 7, 6, 5, 4, 3, 2, 1};
+      return v;
+    },
+    [](auto& v) { return pdmath::span{v}; }
   }
 };
 
@@ -168,7 +182,7 @@ constexpr auto span_transform_test_inputs = std::tuple{
     [] { return std::vector{9, 8, 7, 6, 5, 4}; },
     [](auto& v)
     {
-      pdmath::span s{v.begin(), v.end()};
+      pdmath::span s{v};
       for (auto& x : s)
         x--;
     },
@@ -184,7 +198,7 @@ PDMATH_MSVC_WARNINGS_DISABLE(5246)
     [] { return std::array{2., 4., 6., 8.}; },
     [](auto& v)
     {
-      pdmath::span s{v.begin(), v.end()};
+      pdmath::span s{v};
       for (auto i = 0u; i < s.size(); i++)
         s[i] /= 2;
     },
@@ -196,7 +210,7 @@ PDMATH_MSVC_WARNINGS_POP()
     [] { return std::vector{1u, 2u, 3u, 4u, 5u}; },
     [](auto& v)
     {
-      pdmath::span s{v.data(), v.size()};
+      pdmath::span s{v};
       auto it = s.begin();
       while (it != s.end())
         *it++ +=3u;
@@ -259,7 +273,17 @@ TYPED_TEST_SUITE(
         pdmath::always_false<
           std::is_constructible<pdmath::span<double>, void*, void*>
         >,
-        std::is_constructible<pdmath::span<const int*>, int*, int*>
+        std::is_constructible<pdmath::span<const int*>, int*, int*>,
+        std::is_constructible<pdmath::span<double>, std::vector<double>>,
+        std::is_constructible<pdmath::span<const int>, std::vector<int>>,
+        pdmath::always_false<
+          std::is_constructible<pdmath::span<int>, std::array<const int, 10>>
+        >,
+        std::is_constructible<pdmath::span<const int>, std::array<int, 10>>,
+        pdmath::always_false<
+          std::is_constructible<pdmath::span<int>, const int (&)[20]>
+        >,
+        std::is_constructible<pdmath::span<const int>, int (&)[20]>
       >,
       // span_transform_test
       pdmath::testing::indexed_types<
