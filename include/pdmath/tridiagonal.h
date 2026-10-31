@@ -8,6 +8,7 @@
 #ifndef PDMATH_TRIDIAGONAL_H_
 #define PDMATH_TRIDIAGONAL_H_
 
+#include <algorithm>
 #include <cstddef>
 #include <stdexcept>
 #include <string>
@@ -25,7 +26,7 @@ namespace pdmath {
  * This contains only 3 spans, one for each relevant diagonal, and can be used
  * in matrix-like operations as a space-efficient view.
  *
- * Attempting to set any elements not on the three diagonals is an error.
+ * Attempting to set any elements not on the three diagonals is UB.
  *
  * @tparam T Element type
  */
@@ -153,8 +154,91 @@ private:
   span<T> ld_;     // lower diagonal
   span<T> md_;     // main diagonal
   span<T> ud_;     // upper diagonal
-  mutable T d_{};  // default-initialized value
+  T d_{};          // default-initialized value
 };
+
+/**
+ * User-defined deduction guide.
+ *
+ * This ensures that the value type can be deduced from the input ranges.
+ *
+ * @tparam R1 First range type
+ * @tparam R2 Second range type
+ * @tparam R3 Third range type
+ */
+template <typename R1, typename R2, typename R3>
+tridiagonal_view(R1&&, R2&&, R3&&) ->
+tridiagonal_view<std::remove_reference_t<range_reference_t<R1>>>;
+
+/**
+ * Write the `tridiagonal_view<T>` to the output stream.
+ *
+ * This outputs the `tridiagonal_view<T>` in dense form for human display.
+ *
+ * @tparam T Element type
+ *
+ * @param out Output stream
+ * @param tri Tridiagonal matrix view
+ */
+template <typename T>
+auto& operator<<(std::ostream& out, const tridiagonal_view<T>& tri)
+{
+  // lower, main, upper diagonal views
+  auto ld = tri.ld();
+  auto md = tri.md();
+  auto ud = tri.ud();
+  // string representations of lower, main, upper diagonal elements
+  std::vector<std::string> ls(ld.size());
+  std::vector<std::string> ms(md.size());
+  std::vector<std::string> us(ud.size());
+  // column column display widths
+  std::vector<std::size_t> col_widths(tri.cols());
+  // compute string representations for diagonal elements
+  for (std::size_t i = 0u; i < ls.size(); i++)
+    ls[i] = std::to_string(ld[i]);
+  for (std::size_t i = 0u; i < ms.size(); i++)
+    ms[i] = std::to_string(md[i]);
+  for (std::size_t i = 0u; i < us.size(); i++)
+    us[i] = std::to_string(ud[i]);
+  // compute column widths
+  col_widths[0] = (std::max)(ls[0].size(), ms[0].size());
+  for (std::size_t i = 1u; i < tri.cols() - 1u; i++)
+    col_widths[i] = (std::max)({ls[i].size(), ms[i].size(), us[i].size()});
+  col_widths.back() = (std::max)(ms.back().size(), us.back().size());
+  // padding helper
+  auto pad = [&out](std::size_t n)
+  {
+    for (std::size_t i = 0u; i < n; i++)
+      out.put(' ');
+  };
+  // write values right-justified with appropriate padding
+  for (std::size_t i = 0u; i < tri.rows(); i++) {
+    for (std::size_t j = 0u; j < tri.cols(); j++) {
+      // lower diagonal
+      if (i == j + 1) {
+        pad(col_widths[j] - ls[j].size());
+        out << ls[j];
+      }
+      // main diagonal
+      else if (i == j) {
+        pad(col_widths[j] - ms[j].size());
+        out << ms[j];
+      }
+      // upper diagonal
+      else if (i + 1 == j) {
+        pad(col_widths[j] - us[i].size());
+        out << us[i];
+      }
+      // write a zero
+      else {
+        pad(col_widths[j] - 1u);
+        out << 0.;
+      }
+    }
+  }
+  // done
+  return out;
+}
 
 /**
  * Find the solution to the tridiagonal system of linear equations.
@@ -201,15 +285,15 @@ void solve(
   std::vector<V> ds{rhs.begin(), rhs.end()};
   // iterate upper diagonal coefficients
   cs[0] /= md[0];
-  for (auto i = 1u; i < n - 1; i++)
+  for (std::size_t i = 1u; i < n - 1; i++)
     cs[i] /= (md[i] - ld[i - 1] * cs[i - 1]);
   // iterate RHS coefficients
   ds[0] /= md[0];
-  for (auto i = 1u; i < n; i++)
+  for (std::size_t i = 1u; i < n; i++)
     ds[i] = (ds[i] - ld[i - 1] * ds[i - 1]) / (md[i] - ld[i - 1] * cs[i - 1]);
   // back-substitute result
   res[n - 1] = ds[n - 1];
-  for (auto i = 0u; i < n - 1; i++)
+  for (std::size_t i = 0u; i < n - 1; i++)
     res[n - i - 2] = ds[n - i - 2] - cs[n - i - 2] * res[n - i - 1];
 }
 
