@@ -171,7 +171,12 @@ TYPED_TEST_SUITE(
         >,
         pdmath::always_false<
           std::is_constructible<pdmath::span<int>, pdmath::span<double>>
-        >
+        >,
+        std::is_constructible<pdmath::span<const double>, double*, std::size_t>,
+        pdmath::always_false<
+          std::is_constructible<pdmath::span<double>, void*, void*>
+        >,
+        std::is_constructible<pdmath::span<const int*>, int*, int*>
       >
     >
   )
