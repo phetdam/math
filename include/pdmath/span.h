@@ -102,10 +102,15 @@ public:
       is_equality_comparable_with_v<I1, I2> > = 0) noexcept
     : data_{&*it}, size_{}
   {
-    // TODO: if iterator is random access we can do end - it
-    while (!(it == end)) {
-      it++;
-      size_++;
+    // if end - it is supported use that to compute size
+    if constexpr (is_subtraction_supported_with_v<I2, I1>)
+      size_ = static_cast<std::size_t>(end - it);
+    // otherwise advance it until end to compute size_
+    else {
+      while (!(it == end)) {
+        it++;
+        size_++;
+      }
     }
   }
 
