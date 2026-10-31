@@ -20,6 +20,7 @@
 
 #include "pdmath/common.h"
 #include "pdmath/testing/utils.h"
+#include "pdmath/warnings.h"
 
 namespace {
 
@@ -174,6 +175,11 @@ constexpr auto span_transform_test_inputs = std::tuple{
     [] { return std::vector{8, 7, 6, 5, 4, 3}; }
   },
   // operator[] iteration
+// note: MSVC emits C5246 in C++17 mode due to old interpretation of std::array
+// of aggregate without brace elision; see the CWG defect report:
+// https://www.open-std.org/JTC1/SC22/WG21/docs/papers/2012/n3367.html#1270
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(5246)
   std::tuple{
     [] { return std::array{2., 4., 6., 8.}; },
     [](auto& v)
@@ -183,6 +189,7 @@ constexpr auto span_transform_test_inputs = std::tuple{
         s[i] /= 2;
     },
     [] { return std::array{1., 2., 3., 4.}; }
+PDMATH_MSVC_WARNINGS_POP()
   },
   // iterators
   std::tuple{
