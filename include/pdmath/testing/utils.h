@@ -385,6 +385,58 @@ template <template <std::size_t> typename T, std::size_t N>
 using indexed_types =
   typename test_types<type_pair_wrapper<T<0>, std::make_index_sequence<N>>>::type;
 
+/**
+ * Traits type to merge multiple `::testing::Types<Ts...>` together.
+ *
+ * This is useful when dealing with different sub-groups of tests that all have
+ * different `::testing::Types<Ts...>` that need to merged into a single
+ * `::testing::Types<Ts...>` for `TYPED_TEST_SUITE()`.
+ *
+ * @tparam Ts types
+ */
+template <typename... Ts>
+struct merge_test_types {};
+
+/**
+ * SFINAE helper for the merged `::testing::Types<Ts...>`.
+ *
+ * @tparam Ts `::testing::Types<Us...>...`
+ */
+template <typename... Ts>
+using merge_test_types_t = typename merge_test_types<Ts...>::type;
+
+/**
+ * Specialization for an empty `::testing::Types<>`.
+ *
+ * Although not very useful this is still a valid `::testing::Types<>`.
+ */
+template <>
+struct merge_test_types<> {
+  using type = ::testing::Types<>;
+};
+
+/**
+ * Partial specialization for a single `::testing::Types<Ts...>`.
+ *
+ * @tparam Ts types
+ */
+template <typename... Ts>
+struct merge_test_types<::testing::Types<Ts...>> {
+  using type = ::testing::Types<Ts...>;
+};
+
+/**
+ * Partial specialization for two or more `::testing::Types<Ts...>`.
+ *
+ * @tparam Ts First type pack
+ * @tparam Us Second type pack
+ * @tparam Vs `::testing::Types<T...>...`
+ */
+template <typename... Ts, typename... Us, typename... Vs>
+struct merge_test_types<::testing::Types<Ts...>, ::testing::Types<Us...>, Vs...> {
+  using type = merge_test_types_t<::testing::Types<Ts..., Us...>, Vs...>;
+};
+
 }  // namespace testing
 }  // namespace pdmath
 
