@@ -318,17 +318,17 @@ template <typename T>
 struct is_equality_comparable_with {};
 
 /**
- * Partial specialization for the `type_pair_wrapper<T, U>`.
+ * Partial specialization for the `type_pack<T, U>`.
  *
  * @tparam T First type
  * @tparam U Second type
  */
 template <typename T, typename U>
-struct is_equality_comparable_with<pdmath::testing::type_pair_wrapper<T, U>>
+struct is_equality_comparable_with<pdmath::testing::type_pack<T, U>>
   : pdmath::is_equality_comparable_with<T, U> {};
 
 /**
- * Template type alias for a `type_value_pair<type_pair_wrapper<T, U>, bool>`.
+ * Template type alias for a `type_value_pair<type_pack<T, U>, bool>`.
  *
  * @tparam T First type
  * @tparam U Second type
@@ -336,7 +336,7 @@ struct is_equality_comparable_with<pdmath::testing::type_pair_wrapper<T, U>>
  */
 template <typename T, typename U, bool B>
 using type_pair_case = pdmath::testing::type_value_pair<
-  pdmath::testing::type_pair_wrapper<T, U>, B
+  pdmath::testing::type_pack<T, U>, B
 >;
 
 // define is_equality_comparable_with tests
@@ -461,6 +461,82 @@ PDMATH_TYPE_TRAITS_TEST(
       pdmath::testing::type_value_pair<std::string, false>,
       pdmath::testing::type_value_pair<pdmath::basic_fibonacci_generator, false>,
       pdmath::testing::type_value_pair<pdmath::fibonacci_generator, true>
+    >
+  )
+);
+
+/**
+ * Helper traits to apply `is_addition_supported_with` to a type pair.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct is_addition_supported_with {};
+
+/**
+ * Partial specialization for the `type_pack<T, U>`.
+ *
+ * @tparam T First type
+ * @tparam U Second type
+ */
+template <typename T, typename U>
+struct is_addition_supported_with<pdmath::testing::type_pack<T, U>>
+  : pdmath::is_addition_supported_with<T, U> {};
+
+// define is_addition_supported_with tests
+PDMATH_TYPE_TRAITS_TEST(
+  IsAdditionSupportedWithTest,
+  is_addition_supported_with,
+  PDMATH_IDENTITY(
+    ::testing::Types<
+      type_pair_case<int, double, true>,
+      type_pair_case<double, int, true>,
+      type_pair_case<std::string, std::string, true>,
+      type_pair_case<int, std::string, false>,
+      type_pair_case<void*, std::string, false>,
+      type_pair_case<void*, unsigned, false>,
+      type_pair_case<char, char, true>,
+      type_pair_case<double*, std::size_t, true>,
+      type_pair_case<std::size_t, double*, true>,
+      type_pair_case<std::vector<int>::iterator, unsigned, true>,
+      type_pair_case<int, std::vector<int>::const_iterator, true>,
+      type_pair_case<pdmath::fibonacci_generator, int, false>,
+      type_pair_case<std::set<unsigned>::iterator, int, false>
+    >
+  )
+);
+
+/**
+ * Helper traits to apply `is_subtraction_supported_with` to a type pair.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct is_subtraction_supported_with {};
+
+/**
+ * Partial specialization for the `type_pack<T, U>`.
+ *
+ * @tparam T First type
+ * @tparam U Second type
+ */
+template <typename T, typename U>
+struct is_subtraction_supported_with<pdmath::testing::type_pack<T, U>>
+  : pdmath::is_subtraction_supported_with<T, U> {};
+
+// define is_subtraction_supported_with tests
+PDMATH_TYPE_TRAITS_TEST(
+  IsSubtractionSupportedWithTest,
+  is_subtraction_supported_with,
+  PDMATH_IDENTITY(
+    ::testing::Types<
+      type_pair_case<double, int, true>,
+      type_pair_case<unsigned, unsigned, true>,
+      type_pair_case<std::set<int>, double, false>,
+      type_pair_case<void*, int, false>,
+      type_pair_case<double*, std::size_t, true>,
+      type_pair_case<std::vector<int>::iterator, unsigned, true>,
+      type_pair_case<unsigned, std::vector<int>::iterator, false>
     >
   )
 );
