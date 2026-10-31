@@ -24,6 +24,7 @@
 #include <gtest/gtest.h>
 
 #include "pdmath/common.h"
+#include "pdmath/features.h"
 #include "pdmath/fibonacci.h"
 #include "pdmath/types.h"
 #include "pdmath/testing/utils.h"
@@ -62,10 +63,14 @@ class SizeConstructibleTest
 
 using SizeConstructibleTestTypes = ::testing::Types<
   pdmath::testing::type_value_pair<pdmath::vector_d, true>,
+#if PDMATH_HAS_BOOST
   pdmath::testing::type_value_pair<pdmath::boost_vector_f, true>,
+#endif  // PDMATH_HAS_BOOST
   pdmath::testing::type_value_pair<Eigen::VectorXd, true>,
   pdmath::testing::type_value_pair<std::list<double>, true>,
+#if PDMATH_HAS_BOOST
   pdmath::testing::type_value_pair<pdmath::boost_matrix_d, false>,
+#endif  // PDMATH_HAS_BOOST
   pdmath::testing::type_value_pair<pdmath::array_pair_d, false>,
   pdmath::testing::type_value_pair<std::string, false>,
   pdmath::testing::type_value_pair<std::mutex, false>,
@@ -123,7 +128,9 @@ using HasOperatorStringTestTypes = ::testing::Types<
   pdmath::testing::type_value_pair<printable<pdmath::array_pair_f>, true>,
   pdmath::testing::type_value_pair<implicit_hello, true>,
   pdmath::testing::type_value_pair<explicit_hello, true>,
+#if PDMATH_HAS_BOOST
   pdmath::testing::type_value_pair<pdmath::boost_vector_d, false>,
+#endif  // PDMATH_HAS_BOOST
   pdmath::testing::type_value_pair<std::list<int>, false>,
   pdmath::testing::type_value_pair<std::mutex, false>,
   pdmath::testing::type_value_pair<not_string_convertible, false>
