@@ -110,6 +110,20 @@ public:
   }
 
   /**
+   * Ctor.
+   *
+   * Construct from another `span` without the same const-qualification.
+   *
+   * @tparam U `T` without const-qualification
+   */
+  template <typename U>
+  constexpr span(
+    const span<U>& s,
+    constraint_t<std::is_same_v<T, const U>> = 0) noexcept
+    : data_{s.data_}, size_{s.size_}
+  {}
+
+  /**
    * Return the data pointer.
    */
   constexpr auto data() const noexcept { return data_; }
