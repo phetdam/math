@@ -590,6 +590,76 @@ struct is_legacy_input_iterator<
 template <typename T>
 constexpr bool is_legacy_input_iterator_v = is_legacy_input_iterator<T>::value;
 
+/**
+ * Traits type for `operator+()` support between two types.
+ *
+ * Essentially, for `T t`, `U u`, we want to know if `t + u` is supported.
+ *
+ * @tparam T First type
+ * @tparam U Second type
+ */
+template <typename T, typename U, typename = void>
+struct is_addition_supported_with : std::false_type {};
+
+/**
+ * True specialization for two types that support `operator+()`.
+ *
+ * @tparam T First type
+ * @tparam U Second type
+ */
+template <typename T, typename U>
+struct is_addition_supported_with<
+  T, U, std::void_t<decltype(std::declval<T>() + std::declval<U>())> >
+  : std::true_type {};
+
+/**
+ * Indicate if `operator+()` is supported between the two types.
+ *
+ * @note `is_addition_supported_with_v<T, U>` may not have the same value as
+ *  `is_addition_supported_with_v<U, T>` if `operator+()` is not symmetric.
+ *
+ * @tparam T First type
+ * @tparam U Second type
+ */
+template <typename T, typename U>
+constexpr bool
+is_addition_supported_with_v = is_addition_supported_with<T, U>::value;
+
+/**
+ * Traits types for `operator-()` support between two types.
+ *
+ * Essentially, for `T t`, `U u`, we want to know if `t - u` is supported.
+ *
+ * @tparam T First type
+ * @tparam U Second type
+ */
+template <typename T, typename U, typename = void>
+struct is_subtraction_supported_with : std::false_type {};
+
+/**
+ * True specialization for two types that support `operator-()`.
+ *
+ * @tparam T First type
+ * @tparam U Second type
+ */
+template <typename T, typename U>
+struct is_subtraction_supported_with<
+  T, U, std::void_t<decltype(std::declval<T>() - std::declval<U>())> >
+  : std::true_type {};
+
+/**
+ * Indicate if `operator-()` is supported between the two types.
+ *
+ * @note `is_subtraction_supported_with_v<T, U>` may not have the same value as
+ *  `is_subtraction_supported_with<U, T>` if `operator-()` is not symmetric.
+ *
+ * @tparam T First type
+ * @tparam U Second type
+ */
+template <typename T, typename U>
+constexpr bool
+is_subtraction_supported_with_v = is_subtraction_supported_with<T, U>::value;
+
 }  // namespace pdmath
 
 #endif  // PDMATH_TYPE_TRAITS_H_
