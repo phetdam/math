@@ -356,6 +356,35 @@ template <typename... Ts>
 struct index_types_from<std::tuple<Ts...>>
   : test_types<std::index_sequence_for<Ts...>> {};
 
+
+/**
+ * Partial specialization to support `::testing::Types<T<Is>...>`.
+ *
+ * This allows use of a custom template template that takes a `std::size_t`
+ * like `index<I>` which is often used to distinguish groups of tests. Each
+ * group would correspond to a different test input container and would be
+ * expressed via partial specializations of the test class template.
+ *
+ * @note Usually one will never need to use this directly.
+ *
+ * @tparam T Template template type
+ * @tparam Is Indices 0 through the size of the input range - 1
+ */
+template <template <std::size_t> typename T, std::size_t... Is>
+struct test_types<type_pair_wrapper<T<0>, std::index_sequence<Is...>>> {
+  using type = ::testing::Types<T<Is>...>;
+};
+
+/**
+ * SFINAE helper for the `::testing::Types<T<Is>...>` from a size and template.
+ *
+ * @tparam T Template template taking the test input index
+ * @tparam N Number of test inputs
+ */
+template <template <std::size_t> typename T, std::size_t N>
+using indexed_types =
+  typename test_types<type_pair_wrapper<T<0>, std::make_index_sequence<N>>>::type;
+
 }  // namespace testing
 }  // namespace pdmath
 
