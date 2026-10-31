@@ -264,15 +264,29 @@ protected:
   /* static_assert used to enforce semicolon usage */ \
   TYPED_TEST(fixture, TraitsValueTest) { (*this)(); } static_assert(true)
 
-// TODO: consider if a macro like the following would help reduce boilerplate
-#if 0
-#define PDMATH_DEFINE_TRAITS_TEST(test, traits, ...) \
+/**
+ * Define a `TYPED_TEST` for a traits type.
+ *
+ * This macro can be used to define a standard `traits_test<Traits, T>` derived
+ * test template + implement the `TYPED_TEST_SUITE()` and `TYPED_TEST()`.
+ *
+ * @param test Test class template name
+ * @param traits Traits type
+ * @param types `::testing::Types<Ts...>` for `TYPED_TEST_SUITE()`
+ * @param ... Additional `TYPED_TEST_SUITE() parameters
+ */
+#define PDMATH_TYPE_TRAITS_TEST(test, traits, types, ...) \
   template <typename T> \
   class test : public pdmath::testing::traits_test<traits, T> {}; \
-  using PDMATH_CONCAT(test, Types) = ::testing::Types<__VA_ARGS__>; \
-  TYPED_TEST_SUITE(test, PDMATH_CONCAT(test, Types)); \
-  PDMATH_TRAITS_TEST(test)
-#endif  // 0
+  /* note: need PDMATH_IDENTITY() to prevent types from being expanded */ \
+  /* note: TYPED_TEST_SUITE() does *not* support macro expansion */ \
+  TYPED_TEST_SUITE(test, PDMATH_IDENTITY(types), __VA_ARGS__); \
+  TYPED_TEST(test, Test) \
+  { \
+    (*this)(); \
+  } \
+  /* static_assert() enforces semicolon usage */ \
+  static_assert(true)
 
 /**
  * Template type index.
