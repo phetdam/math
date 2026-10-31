@@ -8,6 +8,7 @@
 #include "pdmath/span.h"
 
 #include <cstddef>
+#include <string>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -105,28 +106,45 @@ protected:
 /**
  * Test case type for `span` traits tests.
  *
- * The unary type traits will be applied to only a `span<double>` as currently
- * there is no particular specialization or optimization for a value type.
- *
- * @tparam Traits Traits type template
+ * @tparam T Traits type
  */
-template <template <typename> typename Traits>
+template <typename T>
 struct span_traits_test {};
 
 /**
- * Partial specialization for `span_traits_test<Traits>`.
+ * Partial specialization for `span_traits_test<Traits<Ts...>>`.
  *
  * @tparam Traits Traits type template
+ * @tparam Ts Traits type parameters
  */
-template <template <typename> typename Traits>
-class SpanTest<span_traits_test<Traits>> : public ::testing::Test {
+template <template <typename...> typename Traits, typename... Ts>
+class SpanTest<span_traits_test<Traits<Ts...>> > : public ::testing::Test {
 protected:
   /**
-   * Check that `Traits<span<double>>::value` evaluates to `true`.
+   * Check that `Traits<Ts...>::value` evaluates to `true`.
    */
   void operator()() const
   {
-    EXPECT_TRUE(Traits<pdmath::span<double>>::value);
+    EXPECT_TRUE(Traits<Ts...>::value);
+  }
+};
+
+/**
+ * Partial specialization for `span_traits_test<always_false<Traits<Ts...>>>`.
+ *
+ * @tparam Traits Traits type template
+ * @tparam Ts Traits type parameters
+ */
+template <template <typename...> typename Traits, typename... Ts>
+class SpanTest<span_traits_test<pdmath::always_false<Traits<Ts...>>> >
+  : public ::testing::Test {
+protected:
+  /**
+   * Check that `Traits<Ts...>::value` evaluates to `false`.
+   */
+  void operator()() const
+  {
+    EXPECT_FALSE(Traits<Ts...>::value);
   }
 };
 
@@ -139,13 +157,21 @@ TYPED_TEST_SUITE(
         span_init_test,
         std::tuple_size_v<decltype(span_init_test_inputs)>
       >,
-      ::testing::Types<
-        span_traits_test<std::is_trivially_copyable>,
-        span_traits_test<std::is_move_constructible>,
-        span_traits_test<std::is_copy_constructible>,
-        span_traits_test<std::is_default_constructible>,
-        span_traits_test<std::is_move_assignable>,
-        span_traits_test<std::is_copy_assignable>
+      pdmath::testing::projected_types<
+        span_traits_test,
+        std::is_trivially_copyable<pdmath::span<double>>,
+        std::is_move_constructible<pdmath::span<int>>,
+        std::is_copy_constructible<pdmath::span<double>>,
+        std::is_default_constructible<pdmath::span<const int>>,
+        std::is_move_assignable<pdmath::span<float>>,
+        std::is_copy_assignable<pdmath::span<std::string>>,
+        std::is_constructible<pdmath::span<const double>, pdmath::span<double>>,
+        pdmath::always_false<
+          std::is_constructible<pdmath::span<double>, pdmath::span<const double>>
+        >,
+        pdmath::always_false<
+          std::is_constructible<pdmath::span<int>, pdmath::span<double>>
+        >
       >
     >
   )
