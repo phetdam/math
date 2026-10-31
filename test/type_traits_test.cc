@@ -7,6 +7,7 @@
 
 #include "pdmath/type_traits.h"
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <deque>
@@ -386,6 +387,29 @@ PDMATH_TYPE_TRAITS_TEST(
   )
 );
 
+// define iter_reference test
+PDMATH_TYPE_TRAITS_TEST(
+  IterReferenceTest,
+  pdmath::iter_reference,
+  PDMATH_IDENTITY(
+    ::testing::Types<
+      pdmath::testing::type_pair_wrapper<std::vector<int>::iterator, int&>,
+      // note: const-qualified as the operator*() is const
+      pdmath::testing::type_pair_wrapper<
+        pdmath::basic_fibonacci_generator, const std::uint_fast64_t&
+      >,
+      // note: const-qualified as the operator*() is const
+      pdmath::testing::type_pair_wrapper<
+        pdmath::fibonacci_generator, const std::uint_fast64_t&
+      >,
+      pdmath::testing::type_pair_wrapper<
+        std::vector<int>::const_iterator, const int&
+      >,
+      pdmath::testing::type_pair_wrapper<const double*, const double&>
+    >
+  )
+);
+
 // define range_value tests
 PDMATH_TYPE_TRAITS_TEST(
   RangeValueTest,
@@ -401,6 +425,21 @@ PDMATH_TYPE_TRAITS_TEST(
         std::vector<int>, pdmath::always_false<std::string>
       >,
       pdmath::testing::type_pair_wrapper<std::string, pdmath::always_false<int>>
+    >
+  )
+);
+
+// define range_reference tests
+PDMATH_TYPE_TRAITS_TEST(
+  RangeReferenceTest,
+  pdmath::range_reference,
+  PDMATH_IDENTITY(
+    ::testing::Types<
+      pdmath::testing::type_pair_wrapper<std::vector<double>, double&>,
+      pdmath::testing::type_pair_wrapper<const double[10], const double&>,
+      pdmath::testing::type_pair_wrapper<std::array<unsigned, 10>, unsigned&>,
+      pdmath::testing::type_pair_wrapper<const std::array<int, 8>, const int&>,
+      pdmath::testing::type_pair_wrapper<const std::vector<int>, const int&>
     >
   )
 );
