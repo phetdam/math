@@ -453,7 +453,6 @@ template <typename... Ts>
 struct index_types_from<std::tuple<Ts...>>
   : test_types<std::index_sequence_for<Ts...>> {};
 
-
 /**
  * Partial specialization to support `::testing::Types<T<Is>...>`.
  *
