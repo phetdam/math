@@ -150,6 +150,89 @@ struct type_pair_wrapper {
 };
 
 /**
+ * Template wrapper for holding multiple types.
+ *
+ * This is useful for embedding types in situations where one or more of the
+ * types may be incomplete or have unknown extent, in which case a `std::tuple`
+ * specialization would fail to compile. Using the `type_pack` is also a bit
+ * more elegant than using `std::tuple<Ts*...>` to work around this.
+ *
+ * @tparam Ts types
+ */
+template <typename... Ts>
+struct type_pack {};
+
+/**
+ * Traits type for the `type_pack<Ts...>` size.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct type_pack_size {};
+
+/**
+ * Helper providing the number of types in a `type_pack<Ts...>`.
+ *
+ * @tparam T type
+ */
+template <typename T>
+constexpr auto type_pack_size_v = type_pack_size<T>::value;
+
+/**
+ * Partial specialization for `type_pack<Ts...>`.
+ *
+ * @tparam Ts types
+ */
+template <typename... Ts>
+struct type_pack_size<type_pack<Ts...>> {
+  static constexpr auto value = sizeof...(Ts);
+};
+
+/**
+ * Traits type for the type at the given type index of a `type_pack<Ts...>`.
+ *
+ * @tparam I Type index
+ * @tparam T type
+ */
+template <std::size_t I, typename T>
+struct type_pack_element {};
+
+/**
+ * Helper providing the type at the given type index of a `type_pack<Ts...>`.
+ *
+ * @tparam I Type index
+ * @tparam T type
+ */
+template <std::size_t I, typename T>
+using type_pack_element_t = typename type_pack_element<I, T>::type;
+
+/**
+ * Partial specialization for a `type_pack<T>`.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct type_pack_element<0, type_pack<T>> {
+  using type = T;
+};
+
+/**
+ * Partial specialization for a `type_pack<T, U, Ts...>`.
+ *
+ * @tparam I Type index
+ * @tparam T First type
+ * @tparam U Second type
+ */
+template <std::size_t I, typename T, typename U, typename... Ts>
+struct type_pack_element<I, type_pack<T, U, Ts...>> {
+  using type = std::conditional_t<
+    I == 0,
+    T,
+    type_pack_element_t<I - 1, type_pack<U, Ts...>>
+  >;
+};
+
+/**
  * Traits type test case template base for Google Test templated tests.
  *
  * This takes a unary type traits and a `type_value_pair`.
@@ -385,7 +468,7 @@ struct index_types_from<std::tuple<Ts...>>
  * @tparam Is Indices 0 through the size of the input range - 1
  */
 template <template <std::size_t> typename T, std::size_t... Is>
-struct test_types<type_pair_wrapper<T<0>, std::index_sequence<Is...>>> {
+struct test_types<type_pack<T<0>, std::index_sequence<Is...>>> {
   using type = ::testing::Types<T<Is>...>;
 };
 
@@ -397,7 +480,33 @@ struct test_types<type_pair_wrapper<T<0>, std::index_sequence<Is...>>> {
  */
 template <template <std::size_t> typename T, std::size_t N>
 using indexed_types =
-  typename test_types<type_pair_wrapper<T<0>, std::make_index_sequence<N>>>::type;
+  typename test_types<type_pack<T<0>, std::make_index_sequence<N>>>::type;
+
+/**
+ * Partial specialization to support `::testing::Types<T<Ts>...>`.
+ *
+ * This allows use of a custom template template that is applied to a type,
+ * e.g. a *UnaryTypeTraits*, with the resulting type used as the test class
+ * template type argument for a partial specialization.
+ *
+ * @note Usually one will never need to use this directly.
+ *
+ * @tparam T Template template type
+ * @tparam Ts types
+ */
+template <template <typename...> typename T, typename... Ts>
+struct test_types<type_pack<T<void*>, Ts...> > {
+  using type = ::testing::Types<T<Ts>...>;
+};
+
+/**
+ * SFINAE helper for the `::testing::Types<T<Ts>...>` from a template template.
+ *
+ * @tparam T Template template type
+ * @tparam Ts types
+ */
+template <template <typename...> typename T, typename... Ts>
+using projected_types = typename test_types<type_pack<T<void*>, Ts...>>::type;
 
 /**
  * Traits type to merge multiple `::testing::Types<Ts...>` together.
