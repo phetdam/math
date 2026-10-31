@@ -16,6 +16,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include "pdmath/common.h"
 #include "pdmath/testing/utils.h"
 
 namespace {
@@ -102,37 +103,53 @@ protected:
 };
 
 /**
- * Traits type to create a `::testing::Types<...>` for `span_init_test`.
+ * Test case type for `span` traits tests.
  *
- * @tparam T type
+ * The unary type traits will be applied to only a `span<double>` as currently
+ * there is no particular specialization or optimization for a value type.
+ *
+ * @tparam Traits Traits type template
  */
-template <typename T>
-struct span_init_test_types {};
+template <template <typename> typename Traits>
+struct span_traits_test {};
 
 /**
- * Partial specialization for a `std::index_sequence<Is...>`.
+ * Partial specialization for `span_traits_test<Traits>`.
  *
- * @tparam Is Indices 0 through size of `span_init_test_inputs` - 1
+ * @tparam Traits Traits type template
  */
-template <std::size_t... Is>
-struct span_init_test_types<std::index_sequence<Is...>> {
-  using type = ::testing::Types<span_init_test<Is>...>;
+template <template <typename> typename Traits>
+class SpanTest<span_traits_test<Traits>> : public ::testing::Test {
+protected:
+  /**
+   * Check that `Traits<span<double>>::value` evaluates to `true`.
+   */
+  void operator()() const
+  {
+    EXPECT_TRUE(Traits<pdmath::span<double>>::value);
+  }
 };
 
-/**
- * `void` specialization using the size of `span_init_test_inputs`.
- */
-template <>
-struct span_init_test_types<void> : span_init_test_types<
-  std::make_index_sequence<std::tuple_size_v<decltype(span_init_test_inputs)>> >
-  {};
-
-/**
- * Type alias for the `::testing::Types<span_init_test<Is>...>` types.
- */
-using span_init_test_types_t = typename span_init_test_types<void>::type;
-
-TYPED_TEST_SUITE(SpanTest, span_init_test_types_t);
+// SpanTest input types
+TYPED_TEST_SUITE(
+  SpanTest,
+  PDMATH_IDENTITY(
+    pdmath::testing::merge_test_types_t<
+      pdmath::testing::indexed_types<
+        span_init_test,
+        std::tuple_size_v<decltype(span_init_test_inputs)>
+      >,
+      ::testing::Types<
+        span_traits_test<std::is_trivially_copyable>,
+        span_traits_test<std::is_move_constructible>,
+        span_traits_test<std::is_copy_constructible>,
+        span_traits_test<std::is_default_constructible>,
+        span_traits_test<std::is_move_assignable>,
+        span_traits_test<std::is_copy_assignable>
+      >
+    >
+  )
+);
 
 /**
  * Execute the test.
