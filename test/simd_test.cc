@@ -19,15 +19,6 @@
 namespace {
 
 /**
- * Test fixture template for testing `is_simd_type`.
- *
- * @tparam T `type_value_pair` specialization
- */
-template <typename T>
-class IsSimdTypeTest
-  : public pdmath::testing::traits_test<pdmath::is_simd_type, T> {};
-
-/**
  * Name generator for `IsSimdTypeTest`.
  */
 class SimdNameGenerator {
@@ -128,9 +119,11 @@ using IsSimdTypeTestTypes = ::testing::Types<
   pdmath::testing::type_value_pair<const void*, false>
 >;
 PDMATH_GNU_WARNINGS_POP()
-TYPED_TEST_SUITE(IsSimdTypeTest, IsSimdTypeTestTypes, SimdNameGenerator);
-
-// define is_simd_type test
-PDMATH_TRAITS_TEST(IsSimdTypeTest);
+// define is_simd_type tests
+PDMATH_TYPE_TRAITS_TEST(
+  IsSimdTypeTest,
+  pdmath::is_simd_type,
+  IsSimdTypeTestTypes
+);
 
 }  // namespace
