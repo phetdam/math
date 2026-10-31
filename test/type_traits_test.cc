@@ -26,8 +26,8 @@
 #include "pdmath/common.h"
 #include "pdmath/features.h"
 #include "pdmath/fibonacci.h"
-#include "pdmath/types.h"
 #include "pdmath/testing/utils.h"
+#include "pdmath/types.h"
 #include "pdmath/warnings.h"
 
 namespace {
@@ -52,15 +52,8 @@ public:
   constexpr size_constructible_2(int) noexcept {}
 };
 
-/**
- * Test fixture template for testing `is_size_constructible`.
- *
- * @tparam T `type_value_pair<U, v>` specialization
- */
-template <typename T>
-class SizeConstructibleTest
-  : public pdmath::testing::traits_test<pdmath::is_size_constructible, T> {};
-
+// note: test types need to be defined via types alias as conditional
+// compilation directives cannot not be used in the middle of macros
 using SizeConstructibleTestTypes = ::testing::Types<
   pdmath::testing::type_value_pair<pdmath::vector_d, true>,
 #if PDMATH_HAS_BOOST
@@ -78,10 +71,12 @@ using SizeConstructibleTestTypes = ::testing::Types<
   pdmath::testing::type_value_pair<size_constructible_1, true>,
   pdmath::testing::type_value_pair<size_constructible_2, true>
 >;
-TYPED_TEST_SUITE(SizeConstructibleTest, SizeConstructibleTestTypes);
-
-// define test for is_size_constructible
-PDMATH_TRAITS_TEST(SizeConstructibleTest);
+// define is_size_constructible tests
+PDMATH_TYPE_TRAITS_TEST(
+  SizeConstructibleTest,
+  pdmath::is_size_constructible,
+  SizeConstructibleTestTypes
+);
 
 /**
  * Template class castable to a `std::string` giving its mangled `typeid` name.
@@ -115,15 +110,8 @@ public:
  */
 struct not_string_convertible {};
 
-/**
- * Test fixture template for testing `has_operator_string`.
- *
- * @tparam T `type_value_pair<U, v>` specialization
- */
-template <typename T>
-class HasOperatorStringTest
-  : public pdmath::testing::traits_test<pdmath::has_operator_string, T> {};
-
+// note: test types need to be defined via types alias as conditional
+// compilation directives cannot not be used in the middle of macros
 using HasOperatorStringTestTypes = ::testing::Types<
   pdmath::testing::type_value_pair<printable<pdmath::array_pair_f>, true>,
   pdmath::testing::type_value_pair<implicit_hello, true>,
@@ -135,19 +123,12 @@ using HasOperatorStringTestTypes = ::testing::Types<
   pdmath::testing::type_value_pair<std::mutex, false>,
   pdmath::testing::type_value_pair<not_string_convertible, false>
 >;
-TYPED_TEST_SUITE(HasOperatorStringTest, HasOperatorStringTestTypes);
-
-// define test for has_operator_string
-PDMATH_TRAITS_TEST(HasOperatorStringTest);
-
-/**
- * Test fixture template for testing `is_ostreamable`.
- *
- * @tparam T `type_value_pair<U, v>` specialization
- */
-template <typename T>
-class IsOstreamableTest
-  : public pdmath::testing::traits_test<pdmath::is_ostreamable, T> {};
+// define has_operator_string tests
+PDMATH_TYPE_TRAITS_TEST(
+  HasOperatorStringTest,
+  pdmath::has_operator_string,
+  HasOperatorStringTestTypes
+);
 
 /**
  * User-defined type with `operator<<`.
@@ -172,26 +153,21 @@ PDMATH_WARNINGS_POP()
  */
 struct not_streamable {};
 
-using IsOstreamableTestTypes = ::testing::Types<
-  pdmath::testing::type_value_pair<std::string, true>,
-  pdmath::testing::type_value_pair<int, true>,
-  pdmath::testing::type_value_pair<void*, true>,
-  pdmath::testing::type_value_pair<streamable, true>,
-  pdmath::testing::type_value_pair<not_streamable, false>,
-  pdmath::testing::type_value_pair<double, true>
->;
-TYPED_TEST_SUITE(IsOstreamableTest, IsOstreamableTestTypes);
-
-// define test for is_ostreamable
-PDMATH_TRAITS_TEST(IsOstreamableTest);
-
-/**
- * Test fixture template for testing `is_range`.
- *
- * @tparam T `type_value_pair` specialization
- */
-template <typename T>
-class IsRangeTest : public pdmath::testing::traits_test<pdmath::is_range, T> {};
+// define is_ostreamable tsets
+PDMATH_TYPE_TRAITS_TEST(
+  IsOstreamableTest,
+  pdmath::is_ostreamable,
+  PDMATH_IDENTITY(
+    ::testing::Types<
+      pdmath::testing::type_value_pair<std::string, true>,
+      pdmath::testing::type_value_pair<int, true>,
+      pdmath::testing::type_value_pair<void*, true>,
+      pdmath::testing::type_value_pair<streamable, true>,
+      pdmath::testing::type_value_pair<not_streamable, false>,
+      pdmath::testing::type_value_pair<double, true>
+    >
+  )
+);
 
 /**
  * Vector wrapper class representing a range.
@@ -210,53 +186,41 @@ private:
   std::vector<T> values_;
 };
 
-using IsRangeTestTypes = ::testing::Types<
-  pdmath::testing::type_value_pair<std::string, true>,
-  pdmath::testing::type_value_pair<int, false>,
-  pdmath::testing::type_value_pair<std::deque<int>, true>,
-  pdmath::testing::type_value_pair<std::vector<double>, true>,
-  pdmath::testing::type_value_pair<std::monostate, false>,
-  pdmath::testing::type_value_pair<std::list<unsigned>, true>,
-  pdmath::testing::type_value_pair<vec_wrapper<int>, true>
->;
-TYPED_TEST_SUITE(IsRangeTest, IsRangeTestTypes);
+// define is_range tests
+PDMATH_TYPE_TRAITS_TEST(
+  IsRangeTest,
+  pdmath::is_range,
+  PDMATH_IDENTITY(
+    ::testing::Types<
+      pdmath::testing::type_value_pair<std::string, true>,
+      pdmath::testing::type_value_pair<int, false>,
+      pdmath::testing::type_value_pair<std::deque<int>, true>,
+      pdmath::testing::type_value_pair<std::vector<double>, true>,
+      pdmath::testing::type_value_pair<std::monostate, false>,
+      pdmath::testing::type_value_pair<std::list<unsigned>, true>,
+      pdmath::testing::type_value_pair<vec_wrapper<int>, true>
+    >
+  )
+);
 
-// define test for is_range
-PDMATH_TRAITS_TEST(IsRangeTest);
-
-/**
- * Test fixture template for testing `is_indirectly_readable`.
- *
- * @tparam T `type_value_pair` specialization
- */
-template <typename T>
-class IsIndirectlyReadableTest
-  : public pdmath::testing::traits_test<pdmath::is_indirectly_readable, T> {};
-
-using IsIndirectlyReadableTestTypes = ::testing::Types<
-  pdmath::testing::type_value_pair<const char*, true>,
-  pdmath::testing::type_value_pair<const char&, false>,
-  pdmath::testing::type_value_pair<void*, false>,
-  pdmath::testing::type_value_pair<int, false>,
-  pdmath::testing::type_value_pair<std::unique_ptr<std::vector<double>>, true>,
-  pdmath::testing::type_value_pair<std::shared_ptr<std::string>, true>,
-  pdmath::testing::type_value_pair<std::string, false>,
-  pdmath::testing::type_value_pair<std::vector<int>::iterator, true>,
-  pdmath::testing::type_value_pair<std::string::iterator, true>
->;
-TYPED_TEST_SUITE(IsIndirectlyReadableTest, IsIndirectlyReadableTestTypes);
-
-// define tests for is_indirectly_readable
-PDMATH_TRAITS_TEST(IsIndirectlyReadableTest);
-
-/**
- * Test fixture template for testing `is_weakly_incrementable`.
- *
- * @tparam T `type_value_pair` specialization
- */
-template <typename T>
-class IsWeaklyIncrementableTest
-  : public pdmath::testing::traits_test<pdmath::is_weakly_incrementable, T> {};
+// define is_indirectly_readable tests
+PDMATH_TYPE_TRAITS_TEST(
+  IsIndirectlyReadableTest,
+  pdmath::is_indirectly_readable,
+  PDMATH_IDENTITY(
+    ::testing::Types<
+      pdmath::testing::type_value_pair<const char*, true>,
+      pdmath::testing::type_value_pair<const char&, false>,
+      pdmath::testing::type_value_pair<void*, false>,
+      pdmath::testing::type_value_pair<int, false>,
+      pdmath::testing::type_value_pair<std::unique_ptr<std::vector<double>>, true>,
+      pdmath::testing::type_value_pair<std::shared_ptr<std::string>, true>,
+      pdmath::testing::type_value_pair<std::string, false>,
+      pdmath::testing::type_value_pair<std::vector<int>::iterator, true>,
+      pdmath::testing::type_value_pair<std::string::iterator, true>
+    >
+  )
+);
 
 /**
  * Type that is pre-incrementable.
@@ -283,60 +247,49 @@ public:
   auto operator++(int) noexcept { return *this; }
 };
 
-using IsWeaklyIncrementableTestTypes = ::testing::Types<
-  pdmath::testing::type_value_pair<int, true>,
-  pdmath::testing::type_value_pair<double, true>,
-  pdmath::testing::type_value_pair<std::vector<int>::iterator, true>,
-  pdmath::testing::type_value_pair<std::string::iterator, true>,
-  pdmath::testing::type_value_pair<void, false>,
-  pdmath::testing::type_value_pair<std::string, false>,
-  pdmath::testing::type_value_pair<const char*, true>,
-  // object type is incomplete and does not admit operator++ or operator++(int)
-  pdmath::testing::type_value_pair<const void*, false>,
-  // not post-incrementable
-  pdmath::testing::type_value_pair<pre_incrementable, false>,
-  // not pre-incrementable
-  pdmath::testing::type_value_pair<post_incrementable, false>,
-  // pre- and post-incrementable
-  pdmath::testing::type_value_pair<incrementable, true>
->;
-TYPED_TEST_SUITE(IsWeaklyIncrementableTest, IsWeaklyIncrementableTestTypes);
+// define is_weakly_incrementable tests
+PDMATH_TYPE_TRAITS_TEST(
+  IsWeaklyIncrementableTestTypes,
+  pdmath::is_weakly_incrementable,
+  PDMATH_IDENTITY(
+    ::testing::Types<
+      pdmath::testing::type_value_pair<int, true>,
+      pdmath::testing::type_value_pair<double, true>,
+      pdmath::testing::type_value_pair<std::vector<int>::iterator, true>,
+      pdmath::testing::type_value_pair<std::string::iterator, true>,
+      pdmath::testing::type_value_pair<void, false>,
+      pdmath::testing::type_value_pair<std::string, false>,
+      pdmath::testing::type_value_pair<const char*, true>,
+      // object type incomplete + does not admit operator++ or operator++(int)
+      pdmath::testing::type_value_pair<const void*, false>,
+      // not post-incrementable
+      pdmath::testing::type_value_pair<pre_incrementable, false>,
+      // not pre-incrementable
+      pdmath::testing::type_value_pair<post_incrementable, false>,
+      // pre- and post-incrementable
+      pdmath::testing::type_value_pair<incrementable, true>
+    >
+  )
+);
 
-// define is_weakly_incrementable test
-PDMATH_TRAITS_TEST(IsWeaklyIncrementableTest);
+// define is_legacy_iterator tests
+PDMATH_TYPE_TRAITS_TEST(
+  IsLegacyIteratorTest,
+  pdmath::is_legacy_iterator,
+  PDMATH_IDENTITY(
+    ::testing::Types<
+      pdmath::testing::type_value_pair<std::vector<int>::iterator, true>,
+      pdmath::testing::type_value_pair<std::string::iterator, true>,
+      pdmath::testing::type_value_pair<const char*, true>,
+      // cannot dereference with incomplete type
+      pdmath::testing::type_value_pair<const void*, false>,
+      pdmath::testing::type_value_pair<pdmath::basic_fibonacci_generator, true>,
+      pdmath::testing::type_value_pair<pdmath::fibonacci_generator, true>
+    >
+  )
+);
 
-/**
- * Test fixture template for testing `is_legacy_iterator`.
- *
- * @tparam T `type_value_pair` specialization
- */
-template <typename T>
-class IsLegacyIteratorTest
-  : public pdmath::testing::traits_test<pdmath::is_legacy_iterator, T> {};
-
-using IsLegacyIteratorTestTypes = ::testing::Types<
-  pdmath::testing::type_value_pair<std::vector<int>::iterator, true>,
-  pdmath::testing::type_value_pair<std::string::iterator, true>,
-  pdmath::testing::type_value_pair<const char*, true>,
-  // cannot dereference with incomplete type
-  pdmath::testing::type_value_pair<const void*, false>,
-  pdmath::testing::type_value_pair<pdmath::basic_fibonacci_generator, true>,
-  pdmath::testing::type_value_pair<pdmath::fibonacci_generator, true>
->;
-TYPED_TEST_SUITE(IsLegacyIteratorTest, IsLegacyIteratorTestTypes);
-
-// define is_legacy_iterator test
-PDMATH_TRAITS_TEST(IsLegacyIteratorTest);
-
-/**
- * Test fixture template for testing `is_equality_comparable`.
- *
- * @tparam T `type_value_pair` specialization
- */
-template <typename T>
-class IsEqualityComparableTest
-  : public pdmath::testing::traits_test<pdmath::is_equality_comparable, T> {};
-
+// note: reused by IsInequalityComparableTest
 using IsEqualityComparableTestTypes = ::testing::Types<
   pdmath::testing::type_value_pair<std::vector<double>::iterator, true>,
   pdmath::testing::type_value_pair<int, true>,
@@ -348,10 +301,12 @@ using IsEqualityComparableTestTypes = ::testing::Types<
   pdmath::testing::type_value_pair<pdmath::fibonacci_generator, true>,
   pdmath::testing::type_value_pair<std::mutex, false>
 >;
-TYPED_TEST_SUITE(IsEqualityComparableTest, IsEqualityComparableTestTypes);
-
-// define is_equality_comparable test
-PDMATH_TRAITS_TEST(IsEqualityComparableTest);
+// define is_equality_comparable tests
+PDMATH_TYPE_TRAITS_TEST(
+  IsEqualityComparableTest,
+  pdmath::is_equality_comparable,
+  IsEqualityComparableTestTypes
+);
 
 /**
  * Helper traits to apply `is_equality_comparable_with<T, U>` to a type pair.
@@ -372,15 +327,6 @@ struct is_equality_comparable_with<pdmath::testing::type_pair_wrapper<T, U>>
   : pdmath::is_equality_comparable_with<T, U> {};
 
 /**
- * Test fixture template for testing `is_equality_comparable_with`.
- *
- * @tparam T `type_value_pair` specialization
- */
-template <typename T>
-class IsEqualityComparableWithTest
-  : public pdmath::testing::traits_test<is_equality_comparable_with, T> {};
-
-/**
  * Template type alias for a `type_value_pair<type_pair_wrapper<T, U>, bool>`.
  *
  * @tparam T First type
@@ -392,8 +338,10 @@ using type_pair_case = pdmath::testing::type_value_pair<
   pdmath::testing::type_pair_wrapper<T, U>, B
 >;
 
-TYPED_TEST_SUITE(
+// define is_equality_comparable_with tests
+PDMATH_TYPE_TRAITS_TEST(
   IsEqualityComparableWithTest,
+  is_equality_comparable_with,
   PDMATH_IDENTITY(
     ::testing::Types<
       type_pair_case<int, double, true>,
@@ -407,101 +355,75 @@ TYPED_TEST_SUITE(
   )
 );
 
-/**
- * Test fixture template for testing `is_inequality_comparable`.
- *
- * @tparam T `type_value_pair` specialization
- */
-template <typename T>
-class IsInequalityComparableTest
-  : public pdmath::testing::traits_test<pdmath::is_inequality_comparable, T> {};
+// define is_inequality_comparable tests
+PDMATH_TYPE_TRAITS_TEST(
+  IsInequalityComparableTest,
+  pdmath::is_inequality_comparable,
+  // note: also used by IsEqualityComparableTest
+  IsEqualityComparableTestTypes
+);
 
-// reusing types from IsEqualityComparableTest
-using IsInequalityComparableTestTypes = IsEqualityComparableTestTypes;
-TYPED_TEST_SUITE(IsInequalityComparableTest, IsInequalityComparableTestTypes);
+// define iter_value tests
+PDMATH_TYPE_TRAITS_TEST(
+  IterValueTest,
+  pdmath::iter_value,
+  PDMATH_IDENTITY(
+    ::testing::Types<
+      pdmath::testing::type_pair_wrapper<std::vector<int>::iterator, int>,
+      pdmath::testing::type_pair_wrapper<const double*, double>,
+      pdmath::testing::type_pair_wrapper<
+        pdmath::basic_fibonacci_generator, std::uint_fast64_t
+      >,
+      pdmath::testing::type_pair_wrapper<
+        pdmath::fibonacci_generator, std::uint_fast64_t
+      >,
+      // test against expected incorrect types too
+      pdmath::testing::type_pair_wrapper<const double*, pdmath::always_false<int>>,
+      pdmath::testing::type_pair_wrapper<
+        std::deque<unsigned>::iterator, pdmath::always_false<double>
+      >
+    >
+  )
+);
 
-// define is_inequality_comparable test
-PDMATH_TRAITS_TEST(IsInequalityComparableTest);
+// define range_value tests
+PDMATH_TYPE_TRAITS_TEST(
+  RangeValueTest,
+  pdmath::range_value,
+  PDMATH_IDENTITY(
+    ::testing::Types<
+      pdmath::testing::type_pair_wrapper<std::vector<double>, double>,
+      pdmath::testing::type_pair_wrapper<vec_wrapper<int>, int>,
+      pdmath::testing::type_pair_wrapper<std::deque<unsigned>, unsigned>,
+      pdmath::testing::type_pair_wrapper<std::string, char>,
+      // test against expected incorrect types too
+      pdmath::testing::type_pair_wrapper<
+        std::vector<int>, pdmath::always_false<std::string>
+      >,
+      pdmath::testing::type_pair_wrapper<std::string, pdmath::always_false<int>>
+    >
+  )
+);
 
-/**
- * Test fixture template for testing `iter_value`.
- *
- * @tparam T `type_pair_wrapper` specialization
- */
-template <typename T>
-class IterValueTest
-  : public pdmath::testing::traits_test<pdmath::iter_value, T> {};
-
-using IterValueTestTypes = ::testing::Types<
-  pdmath::testing::type_pair_wrapper<std::vector<int>::iterator, int>,
-  pdmath::testing::type_pair_wrapper<const double*, double>,
-  pdmath::testing::type_pair_wrapper<
-    pdmath::basic_fibonacci_generator, std::uint_fast64_t
-  >,
-  pdmath::testing::type_pair_wrapper<
-    pdmath::fibonacci_generator, std::uint_fast64_t
-  >,
-  // test against expected incorrect types too
-  pdmath::testing::type_pair_wrapper<const double*, pdmath::always_false<int>>,
-  pdmath::testing::type_pair_wrapper<
-    std::deque<unsigned>::iterator, pdmath::always_false<double>
-  >
->;
-TYPED_TEST_SUITE(IterValueTest, IterValueTestTypes);
-
-// define iter_value test
-PDMATH_TRAITS_TEST(IterValueTest);
-
-/**
- * Test fixture template for testing `range_value`.
- *
- * @tparam T `type_pair_wrapper` specialization
- */
-template <typename T>
-class RangeValueTest
-  : public pdmath::testing::traits_test<pdmath::range_value, T> {};
-
-using RangeValueTestTypes = ::testing::Types<
-  pdmath::testing::type_pair_wrapper<std::vector<double>, double>,
-  pdmath::testing::type_pair_wrapper<vec_wrapper<int>, int>,
-  pdmath::testing::type_pair_wrapper<std::deque<unsigned>, unsigned>,
-  pdmath::testing::type_pair_wrapper<std::string, char>,
-  // test against expected incorrect types too
-  pdmath::testing::type_pair_wrapper<
-    std::vector<int>, pdmath::always_false<std::string>
-  >,
-  pdmath::testing::type_pair_wrapper<std::string, pdmath::always_false<int>>
->;
-TYPED_TEST_SUITE(RangeValueTest, RangeValueTestTypes);
-
-// define range_value test
-PDMATH_TRAITS_TEST(RangeValueTest);
-
-/**
- * Test fixture template for testing `is_legacy_input_iterator`.
- *
- * @tparam T `type_value_pair` specialization
- */
-template <typename T>
-class IsLegacyInputIteratorTest
-  : public pdmath::testing::traits_test<pdmath::is_legacy_input_iterator, T> {};
-
-using IsLegacyInputIteratorTestTypes = ::testing::Types<
-  pdmath::testing::type_value_pair<std::vector<int>::iterator, true>,
-  pdmath::testing::type_value_pair<std::deque<unsigned>::iterator, true>,
-  pdmath::testing::type_value_pair<std::vector<int>::const_iterator, true>,
-  // primitive types don't have members but they qualify as input iterators
-  pdmath::testing::type_value_pair<const char*, false>,
-  pdmath::testing::type_value_pair<const void*, false>,
-  pdmath::testing::type_value_pair<int, false>,
-  pdmath::testing::type_value_pair<std::string::iterator, true>,
-  pdmath::testing::type_value_pair<std::string, false>,
-  pdmath::testing::type_value_pair<pdmath::basic_fibonacci_generator, false>,
-  pdmath::testing::type_value_pair<pdmath::fibonacci_generator, true>
->;
-TYPED_TEST_SUITE(IsLegacyInputIteratorTest, IsLegacyInputIteratorTestTypes);
-
-// define is_legacy_input_iterator test
-PDMATH_TRAITS_TEST(IsLegacyInputIteratorTest);
+// define is_legacy_input_iterator tests
+PDMATH_TYPE_TRAITS_TEST(
+  IsLegacyInputIteratorTest,
+  pdmath::is_legacy_input_iterator,
+  PDMATH_IDENTITY(
+    ::testing::Types<
+      pdmath::testing::type_value_pair<std::vector<int>::iterator, true>,
+      pdmath::testing::type_value_pair<std::deque<unsigned>::iterator, true>,
+      pdmath::testing::type_value_pair<std::vector<int>::const_iterator, true>,
+      // primitive types don't have members but they qualify as input iterators
+      pdmath::testing::type_value_pair<const char*, false>,
+      pdmath::testing::type_value_pair<const void*, false>,
+      pdmath::testing::type_value_pair<int, false>,
+      pdmath::testing::type_value_pair<std::string::iterator, true>,
+      pdmath::testing::type_value_pair<std::string, false>,
+      pdmath::testing::type_value_pair<pdmath::basic_fibonacci_generator, false>,
+      pdmath::testing::type_value_pair<pdmath::fibonacci_generator, true>
+    >
+  )
+);
 
 }  // namespace
