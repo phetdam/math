@@ -16,6 +16,7 @@
 #include <type_traits>
 #include <vector>
 
+#include "pdmath/features.h"
 #include "pdmath/span.h"
 #include "pdmath/type_traits.h"
 
@@ -210,7 +211,12 @@ auto& operator<<(std::ostream& out, const tridiagonal_view<T>& tri)
   {
     std::stringstream ss;
     ss << v;
+// note: in C++20 we can use the rvalue ref-qualified str() to avoid a copy
+#if PDMATH_HAS_CXX20
+    return std::move(ss).str();
+#else
     return ss.str();
+#endif  // !PDMATH_HAS_CXX20
   };
   // compute string representations for diagonal elements
   for (std::size_t i = 0u; i < ls.size(); i++)
