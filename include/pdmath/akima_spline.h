@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <initializer_list>
 #include <limits>
 #include <stdexcept>
 #include <string>
@@ -147,6 +148,9 @@ public:
    *
    * Constructs from two initializer lists with convertible values.
    *
+   * @tparam T1 Element type
+   * @tparam T2 Element type
+   *
    * @param xs Knot points
    * @param ys Knot values
    */
@@ -162,6 +166,9 @@ public:
    * Ctor.
    *
    * Constructs from two ranges of the same length with convertible values.
+   *
+   * @tparam R1 Range with convertible value type
+   * @tparam R2 Range with convertible value type
    *
    * @param xs Knot points
    * @param ys Knot values
