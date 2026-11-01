@@ -260,7 +260,6 @@ PDMATH_MSVC_WARNINGS_DISABLE(5246)
     [] { return std::array{1.3, 0.44, 2.32, 0.22, 1.34, 3.22}; }
   },
   // system similar to cubic spline second derivative fitting (float)
-
   std::tuple{
     [] { return std::array{0.3f, 0.2f, 0.6f, 0.7f, 0.f}; },
     [] { return std::array{2.f, 2.f, 2.f, 2.f, 2.f, 2.f}; },
