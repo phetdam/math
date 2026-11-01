@@ -16,6 +16,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include "pdmath/features.h"
 #include "pdmath/testing/utils.h"
 #include "pdmath/warnings.h"
 
@@ -144,6 +145,87 @@ PDMATH_MSVC_WARNINGS_POP()
   }
 };
 
+/**
+ * Test case for `tridiagonal_view` stream tests.
+ *
+ * @tparam I Input index
+ */
+template <std::size_t I>
+struct tridiagonal_view_stream_test {};
+
+// tridiagonal_view_stream_test input cases. each is a std::tuple with nullary
+// callables to produce the lower, main, upper diagonal ranges, as well as a
+// string literal indicating the expected stream output
+constexpr auto tridiagonal_view_stream_test_inputs = std::tuple{
+  std::tuple{
+    [] { return std::vector{0.5, 0.4, 0.4, 0.6}; },
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(5246)
+    [] { return std::array{2., 2., 2., 2., 2.}; },
+PDMATH_MSVC_WARNINGS_POP()
+    [] { return std::vector{0.5, 0.6, 0.6, 0.4}; },
+    "  2 0.5   0   0   0\n"
+    "0.5   2 0.6   0   0\n"
+    "  0 0.4   2 0.6   0\n"
+    "  0   0 0.4   2 0.4\n"
+    "  0   0   0 0.6   2"
+  },
+  std::tuple{
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(5246)
+    [] { return std::array{1.4, 1.352, 2.432, 0.223}; },
+    [] { return std::vector{4., 5., 5., 6., 5.}; },
+    [] { return std::array{1.2, 3.2, 1.111, 1.453}; },
+PDMATH_MSVC_WARNINGS_POP()
+    "  4   1.2     0     0     0\n"
+    "1.4     5   3.2     0     0\n"
+    "  0 1.352     5 1.111     0\n"
+    "  0     0 2.432     6 1.453\n"
+    "  0     0     0 0.223     5"
+  }
+};
+// helper for inputs size since variable name is long
+constexpr auto tridiagonal_view_stream_test_inputs_size =
+  std::tuple_size_v<decltype(tridiagonal_view_stream_test_inputs)>;
+
+/**
+ * Partial specialization for `tridiagonal_view_stream_test<I>`.
+ *
+ * @tparam I Input index
+ */
+template <std::size_t I>
+class TridiagonalTest<tridiagonal_view_stream_test<I>> : public ::testing::Test {
+protected:
+  static_assert(I < tridiagonal_view_stream_test_inputs_size);
+
+// MSVC emits C4868 for tridiagonal_view ctor
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(4868)
+  /**
+   * Create the `tridiagonal_view` and ensure it formats as expected.
+   */
+  void operator()() const
+  {
+    // get input invocables and expected result
+    auto [f1, f2, f3, str] = std::get<I>(tridiagonal_view_stream_test_inputs);
+    // create input ranges + view
+    auto ls = f1();
+    auto ms = f2();
+    auto us = f3();
+    pdmath::tridiagonal_view tri{ls, ms, us};
+PDMATH_MSVC_WARNINGS_POP()
+    // format + check result
+    std::stringstream ss;
+    ss << tri;
+    // note: in C++20 we can use view()
+#if PDMATH_HAS_CXX20
+    EXPECT_EQ(str, ss.view());
+#else
+    EXPECT_EQ(str, ss.str());
+#endif  // !PDMATH_HAS_CXX20
+  }
+};
+
 // TridiagonalTest input types
 TYPED_TEST_SUITE(
   TridiagonalTest,
@@ -152,6 +234,10 @@ TYPED_TEST_SUITE(
       pdmath::testing::indexed_types<
         tridiagonal_view_init_test,
         std::tuple_size_v<decltype(tridiagonal_view_init_test_inputs)>
+      >,
+      pdmath::testing::indexed_types<
+        tridiagonal_view_stream_test,
+        std::tuple_size_v<decltype(tridiagonal_view_stream_test_inputs)>
       >
     >
   )
