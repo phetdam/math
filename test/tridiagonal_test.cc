@@ -70,9 +70,9 @@ constexpr auto tridiagonal_view_init_test_inputs = std::tuple{
 // https://www.open-std.org/JTC1/SC22/WG21/docs/papers/2012/n3367.html#1270
 PDMATH_MSVC_WARNINGS_PUSH()
 PDMATH_MSVC_WARNINGS_DISABLE(5246)
-    [] { return std::array{1., 1., 1., 1., 1.}; },
+    [] { return std::array{1., 1., 1., 1., 0.}; },
     [] { return std::array{2., 2., 2., 2., 2., 2.}; },
-    [] { return std::array{1., 1., 1., 1., 1.}; }
+    [] { return std::array{0., 1., 1., 1., 1.}; }
 PDMATH_MSVC_WARNINGS_POP()
   },
   // std::vector
@@ -158,17 +158,18 @@ struct tridiagonal_view_stream_test {};
 // string literal indicating the expected stream output
 constexpr auto tridiagonal_view_stream_test_inputs = std::tuple{
   std::tuple{
-    [] { return std::vector{0.5, 0.4, 0.4, 0.6}; },
+    [] { return std::vector{0.5, 0.4, 0.4, 0.6, 0.}; },
 PDMATH_MSVC_WARNINGS_PUSH()
 PDMATH_MSVC_WARNINGS_DISABLE(5246)
-    [] { return std::array{2., 2., 2., 2., 2.}; },
+    [] { return std::array{2., 2., 2., 2., 2., 2.}; },
 PDMATH_MSVC_WARNINGS_POP()
-    [] { return std::vector{0.5, 0.6, 0.6, 0.4}; },
-    "  2 0.5   0   0   0\n"
-    "0.5   2 0.6   0   0\n"
-    "  0 0.4   2 0.6   0\n"
-    "  0   0 0.4   2 0.4\n"
-    "  0   0   0 0.6   2"
+    [] { return std::vector{0., 0.5, 0.6, 0.6, 0.4}; },
+    "  2   0   0   0   0   0\n"
+    "0.5   2 0.5   0   0   0\n"
+    "  0 0.4   2 0.6   0   0\n"
+    "  0   0 0.4   2 0.6   0\n"
+    "  0   0   0 0.6   2 0.4\n"
+    "  0   0   0   0   0   2"
   },
   std::tuple{
 PDMATH_MSVC_WARNINGS_PUSH()
