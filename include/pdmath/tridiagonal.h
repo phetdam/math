@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -203,15 +204,23 @@ auto& operator<<(std::ostream& out, const tridiagonal_view<T>& tri)
   std::vector<std::string> us(ud.size());
   // column column display widths
   std::vector<std::size_t> col_widths(tri.cols());
+  // string representation helper. this is necessary since std::to_string()
+  // uses fixed decimal representations which can be overly verbose
+  auto to_string = [](auto&& v)
+  {
+    std::stringstream ss;
+    ss << v;
+    return ss.str();
+  };
   // compute string representations for diagonal elements
   for (std::size_t i = 0u; i < ls.size(); i++)
-    ls[i] = std::to_string(ld[i]);
+    ls[i] = to_string(ld[i]);
   for (std::size_t i = 0u; i < ms.size(); i++)
-    ms[i] = std::to_string(md[i]);
+    ms[i] = to_string(md[i]);
   for (std::size_t i = 0u; i < us.size(); i++)
-    us[i] = std::to_string(ud[i]);
+    us[i] = to_string(ud[i]);
   // compute column widths
-  col_widths[0] = (std::max)(ls[0].size(), ms[0].size());
+  col_widths.front() = (std::max)(ls.front().size(), ms.front().size());
   for (std::size_t i = 1u; i < tri.cols() - 1u; i++)
     col_widths[i] = (std::max)({ls[i].size(), ms[i].size(), us[i].size()});
   col_widths.back() = (std::max)(ms.back().size(), us.back().size());
