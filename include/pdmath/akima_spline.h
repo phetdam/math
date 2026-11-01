@@ -82,6 +82,9 @@ private:
     /**
      * Evaluate the Akima spline's derivative at the given point.
      *
+     * If the point is outside the interpolation interval the corresponding
+     * endpoint cubic polynomial will be used for extrapolation.
+     *
      * @param v Evaluation point
      */
     auto operator()(T v) const noexcept
