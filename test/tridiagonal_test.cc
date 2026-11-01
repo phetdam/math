@@ -164,12 +164,12 @@ PDMATH_MSVC_WARNINGS_DISABLE(5246)
     [] { return std::array{2., 2., 2., 2., 2., 2.}; },
 PDMATH_MSVC_WARNINGS_POP()
     [] { return std::vector{0., 0.5, 0.6, 0.6, 0.4}; },
-    "  2   0   0   0   0   0\n"
-    "0.5   2 0.5   0   0   0\n"
-    "  0 0.4   2 0.6   0   0\n"
-    "  0   0 0.4   2 0.6   0\n"
-    "  0   0   0 0.6   2 0.4\n"
-    "  0   0   0   0   0   2"
+    "  2    0    0    0    0    0\n"
+    "0.5    2  0.5    0    0    0\n"
+    "  0  0.4    2  0.6    0    0\n"
+    "  0    0  0.4    2  0.6    0\n"
+    "  0    0    0  0.6    2  0.4\n"
+    "  0    0    0    0    0    2"
   },
   std::tuple{
 PDMATH_MSVC_WARNINGS_PUSH()
@@ -178,11 +178,11 @@ PDMATH_MSVC_WARNINGS_DISABLE(5246)
     [] { return std::vector{4., 5., 5., 6., 5.}; },
     [] { return std::array{1.2, 3.2, 1.111, 1.453}; },
 PDMATH_MSVC_WARNINGS_POP()
-    "  4   1.2     0     0     0\n"
-    "1.4     5   3.2     0     0\n"
-    "  0 1.352     5 1.111     0\n"
-    "  0     0 2.432     6 1.453\n"
-    "  0     0     0 0.223     5"
+    "  4    1.2      0      0      0\n"
+    "1.4      5    3.2      0      0\n"
+    "  0  1.352      5  1.111      0\n"
+    "  0      0  2.432      6  1.453\n"
+    "  0      0      0  0.223      5"
   }
 };
 // helper for inputs size since variable name is long

@@ -259,11 +259,11 @@ tridiagonal_view<std::remove_reference_t<range_reference_t<R1>>>;
  * 2s, and an upper diagonal 0.5, 0.6, 0.6, 0.4, the output would be:
  *
  * @code
- *   2 0.5   0   0   0
- * 0.5   2 0.6   0   0
- *   0 0.4   2 0.6   0
- *   0   0 0.4   2 0.4
- *   0   0   0 0.6   2
+ *   2  0.5    0    0    0
+ * 0.5    2  0.6    0    0
+ *   0  0.4    2  0.6    0
+ *   0    0  0.4    2  0.4
+ *   0    0    0  0.6    2
  * @endcode
  *
  * @tparam T Element type
@@ -324,7 +324,7 @@ auto& operator<<(std::ostream& out, const tridiagonal_view<T>& tri)
     for (std::size_t j = 0u; j < tri.cols(); j++) {
       // extra space to separate columns
       if (j)
-        pad(1);
+        pad(2);
       // lower diagonal
       if (i == j + 1) {
         pad(col_widths[j] - ls[j].size());
