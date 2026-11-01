@@ -227,6 +227,90 @@ PDMATH_MSVC_WARNINGS_POP()
   }
 };
 
+/**
+ * Test case for `tridiagonal_view` linear system solution tests.
+ *
+ * @tparam I Input index
+ */
+template <std::size_t I>
+struct tridiagonal_solve_test {};
+
+// tridiagonal_solve_test inputs. each is a std::tuple with nullary invocables
+// for the lower, main, and upper diagonal ranges to construct from, the
+// expected solution, and the right-hand-side coefficient range invocable. all
+// values are computed using NumPy's numpy.linalg.solve() for comparison
+constexpr auto tridiagonal_solve_test_inputs = std::tuple{
+  // system similar to cubic spline fitting
+  std::tuple{
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(5246)
+    [] { return std::array{0.4, 0.5, 0.5, 0.6, 0.}; },
+    [] { return std::array{2., 2., 2., 2., 2., 2.}; },
+    [] { return std::array{0., 0.6, 0.5, 0.5, 0.4}; },
+    []
+    {
+      return std::array{
+        0.65, -0.30581560283687936, 1.3193853427895978,
+        -0.33172576832151296, 0.4475177304964539, 1.61
+      };
+    },
+    [] { return std::array{1.3, 0.44, 2.32, 0.22, 1.34, 3.22}; }
+  },
+  // system similar to cubic spline fitting
+  std::tuple{
+    [] { return std::array{0.3, 0.2, 0.6, 0.7, 0.}; },
+    [] { return std::array{2., 2., 2., 2., 2., 2.}; },
+    [] { return std::array{0., 0.7, 0.8, 0.4, 0.3}; },
+    []
+    {
+      return std::array{
+        0.717, 0.15644086436426763, 2.888597530387807,
+        -1.5943540420605828, 4.716373914721204, 4.121
+      };
+    },
+    [] { return std::array{1.434, 2.55 , 4.533, 0.431, 9.553, 8.242}; }
+PDMATH_MSVC_WARNINGS_POP()
+  }
+};
+
+/**
+ * Partial specialization for `tridiagonal_solve_test<I>`.
+ *
+ * @tparam I Input index
+ */
+template <std::size_t I>
+class TridiagonalTest<tridiagonal_solve_test<I>> : public ::testing::Test {
+protected:
+  static_assert(I < std::tuple_size_v<decltype(tridiagonal_solve_test_inputs)>);
+
+// MSVC emits C4868 for tridiagonal_view ctor
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(4868)
+  /**
+   * Solve the tridiagonal system and check that the results are as expected.
+   */
+  void operator()() const
+  {
+    // inputs
+    auto [f1, f2, f3, f4, f5] = std::get<I>(tridiagonal_solve_test_inputs);
+    // create view
+    auto ls = f1();
+    auto ms = f2();
+    auto us = f3();
+    pdmath::tridiagonal_view tri{ls, ms, us};
+PDMATH_MSVC_WARNINGS_POP()
+    // expected result + coefficient vector
+    auto x0 = f4();
+    auto rhs = f5();
+    // solve system
+    // note: for template type deduction convenience we just copy from x0
+    std::vector xs(std::begin(x0), std::end(x0));
+    tri(xs, rhs);
+    // check results
+    EXPECT_THAT(xs, ::testing::Pointwise(::testing::DoubleEq(), x0));
+  }
+};
+
 // TridiagonalTest input types
 TYPED_TEST_SUITE(
   TridiagonalTest,
@@ -239,6 +323,10 @@ TYPED_TEST_SUITE(
       pdmath::testing::indexed_types<
         tridiagonal_view_stream_test,
         std::tuple_size_v<decltype(tridiagonal_view_stream_test_inputs)>
+      >,
+      pdmath::testing::indexed_types<
+        tridiagonal_solve_test,
+        std::tuple_size_v<decltype(tridiagonal_solve_test_inputs)>
       >
     >
   )
