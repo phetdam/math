@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <initializer_list>
 #include <limits>
 #include <stdexcept>
@@ -95,7 +96,7 @@ private:
         auto& ys = f_->ys_;
         auto& ss = f_->ss_;
         // determine bucket. i will be in {0, ... xs.size() - 2}
-        auto i = 0u;
+        std::size_t i = 0u;
         while ((i + 2 < xs.size()) && (v > xs[i + 1]))
           i++;
         // compute interval length, interval slope, and v - xs[i]
@@ -202,7 +203,7 @@ public:
     // quadratically extrapolated slope differences, 2 prepended, 2 appended
     std::vector<T> ms(n + 3);
     // compute ms[2] through ms[n] using xs_, ys_ values
-    for (auto i = 0u; i < n - 1; i++)
+    for (std::size_t i = 0u; i < n - 1; i++)
       ms[i + 2] = (ys_[i + 1] - ys_[i]) / (xs_[i + 1] - xs_[i]);
     // compute the 4 extrapolated endpoint slopes using the formulas from
     // https://blogs.mathworks.com/cleve/2019/04/29/makima-piecewise-cubic-interpolation/
@@ -212,7 +213,7 @@ public:
     ms[0] = 2 * ms[1] - ms[2];
     // allocate + compute the ss_ spline slopes
     ss_ = decltype(ss_)(n);
-    for (auto i = 0u; i < n; i++) {
+    for (std::size_t i = 0u; i < n; i++) {
       // forward + backward absolute differences of ms
       // note: ms indices offset by 2 due to the extra extrapolated points
       auto w1 = (std::abs)(ms[i + 3] - ms[i + 2]);
@@ -237,7 +238,7 @@ public:
   auto operator()(T v) const noexcept
   {
     // determine bucket. i will be in {0, ... xs_.size() - 2}
-    auto i = 0u;
+    std::size_t i = 0u;
     while ((i + 2 < xs_.size()) && (v > xs_[i + 1]))
       i++;
     // compute interval width + slope over the interval
