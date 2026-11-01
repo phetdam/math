@@ -226,7 +226,7 @@ public:
   constexpr span(
     const span<U>& s,
     constraint_t<std::is_same_v<T, const U>> = 0) noexcept
-    : data_{s.data_}, size_{s.size_}
+    : data_{s.data()}, size_{s.size()}
   {}
 
   /**
