@@ -219,6 +219,8 @@ public:
    * Construct from another `span` without the same const-qualification.
    *
    * @tparam U `T` without const-qualification
+   *
+   * @param s Other `span<U>` to construct from
    */
   template <typename U>
   constexpr span(
