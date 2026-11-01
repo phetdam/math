@@ -271,7 +271,7 @@ private:
     // rhs[n - 1] required 0 by natural spline
     rhs[n - 1] = 0;
     // tridiagonal matrix main diagonal values
-    std::vector<T> ms(2, n);
+    std::vector<T> ms(n, 2);
     // lower + upper diagonal tridiagonal matrix values
     std::vector<T> ls(n - 1);
     std::vector<T> us(n - 1);
@@ -283,8 +283,8 @@ private:
       ls[i - 1] = u;
       us[i] = 1 - u;
     }
-    // ls[n - 1] required 0 by natural spline
-    ls[n - 1] = 0;
+    // ls[n - 2] required 0 by natural spline
+    ls[n - 2] = 0;
     // solve tridiagonal system
     ms_ = decltype(ms_)(n);
     tridiagonal_view tri{ls, ms, us};
