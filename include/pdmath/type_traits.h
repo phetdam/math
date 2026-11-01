@@ -159,6 +159,26 @@ template <typename T>
 struct always_true : std::true_type {};
 
 /**
+ * Traits type that provides the same type passed as its input.
+ *
+ * This should be used to establish non-deduced contexts.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct type_identity {
+  using type = T;
+};
+
+/**
+ * SFINAE helper for the type identity traits for a non-deduced context.
+ *
+ * @tparam T type
+ */
+template <typename T>
+using type_identity_t = typename type_identity<T>::type;
+
+/**
  * Traits to indicate if a type can be streamed to `std::ostream`.
  *
  * @tparam T type
