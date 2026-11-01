@@ -17,6 +17,7 @@ add_executable(
         norms_test.cc
         simd_test.cc
         span_test.cc
+        tridiagonal_test.cc
         type_traits_test.cc
 )
 # TODO: need build-time CPU feature detection so we can determine what the
