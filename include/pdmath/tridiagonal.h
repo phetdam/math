@@ -69,6 +69,22 @@ public:
   }
 
   /**
+   * Ctor.
+   *
+   * Construct from another `tridiagonal_view<U>` when `T` is `const U`.
+   *
+   * @tparam U Element type
+   *
+   * @param v Other `tridiagonal_view<U>` to construct from
+   */
+  template <typename U>
+  constexpr tridiagonal_view(
+    const tridiagonal_view<U>& v,
+    constraint_t<std::is_same_v<T, const U>> = 0) noexcept
+    : ld_{v.ld()}, md_{v.md()}, ud_{v.ud()}
+  {}
+
+  /**
    * Return a view of the lower diagonal.
    */
   constexpr auto& ld() const noexcept { return ld_; }
@@ -150,6 +166,69 @@ public:
   constexpr auto& ud(std::size_t i) const noexcept
   {
     return ud_[i];
+  }
+
+  /**
+   * Find the solution to the tridiagonal system of linear equations.
+   *
+   * This provides a high-level entry point to mixed-precision solution of the
+   * sparse tridiagonal system using the recurrence relation for coefficients.
+   * Applications of this function include solving for cubic spline knot point
+   * second derivatives or systems of PDE equations with tridiagonal forms.
+   *
+   * The implementation uses the standard Thomas algorithm for solving.
+   *
+   * @todo Increase constraints for `R1` and `R2`to ensure that they are ranges
+   *  with random-access iterators. Currently this is only enforced by whether
+   *  or not `R1` and `R2` can appropriately be converted to `span`.
+   *
+   * @tparam R1 Random-access floating-point range
+   * @tparam R2 Random-access floating-point range
+   *
+   * @param res Output range of at least `rows()` elements
+   * @param rhs Input range of `rows()` elements for the RHS coefficients
+   */
+  template <typename R1, typename R2>
+  void operator()(
+    R1& res,
+    R2&& rhs,
+    constraint_t<
+      std::is_floating_point_v<range_value_t<R1>> &&
+      std::is_floating_point_v<range_value_t<R2>> > = 0) const
+  {
+    // create spans from res, rhs
+    // note: in the absence of traits enforcement at the SFINAE layer the
+    // converting span ctors will forcibly constrain operator()
+    span xs{res};
+    span bs{rhs};
+    // dimension checks
+    if (xs.size() != bs.size())
+      throw std::runtime_error{
+        "solution span size " + std::to_string(xs.size()) +
+        " != RHS span size " + std::to_string(bs.size())
+      };
+    if (xs.size() != rows())
+      throw std::runtime_error{
+        "solution span size " + std::to_string(xs.size()) +
+        " != LHS dimension " + std::to_string(rows())
+      };
+    // record problem dimension
+    auto n = xs.size();
+    // upper diagonal iterations + RHS iterations
+    std::vector cs(ud_.begin(), ud_.end());
+    std::vector ds(bs.begin(), bs.end());
+    // iterate upper diagonal coefficients
+    cs[0] /= md_[0];
+    for (std::size_t i = 1u; i < n - 1; i++)
+      cs[i] /= (md_[i] - ld_[i - 1] * cs[i - 1]);
+    // iterate RHS coefficients
+    ds[0] /= md_[0];
+    for (std::size_t i = 1u; i < n; i++)
+      ds[i] = (ds[i] - ld_[i - 1] * ds[i - 1]) / (md_[i] - ld_[i - 1] * cs[i - 1]);
+    // back-substitute result
+    xs[n - 1] = ds[n - 1];
+    for (std::size_t i = 0u; i < n - 1; i++)
+      xs[n - i - 2] = ds[n - i - 2] - cs[n - i - 2] * xs[n - i - 1];
   }
 
 private:
@@ -270,63 +349,6 @@ auto& operator<<(std::ostream& out, const tridiagonal_view<T>& tri)
   }
   // done
   return out;
-}
-
-/**
- * Find the solution to the tridiagonal system of linear equations.
- *
- * This provides a low-level interface to mixed-precision solution of the
- * sparse tridiagonal system using the recurrence relation for coefficients.
- * Applications of this function include solving for cubic spline knot point
- * second derivatives or systems of PDE equations with tridiagonal forms.
- *
- * The implementation uses the standard Thomas algorithm for solving.
- *
- * @tparam T Floating-point type
- * @tparam U Floating-point type
- * @tparam V Floating-point type
- */
-template <typename T, typename U, typename V>
-void solve(
-  tridiagonal_view<const T>& lhs,
-  span<U> res,
-  span<const V> rhs,
-  constraint_t<
-    std::is_floating_point_v<T> &&
-    std::is_floating_point_v<U> &&
-    std::is_floating_point_v<V> > = 0)
-{
-  // dimension checks
-  if (res.size() != rhs.size())
-    throw std::runtime_error{
-      "solution span size " + std::to_string(res.size()) +
-      " != RHS span size " + std::to_string(rhs.size())
-    };
-  if (res.size() != lhs.rows())
-    throw std::runtime_error{
-      "solution span size " + std::to_string(res.size()) +
-      " != LHS dimension " + std::to_string(lhs.rows())
-    };
-  // record problem dimension + diagonal spans
-  auto n = res.size();
-  auto ld = lhs.ld();
-  auto md = lhs.md();
-  auto ud = lhs.ud();
-  // upper diagonal iterations + RHS iterations
-  std::vector<T> cs{ud.begin(), ud.end()};
-  std::vector<V> ds{rhs.begin(), rhs.end()};
-  // iterate upper diagonal coefficients
-  cs[0] /= md[0];
-  for (std::size_t i = 1u; i < n - 1; i++)
-    cs[i] /= (md[i] - ld[i - 1] * cs[i - 1]);
-  // iterate RHS coefficients
-  ds[0] /= md[0];
-  for (std::size_t i = 1u; i < n; i++)
-    ds[i] = (ds[i] - ld[i - 1] * ds[i - 1]) / (md[i] - ld[i - 1] * cs[i - 1]);
-  // back-substitute result
-  res[n - 1] = ds[n - 1];
-  for (std::size_t i = 0u; i < n - 1; i++)
-    res[n - i - 2] = ds[n - i - 2] - cs[n - i - 2] * res[n - i - 1];
 }
 
 }  // namespace pdmath
