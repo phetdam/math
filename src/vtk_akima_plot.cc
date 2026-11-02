@@ -17,12 +17,10 @@
  * 4. (1, 1) x = {-5, -4, ... 4, 5}, y = {1, 1, 1, 0, 0, 1, 1, 2, 2, 2, 2}
  */
 
-#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <numeric>
 #include <tuple>
-#include <type_traits>
 
 #include <vtkAxis.h>
 #include <vtkChart.h>
@@ -32,7 +30,7 @@
 #include <vtkPen.h>
 
 #include "pdmath/akima_spline.h"
-#include "pdmath/type_traits.h"
+#include "pdmath/functional.h"
 #include "pdmath/vtk_actor.h"
 #include "pdmath/vtk_chart.h"
 #include "pdmath/vtk_image_writer.h"
@@ -40,96 +38,6 @@
 #include "pdmath/vtk_table.h"
 #include "pdmath/vtk_window.h"
 #include "pdmath/warnings.h"
-
-namespace {
-
-/**
- * CPO type for returning the minimum element in a range.
- *
- * This is a wrapper over `std::min_element()` for C++17.
- */
-struct min_of_cpo {
-  /**
-   * Return an iterator to the minimum element in a range.
-   *
-   * The elements of the range must be inequality comparable.
-   *
-   * @tparam T Range type
-   */
-  template <typename T>
-  constexpr auto operator()(
-    T&& vs,
-    pdmath::constraint_t<
-      pdmath::is_inequality_comparable_v<pdmath::range_value_t<T>> > = 0) const
-  {
-    return std::min_element(std::begin(vs), std::end(vs));
-  }
-};
-
-/**
- * Customization point object for returning the minimum element in a range.
- */
-constexpr min_of_cpo min_of{};
-
-/**
- * CPO type for returning the maximum element in a range.
- *
- * This is a wrapper over `std::max_element()` for C++17.
- */
-struct max_of_cpo {
-  /**
-   * Return an iterator to the maximum element in a range.
-   *
-   * The elements in the range must be inequality comparable.
-   *
-   * @tparam T Range type
-   */
-  template <typename T>
-  constexpr auto operator()(
-    T&& vs,
-    pdmath::constraint_t<
-      pdmath::is_inequality_comparable_v<pdmath::range_value_t<T>> > = 0) const
-  {
-    return std::max_element(std::begin(vs), std::end(vs));
-  }
-};
-
-/**
- * Customization point object for returning the maximum element in a range.
- */
-constexpr max_of_cpo max_of{};
-
-/**
- * CPO type for invoking a callable on each element of a range.
- *
- * This is a wrapper of `std::for_each()` for C++17.
- */
-struct for_each_cpo {
-  /**
-   * Invoke the unary callable on each element of the range.
-   *
-   * @note It is required that the callable must operate on a reference.
-   *
-   * @tparam T Range type
-   * @tparam F Unary invocable
-   */
-  template <typename T, typename F>
-  constexpr auto operator()(
-    T&& vs,
-    F&& f,
-    pdmath::constraint_t<
-      std::is_invocable_v<F, pdmath::range_value_t<T>&> > = 0) const
-  {
-    return std::for_each(std::begin(vs), std::end(vs), std::forward<F>(f));
-  }
-};
-
-/**
- * Customization point object for invoking a callable on each range element.
- */
-constexpr for_each_cpo for_each{};
-
-}  // namespace
 
 int main()
 {
@@ -145,7 +53,7 @@ int main()
   // cosine data + spline
   std::array x1{0.f, 1.f, 2.5f, 3.6f, 5.f, 7.f, 8.1f, 10.f};
   auto y1 = x1;
-  for_each(y1, [](auto& x) { x = std::cos(x); });
+  pdmath::for_each(y1, [](auto& x) { x = std::cos(x); });
   pdmath::akima_spline f1{x1, y1};
   // top-left chart's cosine data
   auto data_1 = pdmath::vtk_table{}
@@ -183,7 +91,7 @@ PDMATH_MSVC_WARNINGS_POP()
     .axis(vtkAxis::LEFT)
       .hide_grid()
       .title("f(x)")
-      .fixed(*min_of(y1) - 0.2, *max_of(y1) + 0.1)
+      .fixed(*pdmath::min_of(y1) - 0.2, *pdmath::max_of(y1) + 0.1)
     ()
     // note: plot points *after* evaluations so they are on top
     .plot<vtkChart::LINE>()
@@ -263,7 +171,7 @@ PDMATH_MSVC_WARNINGS_POP()
   std::array<float, 16u> x3{};
   std::iota(x3.begin(), x3.end(), 0.f);
   auto y3 = x3;
-  for_each(y3, [](auto& x) { x = std::cyl_bessel_j(1, x); });
+  pdmath::for_each(y3, [](auto& x) { x = std::cyl_bessel_j(1, x); });
   pdmath::akima_spline f3{x3, y3};
   // top-right chart's Bessel function data
   auto data_3 = pdmath::vtk_table{}
@@ -359,7 +267,7 @@ PDMATH_MSVC_WARNINGS_POP()
     .axis(vtkAxis::LEFT)
       .hide_grid()
       .title("f(x)")
-      .fixed(*min_of(y4) - 0.2, *max_of(y4) + 0.1)
+      .fixed(*pdmath::min_of(y4) - 0.2, *pdmath::max_of(y4) + 0.1)
     ()
     .plot<vtkChart::LINE>()
       .data(akima_4, "x", "f4(x)")
