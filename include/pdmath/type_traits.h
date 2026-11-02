@@ -610,6 +610,8 @@ struct is_legacy_input_iterator<
 template <typename T>
 constexpr bool is_legacy_input_iterator_v = is_legacy_input_iterator<T>::value;
 
+// TODO: add is_addition_supported[_v]<T>
+
 /**
  * Traits type for `operator+()` support between two types.
  *
@@ -645,8 +647,10 @@ template <typename T, typename U>
 constexpr bool
 is_addition_supported_with_v = is_addition_supported_with<T, U>::value;
 
+// TODO: add is_subtraction_supported[_v]<T>
+
 /**
- * Traits types for `operator-()` support between two types.
+ * Traits type for `operator-()` support between two types.
  *
  * Essentially, for `T t`, `U u`, we want to know if `t - u` is supported.
  *
@@ -679,6 +683,32 @@ struct is_subtraction_supported_with<
 template <typename T, typename U>
 constexpr bool
 is_subtraction_supported_with_v = is_subtraction_supported_with<T, U>::value;
+
+/**
+ * Traits type checking for `operator<()` support.
+ *
+ * @tparam T type
+ */
+template <typename T, typename = void>
+struct is_less_than_supported : std::false_type {};
+
+/**
+ * True specialization for a type that supports `operator<()`.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct is_less_than_supported<
+  T, std::void_t<decltype(std::declval<T>() < std::declval<T>())> >
+  : std::true_type {};
+
+/**
+ * Indicate if `operator<()` is supported by the given type.
+ *
+ * @tparam T type
+ */
+template <typename T>
+constexpr bool is_less_than_supported_v = is_less_than_supported<T>::value;
 
 }  // namespace pdmath
 
