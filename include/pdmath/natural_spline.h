@@ -17,6 +17,7 @@
 
 #include "pdmath/tridiagonal.h"
 #include "pdmath/type_traits.h"
+#include "pdmath/warnings.h"
 
 namespace pdmath {
 
@@ -287,7 +288,11 @@ private:
     ls[n - 2] = 0;
     // solve tridiagonal system
     ms_ = decltype(ms_)(n);
+// MSVC emits C4868 for tridiagonal_view<T> ctor taking span<T> by copy
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(4868)
     tridiagonal_view tri{ls, ms, us};
+PDMATH_MSVC_WARNINGS_POP()
     tri(ms_, rhs);
   }
 };
