@@ -305,6 +305,20 @@ natural_spline(R1&&, R2&&) -> natural_spline<
   std::common_type_t<range_value_t<R1>, range_value_t<R2>>
 >;
 
+/**
+ * User-defined deduction guide for the `natural_spline<T>`.
+ *
+ * This deduces to the wider of the two initializer list value types and is
+ * provided separately due to template deduction rules.
+ *
+ * @tparam T1 Floating-point type
+ * @tparam T2 Floating-point type
+ */
+template <typename T1, typename T2>
+natural_spline(
+  std::initializer_list<T1>,
+  std::initializer_list<T2>) -> natural_spline<std::common_type_t<T1, T2>>;
+
 }  // namespace pdmath
 
 #endif  // PDMATH_NATURAL_SPLINE_H_
