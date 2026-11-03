@@ -83,11 +83,6 @@ public:
   }
 };
 
-// note: MSVC emits C5246 in C++17 mode due to old interpretation of std::array
-// of aggregate without brace elision; see the CWG defect report:
-// https://www.open-std.org/JTC1/SC22/WG21/docs/papers/2012/n3367.html#1270
-PDMATH_MSVC_WARNINGS_PUSH()
-PDMATH_MSVC_WARNINGS_DISABLE(5246)
 // Akima spline test case inputs. each input is a std::tuple with the elements:
 //
 // 1. nullary invocable returning an akima_spline (flexible initialization)
@@ -111,6 +106,11 @@ constexpr auto akima_spline_test_inputs = std::make_tuple(
   // interpolation only
   std::tuple{
     &AkimaSplineTest<>::spline_1,
+// note: MSVC emits C5246 in C++17 mode due to old interpretation of std::array
+// of aggregate without brace elision; see the CWG defect report:
+// https://www.open-std.org/JTC1/SC22/WG21/docs/papers/2012/n3367.html#1270
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(5246)
     std::array{1.5, 2.5, 3.5, 4.5},
     std::tuple{
       std::array{3.725, 5.8, 5.0375, 4.125},
@@ -176,10 +176,10 @@ constexpr auto akima_spline_test_inputs = std::make_tuple(
       },
       std::array{0., 0., 9., 0., -6., 6., -9., 0., 0., 0.},
       std::array{0., 0., 0., 0., 0., 0., 0., 0., 0., 0.}
+PDMATH_MSVC_WARNINGS_POP()
     }
   }
 );
-PDMATH_MSVC_WARNINGS_POP()
 
 /**
  * Partial specialization for an Akima spline test.
