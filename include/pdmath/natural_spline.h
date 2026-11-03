@@ -9,6 +9,7 @@
 #define PDMATH_NATURAL_SPLINE_H_
 
 #include <algorithm>
+#include <cstddef>
 #include <initializer_list>
 #include <stdexcept>
 #include <string>
@@ -67,7 +68,7 @@ private:
    *
    * @tparam I Order of the derivative
    */
-  template <int I, typename = constraint_t<(I > 0)>>
+  template <std::size_t I, typename = constraint_t<(I > 0)>>
   class derivative {
   public:
     /**
@@ -126,7 +127,7 @@ private:
      *
      * @tparam I Order of the derivative
      */
-    template <int I_ = 1, typename = constraint_t<(I_ > 0)>>
+    template <std::size_t I_ = 1, typename = constraint_t<(I_ > 0)>>
     auto d() const noexcept
     {
       return derivative<I + I_>{*f_};
@@ -233,6 +234,17 @@ public:
       (ys_[i] / dx - ms_[i] * dx / 6) * dxu +
       (ys_[i + 1u] / dx - ms_[i + 1u] * dx / 6) * dxd
     );
+  }
+
+  /**
+   * Return the derivative of the natural cubic spline.
+   *
+   * @tparam I Order of the derivative
+   */
+  template <std::size_t I, typename = constraint_t<(I > 0)>>
+  auto d() const noexcept
+  {
+    return derivative<I>{*this};
   }
 
 private:
