@@ -9,6 +9,7 @@
 #define PDMATH_FUNCTIONAL_H_
 
 #include <type_traits>
+#include <utility>
 
 #include "pdmath/type_traits.h"
 
@@ -77,7 +78,9 @@ constexpr max_of_cpo max_of{};
 /**
  * CPO type for invoking a callable on each element of a range.
  *
- * This is a wrapper of `std::for_each()` for C++17.
+ * This is a reimplementation of `std::for_each()` with reduced requirements on
+ * the iterator and invocable. Furthermore, the `operator()` is `constexpr`.
+ * Prefer using this over `std::for_each()` due to this increased flexibility.
  */
 struct for_each_cpo {
   /**
@@ -99,7 +102,16 @@ struct for_each_cpo {
   {
     using std::begin;
     using std::end;
-    return std::for_each(begin(vs), end(vs), std::forward<F>(f));
+    // note: it need only be a LegacyIterator and st can be a sentinel type
+    auto it = begin(vs);
+    auto st = end(vs);
+    // note: only operator== needs implementation
+    while (!(it == st)) {
+      f(*it);
+      ++it;
+    }
+    // forwarded
+    return std::forward<F>(f);
   }
 };
 
@@ -107,6 +119,69 @@ struct for_each_cpo {
  * Customization point object for invoking a callable on each range element.
  */
 constexpr for_each_cpo for_each{};
+
+/**
+ * CPO type for transforming each element of a range and writing to another.
+ *
+ * This is a `constexpr` capable reimplementation of `std::transform()` with
+ * reduced requirements on the iterator and invocable. Prefer using this over
+ * `std::transform()` due to this increased flexibility.
+ */
+struct transform_cpo {
+  /**
+   * SFINAE helper for the `operator()` constraint.
+   *
+   * @tparam F Unary invocable
+   * @tparam T Input range/iterator type
+   * @tparam U Output range/iterator type
+   */
+  template <typename F, typename T, typename U>
+  using invoke_constraint_t = constraint_t<
+    std::is_convertible_v<std::invoke_result_t<F, T&>, U>
+  >;
+
+  /**
+   * Invoke the unary callable on each element of the range.
+   *
+   * @note It is required that the callable must operate on a reference.
+   *
+   * @tparam T Range type
+   * @tparam O Output iterator type
+   * @tparam F Unary invocable
+   *
+   * @param vs Range of values
+   * @param out Output iterator
+   * @param f Unary invocable to apply
+   */
+  template <typename T, typename O, typename F>
+  constexpr auto operator()(
+    T&& vs,
+    O out,
+    F&& f,
+    invoke_constraint_t<F, range_value_t<T>, iter_value_t<O>> = 0) const
+  {
+    using std::begin;
+    using std::end;
+    // note: it need only be a LegacyIterator and st can be a sentinel type
+    auto it = begin(vs);
+    auto st = end(vs);
+    // note: only operator== needs implementation
+    while (!(it == st)) {
+      *out = f(*it);
+      ++it;
+      ++out;
+    }
+    // return sentinel/iterator
+    return std::move(out);
+  }
+
+  // TODO: add operator() for two ranges
+};
+
+/**
+ * Customization point object for transforming range elements to another range.
+ */
+inline constexpr transform_cpo transform{};
 
 }  // namespace pdmath
 
