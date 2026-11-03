@@ -61,7 +61,7 @@ public:
    */
   static auto spline_2()
   {
-    // note: initializer lists need not have floating-point value types
+    // note: initializer lists need not both have floating-point value types
     return pdmath::akima_spline{
       {-3, -2, -1, 0, 1, 2, 3},
       {1.5, 4.5, -1., -2., 0.2, 3.4, 2.3}
@@ -75,7 +75,7 @@ public:
    */
   static auto spline_3()
   {
-    // note: initializer lists need not have floating-point value types
+    // note: initializer lists need not both have floating-point value types
     return pdmath::akima_spline{
       {-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5},
       {1., 1., 1., 0., 0., 1., 1., 2., 2., 2., 2.}
@@ -265,13 +265,14 @@ protected:
   /**
    * Test that spline evaluations or derivatives match the expected values.
    *
-   * `I = 0` gives spline evaluations and others are for higher derivatives.
+   * `J = 0` gives spline evaluations and others are for higher derivatives.
    *
    * @tparam J Order of the derivative
    */
   template <std::size_t J>
   void test(pdmath::constraint_t<(J >= 0) && (J <= 4)> = 0) const
   {
+    static_assert(J < std::tuple_size_v<decltype(res_)>);
     // expected values + matcher
     // note: could also be constexpr but see above for comment on MSVC bugs
     auto& v0s = values(std::get<J>(res_));
