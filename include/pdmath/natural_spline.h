@@ -252,6 +252,9 @@ private:
   std::vector<T> ys_;  // knot values
   std::vector<T> ms_;  // knot point second derivatives
 
+// MSVC emits C4868 for tridiagonal_view<T> ctor taking span<T> by copy
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(4868)
   /**
    * Solve for the natural spline knot point second derivatives.
    *
@@ -300,9 +303,6 @@ private:
     ls[n - 2] = 0;
     // solve tridiagonal system
     ms_ = decltype(ms_)(n);
-// MSVC emits C4868 for tridiagonal_view<T> ctor taking span<T> by copy
-PDMATH_MSVC_WARNINGS_PUSH()
-PDMATH_MSVC_WARNINGS_DISABLE(4868)
     tridiagonal_view tri{ls, ms, us};
 PDMATH_MSVC_WARNINGS_POP()
     tri(ms_, rhs);
