@@ -69,7 +69,7 @@ private:
    *
    * @tparam I Order of the derivative
    */
-  template <int I, typename = constraint_t<(I > 0)>>
+  template <std::size_t I, typename = constraint_t<(I > 0)>>
   class derivative {
   public:
     /**
@@ -128,7 +128,7 @@ private:
      *
      * @tparam I Order of the derivative
      */
-    template <int I_ = 1, typename = constraint_t<(I_ > 0)>>
+    template <std::size_t I_ = 1, typename = constraint_t<(I_ > 0)>>
     auto d() const noexcept
     {
       return derivative<I + I_>{*f_};
@@ -265,7 +265,7 @@ public:
    *
    * @tparam I Order of the derivative
    */
-  template <int I = 1, typename = constraint_t<(I > 0)>>
+  template <std::size_t I = 1, typename = constraint_t<(I > 0)>>
   auto d() const noexcept
   {
     return derivative<I>{*this};
