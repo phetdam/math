@@ -157,10 +157,34 @@ PDMATH_MSVC_WARNINGS_DISABLE(5246)
     // note: override needed as f is off by at most 8.88178e-16 (at 5.5),
     // f.d<1>() off by at most 8.88178e-16 (at 0.5), f.d<2>() off by at most
     // -2.44249e-15 (at 0.5), f.d<3>() off by at most 3.10862e-15 (at 0.5). see
-    // above comment about SciPy's CubicSpline using LAPAKC's gtsv
+    // above comment about SciPy's CubicSpline using LAPACK's gtsv
     4e-15
   },
-  // TODO: add spline_2() test
+  // more complex interpolation
+  std::tuple{
+    &NaturalSplineTest<>::spline_2,
+    // note: same points as the Akima spline test case for comparison
+    std::array{-2.5, -1.5, -0.5, 0.5, 1.5, 2.5},
+    std::tuple{
+      std::array{
+        3.9561538461538457, 2.0690384615384616, -2.2323076923076925,
+        -1.1773076923076922, 2.066538461538461, 3.2986538461538464
+      },
+      std::array{
+        3.637435897435898, -6.5621794871794865, -0.6387179487179486,
+        2.1420512820512823, 3.6205128205128196, -1.3991025641025643
+      },
+      std::array{
+        -7.649230769230768, -2.5523076923076946, 5.8584615384615395,
+        2.218461538461538, -2.132307692307693, -3.5892307692307686
+      },
+      std::array{
+        -15.298461538461538, 25.492307692307687, -8.670769230769233,
+        1.39076923076923, -10.092307692307688, 7.178461538461537
+      },
+      std::array{0., 0., 0., 0., 0., 0.}
+    }
+  },
   // piecewise polynomial interpolation using the knots points and data from
   // https://www.mathworks.com/help/matlab/ref/makima.html
   std::tuple{
