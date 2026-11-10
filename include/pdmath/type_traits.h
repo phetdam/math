@@ -333,7 +333,7 @@ struct is_legacy_iterator<
     std::is_swappable_v<T>
   >,
   // note: LegacyIterator requirements do not specify return type
-  std::void_t<decltype(*std::declval<T>())>,
+  std::void_t<decltype(*std::declval<T&>())>,
   // note: as before, need an lvalue reference for pre/post increment
   std::enable_if_t<std::is_reference_v<decltype(++std::declval<T&>())>>
 > : std::true_type {};
@@ -591,7 +591,7 @@ struct is_legacy_input_iterator<
     is_indirectly_readable_v<T>
   >,
   std::enable_if_t<
-    !std::is_class_v<std::decay_t<decltype(*std::declval<T>())>> ||
+    !std::is_class_v<std::decay_t<decltype(*std::declval<T&>())>> ||
     !std::is_union_v<std::decay_t<T>> ||
     // note: only applies if value type is not a class or union
     // note: in C++20 input_iterator doesn't require operator->()
