@@ -9,7 +9,7 @@
 #define PDMATH_MEMORY_H_
 
 #if defined(_WIN32)
-#include <malloc.h>          // _aligned_alloc(), aligned_free()
+#include <malloc.h>          // _aligned_malloc(), aligned_free()
 #else
 #include <stdlib.h>          // posix_memalign()
 #endif  // !defined(_WIN32)
@@ -17,7 +17,7 @@
 #include <cerrno>
 #include <cstddef>
 #include <cstdlib>
-#include <new>
+#include <stdexcept>
 
 namespace pdmath {
 
@@ -41,10 +41,18 @@ public:
   using value_type = T;
 
   /**
+   * Return the base address alignment for each allocation.
+   */
+  static constexpr auto alignment() noexcept
+  {
+    return A;
+  }
+
+  /**
    * Allocate enough memory for the given number of instances of `T`.
    *
-   * Memory aligned to `A` is allocated using `_aligned_alloc()` on Windows and
-   * using `posix_memalign()` for POSIX systems. We do not use `aligned_alloc()`
+   * Memory aligned to `A` is allocated using `_aligned_malloc()` on Windows and
+   * using `posix_memalign()` for POSIX systems. We don't use `aligned_alloc()`
    * because the alignment requirement only applies to the lowest address in
    * the buffer, *not* to every single element we wish to allocate.
    *
@@ -59,20 +67,23 @@ public:
   T* allocate(std::size_t n)
   {
 #if defined(_WIN32)
-    auto p = _aligned_alloc(sizeof(T) * n, A);
+    auto p = _aligned_malloc(sizeof(T) * n, A);
     if (!p)
-      throw std::bad_alloc{"_aligned_alloc(): unable to allocate aligned memory"};
+      throw std::runtime_error{
+        "_aligned_malloc(): unable to allocate aligned memory"
+      };
 #else
     void *p;
     switch (posix_memalign(&p, A, sizeof(T) * n)) {
     case EINVAL:
-      throw std::bad_alloc{"posix_memalign(): invalid parameter"};
+      throw std::runtime_error{"posix_memalign(): invalid parameter"};
     case ENOMEM:
-      throw std::bad_alloc{"posix_memalign(): out of memory"};
+      throw std::runtime_error{"posix_memalign(): out of memory"};
     default:
-      return p;
+      break;
     }
 #endif  // !defined(_WIN32)
+    return static_cast<T*>(p);
   }
 
   /**
