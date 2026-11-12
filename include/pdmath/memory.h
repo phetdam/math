@@ -24,11 +24,11 @@ namespace pdmath {
 /**
  * Alignment-aware allocator.
  *
- * This allocator is capable of allocating a chunk of memory with the starting
- * address being a certain multiple of alignment `A`. The primary use-case is
- * for over-aligned allocation for interaction with types like the built-in
- * SIMD types, e.g. ensuring alignment on a 32-byte boundary when using
- * `_mm256_store_pd()` with a buffer provided by this allocator.
+ * This stateless allocator is capable of allocating a chunk of memory with the
+ * starting address being a certain multiple of alignment `A`. The primary
+ * use-case is for over-aligned allocation for interaction with types like the
+ * built-in SIMD types, e.g. ensuring alignment on a 32-byte boundary when
+ * using `_mm256_store_pd()` with a buffer provided by this allocator.
  *
  * This type satisfies the *Allocator* named requirements.
  *
