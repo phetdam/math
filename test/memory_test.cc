@@ -40,7 +40,8 @@ constexpr auto aligned_alloc_test_inputs = std::make_tuple(
   // note: posix_memalign() expects alignment >= sizeof(void*)
   std::tuple{pdmath::aligned_allocator<float, 8>{}, 47u},
   std::tuple{pdmath::aligned_allocator<int, 16>{}, 30u},
-  std::tuple{pdmath::aligned_allocator<double, 16>{}, 55u}
+  std::tuple{pdmath::aligned_allocator<double, 16>{}, 55u},
+  std::tuple{pdmath::aligned_allocator<float, 64>{}, 127u}
 );
 
 /**
