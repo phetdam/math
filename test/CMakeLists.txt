@@ -13,9 +13,10 @@ add_executable(
         line_search_test.cc
         math_functions_test.cc
         math_functors_test.cc
+        memory_test.cc
         natural_spline_test.cc
-        program_banner_test.cc
         norms_test.cc
+        program_banner_test.cc
         simd_test.cc
         span_test.cc
         tridiagonal_test.cc
