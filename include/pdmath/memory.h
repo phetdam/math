@@ -32,6 +32,9 @@ namespace pdmath {
  *
  * This type satisfies the *Allocator* named requirements.
  *
+ * @note The memory alignment must be a power of 2, and on POSIX systems, must
+ *  also be a power of `sizeof(void*)`, since we use `posix_memalign()`.
+ *
  * @tparam T Value type
  * @tparam A Memory alignment in bytes
  */
