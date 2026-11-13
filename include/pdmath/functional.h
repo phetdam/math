@@ -132,8 +132,8 @@ struct transform_cpo {
    * SFINAE helper for the `operator()` constraint.
    *
    * @tparam F Unary invocable
-   * @tparam T Input range/iterator type
-   * @tparam U Output range/iterator type
+   * @tparam T Input range/iterator value type
+   * @tparam U Output range/iterator value type
    */
   template <typename F, typename T, typename U>
   using invoke_constraint_t = constraint_t<
@@ -182,6 +182,66 @@ struct transform_cpo {
  * Customization point object for transforming range elements to another range.
  */
 inline constexpr transform_cpo transform{};
+
+/**
+ * CPO type for sequentially filling elements of a range.
+ *
+ * This is a `constexpr` capable reimplementation of `std::iota()` with
+ * automatic type deduction and reduced requirements on the iterator.
+ */
+struct iota_cpo {
+  /**
+   * Fill elements of the range sequentially given a starting value.
+   *
+   * The starting value must be pre-incrementable.
+   *
+   * @tparam R Range type
+   * @tparam T Value type
+   */
+  template <typename R, typename T>
+  constexpr void operator()(
+    R&& vs,
+    T init,
+    constraint_t<std::is_convertible_v<T, range_value_t<R>>> = 0) const
+  {
+    using std::begin;
+    using std::end;
+    // note: it need only be a LegacyIterator and st can be a sentinel type
+    auto it = begin(vs);
+    auto st = end(vs);
+    // note: only operator== needs implementation
+    while (!(it == st)) {
+      *it = init;
+      ++init;
+      ++it;
+    }
+  }
+
+  /**
+   * Fill elements of the range sequentially using a deduced starting value.
+   *
+   * The starting value must be pre-incrementable and value-initializable and
+   * is deduced from the value type of the target range itself. This may not be
+   * appropriate in every case, e.g. when the target range's value type is
+   * implicitly converted from the initializing value.
+   *
+   * @tparam R Range type
+   */
+  template <typename R>
+  constexpr void operator()(
+    R&& vs,
+    // TODO: revisit constraint_t to give it a unique scoped enum type to avoid
+    // the need for crude overload disambiguation with int* here
+    constraint_t<std::is_default_constructible_v<range_value_t<R>>>* = 0) const
+  {
+    (*this)(std::forward<R>(vs), range_value_t<R>{});
+  }
+};
+
+/**
+ * Customization point object for sequentially filling elements of a range.
+ */
+inline constexpr iota_cpo iota{};
 
 }  // namespace pdmath
 
