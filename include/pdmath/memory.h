@@ -44,12 +44,42 @@ public:
   using value_type = T;
 
   /**
+   * Rebind template to preserve the alignment requirement.
+   *
+   * This is required by the *Allocator* named requirements for this allocator
+   * since there are no additional template type parameters.
+   *
+   * @tparam U Value type
+   */
+  template <typename U>
+  struct rebind {
+    using other = aligned_allocator<U, A>;
+  };
+
+  /**
    * Return the base address alignment for each allocation.
    */
   static constexpr auto alignment() noexcept
   {
     return A;
   }
+
+  /**
+   * Default ctor.
+   */
+  aligned_allocator() noexcept = default;
+
+  /**
+   * Ctor.
+   *
+   * Constructs from an aligned allocator of same alignment but different type.
+   * Since the `aligned_allocator<T, A>` is stateless this is only provided to
+   * satisfy the rebinding semantics required by *Allocator*.
+   *
+   * @tparam U Value type
+   */
+  template <typename U>
+  aligned_allocator(const aligned_allocator<U, A>& /*other*/) noexcept {}
 
   /**
    * Allocate enough memory for the given number of instances of `T`.
