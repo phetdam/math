@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <memory>
 #include <tuple>
+#include <utility>
 
 #include <gtest/gtest.h>
 
@@ -34,17 +35,17 @@ class MemoryTest : public ::testing::Test {};
 template <std::size_t I>
 struct aligned_alloc_test {};
 
-// aligned_alloc_test inputs. each is a tuple of the aligned allocator + number
+// aligned_alloc_test inputs. each is a pair of the aligned allocator + number
 // of elements to allocate using the allocator instance
 constexpr auto aligned_alloc_test_inputs = std::make_tuple(
-  std::tuple{pdmath::aligned_allocator<float, 8>{}, 47u},
-  std::tuple{pdmath::aligned_allocator<int, 16>{}, 30u},
-  std::tuple{pdmath::aligned_allocator<double, 16>{}, 55u},
-  std::tuple{pdmath::aligned_allocator<float, 64>{}, 127u},
+  std::pair{pdmath::aligned_allocator<float, 8>{}, 47u},
+  std::pair{pdmath::aligned_allocator<int, 16>{}, 30u},
+  std::pair{pdmath::aligned_allocator<double, 16>{}, 55u},
+  std::pair{pdmath::aligned_allocator<float, 64>{}, 127u},
   // note: skipped for POSIX systems because posix_memalign() expects the
   // alignment to also be a power of sizeof(void*), which is alignof(void*)
-  std::tuple{pdmath::aligned_allocator<double, 2>{}, 100u},
-  std::tuple{pdmath::aligned_allocator<int, 128>{}, 200u}
+  std::pair{pdmath::aligned_allocator<double, 2>{}, 100u},
+  std::pair{pdmath::aligned_allocator<int, 128>{}, 200u}
 );
 
 /**
