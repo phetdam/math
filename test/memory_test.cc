@@ -35,13 +35,16 @@ template <std::size_t I>
 struct aligned_alloc_test {};
 
 // aligned_alloc_test inputs. each is a tuple of the aligned allocator + number
-// of elements to allocate using the allocator
+// of elements to allocate using the allocator instance
 constexpr auto aligned_alloc_test_inputs = std::make_tuple(
-  // note: posix_memalign() expects alignment >= sizeof(void*)
   std::tuple{pdmath::aligned_allocator<float, 8>{}, 47u},
   std::tuple{pdmath::aligned_allocator<int, 16>{}, 30u},
   std::tuple{pdmath::aligned_allocator<double, 16>{}, 55u},
-  std::tuple{pdmath::aligned_allocator<float, 64>{}, 127u}
+  std::tuple{pdmath::aligned_allocator<float, 64>{}, 127u},
+  // note: skipped for POSIX systems because posix_memalign() expects the
+  // alignment to also be a power of sizeof(void*), which is alignof(void*)
+  std::tuple{pdmath::aligned_allocator<double, 2>{}, 100u},
+  std::tuple{pdmath::aligned_allocator<int, 128>{}, 200u}
 );
 
 /**
@@ -91,22 +94,46 @@ protected:
   };
 
   /**
+   * Helper to indicate if compiling on Windows or not.
+   *
+   * We need this to conditionally enable test inputs with power of 2 memory
+   * alignment that are *not* a power of `alignof(void*)`, which is required by
+   * `posix_memalign()`, but not required by `_aligned_malloc()`.
+   */
+#if defined(_WIN32)
+  static constexpr bool win32 = true;
+#else
+  static constexpr bool win32 = false;
+#endif  // !defined(_WIN32)
+
+  /**
    * Allocate aligned memory + check its alignment.
    */
   void operator()() const
   {
     // get allocator + allocation amount
     auto [alloc, n_elem] = std::get<I>(aligned_alloc_test_inputs);
-    // value + deleter type
-    using T = typename std::allocator_traits<decltype(alloc)>::value_type;
-    using D = deallocator<decltype(alloc)>;
-    // allocate + manage memory
-    // note: CTAD is explicitly disallowed for this signature
-    std::unique_ptr<T[], D> ptr{alloc.allocate(n_elem), D{alloc}};
-    // ensure base address is appropriately aligned
-    // note: reinterpret_cast<std::uintptr_t> well defined for pointers to
-    // objects or cv-qualified void since C++11 if std::uintptr_t available
-    EXPECT_EQ(0, reinterpret_cast<std::uintptr_t>(ptr.get()) % alloc.alignment());
+    // get alignment at compile time
+    constexpr auto alignment = decltype(alloc)::alignment();
+    // if not on Windows and alignment not a power of sizeof(void*) as required
+    // by posix_memalign(), then skip the test (would get an error anyways)
+    if constexpr (!win32 && (alignment % sizeof(void*)))
+      GTEST_SKIP() <<
+        "alignment " << alignment << " is not a power of " << sizeof(void*) <<
+        " as required by posix_memalign()";
+    // otherwise run test
+    else {
+      // value + deleter type
+      using T = typename std::allocator_traits<decltype(alloc)>::value_type;
+      using D = deallocator<decltype(alloc)>;
+      // allocate + manage memory
+      // note: CTAD is explicitly disallowed for this signature
+      std::unique_ptr<T[], D> ptr{alloc.allocate(n_elem), D{alloc}};
+      // ensure base address is appropriately aligned
+      // note: reinterpret_cast<std::uintptr_t> well defined for pointers to
+      // objects or cv-qualified void since C++11 if std::uintptr_t available
+      EXPECT_EQ(0, reinterpret_cast<std::uintptr_t>(ptr.get()) % alignment);
+    }
   }
 };
 
