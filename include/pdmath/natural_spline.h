@@ -37,7 +37,7 @@ namespace pdmath {
  *
  * @tparam T Floating-point type
  */
-template <typename T, typename = constraint_t<std::is_floating_point_v<T>>>
+template <typename T, constraint_t<std::is_floating_point_v<T>> = constraint_v>
 class natural_spline {
 private:
   /**
@@ -68,7 +68,7 @@ private:
    *
    * @tparam I Order of the derivative
    */
-  template <std::size_t I, typename = constraint_t<(I > 0)>>
+  template <std::size_t I, constraint_t<(I > 0)> = constraint_v>
   class derivative {
   public:
     /**
@@ -127,7 +127,7 @@ private:
      *
      * @tparam I Order of the derivative
      */
-    template <std::size_t I_ = 1, typename = constraint_t<(I_ > 0)>>
+    template <std::size_t I_ = 1, constraint_t<(I_ > 0)> = constraint_v>
     auto d() const noexcept
     {
       return derivative<I + I_>{*f_};
@@ -161,7 +161,7 @@ public:
   natural_spline(
     std::initializer_list<T1> xs,
     std::initializer_list<T2> ys,
-    constraint_t<valid_type<T1> && valid_type<T2>> = 0)
+    constraint_t<valid_type<T1> && valid_type<T2>> = {})
     : natural_spline{xs, ys, range_ctor_tag{}}
   {}
 
@@ -181,7 +181,7 @@ public:
     R1&& xs,
     R2&& ys,
     range_ctor_tag = {},
-    constraint_t<valid_range<R1> && valid_range<R2>> = 0)
+    constraint_t<valid_range<R1> && valid_range<R2>> = {})
   {
     // number of knot points (>=2 required) + check
     // TODO: SFINAE constraints for size() member or use std::distance()
@@ -241,7 +241,7 @@ public:
    *
    * @tparam I Order of the derivative
    */
-  template <std::size_t I, typename = constraint_t<(I > 0)>>
+  template <std::size_t I, constraint_t<(I > 0)> = constraint_v>
   auto d() const noexcept
   {
     return derivative<I>{*this};

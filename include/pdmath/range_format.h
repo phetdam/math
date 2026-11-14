@@ -217,7 +217,7 @@ auto operator<<(range_format_proxy proxy, const range_format_policy& policy)
  * @param proxy Proxy object with underlying `std::ostream`
  * @param range Range to write to output stream
  */
-template <typename R, constraint_t<is_range_v<R>> = 0>
+template <typename R, constraint_t<is_range_v<R>> = constraint_v>
 auto& operator<<(range_format_proxy proxy, R&& range)
 {
   // convenience references
@@ -249,7 +249,7 @@ auto& operator<<(range_format_proxy proxy, R&& range)
  * @param proxy Proxy object with underlying `std::ostraem`
  * @param value Non-range value to write
  */
-template <typename T, constraint_t<!is_range_v<T>> = 0>
+template <typename T, constraint_t<!is_range_v<T>> = constraint_v>
 auto& operator<<(range_format_proxy proxy, T&& value)
 {
   return proxy.out() << value;
@@ -267,7 +267,7 @@ template <typename R>
 auto to_string(
   R&& range,
   const range_format_policy& policy = {},
-  constraint_t<is_range_v<R>> = 0)
+  constraint_t<is_range_v<R>> = {})
 {
   std::stringstream ss;
   ss << policy << range;

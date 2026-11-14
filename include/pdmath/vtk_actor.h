@@ -51,7 +51,7 @@ public:
    * @tparam T VTK object type
    */
   template <typename T>
-  auto add(constraint_t<std::is_base_of_v<vtkAbstractContextItem, T>> = 0)
+  auto add(constraint_t<std::is_base_of_v<vtkAbstractContextItem, T>> = {})
   {
     vtkNew<T> item;
     // note: reference increment means no use-after-free error on scope exit

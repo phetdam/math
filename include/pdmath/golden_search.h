@@ -43,7 +43,8 @@ optimize_result<T> golden_search(
   T lbound,
   T ubound,
   T tol = std::sqrt(std::numeric_limits<T>::epsilon()),
-  constraint_t<std::is_floating_point_v<T> && std::is_invocable_r_v<T, F, T>> = 0)
+  constraint_t<
+    std::is_floating_point_v<T> && std::is_invocable_r_v<T, F, T> > = {})
 {
   assert(lbound < ubound);
   std::uintmax_t n_iter = 0;

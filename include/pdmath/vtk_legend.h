@@ -75,7 +75,7 @@ public:
    * @tparam v Horizontal or vertical alignment value
    */
   template <int v>
-  auto& align(constraint_t<x_align_v<v> || y_align_v<v>> = 0)
+  auto& align(constraint_t<x_align_v<v> || y_align_v<v>> = {})
   {
     // x alignment value
     if constexpr (x_align_v<v>)
@@ -114,7 +114,7 @@ public:
   auto& align(
     constraint_t<
       (x_align_v<x> || x == vtk_no_align) &&
-      (y_align_v<y> || y == vtk_no_align) > = 0)
+      (y_align_v<y> || y == vtk_no_align) > = {})
   {
     if constexpr (x != vtk_no_align)
       object()->SetHorizontalAlignment(x);

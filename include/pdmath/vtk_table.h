@@ -99,7 +99,7 @@ public:
   template <typename T>
   auto& column(
     const char* name,
-    constraint_t<std::is_base_of_v<vtkAbstractArray, T>> = 0)
+    constraint_t<std::is_base_of_v<vtkAbstractArray, T>> = {})
   {
     assert(name && "name must be valid");
     // create new column, set name, and add to table
@@ -269,7 +269,7 @@ public:
    * @param f Callable to use for filling row elements
    */
   template <typename F>
-  auto& rows(F&& f, constraint_t<unary_row_callable<F>::value> = 0)
+  auto& rows(F&& f, constraint_t<unary_row_callable<F>::value> = {})
   {
     // iterate through rows
     for (decltype(rows()) i = 0; i < rows(); i++)
@@ -291,7 +291,7 @@ public:
    * @param f Callable to use for filling row elements
    */
   template <typename F>
-  auto& rows(F&& f, constraint_t<binary_row_callable<F>::value> = 0)
+  auto& rows(F&& f, constraint_t<binary_row_callable<F>::value> = {})
   {
     for (decltype(rows()) i = 0; i < rows(); i++)
       row(i, std::invoke(f, i, rows()));
@@ -316,7 +316,8 @@ public:
   auto& rows(
     vtkIdType n_rows,
     F&& f,
-    constraint_t<unary_row_callable<F>::value || binary_row_callable<F>::value> = 0)
+    constraint_t<
+      unary_row_callable<F>::value || binary_row_callable<F>::value > = {})
   {
     rows(n_rows);
     rows(std::forward<F>(f));

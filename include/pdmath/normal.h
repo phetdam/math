@@ -32,6 +32,15 @@ public:
    * CPO to represent the normal PDF of the standard normal distribution.
    */
   class pdf_cpo {
+  private:
+    /**
+     * SFINAE helper for `operator()`.
+     *
+     * @tparam T type
+     */
+    template <typename T>
+    using invoke_constraint_t = constraint_t<std::is_floating_point_v<T>>;
+
   public:
     /**
      * Return the standard normal PDF.
@@ -40,7 +49,7 @@ public:
      *
      * @param x Evaluation point
      */
-    template <typename T, constraint_t<std::is_floating_point_v<T>> = 0>
+    template <typename T, invoke_constraint_t<T> = constraint_v>
     constexpr auto operator()(T x) const noexcept
     {
       // TODO: precompute 1 / sqrt(2 * pi_v<T>)
@@ -52,6 +61,15 @@ public:
    * CPO to represent the normal CDF of the standard normal distribution.
    */
   class cdf_cpo {
+  private:
+    /**
+     * SFINAE helper for `operator()`.
+     *
+     * @tparam T type
+     */
+    template <typename T>
+    using invoke_constraint_t = constraint_t<std::is_floating_point_v<T>>;
+
   public:
     /**
      * Return the standard normal CDF.
@@ -60,7 +78,7 @@ public:
      *
      * @param x Evaluation point
      */
-    template <typename T, constraint_t<std::is_floating_point_v<T>> = 0>
+    template <typename T, invoke_constraint_t<T> = constraint_v>
     constexpr auto operator()(T x) const noexcept
     {
       // TODO: precompute 1 / sqrt(2)

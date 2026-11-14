@@ -33,7 +33,7 @@ struct min_of_cpo {
   template <typename T>
   constexpr auto operator()(
     T&& vs,
-    constraint_t<is_less_than_supported_v<range_value_t<T>> > = 0) const
+    constraint_t<is_less_than_supported_v<range_value_t<T>> > = {}) const
   {
     using std::begin;
     using std::end;
@@ -62,7 +62,7 @@ struct max_of_cpo {
   template <typename T>
   constexpr auto operator()(
     T&& vs,
-    constraint_t<is_less_than_supported_v<range_value_t<T>> > = 0) const
+    constraint_t<is_less_than_supported_v<range_value_t<T>> > = {}) const
   {
     using std::begin;
     using std::end;
@@ -98,7 +98,7 @@ struct for_each_cpo {
   constexpr auto operator()(
     T&& vs,
     F&& f,
-    constraint_t<std::is_invocable_v<F, range_value_t<T>&> > = 0) const
+    constraint_t<std::is_invocable_v<F, range_value_t<T>&> > = {}) const
   {
     using std::begin;
     using std::end;
@@ -158,7 +158,7 @@ struct transform_cpo {
     T&& vs,
     O out,
     F&& f,
-    invoke_constraint_t<F, range_value_t<T>, iter_value_t<O>> = 0) const
+    invoke_constraint_t<F, range_value_t<T>, iter_value_t<O>> = {}) const
   {
     using std::begin;
     using std::end;
@@ -202,7 +202,7 @@ struct iota_cpo {
   constexpr void operator()(
     R&& vs,
     T init,
-    constraint_t<std::is_convertible_v<T, range_value_t<R>>> = 0) const
+    constraint_t<std::is_convertible_v<T, range_value_t<R>>> = {}) const
   {
     using std::begin;
     using std::end;
@@ -230,9 +230,7 @@ struct iota_cpo {
   template <typename R>
   constexpr void operator()(
     R&& vs,
-    // TODO: revisit constraint_t to give it a unique scoped enum type to avoid
-    // the need for crude overload disambiguation with int* here
-    constraint_t<std::is_default_constructible_v<range_value_t<R>>>* = 0) const
+    constraint_t<std::is_default_constructible_v<range_value_t<R>>> = {}) const
   {
     (*this)(std::forward<R>(vs), range_value_t<R>{});
   }

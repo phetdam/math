@@ -27,7 +27,7 @@ template <typename T, typename U>
 constexpr auto himmelblau(
   T x,
   U y,
-  constraint_t<std::is_arithmetic_v<T> && std::is_arithmetic_v<U>> = 0)
+  constraint_t<std::is_arithmetic_v<T> && std::is_arithmetic_v<U>> = {})
 {
 #if 0
   // original implementation for posterity
@@ -67,7 +67,7 @@ template <typename T, typename U>
 constexpr auto three_hump_camel(
   T x,
   U y,
-  constraint_t<std::is_arithmetic_v<T> && std::is_arithmetic_v<U>> = 0)
+  constraint_t<std::is_arithmetic_v<T> && std::is_arithmetic_v<U>> = {})
 {
 #if 0
   // original implementation for posterity

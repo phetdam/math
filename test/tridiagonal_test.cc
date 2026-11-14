@@ -346,7 +346,7 @@ protected:
   template <typename T>
   static auto matcher(
     pdmath::type_identity_t<T> tol,
-    pdmath::constraint_t<std::is_floating_point_v<T>> = 0)
+    pdmath::constraint_t<std::is_floating_point_v<T>> = {})
   {
     if constexpr (std::is_same_v<T, float>)
       return ::testing::FloatNear(tol);

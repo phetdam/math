@@ -62,7 +62,7 @@ public:
   template <typename T>
   static constexpr bool has_one_bit(
     T v,
-    pdmath::constraint_t<std::is_integral_v<T>> = 0) noexcept
+    pdmath::constraint_t<std::is_integral_v<T>> = {}) noexcept
   {
     auto n_bits = 0u;
     while (v) {
@@ -88,7 +88,7 @@ public:
   template <std::size_t A, typename F>
   static void test(
     F&& func,
-    pdmath::constraint_t<std::is_invocable_v<F>> = 0)
+    pdmath::constraint_t<std::is_invocable_v<F>> = {})
   {
     // alignment must be a power of two
     static_assert(has_one_bit(A), "alignment must be power of 2");

@@ -262,7 +262,7 @@ PDMATH_GNU_WARNINGS_POP()
  * @param v Initial value
  */
 template <typename T, typename U>
-auto iota(U v, constraint_t<std::is_arithmetic_v<U>> = 0) noexcept
+auto iota(U v, constraint_t<std::is_arithmetic_v<U>> = {}) noexcept
 {
   return detail::iota_cpo<T, U>{}(std::move(v));
 }

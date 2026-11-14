@@ -81,7 +81,7 @@ public:
   template <typename U>
   constexpr tridiagonal_view(
     const tridiagonal_view<U>& v,
-    constraint_t<std::is_same_v<T, const U>> = 0) noexcept
+    constraint_t<std::is_same_v<T, const U>> = {}) noexcept
     : ld_{v.ld()}, md_{v.md()}, ud_{v.ud()}
   {}
 
@@ -195,7 +195,7 @@ public:
     R2&& rhs,
     constraint_t<
       std::is_floating_point_v<range_value_t<R1>> &&
-      std::is_floating_point_v<range_value_t<R2>> > = 0) const
+      std::is_floating_point_v<range_value_t<R2>> > = {}) const
   {
     // create spans from res, rhs
     // note: in the absence of traits enforcement at the SFINAE layer the

@@ -55,7 +55,7 @@ public:
  * @param tol All close tolerance
  */
 template <typename T>
-auto match_all_near_zero(T tol, constraint_t<std::is_floating_point_v<T>> = 0)
+auto match_all_near_zero(T tol, constraint_t<std::is_floating_point_v<T>> = {})
 {
   assert(tol >= 0);
   return ::testing::Each(

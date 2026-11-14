@@ -132,12 +132,25 @@ public:
     return *this;
   }
 
+private:
+  /**
+   * SFINAE helper for constraining templates to points or lines.
+   *
+   * @tparam U `vtkChart` chart type
+   */
+  template <int U>
+  using require_points_or_line_t =
+    constraint_t<vtkChart::POINTS == U || vtkChart::LINE == U>;
+
+public:
   /**
    * Return the marker style used by the plot.
    *
    * This member function is conditionally available for point/line plots.
+   *
+   * @note Defaulted template parameter used for conditional compilation.
    */
-  template <constraint_t<vtkChart::POINTS == V || vtkChart::LINE == V> = 0>
+  template <require_points_or_line_t<V> = constraint_v>
   auto marker() const
   {
     // vtkPlotLine inherits vtkPlotPoints so casting to base is enough
@@ -149,9 +162,11 @@ public:
    *
    * This member function is conditionally available for point/line plots.
    *
+   * @note Defaulted template parameter used for conditional compilation.
+   *
    * @param style Plot marker style, e.g. `vtkPlotPoints::PLUS`
    */
-  template <constraint_t<vtkChart::POINTS == V || vtkChart::LINE == V> = 0>
+  template <require_points_or_line_t<V> = constraint_v>
   auto& marker(int style)
   {
     // vtkPlotLine inherits vtkPlotPoints so casting to base is enough

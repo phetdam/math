@@ -121,7 +121,7 @@ template <typename T, typename U>
 bool in_unit_circle(
   T x,
   U y,
-  constraint_t<std::is_floating_point_v<T> && std::is_floating_point_v<U>> = 0)
+  constraint_t<std::is_floating_point_v<T> && std::is_floating_point_v<U>> = {})
 {
   return x * x + y * y <= 1;  // note: no square root operation is needed
 }
@@ -187,7 +187,7 @@ inline auto in_unit_circle(__m512 x, __m512 y)
  * @param n Number of partitions along an axis (square root of total samples)
  */
 template <typename T = double>
-T qmc_pi(std::size_t n, constraint_t<std::is_floating_point_v<T>> = 0) noexcept
+T qmc_pi(std::size_t n, constraint_t<std::is_floating_point_v<T>> = {}) noexcept
 {
   // number of points inside top-right quadrant of unit circle
   std::size_t n_in = 0u;
@@ -222,7 +222,7 @@ template <typename T = double>
 T qmc_pi(
   simd_implementation,
   std::size_t n,
-  constraint_t<std::is_floating_point_v<T>> = 0) noexcept
+  constraint_t<std::is_floating_point_v<T>> = {}) noexcept
 {
 // disable C5219 which is emitted in several places
 PDMATH_MSVC_WARNINGS_PUSH()

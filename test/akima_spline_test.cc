@@ -17,7 +17,6 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "pdmath/common.h"
 #include "pdmath/testing/utils.h"
 #include "pdmath/type_traits.h"
 #include "pdmath/warnings.h"
@@ -207,7 +206,7 @@ protected:
   template <typename R>
   static constexpr R&& values(
     R&& v,
-    pdmath::constraint_t<pdmath::is_range_v<R>> = 0)
+    pdmath::constraint_t<pdmath::is_range_v<R>> = {})
   {
     return std::forward<R>(v);
   }
@@ -221,7 +220,7 @@ protected:
   template <typename R, typename T>
   static constexpr auto& values(
     const std::pair<R, pdmath::testing::type_wrapper<T>>& v,
-    pdmath::constraint_t<pdmath::is_range_v<R>> = 0)
+    pdmath::constraint_t<pdmath::is_range_v<R>> = {})
   {
     return v.first;
   }
@@ -232,7 +231,7 @@ protected:
    * @tparam R Range type
    */
   template <typename R>
-  static auto matcher(R&& /*v*/, pdmath::constraint_t<pdmath::is_range_v<R>> = 0)
+  static auto matcher(R&& /*v*/, pdmath::constraint_t<pdmath::is_range_v<R>> = {})
   {
     return ::testing::DoubleEq();
   }
@@ -247,7 +246,7 @@ protected:
   static auto matcher(
     const std::pair<R, pdmath::testing::type_wrapper<T>>& /*v*/,
     pdmath::constraint_t<
-      pdmath::is_range_v<R> && std::is_floating_point_v<T> > = 0)
+      pdmath::is_range_v<R> && std::is_floating_point_v<T> > = {})
   {
     if constexpr (std::is_same_v<T, float>)
       return ::testing::FloatEq();
@@ -270,7 +269,7 @@ protected:
    * @tparam J Order of the derivative
    */
   template <std::size_t J>
-  void test(pdmath::constraint_t<(J >= 0) && (J <= 4)> = 0) const
+  void test(pdmath::constraint_t<(J >= 0) && (J <= 4)> = {}) const
   {
     static_assert(J < std::tuple_size_v<decltype(res_)>);
     // expected values + matcher

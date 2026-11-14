@@ -143,7 +143,7 @@ public:
     std::size_t size,
     constraint_t<
       is_value_addressable_v<I> &&
-      is_compatible_reference_v<iter_reference_t<I>> > = 0)
+      is_compatible_reference_v<iter_reference_t<I>> > = {})
     : data_{&*it}, size_{size}
   {}
 
@@ -164,7 +164,7 @@ public:
       is_legacy_iterator_v<I1> &&
       is_value_addressable_v<I1> &&
       is_compatible_reference_v<iter_reference_t<I1>> &&
-      is_equality_comparable_with_v<I1, I2> > = 0)
+      is_equality_comparable_with_v<I1, I2> > = {})
     : data_{&*it}, size_{}
   {
     // if end - it is supported use that to compute size
@@ -194,7 +194,7 @@ public:
     constraint_t<
       !detail::is_span<R>::value &&
       is_range_v<R> &&
-      is_compatible_reference_v<range_reference_t<R>> > = 0)
+      is_compatible_reference_v<range_reference_t<R>> > = {})
     : span{std::begin(r), std::end(r)}
   {}
 
@@ -225,7 +225,7 @@ public:
   template <typename U>
   constexpr span(
     const span<U>& s,
-    constraint_t<std::is_same_v<T, const U>> = 0) noexcept
+    constraint_t<std::is_same_v<T, const U>> = {}) noexcept
     : data_{s.data()}, size_{s.size()}
   {}
 

@@ -72,6 +72,31 @@ template <typename T>
 constexpr bool has_operator_string_v = has_operator_string<T>::value;
 
 /**
+ * Constraint scoped enumeration type.
+ *
+ * This replaces the older usage of `constraint_t<true>` being an alias for
+ * `int` to prevent overload ambiguity with `constraint_t` as a trailing
+ * defaulted function parameter since integral types cannot implicitly convert
+ * to scoped enumeration types. However, scoped enumeration types can still be
+ * used as non-type template parameters, which preserves the ability to use
+ * `constraint_t` as both a type and non-type template parameter.
+ *
+ * The `value` member is provided to enable value-initialization.
+ */
+enum class constraint_values : int { zero = 0 };
+
+/**
+ * Constraint scoped enumeration global.
+ *
+ * This is a less verbose initializer for `constraint_t<V>` when
+ * `auto = constraint_t<V>{}` cannot be used due to redefinition issues. The
+ * reason `constraint_t<V> = constraint_v` works is because the evaluation of
+ * `V` to `false` will cause substitution failure but not an error. However,
+ * using `auto` as a placeholder type results in a template redefinition.
+ */
+inline constexpr auto constraint_v = constraint_values::zero;
+
+/**
  * Constraint traits type.
  *
  * This is inspired by something similar in Boost.Asio that enables more
@@ -83,6 +108,16 @@ constexpr bool has_operator_string_v = has_operator_string<T>::value;
  *    template type parameter. The compiler will see this as a redeclaration of
  *    the same function template. See the cppreference documentation for
  *    details: https://en.cppreference.com/w/cpp/types/enable_if.html
+ *
+ * In addition, because the `constraint_t` SFINAE helper provides a scoped
+ * enumeration type member that cannot be implicitly converted to from `int`,
+ * `constraint_t<V> = {}` can be passed as a trailing parameter to constrain a
+ * function template without the risk of overload ambiguity. However, the
+ * downside is that `constraint_t<V> = {}` *cannot* be used as a non-type type
+ * parameter due to current C++ grammar rules. You should initialize the
+ * `constraint_t<T>` template type (do *not* use `auto` to avoid template
+ * redefinition) with `constraint_v` instead. CWG2450 addresses this defect:
+ * https://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#2450.
  *
  * See `constraint_t` for an example of how to use the constraint traits.
  *
@@ -100,24 +135,45 @@ struct constraint {};
  *
  * @code{.cc}
  * template <typename T>
- * auto float_only(T v, constraint_t<std::is_floating_point_v<T>> = 0)
+ * auto float_only(T v, constraint_t<std::is_floating_point_v<T>> = {})
  * {
  *   return v + 1;
  * }
  * @endcode
  *
  * In cases where an optional argument is not allowed or not desirable, one can
- * use it like `std::enable_if_t` as a non-type template parameter:
+ * use it like `std::enable_if_t` as a template type parameter:
  *
  * @code{.cc}
- * // constrain to only floating-point value types while allowing additional
- * // constrained function templates, e.g. for integral value types
- * template <typename T, typename A, constraint_t<std::is_integral_v<T>> = 0>
- * auto& operator<<(std::ostream& out, const std::vector<T, A>& vec)
+ * template <typename T, typename = constraint_t<std::is_floating_point_v<T>> >
+ * auto float_only(T v)
  * {
- *   // ...
+ *   return v + 1;
  * }
  * @endcode
+ *
+ * Do note that this usage is discouraged, as end-users can bypass the template
+ * constraint by simply explicitly passing a type through. For example:
+ *
+ * @code{.cc}
+ * float_only<unsigned, void>(2);
+ * @endcode
+ *
+ * Therefore, prefer to use a non-type template parameter as follows:
+ *
+ * @code{.cc}
+ * template <typename T, constraint_t<std::is_integral_v<T>> = constraint_v>
+ * auto integral_only(T v)
+ * {
+ *   return v + 1;
+ * }
+ * @endcode
+ *
+ * This form is required as `{}` cannot be directly used as the initializer as
+ * described in the `constraint<V>` documentation; the defect is addressed by
+ * CWG2450. If `auto` is used, one can end up with template redefinition, which
+ * is avoided when using `constraint_t<V>` directly to trigger SFINAE. Also,
+ * `auto` can be bypassed with an unrelate value like when using `typename`.
  *
  * @tparam V `constexpr` truth value
  */
@@ -125,15 +181,16 @@ template <bool V>
 using constraint_t = typename constraint<V>::type;
 
 /**
- * True specialization that provides the `int` type alias.
+ * True specialization that provides the `constraint_values` type alias.
  *
- * @todo Consider changing `type` to be that of a distinct tag type. This would
- *  make it less likely for use of `constraint_t` as an optional parameter to
- *  be less error-prone in the fact of overloads involving integral parameters.
+ * As mentioned before the use of `constraint_values` enables `constraint_t` to
+ * be used as both a type and non-type template parameter under the constraints
+ * of C++17 while also avoiding overload ambiguities when `constraint_t` is
+ * used as a defaulted, trailing function parameter.
  */
 template <>
 struct constraint<true> {
-  using type = int;
+  using type = constraint_values;
 };
 
 /**
