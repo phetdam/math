@@ -30,7 +30,7 @@ public:
   /**
    * Ctor.
    *
-   * On constructtion the starting time point is set.
+   * On construction the starting time point is set.
    *
    * @param out Duration value to update on scope exit
    */
@@ -48,8 +48,8 @@ public:
   }
 
 private:
-  time_point start_;
-  T& out_;  // reference makes type non-copyable
+  time_point start_;  // start time point
+  T& out_;            // output duration (reference to disable copying)
 };
 
 }  // namespace pdmath
