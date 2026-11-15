@@ -83,7 +83,7 @@ constexpr bool has_operator_string_v = has_operator_string<T>::value;
  *
  * The `value` member is provided to enable value-initialization.
  */
-enum class constraint_values : int { zero = 0 };
+enum class constraint_type : int { value = 0 };
 
 /**
  * Constraint scoped enumeration global.
@@ -94,7 +94,7 @@ enum class constraint_values : int { zero = 0 };
  * `V` to `false` will cause substitution failure but not an error. However,
  * using `auto` as a placeholder type results in a template redefinition.
  */
-inline constexpr auto constraint_v = constraint_values::zero;
+inline constexpr auto constraint_v = constraint_type::value;
 
 /**
  * Constraint traits type.
@@ -181,16 +181,16 @@ template <bool V>
 using constraint_t = typename constraint<V>::type;
 
 /**
- * True specialization that provides the `constraint_values` type alias.
+ * True specialization that provides the `constraint_type` type alias.
  *
- * As mentioned before the use of `constraint_values` enables `constraint_t` to
+ * As mentioned before the use of `constraint_type` enables `constraint_t` to
  * be used as both a type and non-type template parameter under the constraints
  * of C++17 while also avoiding overload ambiguities when `constraint_t` is
  * used as a defaulted, trailing function parameter.
  */
 template <>
 struct constraint<true> {
-  using type = constraint_values;
+  using type = constraint_type;
 };
 
 /**
