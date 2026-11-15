@@ -179,7 +179,7 @@ public:
    *
    * The implementation uses the standard Thomas algorithm for solving.
    *
-   * @todo Increase constraints for `R1` and `R2`to ensure that they are ranges
+   * @todo Increase constraints for `R1` and `R2` to ensure they are ranges
    *  with random-access iterators. Currently this is only enforced by whether
    *  or not `R1` and `R2` can appropriately be converted to `span`.
    *
