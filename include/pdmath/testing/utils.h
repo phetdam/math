@@ -233,6 +233,38 @@ struct type_pack_element<I, type_pack<T, U, Ts...>> {
 };
 
 /**
+ * Traits type for conditionally wrapping a type in a `type_pack`.
+ *
+ * This is similar to `std::conditional` but is a bit less typing.
+ *
+ * @tparam B truth
+ * @tparam T type
+ */
+template <bool B, typename T>
+struct maybe_type_pack {
+  using type = T;
+};
+
+/**
+ * Type alias for conditionally wrapping a type in a `type_pack`.
+ *
+ * @tparam B truth
+ * @tparam T type
+ */
+template <bool B, typename T>
+using maybe_type_pack_t = typename maybe_type_pack<B, T>::type;
+
+/**
+ * True specialization wrapping `T` in a `type_pack<T>`.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct maybe_type_pack<true, T> {
+  using type = type_pack<T>;
+};
+
+/**
  * Traits type test case template base for Google Test templated tests.
  *
  * This takes a unary type traits and a `type_value_pair`.
