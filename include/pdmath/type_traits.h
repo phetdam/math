@@ -767,6 +767,33 @@ struct is_less_than_supported<
 template <typename T>
 constexpr bool is_less_than_supported_v = is_less_than_supported<T>::value;
 
+/**
+ * Traits type checking if a type is complete or not.
+ *
+ * Complete types can be used as an argument to `sizeof()`.
+ *
+ * @tparam T type
+ */
+template <typename T, typename = void>
+struct is_complete : std::false_type {};
+
+/**
+ * True specialization for a complete type.
+ *
+ * @tparam T type
+ */
+template <typename T>
+struct is_complete<T, std::void_t<std::index_sequence<sizeof(T)>> >
+  : std::true_type {};
+
+/**
+ * Indicate if a type is complete.
+ *
+ * @tparam T type
+ */
+template <typename T>
+constexpr bool is_complete_v = is_complete<T>::value;
+
 }  // namespace pdmath
 
 #endif  // PDMATH_TYPE_TRAITS_H_

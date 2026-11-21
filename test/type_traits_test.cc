@@ -137,17 +137,13 @@ PDMATH_TYPE_TRAITS_TEST(
 struct streamable {};
 
 // silence MSVC C5245 (unreferenced function with internal linkage removed)
-#ifdef _MSC_VER
-PDMATH_WARNINGS_PUSH()
-PDMATH_WARNINGS_DISABLE(5245)
-#endif  // _MSC_VER
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(5245)
 auto& operator<<(std::ostream& out, streamable value)
 {
   return out << "<streamable at " << &value;
 }
-#ifdef _MSC_VER
-PDMATH_WARNINGS_POP()
-#endif  // _MSC_VER
+PDMATH_MSVC_WARNINGS_POP()
 
 /**
  * User-defined type with no `operator<<`.
@@ -537,6 +533,40 @@ PDMATH_TYPE_TRAITS_TEST(
       type_pair_case<double*, std::size_t, true>,
       type_pair_case<std::vector<int>::iterator, unsigned, true>,
       type_pair_case<unsigned, std::vector<int>::iterator, false>
+    >
+  )
+);
+
+// incomplete type for IsCompleteTest
+class incomplete_type;
+
+// define is_complete tests
+PDMATH_TYPE_TRAITS_TEST(
+  IsCompleteTest,
+  pdmath::is_complete,
+  PDMATH_IDENTITY(
+    ::testing::Types<
+      pdmath::testing::type_value_pair<double, true>,
+      pdmath::testing::type_value_pair<int, true>,
+      pdmath::testing::type_value_pair<void, false>,
+      // pointer to incomplete type is complete (as it is a pointer)
+      pdmath::testing::type_value_pair<void*, true>,
+      pdmath::testing::type_value_pair<incomplete_type, false>,
+      pdmath::testing::type_value_pair<incomplete_type*, true>,
+      pdmath::testing::type_value_pair<std::vector<int>, true>,
+      // function pointers are complete types too
+      pdmath::testing::type_value_pair<void (*)(int), true>,
+      // note: even if the function pointer involves an incomplete type, since
+      // it is a pointer type, it is still a complete type
+      pdmath::testing::type_value_pair<incomplete_type (*)(void*), true>,
+      // array types
+      pdmath::testing::type_value_pair<int[], false>,
+      pdmath::testing::type_value_pair<int[5], true>,
+      pdmath::testing::type_value_pair<char[][4], false>,
+      pdmath::testing::type_value_pair<char[4][4], true>,
+      pdmath::testing::type_value_pair<double[], false>,
+      // note: array of known bound of incomplete type is also incomplete
+      pdmath::testing::type_value_pair<incomplete_type[4], false>
     >
   )
 );
