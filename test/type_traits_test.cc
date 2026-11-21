@@ -566,7 +566,12 @@ PDMATH_TYPE_TRAITS_TEST(
       pdmath::testing::type_value_pair<char[4][4], true>,
       pdmath::testing::type_value_pair<double[], false>,
       // note: array of known bound of incomplete type is also incomplete
-      pdmath::testing::type_value_pair<incomplete_type[4], false>
+      pdmath::testing::type_value_pair<incomplete_type[4], false>,
+      // note: template with incomplete type is complete
+      pdmath::testing::type_value_pair<pdmath::testing::type_pack<void>, true>,
+      pdmath::testing::type_value_pair<
+        pdmath::testing::type_pack<incomplete_type>, true
+      >
     >
   )
 );
