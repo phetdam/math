@@ -9,17 +9,21 @@
 
 #include <sstream>
 #include <type_traits>
-#include <utility>
 #include <vector>
 
-#include <Eigen/Core>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include "pdmath/features.h"
 // TODO: remove range_format.h include once we migrate tests + fixtures
 #include "pdmath/range_format.h"
+#include "pdmath/testing/utils.h"
 #include "pdmath/types.h"
 #include "pdmath/warnings.h"
+
+#if PDMATH_HAS_EIGEN3
+#include <Eigen/Core>
+#endif  // PDMATH_HAS_EIGEN3
 
 /**
  * Values used in the `HelpersVt(One|Two)Test` test fixtures for containers.
@@ -42,21 +46,18 @@ namespace {
 class HelpersMiscTest : public ::testing::Test {
 protected:
   // name of exercise example path we want to show
-  static const std::string ex_name_;
+  static inline const std::string ex_name_{"dir1/exampleX.cc"};
   // actual full path of exercise example path
-  static const std::string ex_path_;
+  static inline const std::string ex_path_{"math/examples/" + ex_name_};
   // frame to display around ex_name_, i.e. a bunch of dashes same length
+  // note: not defined inline since list-init would result in selection of an
+  // unwanted overload (the initializer_list<char> overload)
   static const std::string ex_frame_;
 };
 
-// TODO: replace PDMATH_STATIC_DEFINE with inline definitions
-PDMATH_STATIC_DEFINE(HelpersMiscTest::ex_name_) = "dir1/exampleX.cc";
-PDMATH_STATIC_DEFINE(HelpersMiscTest::ex_path_){
-  "math/examples/" + HelpersMiscTest::ex_name_
-};
-PDMATH_STATIC_DEFINE(HelpersMiscTest::ex_frame_)(
-  HelpersMiscTest::ex_name_.size() + 2u, '-'
-);
+// note: see above for why we don't define this inline
+PDMATH_STATIC_DEFINE(HelpersMiscTest::ex_frame_)
+  (HelpersMiscTest::ex_name_.size() + 2u, '-');
 
 /**
  * Test that `print_example_header` works as expected.
@@ -74,99 +75,146 @@ TEST_F(HelpersMiscTest, PrintExampleHeaderTest)
  *
  * For example, testing `boost_vector_from`, `eigen_vector_from`.
  *
- * @tparam V_t *Container* type
+ * @tparam T *Container* type
  */
-template <typename V_t>
+template <typename T>
 class HelpersVtOneTest : public ::testing::Test {
 protected:
-  static const V_t values_;
-};
+  // as noted before, using {{}} works for both std::vector and Eigen vectors
+  // MSVC complains (again) about double to float truncation
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(4305)
+  static inline const T values_{{HELPERS_TEST_VECTOR_VALUES}};
+PDMATH_MSVC_WARNINGS_POP()
 
-// as noted before, using {{}} works for both std::vector and Eigen vectors
-template <typename V_t>
-// MSVC complains (again) about double to float truncation
-#ifdef _MSC_VER
-PDMATH_WARNINGS_PUSH()
-PDMATH_WARNINGS_DISABLE(4305)
-#endif  // _MSC_VER
-const V_t HelpersVtOneTest<V_t>::values_{{HELPERS_TEST_VECTOR_VALUES}};
-#ifdef _MSC_VER
-PDMATH_WARNINGS_POP()
-#endif  // _MSC_VER
+  /**
+   * `RangeFormatTest` implementation.
+   */
+  void RangeFormatTest() const
+  {
+    // formatted string printed by default
+    std::stringstream ss_def;
+    for (const auto& v : values_) {
+      if (v != *values_.begin()) {
+        ss_def << " ";
+      }
+      ss_def << v;
+    }
+    // formatted string printed using custom formatting policy
+    pdmath::range_format_policy policy(",", 2, "[", 2, "]", 2);
+    std::stringstream ss_cust;
+    ss_cust << "[  ";
+    for (const auto& v : values_) {
+      if (v != *values_.begin()) {
+        ss_cust << ",  ";
+      }
+      ss_cust << v;
+    }
+    ss_cust << "  ]";
+    EXPECT_EQ(ss_def.str(), pdmath::to_string(values_));
+    EXPECT_EQ(ss_cust.str(), pdmath::to_string(values_, policy));
+  }
+
+#if PDMATH_HAS_BOOST
+  /**
+   * `BoostVectorFromTest` implementation.
+   */
+  void BoostVectorFromTest() const
+  {
+    // note: not all containers will have a value_type type member
+    using value_t = typename T::value_type;
+    auto bvec1 = pdmath::boost_vector_from<value_t>(HELPERS_TEST_VECTOR_VALUES);
+    auto bvec2 = pdmath::boost_vector_from(values_);
+    // boost::numeric::ublas::vector does not define operator==, so use gmock
+    // note: we do expect all the values to be equal (no flops are performed)
+    EXPECT_THAT(bvec1, ::testing::Pointwise(::testing::Eq(), bvec2));
+  }
+#endif  // !PDMATH_HAS_BOOST
+
+#if PDMATH_HAS_EIGEN3
+  /**
+   * `EigenVectorFromTest` implementation.
+   */
+  void EigenVectorFromTest() const
+  {
+    // note: not all containers will have a value_type type member
+    using value_t = typename T::value_type;
+    auto evec1 = pdmath::eigen_vector_from<value_t>(HELPERS_TEST_VECTOR_VALUES);
+    auto evec2 = pdmath::eigen_vector_from(values_);
+    EXPECT_EQ(evec1, evec2);
+  }
+#endif  // !PDMATH_HAS_EIGEN3
+
+  /**
+   * `VectorFromTest` implementation.
+   */
+  void VectorFromTest() const
+  {
+    auto vec = pdmath::vector_from<T>(HELPERS_TEST_VECTOR_VALUES);
+    EXPECT_EQ(vec, values_);
+  }
+
+  /**
+   * `UniqueVectorFromTest` implementation.
+   */
+  void UniqueVectorFromTest() const
+  {
+    auto vec_p = pdmath::unique_vector_from<T>(HELPERS_TEST_VECTOR_VALUES);
+    EXPECT_EQ(*vec_p, values_);
+  }
+};
 
 using HelpersVtOneTestTypes = ::testing::Types<
   pdmath::vector_d,
   std::vector<float>,
+#if PDMATH_HAS_EIGEN3
   Eigen::VectorXf,
-  pdmath::array_d<4>,
   Eigen::Vector4f,
-  Eigen::RowVectorXd
+  Eigen::RowVectorXd,
+#endif  // PDMATH_HAS_EIGEN3
+  pdmath::array_d<4>
 >;
 TYPED_TEST_SUITE(HelpersVtOneTest, HelpersVtOneTestTypes);
 
 /**
- * Test that `print_vector` overloads work as expected.
+ * Test that `to_string()` range format overloads work as expected.
+ *
+ * This used to be called `PrintVectorTest` but `print_vector()` was removed.
  *
  * @todo Rename this test since it works with generic ranges. We also want to
  *  move this into a separate translation unit for `range_format.h` tests.
- *  `print_vector` also doesn't exist anymore (removed).
  */
-TYPED_TEST(HelpersVtOneTest, PrintVectorTest)
+TYPED_TEST(HelpersVtOneTest, RangeFormatTest)
 {
-  // formatted string printed by default
-  std::stringstream ss_def;
-  for (const auto& v : TestFixture::values_) {
-    if (v != *TestFixture::values_.begin()) {
-      ss_def << " ";
-    }
-    ss_def << v;
-  }
-  // formatted string printed using custom formatting policy
-  pdmath::range_format_policy policy(",", 2, "[", 2, "]", 2);
-  std::stringstream ss_cust;
-  ss_cust << "[  ";
-  for (const auto& v : TestFixture::values_) {
-    if (v != *TestFixture::values_.begin()) {
-      ss_cust << ",  ";
-    }
-    ss_cust << v;
-  }
-  ss_cust << "  ]";
-  EXPECT_EQ(ss_def.str(), pdmath::to_string(TestFixture::values_));
-  EXPECT_EQ(ss_cust.str(), pdmath::to_string(TestFixture::values_, policy));
+  this->RangeFormatTest();
 }
 
+#if PDMATH_HAS_BOOST
 /**
  * Test that `boost_vector_from` overloads work as expected.
  */
 TYPED_TEST(HelpersVtOneTest, BoostVectorFromTest)
 {
-  using value_t = typename TypeParam::value_type;
-  auto bvec1 = pdmath::boost_vector_from<value_t>(HELPERS_TEST_VECTOR_VALUES);
-  auto bvec2 = pdmath::boost_vector_from(TestFixture::values_);
-  // boost::numeric::ublas::vector does not define operator==, so use gmock
-  // note: we do expect all the values to be equal (no flops are performed)
-  EXPECT_THAT(bvec1, ::testing::Pointwise(::testing::Eq(), bvec2));
+  this->BoostVectorFromTest();
 }
+#endif  // PDMATH_HAS_BOOST
 
+#if PDMATH_HAS_EIGEN3
 /**
  * Test that `eigen_vector_from` overloads work as expected on vectors.
  */
 TYPED_TEST(HelpersVtOneTest, EigenVectorFromTest)
 {
-  using value_t = typename TypeParam::value_type;
-  auto evec1 = pdmath::eigen_vector_from<value_t>(HELPERS_TEST_VECTOR_VALUES);
-  auto evec2 = pdmath::eigen_vector_from(TestFixture::values_);
-  EXPECT_EQ(evec1, evec2);
+  this->EigenVectorFromTest();
 }
+#endif  // PDMATH_HAS_EIGEN3
 
 /**
  * Test that `vector_from` overload using parameter pack works as expected.
  */
 TYPED_TEST(HelpersVtOneTest, VectorFromTest)
 {
-  auto vec = pdmath::vector_from<TypeParam>(HELPERS_TEST_VECTOR_VALUES);
-  EXPECT_EQ(vec, TestFixture::values_);
+  this->VectorFromTest();
 }
 
 /**
@@ -174,37 +222,44 @@ TYPED_TEST(HelpersVtOneTest, VectorFromTest)
  */
 TYPED_TEST(HelpersVtOneTest, UniqueVectorFromTest)
 {
-  auto vec_p = pdmath::unique_vector_from<TypeParam>(HELPERS_TEST_VECTOR_VALUES);
-  EXPECT_EQ(*vec_p, TestFixture::values_);
+  this->UniqueVectorFromTest();
 }
 
+#if PDMATH_HAS_EIGEN3
 /**
  * Test fixture template for `eigen_vector_from` tests using Eigen matrices.
  *
  * We make this separate from `HelpersVtOneTest` since 2D `Eigen::Matrix`
  * specializations required incompatible nested initialization.
  *
- * @tparam M_t `Eigen::Matrix` specialization
+ * @tparam T `Eigen::Matrix` specialization
  */
-template <typename M_t>
+template <typename T>
 class EigenVectorFromMatrixTest : public ::testing::Test {
 protected:
-  static const M_t values_;
+// MSVC complains (again) about double to float truncation
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(4305)
+  static inline const T values_{HELPERS_TEST_MATRIX_VALUES};
+PDMATH_MSVC_WARNINGS_POP()
+
+  /**
+   * Ensure that `eigen_vector_from()` works as expected.
+   */
+  void operator()() const
+  {
+    using value_t = typename T::value_type;
+    auto evec1 = pdmath::eigen_vector_from<value_t>(HELPERS_TEST_VECTOR_VALUES);
+    // canceling expression resolves to values_
+    auto evec2 = pdmath::eigen_vector_from(values_ - values_ + values_);
+    EXPECT_EQ(evec1, evec2);
+  }
 };
 
-template <typename M_t>
-// MSVC complains (again) about double to float truncation
-#ifdef _MSC_VER
-PDMATH_WARNINGS_PUSH()
-PDMATH_WARNINGS_DISABLE(4305)
-#endif  // _MSC_VER
-const M_t EigenVectorFromMatrixTest<M_t>::values_{HELPERS_TEST_MATRIX_VALUES};
-#ifdef _MSC_VER
-PDMATH_WARNINGS_POP()
-#endif  // _MSC_VER
-
 using EigenVectorFromMatrixTestTypes = ::testing::Types<
-  Eigen::Matrix2f, Eigen::Matrix2Xd, Eigen::MatrixXf
+  Eigen::Matrix2f,
+  Eigen::Matrix2Xd,
+  Eigen::MatrixXf
 >;
 TYPED_TEST_SUITE(EigenVectorFromMatrixTest, EigenVectorFromMatrixTestTypes);
 
@@ -216,90 +271,83 @@ TYPED_TEST_SUITE(EigenVectorFromMatrixTest, EigenVectorFromMatrixTestTypes);
  */
 TYPED_TEST(EigenVectorFromMatrixTest, Test)
 {
-  using value_t = typename TypeParam::value_type;
-  auto evec1 = pdmath::eigen_vector_from<value_t>(HELPERS_TEST_VECTOR_VALUES);
-  // canceling expression resolves to TestFixture::values_
-  auto evec2 = pdmath::eigen_vector_from(
-    TestFixture::values_ - TestFixture::values_ + TestFixture::values_
-  );
-  EXPECT_EQ(evec1, evec2);
+  (*this)();
 }
+#endif  // PDMATH_HAS_EIGEN3
 
 /**
  * Test fixture template for tests requiring two vector types.
  *
- * @tparam Tp_t `std::pair<T, U>` with `T`, `U` *Container* types
+ * @tparam T `type_pack<T1, T2>` with `T1`, `T2` *Container* types
  */
-template <typename Tp_t>
-class HelpersVtTwoTest : public ::testing::Test {
-protected:
-  using V1_t = typename Tp_t::first_type;
-  using V2_t = typename Tp_t::second_type;
-  // element types must of course be the same
-  static_assert(
-    std::is_same_v<typename V1_t::value_type, typename V2_t::value_type>,
-    "V1_t::value_type, V2_t::value_type must be the same"
-  );
-  static const V1_t values_1_;
-  static const V2_t values_2_;
-};
-
-template <typename Tp_t>
-// MSVC complains (again) about double to float truncation
-#ifdef _MSC_VER
-PDMATH_WARNINGS_PUSH()
-PDMATH_WARNINGS_DISABLE(4305)
-#endif  // _MSC_VER
-const typename Tp_t::first_type HelpersVtTwoTest<Tp_t>::values_1_{
-  {HELPERS_TEST_VECTOR_VALUES}
-};
-#ifdef _MSC_VER
-PDMATH_WARNINGS_POP()
-#endif  // _MSC_VER
-template <typename Tp_t>
-// MSVC complains (again) about double to float truncation
-#ifdef _MSC_VER
-PDMATH_WARNINGS_PUSH()
-PDMATH_WARNINGS_DISABLE(4305)
-#endif  // _MSC_VER
-const typename Tp_t::second_type HelpersVtTwoTest<Tp_t>::values_2_{
-  {HELPERS_TEST_VECTOR_VALUES}
-};
-#ifdef _MSC_VER
-PDMATH_WARNINGS_POP()
-#endif  // _MSC_VER
-
-using HelpersVtTwoTestTypes = ::testing::Types<
-  std::pair<pdmath::vector_d, Eigen::VectorXd>,
-  std::pair<Eigen::Vector4f, pdmath::vector_f>,
-  std::pair<Eigen::RowVectorXd, Eigen::Vector4d>,
-  std::pair<pdmath::array_f<4>, Eigen::VectorXf>,
-  std::pair<pdmath::vector_d, pdmath::array_d<4>>,
-  std::pair<pdmath::array_f<4>, Eigen::RowVector4f>,
-  std::pair<Eigen::RowVector4d, pdmath::vector_d>
->;
-TYPED_TEST_SUITE(HelpersVtTwoTest, HelpersVtTwoTestTypes);
+template <typename T, typename = void>
+class HelpersVtTwoTest : public ::testing::Test {};
 
 /**
- * Macro for `using`-declarations for `HelpersVtTwoTest` `TypeParam` types.
+ * Partial specialization for `type_pack<T1, T2>`.
  *
- * Saves us from typing `typename TypeParam::(first|second)_type` or
- * `typename TestFixture::V[12]_t` repeatedly.
+ * @tparam T1 *Container* type
+ * @tparam T2 *Container* type
  */
-#define HelpersVtTwoTest_TYPES_USING_DECLS \
-  using V1_t = typename TypeParam::first_type; \
-  using V2_t = typename TypeParam::second_type;
+template <typename T1, typename T2>
+class HelpersVtTwoTest<pdmath::testing::type_pack<T1, T2>>
+  : public ::testing::Test {
+protected:
+  // element types must of course be the same
+  static_assert(
+    std::is_same_v<typename T1::value_type, typename T2::value_type>,
+    "T1::value_type, T2::value_type must be the same"
+  );
+
+// MSVC complains (again) about double to float truncation
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(4305)
+  static inline const T1 values_1_{{HELPERS_TEST_VECTOR_VALUES}};
+  static inline const T2 values_2_{{HELPERS_TEST_VECTOR_VALUES}};
+PDMATH_MSVC_WARNINGS_POP()
+
+  /**
+   * `VectorFromTest` implementation.
+   */
+  void VectorFromTest() const
+  {
+    auto vec1 = pdmath::vector_from<T1>(values_2_);
+    auto vec2 = pdmath::vector_from<T2>(values_1_);
+    EXPECT_EQ(vec1, values_1_);
+    EXPECT_EQ(vec2, values_2_);
+  }
+
+  /**
+   * `UniqueVectorFromTest` implementation.
+   */
+  void UniqueVectorFromTest() const
+  {
+    auto vec1_p = pdmath::unique_vector_from<T1>(values_2_);
+    auto vec2_p = pdmath::unique_vector_from<T2>(values_1_);
+    EXPECT_EQ(*vec1_p, values_1_);
+    EXPECT_EQ(*vec2_p, values_2_);
+  }
+};
+
+using HelpersVtTwoTestTypes = ::testing::Types<
+#if PDMATH_HAS_EIGEN3
+  pdmath::testing::type_pack<pdmath::vector_d, Eigen::VectorXd>,
+  pdmath::testing::type_pack<Eigen::Vector4f, pdmath::vector_f>,
+  pdmath::testing::type_pack<Eigen::RowVectorXd, Eigen::Vector4d>,
+  pdmath::testing::type_pack<pdmath::array_f<4>, Eigen::VectorXf>,
+  pdmath::testing::type_pack<pdmath::array_f<4>, Eigen::RowVector4f>,
+  pdmath::testing::type_pack<Eigen::RowVector4d, pdmath::vector_d>,
+#endif  // PDMATH_HAS_EIGEN3
+  pdmath::testing::type_pack<pdmath::vector_d, pdmath::array_d<4>>
+>;
+TYPED_TEST_SUITE(HelpersVtTwoTest, HelpersVtTwoTestTypes);
 
 /**
  * Test that `vector_from` overload using a *Container* works as expected.
  */
 TYPED_TEST(HelpersVtTwoTest, VectorFromTest)
 {
-  HelpersVtTwoTest_TYPES_USING_DECLS
-  auto vec1 = pdmath::vector_from<V1_t>(TestFixture::values_2_);
-  auto vec2 = pdmath::vector_from<V2_t>(TestFixture::values_1_);
-  EXPECT_EQ(vec1, TestFixture::values_1_);
-  EXPECT_EQ(vec2, TestFixture::values_2_);
+  this->VectorFromTest();
 }
 
 /**
@@ -307,11 +355,7 @@ TYPED_TEST(HelpersVtTwoTest, VectorFromTest)
  */
 TYPED_TEST(HelpersVtTwoTest, UniqueVectorFromTest)
 {
-  HelpersVtTwoTest_TYPES_USING_DECLS
-  auto vec1_p = pdmath::unique_vector_from<V1_t>(TestFixture::values_2_);
-  auto vec2_p = pdmath::unique_vector_from<V2_t>(TestFixture::values_1_);
-  EXPECT_EQ(*vec1_p, TestFixture::values_1_);
-  EXPECT_EQ(*vec2_p, TestFixture::values_2_);
+  this->UniqueVectorFromTest();
 }
 
 }  // namespace

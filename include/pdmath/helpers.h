@@ -10,24 +10,26 @@
 
 #include <algorithm>
 #include <array>
-#include <cstddef>
 #include <functional>
-#include <initializer_list>
 #include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
 #include <string_view>
+// note: included for PDMATH_USING_FUNCTOR_TYPES()
 #include <type_traits>
-#include <utility>
 #include <vector>
 
-#include <Eigen/Core>
-
+// TODO: may need IWYU fix as bases.h is not directly used
 #include "pdmath/bases.h"
+#include "pdmath/features.h"
 #include "pdmath/type_traits.h"
 #include "pdmath/types.h"
 #include "pdmath/warnings.h"
+
+#if PDMATH_HAS_EIGEN3
+#include <Eigen/Core>
+#endif  // PDMATH_HAS_EIGEN3
 
 namespace pdmath {
 
@@ -60,6 +62,7 @@ inline auto print_example_header(std::string_view path, bool print = true)
   return header;
 }
 
+#if PDMATH_HAS_BOOST
 /**
  * Create a new Boost vector from a *Container*.
  *
@@ -71,14 +74,10 @@ template <typename V_t>
 inline boost_vector<typename V_t::value_type> boost_vector_from(const V_t& from)
 {
 // MSVC complains about signed to unsigned conversion if using Eigen vectors
-#ifdef _MSC_VER
-PDMATH_WARNINGS_PUSH()
-PDMATH_WARNINGS_DISABLE(4365)
-#endif  // _MSC_VER
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(4365)
   boost_vector<typename V_t::value_type> to(from.size());
-#ifdef _MSC_VER
-PDMATH_WARNINGS_POP()
-#endif  // _MSC_VER
+PDMATH_MSVC_WARNINGS_POP()
   // note: when compiling with MSVC, using indexing when copying using a for
   // loop causes C5045 to be emitted with /Wall, but not with iterators.
   std::copy(from.cbegin(), from.cend(), to.begin());
@@ -104,7 +103,9 @@ inline boost_vector<T> boost_vector_from(Ts... from)
 {
   return boost_vector_from(std::vector<T>({static_cast<T>(from)...}));
 }
+#endif  // PDMATH_HAS_BOOST
 
+#if PDMATH_HAS_EIGEN3
 /**
  * Create a new Eigen dynamic vector with type `T` from a list of arguments.
  *
@@ -176,6 +177,7 @@ inline Eigen::VectorX<T> eigen_vector_from(const std::array<T, N>& from)
   std::copy(from.cbegin(), from.cend(), to.begin());
   return to;
 }
+#endif  // PDMATH_HAS_EIGEN3
 
 /**
  * Create a new `V_t` *Container* from a list of arguments.
@@ -215,14 +217,10 @@ inline VOut_t vector_from(const VIn_t& from)
   // re-allocate vector types or Container types that have this constructor
   if constexpr (is_vector_size_constructible_v<VOut_t>) {
 // MSVC complains about signed to unsigned conversion if using Eigen vectors
-#ifdef _MSC_VER
-PDMATH_WARNINGS_PUSH()
-PDMATH_WARNINGS_DISABLE(4365)
-#endif  // _MSC_VER
+PDMATH_MSVC_WARNINGS_PUSH()
+PDMATH_MSVC_WARNINGS_DISABLE(4365)
     to = VOut_t(from.size());
-#ifdef _MSC_VER
-PDMATH_WARNINGS_POP()
-#endif // _MSC_VER
+PDMATH_MSVC_WARNINGS_POP()
   }
   std::copy(from.cbegin(), from.cend(), to.begin());
   return to;
