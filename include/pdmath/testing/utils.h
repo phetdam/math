@@ -157,6 +157,8 @@ struct type_pair_wrapper {
  * specialization would fail to compile. Using the `type_pack` is also a bit
  * more elegant than using `std::tuple<Ts*...>` to work around this.
  *
+ * @note `type_pack<Ts...>` is a complete type even if `Ts...` are incomplete.
+ *
  * @tparam Ts types
  */
 template <typename... Ts>
@@ -590,6 +592,16 @@ template <typename... Ts, typename... Us, typename... Vs>
 struct merge_test_types<::testing::Types<Ts...>, ::testing::Types<Us...>, Vs...> {
   using type = merge_test_types_t<::testing::Types<Ts..., Us...>, Vs...>;
 };
+
+/**
+ * Return the name of the type parameter used in the current `TYPED_TEST()`.
+ *
+ * If no `TYPED_TEST()` is running `nullptr` is returned.
+ */
+inline auto current_type_param()
+{
+  return ::testing::UnitTest::GetInstance()->current_test_case()->type_param();
+}
 
 }  // namespace testing
 }  // namespace pdmath
